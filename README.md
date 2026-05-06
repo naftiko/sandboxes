@@ -1,4 +1,4 @@
-# Manage Microcks
+# Manage Sandboxes
 A centralized mock service for tier 1 APIs, providing usable responses for many of these common APIs, using Microcks and OpenAPI to serve up via a Cloudflare Worker.
 
 ## Contributing a spec
