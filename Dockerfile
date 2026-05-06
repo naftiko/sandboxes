@@ -1,4 +1,5 @@
-FROM --platform=linux/amd64 quay.io/microcks/microcks-uber:latest
+ARG BUILD_PLATFORM=linux/amd64
+FROM --platform=${BUILD_PLATFORM} quay.io/microcks/microcks-uber:latest
 
 LABEL deploy.timestamp="20260403-v6"
 
