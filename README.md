@@ -1,9 +1,7 @@
 # Manage Microcks
-
 API mock services and OpenAPI spec imports via the Microcks API. Specs in [`specs/`](specs/) are baked into a container image and served by a Cloudflare Worker.
 
 ## Contributing a spec
-
 See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: open a PR adding a file under `specs/`. CI lints it; merge to `main` rolls the Cloudflare Worker forward automatically.
 
 ## CI / CD
