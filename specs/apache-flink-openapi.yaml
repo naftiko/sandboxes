@@ -1,13 +1,13 @@
 openapi: '3.0.1'
 info:
-  title: Flink JobManager REST API
+  title: flink-jobmanager-rest-api
   contact:
     name: Kin Lane
     email: kinlane@naftiko
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: v1/2.1-SNAPSHOT
+  version: v1-2.1-SNAPSHOT
 servers:
 - url: https://api.example.com/v1
   description: sandbox

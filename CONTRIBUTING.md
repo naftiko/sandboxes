@@ -14,6 +14,35 @@ specs/<provider>-<api-name>-openapi.json
 
 YAML is preferred (most existing specs use `.yml`). JSON works if your source-of-truth is JSON.
 
+## Naming convention for `info.title` and `info.version`
+
+The `info.title` and `info.version` of your spec are the namespace Microcks uses to route the mock. The mock endpoint is:
+
+```
+https://mocks.naftiko.net/rest/<info.title>/<info.version>/<path>
+```
+
+Both fields end up in the URL, so neither can contain anything that breaks a URL path segment.
+
+**Title** — strict slug: lowercase, hyphen-separated, alphanumeric only (`^[a-z0-9]+(?:-[a-z0-9]+)*$`). No spaces, parentheses, em-dashes, periods, slashes, or capitalisation.
+
+| Bad title | Good title |
+|---|---|
+| `Apache Spark REST API` | `apache-spark-rest-api` |
+| `NIST SP 800-53 (Rev. 5) — Sandbox API` | `nist-sp-800-53-rev-5-sandbox-api` |
+| `ACME Billing v2` | `acme-billing-v2` |
+
+**Version** — URL-safe: alphanumeric, dot, hyphen only (`^[A-Za-z0-9.-]+$`). Semver like `1.0.0` and date-stamped versions like `2026-03-05` are fine as-is. Slashes, spaces, parens — anything else — must be scrubbed.
+
+| Bad version | Good version |
+|---|---|
+| `v1/2.1-SNAPSHOT` | `v1-2.1-SNAPSHOT` |
+| `2.0 (beta)` | `2.0-beta` |
+| `1.0.0` | `1.0.0` ✓ |
+| `2026-03-05` | `2026-03-05` ✓ |
+
+The [`apply-slug-to-info-title.py`](apply-slug-to-info-title.py) helper at the repo root will normalise existing titles and versions in place if you need to backfill — it dry-runs by default; pass `--write` to apply.
+
 ## Submitting a change
 
 1. Fork the repo

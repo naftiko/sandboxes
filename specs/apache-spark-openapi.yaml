@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Apache Spark REST API
+  title: apache-spark-rest-api
   description: |
     Combined OpenAPI specification for Apache Spark's two built-in HTTP REST APIs:
 

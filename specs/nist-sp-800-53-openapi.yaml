@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: NIST SP 800-53 (Rev. 5) — Sandbox API
+  title: nist-sp-800-53-rev-5-sandbox-api
   version: 1.0.0
   description: |
     A **sandbox / simulation** API for managing security and privacy controls

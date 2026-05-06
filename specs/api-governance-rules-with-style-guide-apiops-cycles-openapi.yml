@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: API Governance Platform
+  title: api-governance-platform
   version: 1.0.0
   description: |
     # Unified API Governance Platform

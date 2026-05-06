@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API
+  title: nist-cybersecurity-framework-csf-2-0-sandbox-api
   version: 1.0.0
   description: |
     A **sandbox / simulation** API that lets enterprises report against the

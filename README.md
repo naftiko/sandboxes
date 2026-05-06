@@ -1,8 +1,10 @@
 # Manage Microcks
-API mock services and OpenAPI spec imports via the Microcks API. Specs in [`specs/`](specs/) are baked into a container image and served by a Cloudflare Worker.
+A centralized mock service for tier 1 APIs, providing usable responses for many of these common APIs, using Microcks and OpenAPI to serve up via a Cloudflare Worker.
 
 ## Contributing a spec
 See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: open a PR adding a file under `specs/`. CI lints it; merge to `main` rolls the Cloudflare Worker forward automatically.
+
+The `info.title` and `info.version` of your spec become part of the mock URL (`https://mocks.naftiko.net/rest/<info.title>/<info.version>/`). Title must be a strict slug (lowercase, hyphens, alphanumeric — e.g. `acme-billing-api`); version may include dots (e.g. `1.0.0`, `2026-03-05`) but must not contain slashes, spaces, or other URL-breaking characters. See [Naming convention](CONTRIBUTING.md#naming-convention-for-infotitle-and-infoversion).
 
 ## CI / CD
 
@@ -42,7 +44,7 @@ See the `exposes` block in `capabilities/manage-microcks.naftiko.yml` for the fu
 <!-- MOCK_ENDPOINTS:START -->
 ## Mock Endpoints
 
-All OpenAPIs in [`specs/`](specs/) are baked into the container and served by Microcks. Mock host: `https://mocks.naftiko.net` (swap for your Worker URL or custom domain). Microcks exposes each spec at `/rest/<title>/<version><path>`.
+All OpenAPIs in [`specs/`](specs/) are baked into the container and served by Microcks. Mock host: `https://mocks.naftiko.net`. Microcks exposes each spec at `/rest/<info.title>/<info.version><path>`.
 
 **136 APIs** · **1690 paths** · **2213 operations**
 
@@ -107,107 +109,107 @@ All OpenAPIs in [`specs/`](specs/) are baked into the container and served by Mi
 
 </details>
 
-<details><summary><strong>Flink JobManager REST API</strong> · vv1/2.1-SNAPSHOT · <a href="https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT"><code>Flink JobManager REST API/v1/2.1-SNAPSHOT</code></a> · 66 paths · <code>apache-flink-openapi.yaml</code></summary>
+<details><summary><strong>flink-jobmanager-rest-api</strong> · vv1-2.1-SNAPSHOT · <a href="https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT"><code>flink-jobmanager-rest-api/v1-2.1-SNAPSHOT</code></a> · 66 paths · <code>apache-flink-openapi.yaml</code></summary>
 
 - `/cluster` — `DELETE`
-- `/config` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/config)
-- `/datasets` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/datasets)
-- `/datasets/delete/{triggerid}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/datasets/delete/{triggerid})
+- `/config` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/config)
+- `/datasets` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/datasets)
+- `/datasets/delete/{triggerid}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/datasets/delete/{triggerid})
 - `/datasets/{datasetid}` — `DELETE`
-- `/jars` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jars)
+- `/jars` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jars)
 - `/jars/upload` — `POST`
 - `/jars/{jarid}` — `DELETE`
 - `/jars/{jarid}/plan` — `POST`
 - `/jars/{jarid}/run` — `POST`
-- `/jobmanager/config` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobmanager/config)
-- `/jobmanager/environment` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobmanager/environment)
-- `/jobmanager/logs` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobmanager/logs)
-- `/jobmanager/metrics` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobmanager/metrics)
-- `/jobmanager/thread-dump` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobmanager/thread-dump)
-- `/jobs` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs)
-- `/jobs/metrics` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/metrics)
-- `/jobs/overview` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/overview)
-- `/jobs/{jobid}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}) `PATCH`
-- `/jobs/{jobid}/accumulators` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/accumulators)
-- `/jobs/{jobid}/checkpoints` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/checkpoints) `POST`
-- `/jobs/{jobid}/checkpoints/config` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/checkpoints/config)
-- `/jobs/{jobid}/checkpoints/details/{checkpointid}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/checkpoints/details/{checkpointid})
-- `/jobs/{jobid}/checkpoints/details/{checkpointid}/subtasks/{vertexid}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/checkpoints/details/{checkpointid}/subtasks/{vertexid})
-- `/jobs/{jobid}/checkpoints/{triggerid}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/checkpoints/{triggerid})
+- `/jobmanager/config` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobmanager/config)
+- `/jobmanager/environment` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobmanager/environment)
+- `/jobmanager/logs` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobmanager/logs)
+- `/jobmanager/metrics` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobmanager/metrics)
+- `/jobmanager/thread-dump` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobmanager/thread-dump)
+- `/jobs` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs)
+- `/jobs/metrics` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/metrics)
+- `/jobs/overview` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/overview)
+- `/jobs/{jobid}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}) `PATCH`
+- `/jobs/{jobid}/accumulators` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/accumulators)
+- `/jobs/{jobid}/checkpoints` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/checkpoints) `POST`
+- `/jobs/{jobid}/checkpoints/config` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/checkpoints/config)
+- `/jobs/{jobid}/checkpoints/details/{checkpointid}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/checkpoints/details/{checkpointid})
+- `/jobs/{jobid}/checkpoints/details/{checkpointid}/subtasks/{vertexid}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/checkpoints/details/{checkpointid}/subtasks/{vertexid})
+- `/jobs/{jobid}/checkpoints/{triggerid}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/checkpoints/{triggerid})
 - `/jobs/{jobid}/clientHeartbeat` — `PATCH`
-- `/jobs/{jobid}/config` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/config)
-- `/jobs/{jobid}/exceptions` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/exceptions)
-- `/jobs/{jobid}/execution-result` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/execution-result)
-- `/jobs/{jobid}/jobmanager/config` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/jobmanager/config)
-- `/jobs/{jobid}/jobmanager/environment` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/jobmanager/environment)
-- `/jobs/{jobid}/jobmanager/log-url` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/jobmanager/log-url)
-- `/jobs/{jobid}/metrics` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/metrics)
-- `/jobs/{jobid}/plan` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/plan)
+- `/jobs/{jobid}/config` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/config)
+- `/jobs/{jobid}/exceptions` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/exceptions)
+- `/jobs/{jobid}/execution-result` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/execution-result)
+- `/jobs/{jobid}/jobmanager/config` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/jobmanager/config)
+- `/jobs/{jobid}/jobmanager/environment` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/jobmanager/environment)
+- `/jobs/{jobid}/jobmanager/log-url` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/jobmanager/log-url)
+- `/jobs/{jobid}/metrics` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/metrics)
+- `/jobs/{jobid}/plan` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/plan)
 - `/jobs/{jobid}/rescaling` — `PATCH`
-- `/jobs/{jobid}/rescaling/{triggerid}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/rescaling/{triggerid})
-- `/jobs/{jobid}/resource-requirements` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/resource-requirements) `PUT`
+- `/jobs/{jobid}/rescaling/{triggerid}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/rescaling/{triggerid})
+- `/jobs/{jobid}/resource-requirements` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/resource-requirements) `PUT`
 - `/jobs/{jobid}/savepoints` — `POST`
-- `/jobs/{jobid}/savepoints/{triggerid}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/savepoints/{triggerid})
-- `/jobs/{jobid}/status` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/status)
+- `/jobs/{jobid}/savepoints/{triggerid}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/savepoints/{triggerid})
+- `/jobs/{jobid}/status` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/status)
 - `/jobs/{jobid}/stop` — `POST`
-- `/jobs/{jobid}/taskmanagers/{taskmanagerid}/log-url` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/taskmanagers/{taskmanagerid}/log-url)
-- `/jobs/{jobid}/vertices/{vertexid}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid})
-- `/jobs/{jobid}/vertices/{vertexid}/accumulators` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/accumulators)
-- `/jobs/{jobid}/vertices/{vertexid}/backpressure` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/backpressure)
-- `/jobs/{jobid}/vertices/{vertexid}/flamegraph` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/flamegraph)
-- `/jobs/{jobid}/vertices/{vertexid}/jm-operator-metrics` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/jm-operator-metrics)
-- `/jobs/{jobid}/vertices/{vertexid}/metrics` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/metrics)
-- `/jobs/{jobid}/vertices/{vertexid}/subtasks/accumulators` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/accumulators)
-- `/jobs/{jobid}/vertices/{vertexid}/subtasks/metrics` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/metrics)
-- `/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex})
-- `/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/attempts/{attempt}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/attempts/{attempt})
-- `/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/attempts/{attempt}/accumulators` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/attempts/{attempt}/accumulators)
-- `/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/metrics` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/metrics)
-- `/jobs/{jobid}/vertices/{vertexid}/subtasktimes` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasktimes)
-- `/jobs/{jobid}/vertices/{vertexid}/taskmanagers` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/taskmanagers)
-- `/jobs/{jobid}/vertices/{vertexid}/watermarks` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/watermarks)
-- `/overview` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/overview)
+- `/jobs/{jobid}/taskmanagers/{taskmanagerid}/log-url` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/taskmanagers/{taskmanagerid}/log-url)
+- `/jobs/{jobid}/vertices/{vertexid}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid})
+- `/jobs/{jobid}/vertices/{vertexid}/accumulators` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/accumulators)
+- `/jobs/{jobid}/vertices/{vertexid}/backpressure` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/backpressure)
+- `/jobs/{jobid}/vertices/{vertexid}/flamegraph` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/flamegraph)
+- `/jobs/{jobid}/vertices/{vertexid}/jm-operator-metrics` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/jm-operator-metrics)
+- `/jobs/{jobid}/vertices/{vertexid}/metrics` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/metrics)
+- `/jobs/{jobid}/vertices/{vertexid}/subtasks/accumulators` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/accumulators)
+- `/jobs/{jobid}/vertices/{vertexid}/subtasks/metrics` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/metrics)
+- `/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex})
+- `/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/attempts/{attempt}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/attempts/{attempt})
+- `/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/attempts/{attempt}/accumulators` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/attempts/{attempt}/accumulators)
+- `/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/metrics` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasks/{subtaskindex}/metrics)
+- `/jobs/{jobid}/vertices/{vertexid}/subtasktimes` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/subtasktimes)
+- `/jobs/{jobid}/vertices/{vertexid}/taskmanagers` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/taskmanagers)
+- `/jobs/{jobid}/vertices/{vertexid}/watermarks` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/jobs/{jobid}/vertices/{vertexid}/watermarks)
+- `/overview` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/overview)
 - `/savepoint-disposal` — `POST`
-- `/savepoint-disposal/{triggerid}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/savepoint-disposal/{triggerid})
-- `/taskmanagers` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/taskmanagers)
-- `/taskmanagers/metrics` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/taskmanagers/metrics)
-- `/taskmanagers/{taskmanagerid}` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/taskmanagers/{taskmanagerid})
-- `/taskmanagers/{taskmanagerid}/logs` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/taskmanagers/{taskmanagerid}/logs)
-- `/taskmanagers/{taskmanagerid}/metrics` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/taskmanagers/{taskmanagerid}/metrics)
-- `/taskmanagers/{taskmanagerid}/thread-dump` — [`GET`](https://mocks.naftiko.net/rest/Flink JobManager REST API/v1/2.1-SNAPSHOT/taskmanagers/{taskmanagerid}/thread-dump)
+- `/savepoint-disposal/{triggerid}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/savepoint-disposal/{triggerid})
+- `/taskmanagers` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/taskmanagers)
+- `/taskmanagers/metrics` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/taskmanagers/metrics)
+- `/taskmanagers/{taskmanagerid}` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/taskmanagers/{taskmanagerid})
+- `/taskmanagers/{taskmanagerid}/logs` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/taskmanagers/{taskmanagerid}/logs)
+- `/taskmanagers/{taskmanagerid}/metrics` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/taskmanagers/{taskmanagerid}/metrics)
+- `/taskmanagers/{taskmanagerid}/thread-dump` — [`GET`](https://mocks.naftiko.net/rest/flink-jobmanager-rest-api/v1-2.1-SNAPSHOT/taskmanagers/{taskmanagerid}/thread-dump)
 
 </details>
 
-<details><summary><strong>Apache Spark REST API</strong> · v1.0.0 · <a href="https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0"><code>Apache Spark REST API/1.0.0</code></a> · 29 paths · <code>apache-spark-openapi.yaml</code></summary>
+<details><summary><strong>apache-spark-rest-api</strong> · v1.0.0 · <a href="https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0"><code>apache-spark-rest-api/1.0.0</code></a> · 29 paths · <code>apache-spark-openapi.yaml</code></summary>
 
-- `/applications` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications)
-- `/applications/{appId}/jobs` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/jobs)
-- `/applications/{appId}/jobs/{jobId}` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/jobs/{jobId})
-- `/applications/{appId}/stages` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/stages)
-- `/applications/{appId}/stages/{stageId}` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/stages/{stageId})
-- `/applications/{appId}/stages/{stageId}/{stageAttemptId}` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/stages/{stageId}/{stageAttemptId})
-- `/applications/{appId}/stages/{stageId}/{stageAttemptId}/taskSummary` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/stages/{stageId}/{stageAttemptId}/taskSummary)
-- `/applications/{appId}/stages/{stageId}/{stageAttemptId}/taskList` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/stages/{stageId}/{stageAttemptId}/taskList)
-- `/applications/{appId}/executors` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/executors)
-- `/applications/{appId}/allexecutors` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/allexecutors)
-- `/applications/{appId}/executors/{executorId}/threads` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/executors/{executorId}/threads)
-- `/applications/{appId}/storage/rdd` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/storage/rdd)
-- `/applications/{appId}/storage/rdd/{rddId}` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/storage/rdd/{rddId})
-- `/applications/{appId}/logs` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/logs)
-- `/applications/{appId}/{attemptId}/logs` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/{attemptId}/logs)
-- `/applications/{appId}/streaming/statistics` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/streaming/statistics)
-- `/applications/{appId}/streaming/receivers` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/streaming/receivers)
-- `/applications/{appId}/streaming/receivers/{streamId}` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/streaming/receivers/{streamId})
-- `/applications/{appId}/streaming/batches` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/streaming/batches)
-- `/applications/{appId}/streaming/batches/{batchId}` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/streaming/batches/{batchId})
-- `/applications/{appId}/streaming/batches/{batchId}/operations` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/streaming/batches/{batchId}/operations)
-- `/applications/{appId}/streaming/batches/{batchId}/operations/{outputOpId}` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/streaming/batches/{batchId}/operations/{outputOpId})
-- `/applications/{appId}/sql` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/sql)
-- `/applications/{appId}/sql/{executionId}` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/sql/{executionId})
-- `/applications/{appId}/environment` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/applications/{appId}/environment)
-- `/version` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/version)
+- `/applications` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications)
+- `/applications/{appId}/jobs` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/jobs)
+- `/applications/{appId}/jobs/{jobId}` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/jobs/{jobId})
+- `/applications/{appId}/stages` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/stages)
+- `/applications/{appId}/stages/{stageId}` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/stages/{stageId})
+- `/applications/{appId}/stages/{stageId}/{stageAttemptId}` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/stages/{stageId}/{stageAttemptId})
+- `/applications/{appId}/stages/{stageId}/{stageAttemptId}/taskSummary` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/stages/{stageId}/{stageAttemptId}/taskSummary)
+- `/applications/{appId}/stages/{stageId}/{stageAttemptId}/taskList` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/stages/{stageId}/{stageAttemptId}/taskList)
+- `/applications/{appId}/executors` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/executors)
+- `/applications/{appId}/allexecutors` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/allexecutors)
+- `/applications/{appId}/executors/{executorId}/threads` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/executors/{executorId}/threads)
+- `/applications/{appId}/storage/rdd` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/storage/rdd)
+- `/applications/{appId}/storage/rdd/{rddId}` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/storage/rdd/{rddId})
+- `/applications/{appId}/logs` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/logs)
+- `/applications/{appId}/{attemptId}/logs` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/{attemptId}/logs)
+- `/applications/{appId}/streaming/statistics` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/streaming/statistics)
+- `/applications/{appId}/streaming/receivers` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/streaming/receivers)
+- `/applications/{appId}/streaming/receivers/{streamId}` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/streaming/receivers/{streamId})
+- `/applications/{appId}/streaming/batches` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/streaming/batches)
+- `/applications/{appId}/streaming/batches/{batchId}` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/streaming/batches/{batchId})
+- `/applications/{appId}/streaming/batches/{batchId}/operations` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/streaming/batches/{batchId}/operations)
+- `/applications/{appId}/streaming/batches/{batchId}/operations/{outputOpId}` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/streaming/batches/{batchId}/operations/{outputOpId})
+- `/applications/{appId}/sql` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/sql)
+- `/applications/{appId}/sql/{executionId}` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/sql/{executionId})
+- `/applications/{appId}/environment` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/applications/{appId}/environment)
+- `/version` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/version)
 - `/v1/submissions/create` — `POST`
-- `/v1/submissions/status/{submissionId}` — [`GET`](https://mocks.naftiko.net/rest/Apache Spark REST API/1.0.0/v1/submissions/status/{submissionId})
+- `/v1/submissions/status/{submissionId}` — [`GET`](https://mocks.naftiko.net/rest/apache-spark-rest-api/1.0.0/v1/submissions/status/{submissionId})
 - `/v1/submissions/kill/{submissionId}` — `POST`
 
 </details>
@@ -238,46 +240,46 @@ All OpenAPIs in [`specs/`](specs/) are baked into the container and served by Mi
 
 </details>
 
-<details><summary><strong>API Governance Platform</strong> · v1.0.0 · <a href="https://mocks.naftiko.net/rest/API Governance Platform/1.0.0"><code>API Governance Platform/1.0.0</code></a> · 40 paths · <code>api-governance-rules-with-style-guide-apiops-cycles-openapi.yml</code></summary>
+<details><summary><strong>api-governance-platform</strong> · v1.0.0 · <a href="https://mocks.naftiko.net/rest/api-governance-platform/1.0.0"><code>api-governance-platform/1.0.0</code></a> · 40 paths · <code>api-governance-rules-with-style-guide-apiops-cycles-openapi.yml</code></summary>
 
-- `/projects` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/projects) `POST`
-- `/projects/{projectId}` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/projects/{projectId}) `PATCH` `DELETE`
-- `/projects/{projectId}/canvases` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/projects/{projectId}/canvases) `POST`
-- `/projects/{projectId}/canvases/{canvasId}` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/projects/{projectId}/canvases/{canvasId}) `PATCH`
-- `/projects/{projectId}/specifications` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/projects/{projectId}/specifications) `POST`
+- `/projects` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/projects) `POST`
+- `/projects/{projectId}` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/projects/{projectId}) `PATCH` `DELETE`
+- `/projects/{projectId}/canvases` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/projects/{projectId}/canvases) `POST`
+- `/projects/{projectId}/canvases/{canvasId}` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/projects/{projectId}/canvases/{canvasId}) `PATCH`
+- `/projects/{projectId}/specifications` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/projects/{projectId}/specifications) `POST`
 - `/projects/{projectId}/validate` — `POST`
-- `/projects/{projectId}/compliance` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/projects/{projectId}/compliance)
-- `/canvases` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases)
-- `/canvases/business/customer-journey` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases/business/customer-journey)
-- `/canvases/business/api-business-model` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases/business/api-business-model)
-- `/canvases/business/api-value-proposition` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases/business/api-value-proposition)
-- `/canvases/business/business-impact` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases/business/business-impact)
-- `/canvases/technical/rest` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases/technical/rest)
-- `/canvases/technical/graphql` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases/technical/graphql)
-- `/canvases/technical/event` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases/technical/event)
-- `/canvases/technical/interaction` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases/technical/interaction)
-- `/canvases/technical/domain` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases/technical/domain)
-- `/canvases/operational/capacity` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases/operational/capacity)
-- `/canvases/operational/locations` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/canvases/operational/locations)
-- `/guidelines` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines)
-- `/guidelines/search` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines/search)
-- `/guidelines/design-principles` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines/design-principles)
-- `/guidelines/url-structure` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines/url-structure)
-- `/guidelines/naming-conventions` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines/naming-conventions)
-- `/guidelines/http-methods` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines/http-methods)
-- `/guidelines/http-status-codes` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines/http-status-codes)
-- `/guidelines/data-types` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines/data-types)
-- `/guidelines/error-handling` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines/error-handling)
-- `/guidelines/collections` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines/collections)
-- `/guidelines/security` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines/security)
-- `/guidelines/versioning` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/guidelines/versioning)
-- `/rules` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/rules)
-- `/rules/{ruleId}` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/rules/{ruleId})
-- `/rules/profiles` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/rules/profiles)
-- `/rules/profiles/{profileId}` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/rules/profiles/{profileId})
-- `/rules/spectral-export` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/rules/spectral-export)
-- `/standards` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/standards)
-- `/standards/{categoryId}` — [`GET`](https://mocks.naftiko.net/rest/API Governance Platform/1.0.0/standards/{categoryId})
+- `/projects/{projectId}/compliance` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/projects/{projectId}/compliance)
+- `/canvases` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases)
+- `/canvases/business/customer-journey` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases/business/customer-journey)
+- `/canvases/business/api-business-model` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases/business/api-business-model)
+- `/canvases/business/api-value-proposition` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases/business/api-value-proposition)
+- `/canvases/business/business-impact` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases/business/business-impact)
+- `/canvases/technical/rest` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases/technical/rest)
+- `/canvases/technical/graphql` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases/technical/graphql)
+- `/canvases/technical/event` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases/technical/event)
+- `/canvases/technical/interaction` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases/technical/interaction)
+- `/canvases/technical/domain` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases/technical/domain)
+- `/canvases/operational/capacity` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases/operational/capacity)
+- `/canvases/operational/locations` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/canvases/operational/locations)
+- `/guidelines` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines)
+- `/guidelines/search` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines/search)
+- `/guidelines/design-principles` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines/design-principles)
+- `/guidelines/url-structure` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines/url-structure)
+- `/guidelines/naming-conventions` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines/naming-conventions)
+- `/guidelines/http-methods` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines/http-methods)
+- `/guidelines/http-status-codes` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines/http-status-codes)
+- `/guidelines/data-types` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines/data-types)
+- `/guidelines/error-handling` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines/error-handling)
+- `/guidelines/collections` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines/collections)
+- `/guidelines/security` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines/security)
+- `/guidelines/versioning` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/guidelines/versioning)
+- `/rules` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/rules)
+- `/rules/{ruleId}` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/rules/{ruleId})
+- `/rules/profiles` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/rules/profiles)
+- `/rules/profiles/{profileId}` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/rules/profiles/{profileId})
+- `/rules/spectral-export` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/rules/spectral-export)
+- `/standards` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/standards)
+- `/standards/{categoryId}` — [`GET`](https://mocks.naftiko.net/rest/api-governance-platform/1.0.0/standards/{categoryId})
 - `/validate` — `POST`
 - `/validate/breaking-changes` — `POST`
 
@@ -1788,38 +1790,38 @@ All OpenAPIs in [`specs/`](specs/) are baked into the container and served by Mi
 
 </details>
 
-<details><summary><strong>NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API</strong> · v1.0.0 · <a href="https://mocks.naftiko.net/rest/NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0"><code>NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0</code></a> · 11 paths · <code>nist-csf-2.0-sandbox-openapi.yaml</code></summary>
+<details><summary><strong>nist-cybersecurity-framework-csf-2-0-sandbox-api</strong> · v1.0.0 · <a href="https://mocks.naftiko.net/rest/nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0"><code>nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0</code></a> · 11 paths · <code>nist-csf-2.0-sandbox-openapi.yaml</code></summary>
 
-- `/csf/functions` — [`GET`](https://mocks.naftiko.net/rest/NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0/csf/functions)
-- `/csf/functions/{functionId}/categories` — [`GET`](https://mocks.naftiko.net/rest/NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0/csf/functions/{functionId}/categories)
-- `/csf/categories/{categoryId}/subcategories` — [`GET`](https://mocks.naftiko.net/rest/NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0/csf/categories/{categoryId}/subcategories)
-- `/organizations` — [`GET`](https://mocks.naftiko.net/rest/NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0/organizations) `POST`
-- `/organizations/{orgId}` — [`GET`](https://mocks.naftiko.net/rest/NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0/organizations/{orgId})
-- `/organizations/{orgId}/profiles` — [`GET`](https://mocks.naftiko.net/rest/NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0/organizations/{orgId}/profiles) `POST`
-- `/organizations/{orgId}/profiles/{profileId}` — [`GET`](https://mocks.naftiko.net/rest/NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0/organizations/{orgId}/profiles/{profileId}) `PUT`
-- `/organizations/{orgId}/assessments` — [`GET`](https://mocks.naftiko.net/rest/NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0/organizations/{orgId}/assessments) `POST`
-- `/organizations/{orgId}/assessments/{assessmentId}` — [`GET`](https://mocks.naftiko.net/rest/NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0/organizations/{orgId}/assessments/{assessmentId}) `PATCH`
+- `/csf/functions` — [`GET`](https://mocks.naftiko.net/rest/nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0/csf/functions)
+- `/csf/functions/{functionId}/categories` — [`GET`](https://mocks.naftiko.net/rest/nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0/csf/functions/{functionId}/categories)
+- `/csf/categories/{categoryId}/subcategories` — [`GET`](https://mocks.naftiko.net/rest/nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0/csf/categories/{categoryId}/subcategories)
+- `/organizations` — [`GET`](https://mocks.naftiko.net/rest/nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0/organizations) `POST`
+- `/organizations/{orgId}` — [`GET`](https://mocks.naftiko.net/rest/nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0/organizations/{orgId})
+- `/organizations/{orgId}/profiles` — [`GET`](https://mocks.naftiko.net/rest/nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0/organizations/{orgId}/profiles) `POST`
+- `/organizations/{orgId}/profiles/{profileId}` — [`GET`](https://mocks.naftiko.net/rest/nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0/organizations/{orgId}/profiles/{profileId}) `PUT`
+- `/organizations/{orgId}/assessments` — [`GET`](https://mocks.naftiko.net/rest/nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0/organizations/{orgId}/assessments) `POST`
+- `/organizations/{orgId}/assessments/{assessmentId}` — [`GET`](https://mocks.naftiko.net/rest/nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0/organizations/{orgId}/assessments/{assessmentId}) `PATCH`
 - `/organizations/{orgId}/gap-analysis` — `POST`
-- `/organizations/{orgId}/gap-analysis/{gapId}` — [`GET`](https://mocks.naftiko.net/rest/NIST Cybersecurity Framework (CSF) 2.0 — Sandbox API/1.0.0/organizations/{orgId}/gap-analysis/{gapId})
+- `/organizations/{orgId}/gap-analysis/{gapId}` — [`GET`](https://mocks.naftiko.net/rest/nist-cybersecurity-framework-csf-2-0-sandbox-api/1.0.0/organizations/{orgId}/gap-analysis/{gapId})
 
 </details>
 
-<details><summary><strong>NIST SP 800-53 (Rev. 5) — Sandbox API</strong> · v1.0.0 · <a href="https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0"><code>NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0</code></a> · 14 paths · <code>nist-sp-800-53-openapi.yaml</code></summary>
+<details><summary><strong>nist-sp-800-53-rev-5-sandbox-api</strong> · v1.0.0 · <a href="https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0"><code>nist-sp-800-53-rev-5-sandbox-api/1.0.0</code></a> · 14 paths · <code>nist-sp-800-53-openapi.yaml</code></summary>
 
-- `/catalog/families` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/catalog/families)
-- `/catalog/families/{familyId}/controls` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/catalog/families/{familyId}/controls)
-- `/catalog/controls/{controlId}` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/catalog/controls/{controlId})
-- `/baselines` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/baselines)
-- `/baselines/{baselineId}/controls` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/baselines/{baselineId}/controls)
-- `/systems` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/systems) `POST`
-- `/systems/{systemId}` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/systems/{systemId})
-- `/systems/{systemId}/ssp` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/systems/{systemId}/ssp) `POST`
-- `/systems/{systemId}/ssp/{sspId}` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/systems/{systemId}/ssp/{sspId}) `PUT`
-- `/systems/{systemId}/ssp/{sspId}/implementations` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/systems/{systemId}/ssp/{sspId}/implementations) `POST`
-- `/systems/{systemId}/assessments` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/systems/{systemId}/assessments) `POST`
-- `/systems/{systemId}/assessments/{assessmentId}` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/systems/{systemId}/assessments/{assessmentId}) `PATCH`
-- `/systems/{systemId}/poam` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/systems/{systemId}/poam) `POST`
-- `/systems/{systemId}/poam/{poamId}` — [`GET`](https://mocks.naftiko.net/rest/NIST SP 800-53 (Rev. 5) — Sandbox API/1.0.0/systems/{systemId}/poam/{poamId}) `PATCH`
+- `/catalog/families` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/catalog/families)
+- `/catalog/families/{familyId}/controls` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/catalog/families/{familyId}/controls)
+- `/catalog/controls/{controlId}` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/catalog/controls/{controlId})
+- `/baselines` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/baselines)
+- `/baselines/{baselineId}/controls` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/baselines/{baselineId}/controls)
+- `/systems` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/systems) `POST`
+- `/systems/{systemId}` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/systems/{systemId})
+- `/systems/{systemId}/ssp` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/systems/{systemId}/ssp) `POST`
+- `/systems/{systemId}/ssp/{sspId}` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/systems/{systemId}/ssp/{sspId}) `PUT`
+- `/systems/{systemId}/ssp/{sspId}/implementations` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/systems/{systemId}/ssp/{sspId}/implementations) `POST`
+- `/systems/{systemId}/assessments` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/systems/{systemId}/assessments) `POST`
+- `/systems/{systemId}/assessments/{assessmentId}` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/systems/{systemId}/assessments/{assessmentId}) `PATCH`
+- `/systems/{systemId}/poam` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/systems/{systemId}/poam) `POST`
+- `/systems/{systemId}/poam/{poamId}` — [`GET`](https://mocks.naftiko.net/rest/nist-sp-800-53-rev-5-sandbox-api/1.0.0/systems/{systemId}/poam/{poamId}) `PATCH`
 
 </details>
 
