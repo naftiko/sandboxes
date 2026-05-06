@@ -5,12 +5,12 @@ info:
     Maritime ship registry API providing fleet management operations including
     ship lookup, voyage planning, crew management, and cargo tracking.
     Requires bearer token authentication for full data access.
-  version: 1.0.0-alpha1
+  version: 1.0.0-alpha2
   contact:
     name: Shipyard API Team
 
 servers:
-  - url: https://mocks.naftiko.net/rest/naftiko-shipyard-maritime-registry-api/1.0.0-alpha1
+  - url: https://mocks.naftiko.net/rest/naftiko-shipyard-maritime-registry-api/1.0.0-alpha2
     description: Maritime Registry API
 
 tags:
