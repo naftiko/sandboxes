@@ -1,0 +1,394 @@
+openapi: 3.1.0
+info:
+  title: hubspot-analytics-events-api
+  description: >
+    The HubSpot Analytics Events API allows you to retrieve event completion
+    data 
+
+    from your HubSpot account. Use this API to query event instances associated
+    with 
+
+    CRM objects, filter by event types, and analyze user behavior and engagement
+    patterns.
+
+
+    ## Key Features
+
+    - Retrieve event instances for CRM objects
+
+    - Filter events by type, date range, and object
+
+    - Paginate through large result sets
+
+    - Query available event types
+  version: 3.0.0
+  contact:
+    name: HubSpot Developer Support
+    url: https://developers.hubspot.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot Production API Server
+  - url: http://localhost:8080/rest/hubspot-analytics-events-api/3.0.0
+    description: Sandbox
+tags:
+  - name: Event Instances
+    description: Retrieve and query event completion data from CRM objects
+  - name: Event Types
+    description: Discover and retrieve available event type definitions
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            analytics.read: Read analytics data
+  schemas:
+    EventInstance:
+      type: object
+      description: Represents a single event instance that occurred in the system
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the event instance
+        eventType:
+          type: string
+          description: The type of event that occurred
+        objectId:
+          type: string
+          description: The ID of the CRM object associated with this event
+        objectType:
+          type: string
+          description: The type of CRM object (e.g., contact, company, deal)
+        occurredAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the event occurred
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          description: Additional properties associated with the event
+      required:
+        - id
+        - eventType
+        - occurredAt
+    EventInstanceCollection:
+      type: object
+      description: Paginated collection of event instances
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventInstance'
+          description: Array of event instances
+        paging:
+          $ref: '#/components/schemas/Paging'
+      required:
+        - results
+    EventTypeCollection:
+      type: object
+      description: Collection of available event type names
+      properties:
+        eventTypes:
+          type: array
+          items:
+            type: string
+          description: List of available event type names
+      required:
+        - eventTypes
+    Paging:
+      type: object
+      description: Pagination information for navigating result sets
+      properties:
+        next:
+          $ref: '#/components/schemas/PagingNext'
+        prev:
+          $ref: '#/components/schemas/PagingPrevious'
+    PagingNext:
+      type: object
+      description: Pagination cursor for retrieving the next page of results
+      properties:
+        after:
+          type: string
+          description: Cursor token for the next page
+        link:
+          type: string
+          description: API link to the next page of results
+    PagingPrevious:
+      type: object
+      description: Pagination cursor for retrieving the previous page of results
+      properties:
+        before:
+          type: string
+          description: Cursor token for the previous page
+        link:
+          type: string
+          description: API link to the previous page of results
+    Error:
+      type: object
+      description: Standard error response returned when an API request fails
+      properties:
+        category:
+          type: string
+          description: High-level error category
+        correlationId:
+          type: string
+          format: uuid
+          description: Unique identifier for tracking and debugging the error
+        message:
+          type: string
+          description: Human-readable error message
+        subCategory:
+          type: string
+          description: Specific error subcategory for detailed classification
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Additional context about the error
+        links:
+          type: object
+          additionalProperties:
+            type: string
+          description: Relevant links for error resolution and documentation
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+          description: List of specific errors encountered
+      required:
+        - category
+        - correlationId
+        - message
+    ErrorDetail:
+      type: object
+      description: Detailed information about a specific error
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Machine-readable error code
+        subCategory:
+          type: string
+          description: Specific error subcategory
+        in:
+          type: string
+          description: Location where the error occurred (e.g., query, path, body)
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Additional context about the specific error
+      required:
+        - message
+  examples:
+    EventInstanceCollectionExample:
+      summary: Successful retrieval of event instances
+      value:
+        results:
+          - id: evt_12345
+            eventType: page_view
+            objectId: '123456'
+            objectType: contact
+            occurredAt: '2024-01-15T10:30:00Z'
+            properties:
+              page_url: https://example.com/pricing
+              duration: '45'
+          - id: evt_12346
+            eventType: form_submission
+            objectId: '123456'
+            objectType: contact
+            occurredAt: '2024-01-15T10:35:00Z'
+            properties:
+              form_name: Contact Us
+              submission_id: sub_789
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+            link: /events/v3/events/?after=NTI1Cg%3D%3D
+    EventTypeCollectionExample:
+      summary: Successful retrieval of event types
+      value:
+        eventTypes:
+          - page_view
+          - form_submission
+          - email_open
+          - email_click
+          - meeting_booked
+    ErrorExample:
+      summary: Validation error response
+      value:
+        category: VALIDATION_ERROR
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: Invalid input parameters
+        subCategory: INVALID_PARAMETER
+        context:
+          invalidFields:
+            - objectType
+        links:
+          documentation: https://developers.hubspot.com/docs/api/events
+        errors:
+          - message: objectType must be a valid CRM object type
+            code: INVALID_OBJECT_TYPE
+            in: query
+  responses:
+    ErrorResponse:
+      description: An error occurred while processing the request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ValidationError:
+              $ref: '#/components/examples/ErrorExample'
+paths:
+  /events/v3/events:
+    get:
+      tags:
+        - Event Instances
+      operationId: getEventInstances
+      summary: Retrieve Event Instances
+      description: >
+        Retrieve instances of event completion data from your HubSpot account. 
+
+        Use this endpoint to query events associated with specific CRM objects, 
+
+        filter by event type and date range, and paginate through large result
+        sets. 
+
+        This is useful for analyzing user engagement and tracking conversion
+        funnels.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - analytics.read
+      parameters:
+        - name: objectType
+          in: query
+          schema:
+            type: string
+            enum:
+              - contact
+              - company
+              - deal
+              - ticket
+          description: The type of CRM object to filter event instances on
+          example: contact
+        - name: objectId
+          in: query
+          schema:
+            type: string
+          description: >-
+            The ID of the CRM object to filter events. Requires objectType
+            parameter.
+          example: '123456'
+        - name: eventType
+          in: query
+          schema:
+            type: string
+          description: Filter by specific event type name
+          example: page_view
+        - name: occurredAfter
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter for events that occurred after this ISO 8601 datetime
+          example: '2024-01-01T00:00:00Z'
+        - name: occurredBefore
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter for events that occurred before this ISO 8601 datetime
+          example: '2024-12-31T23:59:59Z'
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+              - ASCENDING
+              - DESCENDING
+          description: Sort direction based on event timestamp
+          example: DESCENDING
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of results per page (1-100)
+          example: 20
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: Pagination cursor for the next page of results
+      responses:
+        '200':
+          description: Successfully retrieved event instances
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventInstanceCollection'
+              examples:
+                Success:
+                  $ref: '#/components/examples/EventInstanceCollectionExample'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+  /events/v3/events/event-types:
+    get:
+      tags:
+        - Event Types
+      operationId: getEventTypes
+      summary: Retrieve Available Event Types
+      description: >
+        Retrieve a list of all available event types in your HubSpot account. 
+
+        Use this endpoint to discover what event types exist before querying 
+
+        for specific event instances. This helps build dynamic filtering
+        interfaces
+
+        and validate event type parameters.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - analytics.read
+      responses:
+        '200':
+          description: Successfully retrieved event types
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventTypeCollection'
+              examples:
+                Success:
+                  $ref: '#/components/examples/EventTypeCollectionExample'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'

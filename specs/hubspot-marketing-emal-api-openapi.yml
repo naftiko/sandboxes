@@ -1,0 +1,724 @@
+openapi: 3.1.0
+info:
+  title: hubspot-marketing-transactional-email-api
+  description: >
+    The HubSpot Marketing Transactional Email API enables you to send
+    transactional emails and manage SMTP tokens.
+
+
+    Use this API to:
+
+    - Create and manage SMTP API tokens for sending transactional emails
+
+    - Send single transactional emails using pre-defined templates
+
+    - Query token information and manage token lifecycle
+
+    - Reset token passwords when needed
+
+
+    Transactional emails are one-to-one emails sent in response to specific
+    actions, such as password resets, 
+
+    order confirmations, or account notifications. They differ from marketing
+    emails in that they are triggered 
+
+    by user actions rather than sent to lists.
+  version: 3.0.0
+  contact:
+    name: HubSpot Developer Support
+    url: https://developers.hubspot.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot Production API Server
+  - url: http://localhost:8080/rest/hubspot-marketing-transactional-email-api/3.0.0
+    description: Sandbox
+tags:
+  - name: SMTP Token Management
+    description: Create, query, and manage SMTP API tokens for transactional email sending
+  - name: Single Send
+    description: Send individual transactional emails using templates
+paths:
+  /marketing/v3/transactional/smtp-tokens:
+    get:
+      tags:
+        - SMTP Token Management
+      summary: List all SMTP tokens
+      description: >
+        Returns a paginated list of all SMTP API tokens for the account.
+
+        Use this endpoint to view all configured tokens and their associated
+        campaigns.
+      operationId: listSmtpTokens
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListSmtpTokensSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/CampaignNameParam'
+        - $ref: '#/components/parameters/EmailCampaignIdParam'
+        - $ref: '#/components/parameters/AfterParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successfully retrieved the list of SMTP tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmtpTokenCollectionResponse'
+              examples:
+                ListSmtpTokensSuccessResponse:
+                  $ref: '#/components/examples/ListSmtpTokensSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - transactional-email
+        - PrivateApp:
+            - transactional-email
+    post:
+      tags:
+        - SMTP Token Management
+      summary: Create an SMTP token
+      description: >
+        Creates a new SMTP API token for sending transactional emails.
+
+        The token can be associated with a specific email campaign and
+        optionally configured to create contacts.
+      operationId: createSmtpToken
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "CreateSmtpTokenSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmtpTokenCreateRequest'
+            examples:
+              CreateSmtpTokenRequest:
+                $ref: '#/components/examples/CreateSmtpTokenRequest'
+      responses:
+        '201':
+          description: Successfully created the SMTP token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmtpTokenWithPassword'
+              examples:
+                CreateSmtpTokenSuccessResponse:
+                  $ref: '#/components/examples/CreateSmtpTokenSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - transactional-email
+        - PrivateApp:
+            - transactional-email
+  /marketing/v3/transactional/smtp-tokens/{tokenId}:
+    get:
+      tags:
+        - SMTP Token Management
+      summary: Get an SMTP token by ID
+      description: >
+        Retrieves detailed information about a single SMTP API token by its
+        unique identifier.
+
+        Note: The password is not returned in this response for security
+        reasons.
+      operationId: getSmtpTokenById
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GetSmtpTokenSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/TokenIdParam'
+      responses:
+        '200':
+          description: Successfully retrieved the SMTP token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmtpToken'
+              examples:
+                GetSmtpTokenSuccessResponse:
+                  $ref: '#/components/examples/GetSmtpTokenSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - transactional-email
+        - PrivateApp:
+            - transactional-email
+    delete:
+      tags:
+        - SMTP Token Management
+      summary: Delete an SMTP token
+      description: |
+        Permanently deletes an SMTP API token.
+        Any applications using this token will no longer be able to send emails.
+      operationId: deleteSmtpToken
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "DeleteSmtpTokenSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/TokenIdParam'
+      responses:
+        '204':
+          description: Successfully deleted the SMTP token (no content returned)
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - transactional-email
+        - PrivateApp:
+            - transactional-email
+  /marketing/v3/transactional/smtp-tokens/{tokenId}/password-reset:
+    post:
+      tags:
+        - SMTP Token Management
+      summary: Reset SMTP token password
+      description: >
+        Resets the password for an existing SMTP API token.
+
+        The new password will be returned in the response. Store it securely as
+        it cannot be retrieved again.
+      operationId: resetSmtpTokenPassword
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ResetSmtpTokenPasswordSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/TokenIdParam'
+      responses:
+        '200':
+          description: Successfully reset the SMTP token password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmtpTokenWithPassword'
+              examples:
+                ResetSmtpTokenPasswordSuccessResponse:
+                  $ref: '#/components/examples/ResetSmtpTokenPasswordSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - transactional-email
+        - PrivateApp:
+            - transactional-email
+  /marketing/v3/transactional/single-email/send:
+    post:
+      tags:
+        - Single Send
+      summary: Send a transactional email
+      description: >
+        Sends a single transactional email using a pre-defined email template.
+
+        The email is sent immediately to the specified recipient with the
+        provided personalization tokens.
+      operationId: sendTransactionalEmail
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "SendTransactionalEmailSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionalEmailRequest'
+            examples:
+              SendTransactionalEmailRequest:
+                $ref: '#/components/examples/SendTransactionalEmailRequest'
+      responses:
+        '200':
+          description: Successfully sent the transactional email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionalEmailResponse'
+              examples:
+                SendTransactionalEmailSuccessResponse:
+                  $ref: '#/components/examples/SendTransactionalEmailSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - transactional-email
+        - PrivateApp:
+            - transactional-email
+components:
+  schemas:
+    SmtpToken:
+      type: object
+      description: Represents an SMTP API token for transactional email sending
+      required:
+        - id
+        - createdAt
+        - createdBy
+        - campaignName
+        - createContact
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the SMTP token
+          example: smtp-token-abc123
+        campaignName:
+          type: string
+          description: The name of the email campaign associated with this token
+          example: Password Reset Emails
+        emailCampaignId:
+          type: string
+          description: The ID of the associated email campaign
+          example: campaign-xyz789
+        createContact:
+          type: boolean
+          description: Whether sending an email creates a contact if one doesn't exist
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          description: When the token was created
+          example: '2024-01-15T10:30:00.000Z'
+        createdBy:
+          type: string
+          description: The user or application that created the token
+          example: user@example.com
+    SmtpTokenWithPassword:
+      type: object
+      description: SMTP token with password (returned only on creation or password reset)
+      required:
+        - id
+        - createdAt
+        - createdBy
+        - campaignName
+        - createContact
+        - password
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the SMTP token
+          example: smtp-token-abc123
+        campaignName:
+          type: string
+          description: The name of the email campaign associated with this token
+          example: Password Reset Emails
+        emailCampaignId:
+          type: string
+          description: The ID of the associated email campaign
+          example: campaign-xyz789
+        createContact:
+          type: boolean
+          description: Whether sending an email creates a contact if one doesn't exist
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          description: When the token was created
+          example: '2024-01-15T10:30:00.000Z'
+        createdBy:
+          type: string
+          description: The user or application that created the token
+          example: user@example.com
+        password:
+          type: string
+          description: The SMTP password. Store securely - this cannot be retrieved again.
+          example: smtp-password-secret-value
+    SmtpTokenCollectionResponse:
+      type: object
+      description: A paginated collection of SMTP tokens
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          description: The list of SMTP tokens
+          items:
+            $ref: '#/components/schemas/SmtpToken'
+        paging:
+          $ref: '#/components/schemas/Paging'
+    SmtpTokenCreateRequest:
+      type: object
+      description: Request body for creating an SMTP token
+      required:
+        - campaignName
+        - createContact
+      properties:
+        campaignName:
+          type: string
+          description: The name for the email campaign
+          example: Order Confirmation Emails
+        createContact:
+          type: boolean
+          description: Whether to create contacts for recipients who don't exist
+          example: true
+    TransactionalEmailRequest:
+      type: object
+      description: Request body for sending a transactional email
+      required:
+        - emailId
+        - message
+      properties:
+        emailId:
+          type: integer
+          description: The ID of the transactional email template to use
+          example: 12345678
+        message:
+          $ref: '#/components/schemas/EmailMessage'
+        contactProperties:
+          type: object
+          description: Properties to set on the contact (if createContact is enabled)
+          additionalProperties:
+            type: string
+          example:
+            firstname: John
+            lastname: Doe
+            company: Acme Corp
+        customProperties:
+          type: object
+          description: Custom template variables for personalization
+          additionalProperties:
+            type: string
+          example:
+            order_number: ORD-12345
+            order_total: $99.99
+    EmailMessage:
+      type: object
+      description: The email message configuration
+      required:
+        - to
+      properties:
+        to:
+          type: string
+          format: email
+          description: The recipient's email address
+          example: recipient@example.com
+        from:
+          type: string
+          format: email
+          description: Override the from address (must be verified)
+          example: noreply@yourcompany.com
+        sendId:
+          type: string
+          description: A unique ID to prevent duplicate sends
+          example: unique-send-id-123
+        replyTo:
+          type: array
+          description: Reply-to email addresses
+          items:
+            type: string
+            format: email
+          example:
+            - support@yourcompany.com
+        cc:
+          type: array
+          description: CC email addresses
+          items:
+            type: string
+            format: email
+        bcc:
+          type: array
+          description: BCC email addresses
+          items:
+            type: string
+            format: email
+    TransactionalEmailResponse:
+      type: object
+      description: Response after sending a transactional email
+      required:
+        - status
+        - statusId
+      properties:
+        status:
+          type: string
+          enum:
+            - PENDING
+            - PROCESSING
+            - CANCELED
+            - COMPLETE
+          description: The status of the email send
+          example: PENDING
+        statusId:
+          type: string
+          description: A unique identifier for tracking the email status
+          example: status-id-abc123
+        sendResult:
+          type: string
+          description: Additional details about the send result
+          example: SENT
+        requestedAt:
+          type: string
+          format: date-time
+          description: When the send was requested
+        startedAt:
+          type: string
+          format: date-time
+          description: When the send processing started
+        completedAt:
+          type: string
+          format: date-time
+          description: When the send processing completed
+    Paging:
+      type: object
+      description: Pagination information
+      properties:
+        next:
+          $ref: '#/components/schemas/NextPage'
+    NextPage:
+      type: object
+      description: Information about the next page
+      required:
+        - after
+      properties:
+        after:
+          type: string
+          description: Cursor for the next page
+          example: c210cC10b2tlbi1hYmMxMjM%3D
+        link:
+          type: string
+          description: Link to the next page
+    Error:
+      type: object
+      description: Error response
+      required:
+        - category
+        - correlationId
+        - message
+      properties:
+        category:
+          type: string
+          description: The error category
+          example: VALIDATION_ERROR
+        correlationId:
+          type: string
+          format: uuid
+          description: Unique request identifier for debugging
+          example: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid input (details will vary based on the error)
+        subCategory:
+          type: string
+          description: More specific error category
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    ErrorDetail:
+      type: object
+      description: Detailed error information
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        in:
+          type: string
+          description: Field where error occurred
+        subCategory:
+          type: string
+          description: Error subcategory
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+  parameters:
+    TokenIdParam:
+      name: tokenId
+      in: path
+      description: The unique identifier of the SMTP token
+      required: true
+      schema:
+        type: string
+      example: smtp-token-abc123
+    CampaignNameParam:
+      name: campaignName
+      in: query
+      description: Filter tokens by campaign name
+      required: false
+      schema:
+        type: string
+    EmailCampaignIdParam:
+      name: emailCampaignId
+      in: query
+      description: Filter tokens by email campaign ID
+      required: false
+      schema:
+        type: string
+    AfterParam:
+      name: after
+      in: query
+      description: Pagination cursor from previous response
+      required: false
+      schema:
+        type: string
+    LimitParam:
+      name: limit
+      in: query
+      description: Maximum number of results per page
+      required: false
+      schema:
+        type: integer
+        default: 10
+        maximum: 100
+  examples:
+    ListSmtpTokensSuccessResponse:
+      summary: Successful response listing SMTP tokens
+      value:
+        results:
+          - id: smtp-token-abc123
+            campaignName: Password Reset Emails
+            emailCampaignId: campaign-xyz789
+            createContact: true
+            createdAt: '2024-01-15T10:30:00.000Z'
+            createdBy: user@example.com
+          - id: smtp-token-def456
+            campaignName: Order Confirmation Emails
+            emailCampaignId: campaign-uvw456
+            createContact: false
+            createdAt: '2024-01-10T08:00:00.000Z'
+            createdBy: admin@example.com
+        paging:
+          next:
+            after: c210cC10b2tlbi1kZWY0NTY%3D
+    GetSmtpTokenSuccessResponse:
+      summary: Successful response for a single SMTP token
+      value:
+        id: smtp-token-abc123
+        campaignName: Password Reset Emails
+        emailCampaignId: campaign-xyz789
+        createContact: true
+        createdAt: '2024-01-15T10:30:00.000Z'
+        createdBy: user@example.com
+    CreateSmtpTokenRequest:
+      summary: Request to create an SMTP token
+      value:
+        campaignName: Order Confirmation Emails
+        createContact: true
+    CreateSmtpTokenSuccessResponse:
+      summary: Successful response after creating an SMTP token
+      value:
+        id: smtp-token-ghi789
+        campaignName: Order Confirmation Emails
+        createContact: true
+        createdAt: '2024-01-20T14:00:00.000Z'
+        createdBy: user@example.com
+        password: smtp-password-newly-generated
+    ResetSmtpTokenPasswordSuccessResponse:
+      summary: Successful response after resetting SMTP token password
+      value:
+        id: smtp-token-abc123
+        campaignName: Password Reset Emails
+        emailCampaignId: campaign-xyz789
+        createContact: true
+        createdAt: '2024-01-15T10:30:00.000Z'
+        createdBy: user@example.com
+        password: smtp-password-reset-value
+    SendTransactionalEmailRequest:
+      summary: Request to send a transactional email
+      value:
+        emailId: 12345678
+        message:
+          to: recipient@example.com
+          from: noreply@yourcompany.com
+          sendId: unique-send-id-123
+          replyTo:
+            - support@yourcompany.com
+        contactProperties:
+          firstname: John
+          lastname: Doe
+        customProperties:
+          order_number: ORD-12345
+          order_total: $99.99
+    SendTransactionalEmailSuccessResponse:
+      summary: Successful response after sending a transactional email
+      value:
+        status: PENDING
+        statusId: status-id-abc123
+    ErrorResponse:
+      summary: Example error response
+      value:
+        category: VALIDATION_ERROR
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: Invalid input (details will vary based on the error)
+        links:
+          knowledge-base: https://www.hubspot.com/products/service/knowledge-base
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            transactional-email: Send transactional emails and manage SMTP tokens
+    PrivateApp:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: Private app access token (Bearer token)

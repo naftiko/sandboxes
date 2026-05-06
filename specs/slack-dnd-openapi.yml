@@ -1,0 +1,795 @@
+openapi: 3.1.0
+info:
+  title: slack-dnd-api
+  description: >-
+    Slack's Do Not Disturb (DND) API lets apps read and manage users'
+    notification quiet  time so they don't get pinged when they've paused
+    alerts. With the dnd:read and dnd:write  scopes, an app can check a user's
+    current DND state and scheduled quiet hours, retrieve  team-wide DND
+    summaries (where permitted), start or extend a snooze for a specified 
+    duration, and end snooze or active DND. Key methods include dnd.info,
+    dnd.teamInfo,  dnd.setSnooze, dnd.endSnooze, and dnd.endDnd. Responses
+    provide whether DND is enabled  and timestamps for when it starts and ends,
+    enabling apps to defer messages, schedule  work, or adjust notification
+    behavior. The API is designed to respect user preferences  and workspace
+    policies; apps should handle rate limits and note that they can set 
+    temporary snoozes but cannot programmatically change a user's full DND
+    schedule.
+  version: 1.0.0
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-dnd-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Do Not Disturb Status
+    description: Operations for retrieving Do Not Disturb status
+  - name: Do Not Disturb Control
+    description: Operations for controlling Do Not Disturb and snooze modes
+paths:
+  /dnd.endDnd:
+    post:
+      tags:
+        - Do Not Disturb Control
+      summary: End Do Not Disturb
+      description: Ends the current user's Do Not Disturb session immediately.
+      operationId: dndEndDnd
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/dnd.endDnd
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeaderRequired'
+      responses:
+        '200':
+          description: Successful response when DND session is ended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DndEndDndErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/DndEndDndErrorResponseExample'
+      security:
+        - SlackAuth:
+            - dnd:write
+  /dnd.endSnooze:
+    post:
+      tags:
+        - Do Not Disturb Control
+      summary: End snooze mode
+      description: Ends the current user's snooze mode immediately.
+      operationId: dndEndSnooze
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/dnd.endSnooze
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeaderRequired'
+      responses:
+        '200':
+          description: Successful response when snooze is ended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DndEndSnoozeResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/DndEndSnoozeSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DndEndSnoozeErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/DndEndSnoozeErrorResponseExample'
+      security:
+        - SlackAuth:
+            - dnd:write
+  /dnd.info:
+    get:
+      tags:
+        - Do Not Disturb Status
+      summary: Get DND status
+      description: Retrieves a user's current Do Not Disturb status.
+      operationId: dndInfo
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/dnd.info
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Successful response with DND status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DndInfoResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/DndInfoSuccessResponseExample'
+                SuccessResponseWithSnooze:
+                  $ref: >-
+                    #/components/examples/DndInfoWithSnoozeSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DndInfoErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/DndInfoErrorResponseExample'
+      security:
+        - SlackAuth:
+            - dnd:read
+  /dnd.setSnooze:
+    post:
+      tags:
+        - Do Not Disturb Control
+      summary: Set snooze
+      description: >-
+        Turns on Do Not Disturb mode for the current user, or changes its
+        duration.
+      operationId: dndSetSnooze
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/dnd.setSnooze
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DndSetSnoozeRequest'
+            examples:
+              DndSetSnoozeRequestExample:
+                $ref: '#/components/examples/DndSetSnoozeRequestExample'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DndSetSnoozeRequest'
+            examples:
+              DndSetSnoozeRequestExample:
+                $ref: '#/components/examples/DndSetSnoozeRequestExample'
+      responses:
+        '200':
+          description: Successful response when snooze is set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DndSetSnoozeResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/DndSetSnoozeSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DndSetSnoozeErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/DndSetSnoozeErrorResponseExample'
+      security:
+        - SlackAuth:
+            - dnd:write
+  /dnd.teamInfo:
+    get:
+      tags:
+        - Do Not Disturb Status
+      summary: Get team DND status
+      description: Retrieves the Do Not Disturb status for up to 50 users on a team.
+      operationId: dndTeamInfo
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/dnd.teamInfo
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/UserIds'
+      responses:
+        '200':
+          description: Successful response with team DND status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DndTeamInfoResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/DndTeamInfoSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DndTeamInfoErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/DndTeamInfoErrorResponseExample'
+      security:
+        - SlackAuth:
+            - dnd:read
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      description: Slack OAuth2 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            dnd:read: Read Do Not Disturb status for users
+            dnd:write: Modify Do Not Disturb settings
+  parameters:
+    AuthTokenHeaderRequired:
+      name: token
+      in: header
+      description: 'Authentication token. Requires scope: `dnd:write`'
+      required: true
+      schema:
+        type: string
+      example: example-key1234567890-abcdefghijklmnop
+    AuthTokenQuery:
+      name: token
+      in: query
+      description: 'Authentication token. Requires scope: `dnd:read`'
+      required: false
+      schema:
+        type: string
+      example: example-key1234567890-abcdefghijklmnop
+    UserId:
+      name: user
+      in: query
+      description: User to fetch status for (defaults to current user)
+      required: false
+      schema:
+        type: string
+      example: U012A3CDE
+    UserIds:
+      name: users
+      in: query
+      description: >-
+        Comma-separated list of users to fetch Do Not Disturb status for (up to
+        50)
+      required: false
+      schema:
+        type: string
+      example: U023BECGF,W058CJVAA,U012A3CDE
+  schemas:
+    OkTrue:
+      type: boolean
+      const: true
+      description: Indicates a successful operation
+    OkFalse:
+      type: boolean
+      const: false
+      description: Indicates a failed operation
+    UserId:
+      type: string
+      description: A Slack user ID
+      pattern: ^[UW][A-Z0-9]{8,}$
+      example: U012A3CDE
+    UnixTimestamp:
+      type: integer
+      format: int64
+      description: Unix timestamp in seconds
+      example: 1450387800
+    Do Not Disturb Status Object:
+      type: object
+      description: Do Not Disturb status for a user
+      properties:
+        DndEnabled:
+          type: boolean
+          description: Whether Do Not Disturb is enabled
+          example: true
+        NextDndStartTs:
+          $ref: '#/components/schemas/UnixTimestamp'
+        NextDndEndTs:
+          $ref: '#/components/schemas/UnixTimestamp'
+        SnoozeEnabled:
+          type: boolean
+          description: Whether snooze mode is currently active
+          example: false
+        SnoozeEndtime:
+          type: integer
+          format: int64
+          description: Unix timestamp when snooze will end
+          example: 1450387800
+        SnoozeRemaining:
+          type: integer
+          description: Number of seconds remaining in snooze
+          example: 1800
+    UserDo Not Disturb Status:
+      type: object
+      description: DND status for a specific user in team info response
+      properties:
+        DndEnabled:
+          type: boolean
+          description: Whether Do Not Disturb is enabled
+          example: true
+        NextDndStartTs:
+          $ref: '#/components/schemas/UnixTimestamp'
+        NextDndEndTs:
+          $ref: '#/components/schemas/UnixTimestamp'
+    DndSetSnoozeRequest:
+      type: object
+      required:
+        - token
+        - num_minutes
+      properties:
+        token:
+          type: string
+          description: 'Authentication token. Requires scope: `dnd:write`'
+          example: example-key1234567890-abcdefghijklmnop
+        num_minutes:
+          type: string
+          description: Number of minutes, from now, to snooze until
+          example: '60'
+    SuccessResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+      additionalProperties: false
+    DndEndSnoozeResponse:
+      type: object
+      required:
+        - ok
+        - dnd_enabled
+        - next_dnd_start_ts
+        - next_dnd_end_ts
+        - snooze_enabled
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        dnd_enabled:
+          type: boolean
+          description: Whether Do Not Disturb is enabled
+          example: true
+        next_dnd_start_ts:
+          type: integer
+          format: int64
+          description: Unix timestamp when next DND period starts
+          example: 1450387800
+        next_dnd_end_ts:
+          type: integer
+          format: int64
+          description: Unix timestamp when next DND period ends
+          example: 1450423800
+        snooze_enabled:
+          type: boolean
+          description: Whether snooze is still enabled (should be false after ending)
+          example: false
+      additionalProperties: false
+    DndInfoResponse:
+      type: object
+      required:
+        - ok
+        - dnd_enabled
+        - next_dnd_start_ts
+        - next_dnd_end_ts
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        dnd_enabled:
+          type: boolean
+          description: Whether Do Not Disturb is enabled
+          example: true
+        next_dnd_start_ts:
+          type: integer
+          format: int64
+          description: Unix timestamp when next DND period starts
+          example: 1450387800
+        next_dnd_end_ts:
+          type: integer
+          format: int64
+          description: Unix timestamp when next DND period ends
+          example: 1450423800
+        snooze_enabled:
+          type: boolean
+          description: Whether snooze mode is currently active
+          example: false
+        snooze_endtime:
+          type: integer
+          format: int64
+          description: >-
+            Unix timestamp when snooze will end (only present if snooze is
+            active)
+          example: 1450390800
+        snooze_remaining:
+          type: integer
+          description: >-
+            Number of seconds remaining in snooze (only present if snooze is
+            active)
+          example: 1800
+      additionalProperties: false
+    DndSetSnoozeResponse:
+      type: object
+      required:
+        - ok
+        - snooze_enabled
+        - snooze_endtime
+        - snooze_remaining
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        snooze_enabled:
+          type: boolean
+          description: Whether snooze is enabled
+          example: true
+        snooze_endtime:
+          type: integer
+          format: int64
+          description: Unix timestamp when snooze will end
+          example: 1450391400
+        snooze_remaining:
+          type: integer
+          description: Number of seconds remaining in snooze
+          example: 3600
+      additionalProperties: false
+    DndTeamInfoResponse:
+      type: object
+      required:
+        - ok
+        - users
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        users:
+          type: object
+          description: Map of user IDs to their DND status
+          additionalProperties:
+            $ref: '#/components/schemas/UserDo Not Disturb Status '
+          example:
+            U023BECGF:
+              DndEnabled: true
+              NextDndStartTs: 1450387800
+              NextDndEndTs: 1450423800
+            W058CJVAA:
+              DndEnabled: false
+              NextDndStartTs: 1
+              NextDndEndTs: 1
+    BaseErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          description: Error code
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+    DndEndDndErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - unknown_error
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - token_revoked
+                - no_permission
+                - org_login_required
+                - user_is_bot
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+                - fatal_error
+      additionalProperties: false
+    DndEndSnoozeErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - snooze_not_active
+                - snooze_end_failed
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - token_revoked
+                - no_permission
+                - org_login_required
+                - user_is_bot
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+                - fatal_error
+      additionalProperties: false
+    DndInfoErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - user_not_found
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - token_revoked
+                - no_permission
+                - org_login_required
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+                - fatal_error
+      additionalProperties: false
+    DndSetSnoozeErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - missing_duration
+                - snooze_failed
+                - too_long
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - token_revoked
+                - no_permission
+                - org_login_required
+                - user_is_bot
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+                - fatal_error
+      additionalProperties: false
+    DndTeamInfoErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - token_revoked
+                - no_permission
+                - org_login_required
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+                - fatal_error
+      additionalProperties: false
+  examples:
+    DndSetSnoozeRequestExample:
+      summary: Example request to set snooze for 60 minutes
+      value:
+        token: example-key1234567890-abcdefghijklmnop
+        num_minutes: '60'
+    DndSetSnooze30MinRequestExample:
+      summary: Example request to set snooze for 30 minutes
+      value:
+        token: example-key1234567890-abcdefghijklmnop
+        num_minutes: '30'
+    DndSetSnooze2HoursRequestExample:
+      summary: Example request to set snooze for 2 hours
+      value:
+        token: example-key1234567890-abcdefghijklmnop
+        num_minutes: '120'
+    SuccessResponseExample:
+      summary: Example of a successful response
+      value:
+        ok: true
+    DndEndSnoozeSuccessResponseExample:
+      summary: Example of a successful end snooze response
+      value:
+        ok: true
+        dnd_enabled: true
+        next_dnd_start_ts: 1450387800
+        next_dnd_end_ts: 1450423800
+        snooze_enabled: false
+    DndInfoSuccessResponseExample:
+      summary: Example of a successful DND info response
+      value:
+        ok: true
+        dnd_enabled: true
+        next_dnd_start_ts: 1450387800
+        next_dnd_end_ts: 1450423800
+        snooze_enabled: false
+    DndInfoWithSnoozeSuccessResponseExample:
+      summary: Example of a successful DND info response with active snooze
+      value:
+        ok: true
+        dnd_enabled: true
+        next_dnd_start_ts: 1450387800
+        next_dnd_end_ts: 1450423800
+        snooze_enabled: true
+        snooze_endtime: 1450390800
+        snooze_remaining: 1800
+    DndInfoDndDisabledSuccessResponseExample:
+      summary: Example of a successful DND info response when DND is disabled
+      value:
+        ok: true
+        dnd_enabled: false
+        next_dnd_start_ts: 1450387800
+        next_dnd_end_ts: 1450423800
+        snooze_enabled: false
+    DndSetSnoozeSuccessResponseExample:
+      summary: Example of a successful set snooze response
+      value:
+        ok: true
+        snooze_enabled: true
+        snooze_endtime: 1450391400
+        snooze_remaining: 3600
+    DndTeamInfoSuccessResponseExample:
+      summary: Example of a successful team DND info response
+      value:
+        ok: true
+        users:
+          U023BECGF:
+            DndEnabled: true
+            NextDndStartTs: 1450387800
+            NextDndEndTs: 1450423800
+          W058CJVAA:
+            DndEnabled: false
+            NextDndStartTs: 1
+            NextDndEndTs: 1
+          U012A3CDE:
+            DndEnabled: true
+            NextDndStartTs: 1450394400
+            NextDndEndTs: 1450430400
+    DndEndDndErrorResponseExample:
+      summary: Example error response for end DND
+      value:
+        ok: false
+        error: invalid_auth
+    DndEndDndUnknownErrorResponseExample:
+      summary: Example error response for unknown error
+      value:
+        ok: false
+        error: unknown_error
+    DndEndSnoozeErrorResponseExample:
+      summary: Example error response for end snooze
+      value:
+        ok: false
+        error: invalid_auth
+    DndEndSnoozeNotActiveErrorResponseExample:
+      summary: Example error response when snooze is not active
+      value:
+        ok: false
+        error: snooze_not_active
+    DndInfoErrorResponseExample:
+      summary: Example error response for DND info
+      value:
+        ok: false
+        error: invalid_auth
+    DndInfoUserNotFoundErrorResponseExample:
+      summary: Example error response when user is not found
+      value:
+        ok: false
+        error: user_not_found
+    DndSetSnoozeErrorResponseExample:
+      summary: Example error response for set snooze
+      value:
+        ok: false
+        error: invalid_auth
+    DndSetSnoozeMissingDurationErrorResponseExample:
+      summary: Example error response when duration is missing
+      value:
+        ok: false
+        error: missing_duration
+    DndSetSnoozeTooLongErrorResponseExample:
+      summary: Example error response when snooze duration is too long
+      value:
+        ok: false
+        error: too_long
+    DndTeamInfoErrorResponseExample:
+      summary: Example error response for team DND info
+      value:
+        ok: false
+        error: invalid_auth

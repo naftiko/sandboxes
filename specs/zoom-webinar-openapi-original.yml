@@ -1,0 +1,2042 @@
+openapi: 3.1.0
+info:
+  title: zoom-webinar-api
+  description: >
+    The Zoom Webinar API provides comprehensive webinar management capabilities
+    for your Zoom account.
+
+    This includes creating, updating, and deleting webinars, managing
+    registrations and attendees,
+
+    handling panelists, and retrieving webinar data such as polls and Q&A.
+
+
+    ## Webinar Types
+
+    - **Type 5**: Standard webinar (single occurrence)
+
+    - **Type 6**: Recurring webinar (no fixed time)
+
+    - **Type 9**: Recurring webinar with fixed time
+
+
+    ## Registration Types
+
+    - **Type 1**: Attendees register once and can attend any occurrence
+
+    - **Type 2**: Attendees must register for each occurrence
+
+    - **Type 3**: Attendees register once and choose which occurrences to attend
+
+
+    ## Authentication
+
+    All API requests require authentication using API key and secret.
+  contact:
+    name: Zoom Developers
+    url: https://zoom.us/developer
+    email: developer@zoom.us
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+externalDocs:
+  description: Zoom REST API Documentation
+  url: https://zoom.github.io/api
+servers:
+  - url: https://api.zoom.us/v1
+    description: Zoom API Production Server
+  - url: http://localhost:8080/rest/zoom-webinar-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Webinar Management
+    description: Operations for creating, updating, and deleting webinars
+  - name: Webinar Lookup
+    description: Operations for retrieving webinar information and lists
+  - name: Webinar Registration
+    description: Operations for managing webinar registrations and registrants
+  - name: Webinar Attendees
+    description: Operations for retrieving attendee information from completed webinars
+  - name: Webinar Panelists
+    description: Operations for managing webinar panelists
+  - name: Webinar Engagement
+    description: Operations for retrieving polls and Q&A data from webinars
+security:
+  - api_key: []
+  - api_secret: []
+paths:
+  /webinar/attendees/list:
+    post:
+      tags:
+        - Webinar Attendees
+      summary: List webinar attendees
+      description: >
+        Retrieves the list of attendees for a completed webinar, including
+        their 
+
+        join/leave times, time in session, and any custom question responses.
+      operationId: listWebinarAttendees
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarAttendeesResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebinarAttendeesRequest'
+            examples:
+              WebinarAttendeesRequestExample:
+                $ref: '#/components/examples/WebinarAttendeesRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved webinar attendees
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarAttendeesResponse'
+              examples:
+                WebinarAttendeesResponseExample:
+                  $ref: '#/components/examples/WebinarAttendeesResponseExample'
+  /webinar/create:
+    post:
+      tags:
+        - Webinar Management
+      summary: Create webinar
+      description: >
+        Creates a new webinar on Zoom and returns the webinar start and join
+        URLs.
+
+
+        Supports creating single webinars, recurring webinars without fixed
+        times,
+
+        and recurring webinars with fixed schedules.
+      operationId: createWebinar
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarDetailResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateWebinarRequest'
+            examples:
+              CreateWebinarRequestExample:
+                $ref: '#/components/examples/CreateWebinarRequestExample'
+      responses:
+        '200':
+          description: Successfully created webinar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarDetailResponse'
+              examples:
+                WebinarDetailResponseExample:
+                  $ref: '#/components/examples/WebinarDetailResponseExample'
+  /webinar/delete:
+    post:
+      tags:
+        - Webinar Management
+      summary: Delete webinar
+      description: |
+        Deletes a webinar from Zoom. For recurring webinars, you can optionally
+        delete a specific occurrence by providing the occurrence ID.
+      operationId: deleteWebinar
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarDeleteResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteWebinarRequest'
+            examples:
+              DeleteWebinarRequestExample:
+                $ref: '#/components/examples/DeleteWebinarRequestExample'
+      responses:
+        '200':
+          description: Successfully deleted webinar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarDeleteResponse'
+              examples:
+                WebinarDeleteResponseExample:
+                  $ref: '#/components/examples/WebinarDeleteResponseExample'
+  /webinar/end:
+    post:
+      tags:
+        - Webinar Management
+      summary: End webinar
+      description: |
+        Ends an in-progress webinar immediately. This action cannot be undone.
+      operationId: endWebinar
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarEndResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebinarIdRequest'
+            examples:
+              WebinarIdRequestExample:
+                $ref: '#/components/examples/WebinarIdRequestExample'
+      responses:
+        '200':
+          description: Successfully ended webinar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarEndResponse'
+              examples:
+                WebinarEndResponseExample:
+                  $ref: '#/components/examples/WebinarEndResponseExample'
+  /webinar/get:
+    post:
+      tags:
+        - Webinar Lookup
+      summary: Get webinar details
+      description: |
+        Retrieves detailed information about a specific webinar, including 
+        settings, URLs, and occurrence information for recurring webinars.
+      operationId: getWebinar
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarFullDetailResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebinarIdRequest'
+            examples:
+              WebinarIdRequestExample:
+                $ref: '#/components/examples/WebinarIdRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved webinar details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarFullDetailResponse'
+              examples:
+                WebinarFullDetailResponseExample:
+                  $ref: '#/components/examples/WebinarFullDetailResponseExample'
+  /webinar/list:
+    post:
+      tags:
+        - Webinar Lookup
+      summary: List webinars
+      description: |
+        Lists all upcoming webinars that do not require registration for the 
+        specified host user.
+      operationId: listWebinars
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarListResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListWebinarsRequest'
+            examples:
+              ListWebinarsRequestExample:
+                $ref: '#/components/examples/ListWebinarsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved webinar list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarListResponse'
+              examples:
+                WebinarListResponseExample:
+                  $ref: '#/components/examples/WebinarListResponseExample'
+  /webinar/list/registration:
+    post:
+      tags:
+        - Webinar Lookup
+      summary: List registration webinars
+      description: |
+        Lists all upcoming webinars that require registration for the specified 
+        host user.
+      operationId: listRegistrationWebinars
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarListResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListWebinarsRequest'
+            examples:
+              ListWebinarsRequestExample:
+                $ref: '#/components/examples/ListWebinarsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved registration webinar list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarListResponse'
+              examples:
+                WebinarListResponseExample:
+                  $ref: '#/components/examples/WebinarListResponseExample'
+  /webinar/panelists:
+    post:
+      tags:
+        - Webinar Panelists
+      summary: Get webinar panelists
+      description: |
+        Retrieves the list of all panelists assigned to a webinar, including 
+        their names, emails, and unique join URLs.
+      operationId: getWebinarPanelists
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarPanelistsResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebinarIdRequest'
+            examples:
+              WebinarIdRequestExample:
+                $ref: '#/components/examples/WebinarIdRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved webinar panelists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarPanelistsResponse'
+              examples:
+                WebinarPanelistsResponseExample:
+                  $ref: '#/components/examples/WebinarPanelistsResponseExample'
+  /webinar/polls:
+    post:
+      tags:
+        - Webinar Engagement
+      summary: Get webinar polls
+      description: |
+        Retrieves poll results from a completed webinar, including questions 
+        asked and participant responses.
+      operationId: getWebinarPolls
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarPollsResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebinarEngagementRequest'
+            examples:
+              WebinarEngagementRequestExample:
+                $ref: '#/components/examples/WebinarEngagementRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved webinar polls
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarPollsResponse'
+              examples:
+                WebinarPollsResponseExample:
+                  $ref: '#/components/examples/WebinarPollsResponseExample'
+  /webinar/questions:
+    post:
+      tags:
+        - Webinar Engagement
+      summary: Get webinar Q&A
+      description: |
+        Retrieves Q&A data from a completed webinar, including questions asked 
+        by attendees and answers provided by hosts/panelists.
+      operationId: getWebinarQuestions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarQaResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebinarEngagementRequest'
+            examples:
+              WebinarEngagementRequestExample:
+                $ref: '#/components/examples/WebinarEngagementRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved webinar Q&A
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarQaResponse'
+              examples:
+                WebinarQaResponseExample:
+                  $ref: '#/components/examples/WebinarQaResponseExample'
+  /webinar/register:
+    post:
+      tags:
+        - Webinar Registration
+      summary: Register for webinar
+      description: |
+        Registers an attendee for a webinar. Returns a unique join URL for the 
+        registrant.
+      operationId: registerForWebinar
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarRegisterResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebinarRegisterRequest'
+            examples:
+              WebinarRegisterRequestExample:
+                $ref: '#/components/examples/WebinarRegisterRequestExample'
+      responses:
+        '200':
+          description: Successfully registered for webinar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarRegisterResponse'
+              examples:
+                WebinarRegisterResponseExample:
+                  $ref: '#/components/examples/WebinarRegisterResponseExample'
+  /webinar/registrants/approve:
+    post:
+      tags:
+        - Webinar Registration
+      summary: Approve webinar registrants
+      description: |
+        Approves one or more pending registrants for a webinar that requires 
+        manual approval.
+      operationId: approveWebinarRegistrants
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarUpdateResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApproveRegistrantsRequest'
+            examples:
+              ApproveRegistrantsRequestExample:
+                $ref: '#/components/examples/ApproveRegistrantsRequestExample'
+      responses:
+        '200':
+          description: Successfully approved registrants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarUpdateResponse'
+              examples:
+                WebinarUpdateResponseExample:
+                  $ref: '#/components/examples/WebinarUpdateResponseExample'
+  /webinar/registrants/list:
+    post:
+      tags:
+        - Webinar Registration
+      summary: List webinar registrants
+      description: |
+        Lists all registrants for a webinar, including both pending approval 
+        and approved registrants based on the type parameter.
+      operationId: listWebinarRegistrants
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "RegistrantsListResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListRegistrantsRequest'
+            examples:
+              ListRegistrantsRequestExample:
+                $ref: '#/components/examples/ListRegistrantsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved registrants list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrantsListResponse'
+              examples:
+                RegistrantsListResponseExample:
+                  $ref: '#/components/examples/RegistrantsListResponseExample'
+  /webinar/registration:
+    post:
+      tags:
+        - Webinar Registration
+      summary: Get webinar registration info
+      description: |
+        Retrieves detailed registration information for a webinar, including 
+        all registered attendees and their registration details.
+      operationId: getWebinarRegistration
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "RegistrationInfoResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegistrationInfoRequest'
+            examples:
+              RegistrationInfoRequestExample:
+                $ref: '#/components/examples/RegistrationInfoRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved registration info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationInfoResponse'
+              examples:
+                RegistrationInfoResponseExample:
+                  $ref: '#/components/examples/RegistrationInfoResponseExample'
+  /webinar/registration/cancel:
+    post:
+      tags:
+        - Webinar Registration
+      summary: Cancel webinar registrations
+      description: |
+        Cancels registrations for one or more registrants. This removes them 
+        from the webinar and invalidates their join URLs.
+      operationId: cancelWebinarRegistrations
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarUpdateResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CancelRegistrationRequest'
+            examples:
+              CancelRegistrationRequestExample:
+                $ref: '#/components/examples/CancelRegistrationRequestExample'
+      responses:
+        '200':
+          description: Successfully cancelled registrations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarUpdateResponse'
+              examples:
+                WebinarUpdateResponseExample:
+                  $ref: '#/components/examples/WebinarUpdateResponseExample'
+  /webinar/update:
+    post:
+      tags:
+        - Webinar Management
+      summary: Update webinar
+      description: |
+        Updates webinar settings and information. Most webinar properties can 
+        be modified except for the host user.
+      operationId: updateWebinar
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarUpdateResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateWebinarRequest'
+            examples:
+              UpdateWebinarRequestExample:
+                $ref: '#/components/examples/UpdateWebinarRequestExample'
+      responses:
+        '200':
+          description: Successfully updated webinar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarUpdateResponse'
+              examples:
+                WebinarUpdateResponseExample:
+                  $ref: '#/components/examples/WebinarUpdateResponseExample'
+  /webinar/uuid/list:
+    post:
+      tags:
+        - Webinar Lookup
+      summary: List webinar UUIDs
+      description: |
+        Retrieves the list of UUIDs for all instances of a completed webinar.
+        Useful for accessing historical data from recurring webinars.
+      operationId: listWebinarUuids
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "WebinarUuidListResponseExample"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebinarIdRequest'
+            examples:
+              WebinarIdRequestExample:
+                $ref: '#/components/examples/WebinarIdRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved webinar UUIDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarUuidListResponse'
+              examples:
+                WebinarUuidListResponseExample:
+                  $ref: '#/components/examples/WebinarUuidListResponseExample'
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: api_key
+      in: query
+    api_secret:
+      type: apiKey
+      name: api_secret
+      in: query
+  schemas:
+    WebinarAttendeesRequest:
+      type: object
+      required:
+        - id
+        - host_id
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        host_id:
+          type: string
+          description: Webinar host user ID.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        uuid:
+          type: string
+          description: Webinar UUID (from /webinar/uuid/list).
+          example: unique_uuid
+    WebinarAttendeesResponse:
+      type: object
+      properties:
+        attendees:
+          type: array
+          description: List of webinar attendees.
+          items:
+            $ref: '#/components/schemas/WebinarAttendee'
+    WebinarAttendee:
+      type: object
+      properties:
+        first_name:
+          type: string
+          description: Attendee's first name.
+          example: Zoomie
+        last_name:
+          type: string
+          description: Attendee's last name.
+          example: Userton
+        email:
+          type: string
+          format: email
+          description: Attendee's email address.
+          example: email_address
+        join_time:
+          type: string
+          format: date-time
+          description: Time the attendee joined.
+          example: '2015-09-18T09:41:39.000Z'
+        leave_time:
+          type: string
+          format: date-time
+          description: Time the attendee left.
+          example: '2015-09-18T09:42:12.000Z'
+        time_in_session:
+          type: string
+          description: Time spent in session (minutes).
+          example: '8'
+        attended:
+          type: string
+          description: Whether the attendee attended.
+          example: 'Yes'
+        custom_questions:
+          type: object
+          description: Responses to custom registration questions.
+          additionalProperties:
+            type: string
+          example:
+            which one do you like?: sss
+        questions:
+          type: object
+          description: Responses to standard registration questions.
+          properties:
+            country:
+              type: string
+              example: US
+            address:
+              type: string
+              example: 1234 Some Street
+            city:
+              type: string
+              example: Zoomville
+    CreateWebinarRequest:
+      type: object
+      required:
+        - host_id
+        - topic
+        - type
+      properties:
+        host_id:
+          type: string
+          description: Webinar host user ID. Cannot be changed after creation.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        topic:
+          type: string
+          description: Webinar topic (max 300 characters).
+          example: Q4 Product Launch Webinar
+        type:
+          type: string
+          description: 'Webinar type: 5=webinar, 6=recurring, 9=recurring with fixed time.'
+          default: '5'
+          example: '5'
+        start_time:
+          type: string
+          format: date-time
+          description: Start time in ISO format (UTC). For scheduled webinars only.
+          example: '2012-11-25T12:00:00Z'
+        duration:
+          type: string
+          description: Duration in minutes. For scheduled webinars only.
+          example: '60'
+        timezone:
+          type: string
+          description: Timezone for start_time (e.g., America/Los_Angeles).
+          example: America/Los_Angeles
+        password:
+          type: string
+          description: Webinar password.
+          example: Pass123
+        recurrence:
+          type: string
+          description: >
+            Recurrence settings for recurring webinars with fixed time (JSON
+            format).
+
+            Includes type (1=daily, 2=weekly, 3=monthly), repeat_interval,
+            weekly_days,
+
+            monthly_day, monthly_week, monthly_week_day, end_times,
+            end_date_time.
+          example: '{"type": 1, "repeat_interval": 1, "end_times": 5}'
+        approval_type:
+          type: string
+          description: 0=auto approve, 1=manual approve, 2=no registration required.
+          default: '2'
+          example: '0'
+        registration_type:
+          type: string
+          description: >-
+            1=register once for all, 2=register for each, 3=register once choose
+            occurrences.
+          default: '1'
+          example: '1'
+        agenda:
+          type: string
+          description: Webinar description/agenda.
+          example: Join us for our quarterly product launch event.
+        option_audio:
+          type: string
+          description: Audio options (both, telephony, voip).
+          default: both
+          example: both
+        option_host_video:
+          type: boolean
+          description: Start video when host joins.
+          default: true
+          example: true
+        option_panelist_video:
+          type: boolean
+          description: Start video when panelist joins.
+          default: true
+          example: true
+        option_practice_session:
+          type: boolean
+          description: Enable practice session.
+          default: false
+          example: true
+        option_enforce_login:
+          type: boolean
+          description: Only signed-in users can join.
+          default: false
+          example: false
+        option_enforce_login_domains:
+          type: string
+          description: Only users from specified domains can join.
+          example: example.com
+        option_alternative_hosts:
+          type: string
+          description: Alternative host email addresses.
+          example: alt@example.com
+        option_alternative_host_ids:
+          type: string
+          description: Alternative host user IDs.
+          example: userId123
+        option_auto_record_type:
+          type: string
+          description: Auto-recording type (local, cloud, none).
+          default: local
+          example: cloud
+        panelists:
+          type: string
+          description: 'Panelists in JSON format: [{"name":"xxx","email":"test@zoom.us"}]'
+          example: '[{"name":"John Doe","email":"john@example.com"}]'
+        language:
+          type: string
+          description: Email language (en-US, en, zh-CN, zh, en-ES, es, fr-FR, fr).
+          example: en-US
+    WebinarDetailResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Webinar UUID.
+          example: unique_id
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        host_id:
+          type: string
+          description: Host user ID.
+          example: unique_id
+        topic:
+          type: string
+          description: Webinar topic.
+          example: create webinar via rest api
+        agenda:
+          type: string
+          description: Webinar agenda.
+          example: ''
+        status:
+          type: integer
+          description: Webinar status.
+          example: 0
+        option_start_type:
+          type: string
+          description: Start type.
+          example: video
+        option_audio:
+          type: string
+          description: Audio option.
+          example: both
+        option_enforce_login:
+          type: boolean
+          description: Whether login is required.
+          example: false
+        option_enforce_login_domains:
+          type: string
+          description: Allowed login domains.
+          example: ''
+        option_alternative_hosts:
+          type: string
+          description: Alternative hosts.
+          example: ''
+        type:
+          type: integer
+          description: Webinar type.
+          example: 5
+        start_time:
+          type: string
+          description: Start time.
+          example: '2015-02-08T12:50:30Z'
+        duration:
+          type: integer
+          description: Duration in minutes.
+          example: 0
+        timezone:
+          type: string
+          description: Timezone.
+          example: America/Los_Angeles
+        start_url:
+          type: string
+          format: uri
+          description: URL for host to start the webinar.
+          example: https://zoom.us/s/123456789?zak=xxxxxx
+        join_url:
+          type: string
+          format: uri
+          description: URL for attendees to join.
+          example: https://zoom.us/j/123456789
+        registration_url:
+          type: string
+          description: Registration URL (if registration required).
+          example: ''
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp.
+          example: '2015-01-22T07:09:49.000Z'
+    DeleteWebinarRequest:
+      type: object
+      required:
+        - id
+        - host_id
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        host_id:
+          type: string
+          description: Webinar host user ID.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        occurrence_id:
+          type: string
+          description: Occurrence ID for recurring webinars (from Webinar Get API).
+          example: '1483210260000'
+    WebinarDeleteResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Deleted webinar ID.
+          example: '123456789'
+        deleted_at:
+          type: string
+          format: date-time
+          description: Deletion timestamp.
+          example: '2012-11-25T12:00:00.000Z'
+    WebinarIdRequest:
+      type: object
+      required:
+        - id
+        - host_id
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        host_id:
+          type: string
+          description: Webinar host user ID.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+    WebinarEndResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        ended_at:
+          type: string
+          format: date-time
+          description: End timestamp.
+          example: '2012-11-25T12:00:00.000Z'
+    WebinarFullDetailResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Webinar UUID.
+          example: unique_id
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        start_url:
+          type: string
+          format: uri
+          description: URL for host to start the webinar.
+          example: https://zoom.us/s/123456789?zak=xxxxxx
+        join_url:
+          type: string
+          format: uri
+          description: URL for attendees to join.
+          example: https://zoom.us/j/123456789
+        registration_url:
+          type: string
+          description: Registration URL.
+          example: ''
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp.
+          example: '2012-11-25T12:00:00.000Z'
+        host_id:
+          type: string
+          description: Host user ID.
+          example: unique_id
+        topic:
+          type: string
+          description: Webinar topic.
+          example: Topic for this meeting
+        type:
+          type: integer
+          description: Webinar type.
+          example: 5
+        start_time:
+          type: string
+          format: date-time
+          description: Start time.
+          example: '2012-11-25T12:00:00.000Z'
+        duration:
+          type: integer
+          description: Duration in minutes.
+          example: 30
+        timezone:
+          type: string
+          description: Timezone.
+          example: America/Los_Angeles
+        agenda:
+          type: string
+          description: Webinar agenda.
+          example: ''
+        option_start_type:
+          type: string
+          description: Start type.
+          example: video
+        option_audio:
+          type: string
+          description: Audio option.
+          example: both
+        option_enforce_login:
+          type: boolean
+          description: Whether login is required.
+          example: false
+        option_enforce_login_domains:
+          type: string
+          description: Allowed login domains.
+          example: ''
+        option_alternative_hosts:
+          type: string
+          description: Alternative hosts.
+          example: ''
+        status:
+          type: integer
+          description: Webinar status.
+          example: 0
+        occurrences:
+          type: array
+          description: List of occurrences for recurring webinars.
+          items:
+            $ref: '#/components/schemas/WebinarOccurrence'
+    WebinarOccurrence:
+      type: object
+      properties:
+        occurrence_id:
+          type: string
+          description: Occurrence ID.
+          example: '1483210260000'
+        start_time:
+          type: string
+          format: date-time
+          description: Occurrence start time.
+          example: '2017-01-01T02:51:00.000Z'
+        duration:
+          type: integer
+          description: Duration in minutes.
+          example: 60
+    ListWebinarsRequest:
+      type: object
+      required:
+        - host_id
+      properties:
+        host_id:
+          type: string
+          description: Webinar host user ID.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        page_size:
+          type: string
+          description: Records per page. Defaults to 30, max 300.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Page number. Defaults to 1.
+          default: '1'
+          example: '1'
+    WebinarListResponse:
+      type: object
+      properties:
+        page_count:
+          type: integer
+          description: Total pages.
+          example: 5
+        total_records:
+          type: integer
+          description: Total webinar records.
+          example: 235
+        page_number:
+          type: integer
+          description: Current page.
+          example: 1
+        page_size:
+          type: integer
+          description: Records per page.
+          example: 50
+        webinars:
+          type: array
+          description: List of webinars.
+          items:
+            $ref: '#/components/schemas/WebinarSummary'
+    WebinarSummary:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Webinar UUID.
+          example: unique_id
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        start_url:
+          type: string
+          format: uri
+          description: Start URL.
+          example: https://zoom.us/s/123456789?zak=xxxxxx
+        join_url:
+          type: string
+          format: uri
+          description: Join URL.
+          example: https://zoom.us/j/123456789
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp.
+          example: '2012-11-25T12:00:00.000Z'
+        host_id:
+          type: string
+          description: Host user ID.
+          example: unique_id
+        topic:
+          type: string
+          description: Webinar topic.
+          example: Topic for this meeting
+        type:
+          type: integer
+          description: Webinar type.
+          example: 5
+        start_time:
+          type: string
+          format: date-time
+          description: Start time.
+          example: '2012-11-25T12:00:00.000Z'
+        duration:
+          type: integer
+          description: Duration in minutes.
+          example: 30
+        timezone:
+          type: string
+          description: Timezone.
+          example: America/Los_Angeles
+        agenda:
+          type: string
+          description: Webinar agenda.
+          example: ''
+        option_start_type:
+          type: string
+          description: Start type.
+          example: video
+        option_audio:
+          type: string
+          description: Audio option.
+          example: both
+        option_enforce_login:
+          type: boolean
+          description: Whether login is required.
+          example: false
+        option_enforce_login_domains:
+          type: string
+          description: Allowed login domains.
+          example: ''
+        option_alternative_hosts:
+          type: string
+          description: Alternative hosts.
+          example: ''
+        status:
+          type: integer
+          description: Webinar status.
+          example: 0
+    WebinarPanelistsResponse:
+      type: object
+      properties:
+        total_records:
+          type: integer
+          description: Total number of panelists.
+          example: 1
+        panelists:
+          type: array
+          description: List of panelists.
+          items:
+            $ref: '#/components/schemas/Panelist'
+    Panelist:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Panelist name.
+          example: Zoomie Userton
+        email:
+          type: string
+          format: email
+          description: Panelist email.
+          example: email_address
+        join_url:
+          type: string
+          format: uri
+          description: Unique join URL for panelist.
+          example: https://www.zoom.us/w/552681828?tk=TMnju_...
+    WebinarEngagementRequest:
+      type: object
+      required:
+        - id
+        - host_id
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        host_id:
+          type: string
+          description: Webinar host user ID.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        uuid:
+          type: string
+          description: Webinar UUID (from /webinar/uuid/list).
+          example: unique_uuid
+    WebinarPollsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        uuid:
+          type: string
+          description: Webinar UUID.
+          example: unique_id
+        start_time:
+          type: string
+          format: date-time
+          description: Webinar start time.
+          example: '2017-02-09T07:15:48.000Z'
+        questions:
+          type: array
+          description: Poll questions and responses.
+          items:
+            $ref: '#/components/schemas/PollQuestion'
+    PollQuestion:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Respondent name.
+          example: Zoomie Userton
+        email:
+          type: string
+          format: email
+          description: Respondent email.
+          example: email_address
+        question_details:
+          type: array
+          description: Question and answer pairs.
+          items:
+            $ref: '#/components/schemas/QuestionDetail'
+    QuestionDetail:
+      type: object
+      properties:
+        question:
+          type: string
+          description: The question asked.
+          example: question?
+        answer:
+          type: string
+          description: The answer provided.
+          example: answer
+    WebinarQaResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        uuid:
+          type: string
+          description: Webinar UUID.
+          example: unique_id
+        start_time:
+          type: string
+          format: date-time
+          description: Webinar start time.
+          example: '2017-02-09T07:15:48.000Z'
+        questions:
+          type: array
+          description: Q&A questions and answers.
+          items:
+            $ref: '#/components/schemas/QaItem'
+    QaItem:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Person who asked the question.
+          example: Zoomie Userton
+        email:
+          type: string
+          format: email
+          description: Email of person who asked.
+          example: email_address
+        question_details:
+          type: array
+          description: Question and answer pairs.
+          items:
+            $ref: '#/components/schemas/QuestionDetail'
+    WebinarRegisterRequest:
+      type: object
+      required:
+        - id
+        - email
+        - first_name
+        - last_name
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        email:
+          type: string
+          format: email
+          description: Registrant email address.
+          example: attendee@example.com
+        first_name:
+          type: string
+          description: Registrant first name.
+          example: Jane
+        last_name:
+          type: string
+          description: Registrant last name.
+          example: Doe
+        address:
+          type: string
+          description: Registrant address.
+          example: 123 Main St
+        city:
+          type: string
+          description: Registrant city.
+          example: San Jose
+        country:
+          type: string
+          description: Registrant country code.
+          example: US
+        zip:
+          type: string
+          description: Registrant zip/postal code.
+          example: '95131'
+        state:
+          type: string
+          description: Registrant state/province.
+          example: CA
+        phone:
+          type: string
+          description: Registrant phone number.
+          example: +1-555-123-4567
+        industry:
+          type: string
+          description: Registrant industry.
+          example: Technology
+        org:
+          type: string
+          description: Registrant organization.
+          example: Acme Corp
+        job_title:
+          type: string
+          description: Registrant job title.
+          example: Software Engineer
+        purchasing_time_frame:
+          type: string
+          description: Purchasing time frame.
+          example: Within a month
+        role_in_purchase_process:
+          type: string
+          description: Role in purchase process.
+          example: Decision Maker
+        no_of_employees:
+          type: string
+          description: Number of employees.
+          example: 51-100
+        comments:
+          type: string
+          description: Questions and comments.
+          example: Looking forward to the webinar!
+        custom_questions:
+          type: string
+          description: 'Custom question responses in JSON: [{"title":"field","value":"xxx"}]'
+          example: '[{"title":"How did you hear about us?","value":"Google"}]'
+        language:
+          type: string
+          description: Email language preference.
+          example: en-US
+        occurrence_ids:
+          type: string
+          description: Occurrence IDs for recurring webinars.
+          example: '1483210260000'
+    WebinarRegisterResponse:
+      type: object
+      properties:
+        registrant_id:
+          type: string
+          description: Unique registrant ID.
+          example: unique_id
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        topic:
+          type: string
+          description: Webinar topic.
+          example: webinar registration
+        start_time:
+          type: string
+          format: date-time
+          description: Webinar start time.
+          example: '2016-02-21T04:00:00.000Z'
+        join_url:
+          type: string
+          format: uri
+          description: Unique join URL for this registrant.
+          example: https://www.zoom.us/w/123456789?tk=...
+    ApproveRegistrantsRequest:
+      type: object
+      required:
+        - id
+        - host_id
+        - registrant_ids
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        host_id:
+          type: string
+          description: Webinar host user ID.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        registrant_ids:
+          type: string
+          description: Comma-separated registrant IDs to approve.
+          example: reg123,reg456,reg789
+    WebinarUpdateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '421431292'
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp.
+          example: '2016-08-18T02:11:40.000Z'
+    ListRegistrantsRequest:
+      type: object
+      required:
+        - id
+        - host_id
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        host_id:
+          type: string
+          description: Webinar host user ID.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        type:
+          type: string
+          description: 0=pending approval, 1=approved.
+          default: '0'
+          example: '0'
+        page_size:
+          type: string
+          description: Records per page. Defaults to 30.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Page number. Defaults to 1.
+          default: '1'
+          example: '1'
+    RegistrantsListResponse:
+      type: object
+      properties:
+        page_count:
+          type: integer
+          description: Total pages.
+          example: 1
+        page_number:
+          type: integer
+          description: Current page.
+          example: 1
+        page_size:
+          type: integer
+          description: Records per page.
+          example: 30
+        total_records:
+          type: integer
+          description: Total registrants.
+          example: 1
+        type:
+          type: integer
+          description: Registrant type filter.
+          example: 0
+        users:
+          type: array
+          description: List of registrants.
+          items:
+            $ref: '#/components/schemas/Registrant'
+    Registrant:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Registrant ID.
+          example: unique_id
+        first_name:
+          type: string
+          description: Registrant first name.
+          example: Zoomie
+        last_name:
+          type: string
+          description: Registrant last name.
+          example: Userton
+        email:
+          type: string
+          format: email
+          description: Registrant email.
+          example: email_address
+        registration_time:
+          type: string
+          format: date-time
+          description: Registration timestamp.
+          example: '2016-08-18T01:45:26.000Z'
+    RegistrationInfoRequest:
+      type: object
+      required:
+        - id
+        - host_id
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        host_id:
+          type: string
+          description: Webinar host user ID.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        occurrence_id:
+          type: string
+          description: Occurrence ID for recurring webinars.
+          example: '1483210260000'
+        page_size:
+          type: string
+          description: Records per page. Defaults to 30.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Page number. Defaults to 1.
+          default: '1'
+          example: '1'
+    RegistrationInfoResponse:
+      type: object
+      properties:
+        page_count:
+          type: integer
+          description: Total pages.
+          example: 1
+        page_number:
+          type: integer
+          description: Current page.
+          example: 1
+        page_size:
+          type: integer
+          description: Records per page.
+          example: 30
+        total_records:
+          type: integer
+          description: Total attendees.
+          example: 1
+        attendees:
+          type: array
+          description: List of registered attendees.
+          items:
+            $ref: '#/components/schemas/RegisteredAttendee'
+    RegisteredAttendee:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Attendee ID.
+          example: unique_id
+        first_name:
+          type: string
+          description: Attendee first name.
+          example: Zoomie
+        last_name:
+          type: string
+          description: Attendee last name.
+          example: Userton
+        create_time:
+          type: string
+          format: date-time
+          description: Registration creation time.
+          example: '2015-08-23T03:03:48.000Z'
+        approval:
+          type: string
+          description: Approval status.
+          example: approved
+        email:
+          type: string
+          format: email
+          description: Attendee email.
+          example: email_address
+        registration_url:
+          type: string
+          format: uri
+          description: Registration URL.
+          example: https://api.zoom.us/w/206388466?tk=...
+    CancelRegistrationRequest:
+      type: object
+      required:
+        - id
+        - host_id
+        - registrant_ids
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        host_id:
+          type: string
+          description: Webinar host user ID.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        registrant_ids:
+          type: string
+          description: Comma-separated registrant IDs to cancel.
+          example: reg123,reg456
+    UpdateWebinarRequest:
+      type: object
+      required:
+        - id
+        - host_id
+      properties:
+        id:
+          type: string
+          description: Webinar ID.
+          example: '123456789'
+        host_id:
+          type: string
+          description: Webinar host user ID.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        topic:
+          type: string
+          description: Webinar topic.
+          example: Updated Webinar Topic
+        type:
+          type: string
+          description: 'Webinar type: 5=webinar, 6=recurring, 9=recurring with fixed time.'
+          example: '5'
+        start_time:
+          type: string
+          format: date-time
+          description: Start time in ISO format.
+          example: '2012-11-25T12:00:00Z'
+        duration:
+          type: string
+          description: Duration in minutes.
+          example: '90'
+        timezone:
+          type: string
+          description: Timezone.
+          example: America/Los_Angeles
+        password:
+          type: string
+          description: Webinar password.
+          example: Pass123
+        agenda:
+          type: string
+          description: Webinar agenda.
+          example: Updated webinar agenda.
+        recurrence:
+          type: string
+          description: Recurrence settings in JSON format.
+          example: '{"type": 1, "repeat_interval": 1, "end_times": 5}'
+        option_audio:
+          type: string
+          description: Audio options.
+          example: both
+        option_host_video:
+          type: boolean
+          description: Start video when host joins.
+          example: true
+        option_panelist_video:
+          type: boolean
+          description: Start video when panelist joins.
+          example: true
+        option_practice_session:
+          type: boolean
+          description: Enable practice session.
+          example: true
+        option_enforce_login:
+          type: boolean
+          description: Only signed-in users can join.
+          example: false
+        option_enforce_login_domains:
+          type: string
+          description: Only users from specified domains can join.
+          example: example.com
+        option_alternative_hosts:
+          type: string
+          description: Alternative host emails.
+          example: alt@example.com
+        option_auto_record_type:
+          type: string
+          description: Auto-recording type.
+          example: cloud
+        panelists:
+          type: string
+          description: Panelists in JSON format.
+          example: '[{"name":"John Doe","email":"john@example.com"}]'
+    WebinarUuidListResponse:
+      type: object
+      properties:
+        webinars:
+          type: array
+          description: List of webinar instances.
+          items:
+            $ref: '#/components/schemas/WebinarUuidItem'
+    WebinarUuidItem:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Webinar UUID.
+          example: unique_id
+        start_time:
+          type: string
+          format: date-time
+          description: Instance start time.
+          example: '2015-08-23T03:03:48.000Z'
+  examples:
+    WebinarAttendeesRequestExample:
+      summary: Example webinar attendees request
+      value:
+        id: '123456789'
+        host_id: bNsPi5hCQ-qOzWn2EeCXJA
+        uuid: unique_uuid
+    WebinarAttendeesResponseExample:
+      summary: Example webinar attendees response
+      value:
+        attendees:
+          - first_name: Zoomie
+            last_name: Userton
+            email: email_address
+            join_time: '2015-09-18T09:41:39.000Z'
+            leave_time: '2015-09-18T09:42:12.000Z'
+            time_in_session: '8'
+            attended: 'Yes'
+            custom_questions:
+              which one do you like?: sss
+            questions:
+              country: US
+              address: 1234 Some Street
+              city: Zoomville
+    CreateWebinarRequestExample:
+      summary: Example create webinar request
+      value:
+        host_id: bNsPi5hCQ-qOzWn2EeCXJA
+        topic: Q4 Product Launch Webinar
+        type: '5'
+        start_time: '2025-02-08T12:00:00Z'
+        duration: '60'
+        timezone: America/Los_Angeles
+        agenda: Join us for our quarterly product launch event.
+        option_audio: both
+        option_host_video: true
+        option_panelist_video: true
+    WebinarDetailResponseExample:
+      summary: Example webinar detail response
+      value:
+        uuid: unique_id
+        id: '123456789'
+        host_id: unique_id
+        topic: create webinar via rest api
+        agenda: ''
+        status: 0
+        option_start_type: video
+        option_audio: both
+        option_enforce_login: false
+        option_enforce_login_domains: ''
+        option_alternative_hosts: ''
+        type: 5
+        start_time: '2015-02-08T12:50:30Z'
+        duration: 0
+        timezone: America/Los_Angeles
+        start_url: https://zoom.us/s/123456789?zak=xxxxxx
+        join_url: https://zoom.us/j/123456789
+        registration_url: ''
+        created_at: '2015-01-22T07:09:49.000Z'
+    DeleteWebinarRequestExample:
+      summary: Example delete webinar request
+      value:
+        id: '123456789'
+        host_id: bNsPi5hCQ-qOzWn2EeCXJA
+    WebinarDeleteResponseExample:
+      summary: Example delete webinar response
+      value:
+        id: '123456789'
+        deleted_at: '2012-11-25T12:00:00.000Z'
+    WebinarIdRequestExample:
+      summary: Example webinar ID request
+      value:
+        id: '123456789'
+        host_id: bNsPi5hCQ-qOzWn2EeCXJA
+    WebinarEndResponseExample:
+      summary: Example end webinar response
+      value:
+        id: '123456789'
+        ended_at: '2012-11-25T12:00:00.000Z'
+    WebinarFullDetailResponseExample:
+      summary: Example full webinar detail response
+      value:
+        uuid: unique_id
+        id: '123456789'
+        start_url: https://zoom.us/s/123456789?zak=xxxxxx
+        join_url: https://zoom.us/j/123456789
+        registration_url: ''
+        created_at: '2012-11-25T12:00:00.000Z'
+        host_id: unique_id
+        topic: Topic for this meeting
+        type: 5
+        start_time: '2012-11-25T12:00:00.000Z'
+        duration: 30
+        timezone: America/Los_Angeles
+        agenda: ''
+        option_start_type: video
+        option_audio: both
+        option_enforce_login: false
+        option_enforce_login_domains: ''
+        option_alternative_hosts: ''
+        status: 0
+        occurrences:
+          - occurrence_id: '1483210260000'
+            start_time: '2017-01-01T02:51:00.000Z'
+            duration: 60
+    ListWebinarsRequestExample:
+      summary: Example list webinars request
+      value:
+        host_id: bNsPi5hCQ-qOzWn2EeCXJA
+        page_size: '30'
+        page_number: '1'
+    WebinarListResponseExample:
+      summary: Example webinar list response
+      value:
+        page_count: 5
+        total_records: 235
+        page_number: 1
+        page_size: 50
+        webinars:
+          - uuid: unique_id
+            id: '123456789'
+            start_url: https://zoom.us/s/123456789?zak=xxxxxx
+            join_url: https://zoom.us/j/123456789
+            created_at: '2012-11-25T12:00:00.000Z'
+            host_id: unique_id
+            topic: Topic for this meeting
+            type: 5
+            start_time: '2012-11-25T12:00:00.000Z'
+            duration: 30
+            timezone: America/Los_Angeles
+            agenda: ''
+            option_start_type: video
+            option_audio: both
+            option_enforce_login: false
+            option_enforce_login_domains: ''
+            option_alternative_hosts: ''
+            status: 0
+    WebinarPanelistsResponseExample:
+      summary: Example webinar panelists response
+      value:
+        total_records: 1
+        panelists:
+          - name: Zoomie Userton
+            email: email_address
+            join_url: https://www.zoom.us/w/552681828?tk=TMnju_...
+    WebinarEngagementRequestExample:
+      summary: Example webinar engagement request
+      value:
+        id: '123456789'
+        host_id: bNsPi5hCQ-qOzWn2EeCXJA
+        uuid: unique_uuid
+    WebinarPollsResponseExample:
+      summary: Example webinar polls response
+      value:
+        id: '123456789'
+        uuid: unique_id
+        start_time: '2017-02-09T07:15:48.000Z'
+        questions:
+          - name: Zoomie Userton
+            email: email_address
+            question_details:
+              - question: question?
+                answer: answer
+    WebinarQaResponseExample:
+      summary: Example webinar Q&A response
+      value:
+        id: '123456789'
+        uuid: unique_id
+        start_time: '2017-02-09T07:15:48.000Z'
+        questions:
+          - name: Zoomie Userton
+            email: email_address
+            question_details:
+              - question: question?
+                answer: answer
+    WebinarRegisterRequestExample:
+      summary: Example webinar registration request
+      value:
+        id: '123456789'
+        email: attendee@example.com
+        first_name: Jane
+        last_name: Doe
+        city: San Jose
+        country: US
+        org: Acme Corp
+    WebinarRegisterResponseExample:
+      summary: Example webinar registration response
+      value:
+        registrant_id: unique_id
+        id: '123456789'
+        topic: webinar registration
+        start_time: '2016-02-21T04:00:00.000Z'
+        join_url: https://www.zoom.us/w/123456789?tk=...
+    ApproveRegistrantsRequestExample:
+      summary: Example approve registrants request
+      value:
+        id: '123456789'
+        host_id: bNsPi5hCQ-qOzWn2EeCXJA
+        registrant_ids: reg123,reg456,reg789
+    WebinarUpdateResponseExample:
+      summary: Example webinar update response
+      value:
+        id: '421431292'
+        updated_at: '2016-08-18T02:11:40.000Z'
+    ListRegistrantsRequestExample:
+      summary: Example list registrants request
+      value:
+        id: '123456789'
+        host_id: bNsPi5hCQ-qOzWn2EeCXJA
+        type: '0'
+        page_size: '30'
+        page_number: '1'
+    RegistrantsListResponseExample:
+      summary: Example registrants list response
+      value:
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 1
+        type: 0
+        users:
+          - id: unique_id
+            first_name: Zoomie
+            last_name: Userton
+            email: email_address
+            registration_time: '2016-08-18T01:45:26.000Z'
+    RegistrationInfoRequestExample:
+      summary: Example registration info request
+      value:
+        id: '123456789'
+        host_id: bNsPi5hCQ-qOzWn2EeCXJA
+        page_size: '30'
+        page_number: '1'
+    RegistrationInfoResponseExample:
+      summary: Example registration info response
+      value:
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 1
+        attendees:
+          - id: unique_id
+            first_name: Zoomie
+            last_name: Userton
+            create_time: '2015-08-23T03:03:48.000Z'
+            approval: approved
+            email: email_address
+            registration_url: https://api.zoom.us/w/206388466?tk=...
+    CancelRegistrationRequestExample:
+      summary: Example cancel registration request
+      value:
+        id: '123456789'
+        host_id: bNsPi5hCQ-qOzWn2EeCXJA
+        registrant_ids: reg123,reg456
+    UpdateWebinarRequestExample:
+      summary: Example update webinar request
+      value:
+        id: '123456789'
+        host_id: bNsPi5hCQ-qOzWn2EeCXJA
+        topic: Updated Webinar Topic
+        duration: '90'
+        agenda: Updated webinar agenda.
+    WebinarUuidListResponseExample:
+      summary: Example webinar UUID list response
+      value:
+        webinars:
+          - uuid: unique_id
+            start_time: '2015-08-23T03:03:48.000Z'

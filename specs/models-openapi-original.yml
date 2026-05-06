@@ -1,0 +1,221 @@
+openapi: 3.1.0
+info:
+  title: openai-models-api
+  description: >
+    The Models API allows you to list and describe the various AI models
+    available in the OpenAI API.
+
+
+    You can retrieve information about specific models, list all available
+    models, and delete fine-tuned models that you have created. Each model has
+    different capabilities, performance characteristics, and pricing.
+
+
+    Related guide: [Models
+    documentation](https://platform.openai.com/docs/models)
+  version: 1.0.0
+  termsOfService: https://openai.com/policies/terms-of-use
+  contact:
+    name: OpenAI Support
+    url: https://help.openai.com/
+  license:
+    name: MIT
+    url: https://github.com/openai/openai-openapi/blob/master/LICENSE
+servers:
+  - url: https://api.openai.com/v1
+    description: OpenAI API Production Server
+  - url: http://localhost:8080/rest/openai-models-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Model Discovery
+    description: Operations for listing and retrieving information about available models.
+  - name: Model Management
+    description: Operations for managing fine-tuned models including deletion.
+paths:
+  /models:
+    get:
+      operationId: listModels
+      tags:
+        - Model Discovery
+      summary: List Available Models
+      description: >-
+        Lists the currently available models and provides basic information
+        about each one such as the owner and availability.
+      responses:
+        '200':
+          description: Successfully retrieved the list of models.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListModelsResponse'
+              examples:
+                ListModelsExample:
+                  $ref: '#/components/examples/ListModelsResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListModelsExample"
+  /models/{model}:
+    get:
+      operationId: retrieveModel
+      tags:
+        - Model Discovery
+      summary: Retrieve Model Details
+      description: >-
+        Retrieves a model instance, providing basic information about the model
+        such as the owner and permissioning.
+      parameters:
+        - name: model
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the model to retrieve (e.g., gpt-3.5-turbo, gpt-4).
+          example: gpt-3.5-turbo
+      responses:
+        '200':
+          description: Successfully retrieved the model details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelObject'
+              examples:
+                RetrieveModelExample:
+                  $ref: '#/components/examples/ModelObjectExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "RetrieveModelExample"
+    delete:
+      operationId: deleteModel
+      tags:
+        - Model Management
+      summary: Delete Fine-Tuned Model
+      description: >-
+        Delete a fine-tuned model. You must have the Owner role in your
+        organization to delete a model.
+      parameters:
+        - name: model
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the fine-tuned model to delete.
+          example: ft:gpt-3.5-turbo:acemeco:suffix:abc123
+      responses:
+        '200':
+          description: Successfully deleted the model.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteModelResponse'
+              examples:
+                DeleteModelExample:
+                  $ref: '#/components/examples/DeleteModelResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "DeleteModelExample"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+      description: Use your OpenAI API key as the bearer token.
+  schemas:
+    ModelObject:
+      type: object
+      title: ModelObject
+      description: Describes an OpenAI model offering that can be used with the API.
+      properties:
+        id:
+          type: string
+          description: The model identifier, which can be referenced in the API endpoints.
+        object:
+          type: string
+          enum:
+            - model
+          description: The object type, which is always "model".
+        created:
+          type: integer
+          description: The Unix timestamp (in seconds) when the model was created.
+        owned_by:
+          type: string
+          description: The organization that owns the model.
+      required:
+        - id
+        - object
+        - created
+        - owned_by
+    ListModelsResponse:
+      type: object
+      title: ListModelsResponse
+      description: Response containing a list of available models.
+      properties:
+        object:
+          type: string
+          enum:
+            - list
+          description: The object type, which is always "list".
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelObject'
+          description: An array of model objects.
+      required:
+        - object
+        - data
+    DeleteModelResponse:
+      type: object
+      title: DeleteModelResponse
+      description: Response confirming the deletion of a model.
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the deleted model.
+        object:
+          type: string
+          enum:
+            - model
+          description: The object type, which is always "model".
+        deleted:
+          type: boolean
+          description: Indicates whether the model was successfully deleted.
+      required:
+        - id
+        - object
+        - deleted
+  examples:
+    ModelObjectExample:
+      summary: Example model object
+      value:
+        id: gpt-3.5-turbo
+        object: model
+        created: 1686935002
+        owned_by: openai
+    ListModelsResponseExample:
+      summary: Example list models response
+      value:
+        object: list
+        data:
+          - id: gpt-4
+            object: model
+            created: 1686935002
+            owned_by: openai
+          - id: gpt-3.5-turbo
+            object: model
+            created: 1686935002
+            owned_by: openai
+          - id: dall-e-3
+            object: model
+            created: 1686935002
+            owned_by: openai
+    DeleteModelResponseExample:
+      summary: Example delete model response
+      value:
+        id: ft:gpt-3.5-turbo:acemeco:suffix:abc123
+        object: model
+        deleted: true
+security:
+  - BearerAuth: []

@@ -1,0 +1,365 @@
+openapi: 3.1.0
+info:
+  title: openai-images-api
+  description: >
+    The Images API allows you to generate, edit, and create variations of images
+    using OpenAI's DALL·E models.
+
+
+    With this API, you can create original images from text descriptions
+    (prompts), edit existing images by providing a mask and instructions, or
+    generate variations of existing images.
+
+
+    Related guide: [Image
+    generation](https://platform.openai.com/docs/guides/images)
+  version: 1.0.0
+  termsOfService: https://openai.com/policies/terms-of-use
+  contact:
+    name: OpenAI Support
+    url: https://help.openai.com/
+  license:
+    name: MIT
+    url: https://github.com/openai/openai-openapi/blob/master/LICENSE
+servers:
+  - url: https://api.openai.com/v1
+    description: OpenAI API Production Server
+  - url: http://localhost:8080/rest/openai-images-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Image Generation
+    description: >-
+      Operations for generating new images from text prompts using DALL·E
+      models.
+  - name: Image Editing
+    description: Operations for editing existing images using masks and text instructions.
+  - name: Image Variations
+    description: Operations for creating variations of existing images.
+paths:
+  /images/generations:
+    post:
+      operationId: createImage
+      tags:
+        - Image Generation
+      summary: Generate Image From Prompt
+      description: >-
+        Creates one or more images given a text prompt using DALL·E. The images
+        can be returned as URLs or base64-encoded data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateImageRequest'
+            examples:
+              GenerateImageExample:
+                $ref: '#/components/examples/CreateImageRequestExample'
+      responses:
+        '200':
+          description: Successfully generated the image(s).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImagesResponse'
+              examples:
+                GenerateImageExample:
+                  $ref: '#/components/examples/ImagesResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GenerateImageExample"
+  /images/edits:
+    post:
+      operationId: createImageEdit
+      tags:
+        - Image Editing
+      summary: Edit Existing Image
+      description: >-
+        Creates an edited or extended image given an original image and a
+        prompt. The areas of the image to be edited can be specified using a
+        mask.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateImageEditRequest'
+            examples:
+              EditImageExample:
+                $ref: '#/components/examples/CreateImageEditRequestExample'
+      responses:
+        '200':
+          description: Successfully created the edited image(s).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImagesResponse'
+              examples:
+                EditImageExample:
+                  $ref: '#/components/examples/ImagesResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "EditImageExample"
+  /images/variations:
+    post:
+      operationId: createImageVariation
+      tags:
+        - Image Variations
+      summary: Create Image Variation
+      description: >-
+        Creates one or more variations of a given input image. The variations
+        will be similar in style and content to the original image.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateImageVariationRequest'
+            examples:
+              VariationExample:
+                $ref: '#/components/examples/CreateImageVariationRequestExample'
+      responses:
+        '200':
+          description: Successfully created the image variation(s).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImagesResponse'
+              examples:
+                VariationExample:
+                  $ref: '#/components/examples/ImagesResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "VariationExample"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+      description: Use your OpenAI API key as the bearer token.
+  schemas:
+    ImageObject:
+      type: object
+      title: ImageObject
+      description: >-
+        Represents a generated image, containing either a URL or base64-encoded
+        data.
+      properties:
+        url:
+          type: string
+          description: >-
+            The URL of the generated image. Only present when response_format is
+            "url".
+        b64_json:
+          type: string
+          description: >-
+            The base64-encoded JSON of the generated image. Only present when
+            response_format is "b64_json".
+        revised_prompt:
+          type: string
+          description: The revised prompt used to generate the image (DALL·E 3 only).
+    ImagesResponse:
+      type: object
+      title: ImagesResponse
+      description: Response containing one or more generated images.
+      properties:
+        created:
+          type: integer
+          description: The Unix timestamp (in seconds) when the images were created.
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageObject'
+          description: An array of image objects.
+      required:
+        - created
+        - data
+    CreateImageRequest:
+      type: object
+      title: CreateImageRequest
+      description: Request body for generating images from a text prompt.
+      properties:
+        prompt:
+          type: string
+          maxLength: 4000
+          description: A text description of the desired image(s).
+        model:
+          type: string
+          enum:
+            - dall-e-2
+            - dall-e-3
+          default: dall-e-2
+          description: The model to use for image generation.
+        'n':
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 1
+          description: The number of images to generate. For DALL·E 3, only 1 is supported.
+        quality:
+          type: string
+          enum:
+            - standard
+            - hd
+          default: standard
+          description: The quality of the image (DALL·E 3 only).
+        response_format:
+          type: string
+          enum:
+            - url
+            - b64_json
+          default: url
+          description: The format in which the generated images are returned.
+        size:
+          type: string
+          enum:
+            - 256x256
+            - 512x512
+            - 1024x1024
+            - 1792x1024
+            - 1024x1792
+          default: 1024x1024
+          description: The size of the generated images.
+        style:
+          type: string
+          enum:
+            - vivid
+            - natural
+          default: vivid
+          description: The style of the generated images (DALL·E 3 only).
+        user:
+          type: string
+          description: A unique identifier representing your end-user for abuse monitoring.
+      required:
+        - prompt
+    CreateImageEditRequest:
+      type: object
+      title: CreateImageEditRequest
+      description: Request body for editing an existing image.
+      properties:
+        image:
+          type: string
+          format: binary
+          description: >-
+            The image to edit. Must be a valid PNG file, less than 4MB, and
+            square.
+        prompt:
+          type: string
+          maxLength: 1000
+          description: A text description of the desired changes to the image.
+        mask:
+          type: string
+          format: binary
+          description: >-
+            An additional image whose fully transparent areas indicate where
+            image should be edited.
+        model:
+          type: string
+          enum:
+            - dall-e-2
+          default: dall-e-2
+          description: The model to use for image editing.
+        'n':
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 1
+          description: The number of images to generate.
+        size:
+          type: string
+          enum:
+            - 256x256
+            - 512x512
+            - 1024x1024
+          default: 1024x1024
+          description: The size of the generated images.
+        response_format:
+          type: string
+          enum:
+            - url
+            - b64_json
+          default: url
+          description: The format in which the generated images are returned.
+        user:
+          type: string
+          description: A unique identifier representing your end-user for abuse monitoring.
+      required:
+        - image
+        - prompt
+    CreateImageVariationRequest:
+      type: object
+      title: CreateImageVariationRequest
+      description: Request body for creating variations of an existing image.
+      properties:
+        image:
+          type: string
+          format: binary
+          description: >-
+            The image to use as the basis for the variation(s). Must be a valid
+            PNG file, less than 4MB, and square.
+        model:
+          type: string
+          enum:
+            - dall-e-2
+          default: dall-e-2
+          description: The model to use for image variation.
+        'n':
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 1
+          description: The number of images to generate.
+        response_format:
+          type: string
+          enum:
+            - url
+            - b64_json
+          default: url
+          description: The format in which the generated images are returned.
+        size:
+          type: string
+          enum:
+            - 256x256
+            - 512x512
+            - 1024x1024
+          default: 1024x1024
+          description: The size of the generated images.
+        user:
+          type: string
+          description: A unique identifier representing your end-user for abuse monitoring.
+      required:
+        - image
+  examples:
+    CreateImageRequestExample:
+      summary: Example image generation request
+      value:
+        model: dall-e-3
+        prompt: A cute baby sea otter
+        'n': 1
+        size: 1024x1024
+    ImagesResponseExample:
+      summary: Example images response
+      value:
+        created: 1589478378
+        data:
+          - url: >-
+              https://oaidalleapiprodscus.blob.core.windows.net/private/generated-image.png
+    CreateImageEditRequestExample:
+      summary: Example image edit request
+      value:
+        image: '@otter.png'
+        mask: '@mask.png'
+        prompt: A cute baby sea otter wearing a beret
+        'n': 2
+        size: 1024x1024
+    CreateImageVariationRequestExample:
+      summary: Example image variation request
+      value:
+        image: '@otter.png'
+        'n': 2
+        size: 1024x1024
+security:
+  - BearerAuth: []

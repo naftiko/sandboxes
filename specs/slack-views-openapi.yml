@@ -1,0 +1,723 @@
+openapi: 3.1.0
+info:
+  title: slack-views-api
+  version: 1.0.0
+  description: >-
+    The Slack Views API lets your app build and control Block Kit interfaces
+    inside Slack—primarily modals and the App Home tab. With methods like
+    views.open, views.update, and views.push, your app can launch multi-step
+    modal flows in response to interactive triggers (slash commands, shortcuts,
+    or message actions), update them in place, or push new steps onto the stack.
+    Using views.publish, you can render a personalized, dynamic Home tab for
+    each user.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-views-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Views
+    description: Operations for managing Slack views including modals and App Home tabs
+paths:
+  /views.open:
+    get:
+      tags:
+        - Views
+      summary: Open View
+      description: Open a view for a user.
+      operationId: openView
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/views.open
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - $ref: '#/components/parameters/TriggerId'
+        - $ref: '#/components/parameters/ViewPayload'
+      responses:
+        '200':
+          description: Typical success response includes the opened view payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewOpenSuccessResponse'
+              examples:
+                ViewOpenSuccessExample:
+                  $ref: '#/components/examples/ViewOpenSuccessExample'
+        default:
+          description: >-
+            Typical error response, before getting to any possible validation
+            errors.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidTriggerIdError:
+                  $ref: '#/components/examples/InvalidTriggerIdError'
+      security:
+        - SlackAuth:
+            - none
+  /views.publish:
+    get:
+      tags:
+        - Views
+      summary: Publish View
+      description: Publish a static view for a User.
+      operationId: publishView
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/views.publish
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/ViewPayload'
+        - $ref: '#/components/parameters/Hash'
+      responses:
+        '200':
+          description: Typical success response includes the published view payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewPublishSuccessResponse'
+              examples:
+                ViewPublishSuccessExample:
+                  $ref: '#/components/examples/ViewPublishSuccessExample'
+        default:
+          description: >-
+            Typical error response, before getting to any possible validation
+            errors.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidUserIdError:
+                  $ref: '#/components/examples/InvalidUserIdError'
+      security:
+        - SlackAuth:
+            - none
+  /views.push:
+    get:
+      tags:
+        - Views
+      summary: Push View
+      description: Push a view onto the stack of a root view.
+      operationId: pushView
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/views.push
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - $ref: '#/components/parameters/TriggerId'
+        - $ref: '#/components/parameters/ViewPayload'
+      responses:
+        '200':
+          description: Typical success response includes the pushed view payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewPushSuccessResponse'
+              examples:
+                ViewPushSuccessExample:
+                  $ref: '#/components/examples/ViewPushSuccessExample'
+        default:
+          description: Typical error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                MissingTitleError:
+                  $ref: '#/components/examples/MissingTitleError'
+      security:
+        - SlackAuth:
+            - none
+  /views.update:
+    get:
+      tags:
+        - Views
+      summary: Update View
+      description: Update an existing view.
+      operationId: updateView
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/views.update
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - $ref: '#/components/parameters/ViewId'
+        - $ref: '#/components/parameters/ExternalId'
+        - $ref: '#/components/parameters/ViewPayloadOptional'
+        - $ref: '#/components/parameters/Hash'
+      responses:
+        '200':
+          description: Typical success response includes the updated view payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewUpdateSuccessResponse'
+              examples:
+                ViewUpdateSuccessExample:
+                  $ref: '#/components/examples/ViewUpdateSuccessExample'
+        default:
+          description: Typical error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundError'
+      security:
+        - SlackAuth:
+            - none
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            none: No specific scope required
+  parameters:
+    TokenHeader:
+      name: token
+      in: header
+      description: Authentication token. Requires scope as specified per endpoint.
+      required: true
+      schema:
+        type: string
+      example: example-123456789012-1234567890123-key
+    TriggerId:
+      name: trigger_id
+      in: query
+      description: Exchange a trigger to post to the user.
+      required: true
+      schema:
+        type: string
+      example: 12345.67890.abcdef
+    ViewPayload:
+      name: view
+      in: query
+      description: A view payload. This must be a JSON-encoded string.
+      required: true
+      schema:
+        type: string
+      example: >-
+        {"type":"modal","title":{"type":"plain_text","text":"My
+        Modal"},"blocks":[]}
+    ViewPayloadOptional:
+      name: view
+      in: query
+      description: A view object. This must be a JSON-encoded string.
+      required: false
+      schema:
+        type: string
+      example: >-
+        {"type":"modal","title":{"type":"plain_text","text":"Updated
+        Modal"},"blocks":[]}
+    UserId:
+      name: user_id
+      in: query
+      description: ID of the user you want to publish a view to.
+      required: true
+      schema:
+        type: string
+      example: U1234567890
+    ViewId:
+      name: view_id
+      in: query
+      description: >-
+        A unique identifier of the view to be updated. Either view_id or
+        external_id is required.
+      required: false
+      schema:
+        type: string
+      example: V1234567890
+    ExternalId:
+      name: external_id
+      in: query
+      description: >-
+        A unique identifier of the view set by the developer. Max length of 255
+        characters. Either view_id or external_id is required.
+      required: false
+      schema:
+        type: string
+        maxLength: 255
+      example: my-custom-view-id
+    Hash:
+      name: hash
+      in: query
+      description: >-
+        A string that represents view state to protect against possible race
+        conditions.
+      required: false
+      schema:
+        type: string
+      example: '156772938.1827394'
+  schemas:
+    OkTrue:
+      type: boolean
+      enum:
+        - true
+      description: Indicates successful operation
+    OkFalse:
+      type: boolean
+      enum:
+        - false
+      description: Indicates failed operation
+    PlainTextElement:
+      type: object
+      required:
+        - type
+        - text
+      properties:
+        type:
+          type: string
+          enum:
+            - plain_text
+        text:
+          type: string
+        emoji:
+          type: boolean
+    MrkdwnElement:
+      type: object
+      required:
+        - type
+        - text
+      properties:
+        type:
+          type: string
+          enum:
+            - mrkdwn
+        text:
+          type: string
+        verbatim:
+          type: boolean
+    InputBlock:
+      type: object
+      required:
+        - type
+        - block_id
+        - element
+        - label
+      properties:
+        type:
+          type: string
+          enum:
+            - input
+        block_id:
+          type: string
+        element:
+          type: object
+          properties:
+            type:
+              type: string
+            action_id:
+              type: string
+        label:
+          $ref: '#/components/schemas/PlainTextElement'
+        optional:
+          type: boolean
+    SectionBlock:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - section
+        block_id:
+          type: string
+        text:
+          oneOf:
+            - $ref: '#/components/schemas/PlainTextElement'
+            - $ref: '#/components/schemas/MrkdwnElement'
+        accessory:
+          type: object
+          properties:
+            type:
+              type: string
+            action_id:
+              type: string
+            text:
+              $ref: '#/components/schemas/PlainTextElement'
+    ViewState:
+      type: object
+      properties:
+        values:
+          type: object
+          additionalProperties: true
+    ModalView:
+      type: object
+      required:
+        - id
+        - type
+        - title
+        - blocks
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - modal
+        title:
+          $ref: '#/components/schemas/PlainTextElement'
+        submit:
+          oneOf:
+            - $ref: '#/components/schemas/PlainTextElement'
+            - type: 'null'
+        close:
+          oneOf:
+            - $ref: '#/components/schemas/PlainTextElement'
+            - type: 'null'
+        blocks:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/InputBlock'
+              - $ref: '#/components/schemas/SectionBlock'
+        private_metadata:
+          type: string
+        callback_id:
+          type: string
+        clear_on_close:
+          type: boolean
+        notify_on_close:
+          type: boolean
+        external_id:
+          type: string
+        hash:
+          type: string
+        root_view_id:
+          type: string
+        previous_view_id:
+          oneOf:
+            - type: string
+            - type: 'null'
+        app_id:
+          type: string
+        bot_id:
+          type: string
+        team_id:
+          type: string
+        state:
+          $ref: '#/components/schemas/ViewState'
+    HomeView:
+      type: object
+      required:
+        - id
+        - type
+        - blocks
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - home
+        blocks:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/InputBlock'
+              - $ref: '#/components/schemas/SectionBlock'
+        private_metadata:
+          type: string
+        callback_id:
+          type: string
+        clear_on_close:
+          type: boolean
+        notify_on_close:
+          type: boolean
+        external_id:
+          type: string
+        hash:
+          type: string
+        root_view_id:
+          type: string
+        previous_view_id:
+          oneOf:
+            - type: string
+            - type: 'null'
+        submit:
+          oneOf:
+            - $ref: '#/components/schemas/PlainTextElement'
+            - type: 'null'
+        close:
+          oneOf:
+            - $ref: '#/components/schemas/PlainTextElement'
+            - type: 'null'
+        app_id:
+          type: string
+        bot_id:
+          type: string
+        team_id:
+          type: string
+        state:
+          $ref: '#/components/schemas/ViewState'
+    ViewOpenSuccessResponse:
+      type: object
+      required:
+        - ok
+        - view
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        view:
+          $ref: '#/components/schemas/ModalView'
+    ViewPublishSuccessResponse:
+      type: object
+      required:
+        - ok
+        - view
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        view:
+          $ref: '#/components/schemas/HomeView'
+    ViewPushSuccessResponse:
+      type: object
+      required:
+        - ok
+        - view
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        view:
+          $ref: '#/components/schemas/ModalView'
+    ViewUpdateSuccessResponse:
+      type: object
+      required:
+        - ok
+        - view
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        view:
+          $ref: '#/components/schemas/ModalView'
+    ResponseMetadata:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: string
+    ErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+  examples:
+    ViewOpenSuccessExample:
+      summary: Successful view open response
+      value:
+        ok: true
+        view:
+          id: VMHU10V25
+          type: modal
+          title:
+            type: plain_text
+            text: Quite a plain modal
+          submit:
+            type: plain_text
+            text: Create
+          close: null
+          blocks:
+            - type: input
+              block_id: a_block_id
+              element:
+                type: plain_text_input
+                action_id: an_action_id
+              label:
+                type: plain_text
+                text: A simple label
+                emoji: true
+              optional: false
+          private_metadata: Shh it is a secret
+          callback_id: identify_your_modals
+          clear_on_close: false
+          notify_on_close: false
+          external_id: ''
+          hash: '156772938.1827394'
+          root_view_id: VMHU10V25
+          previous_view_id: null
+          app_id: AA4928AQ
+          bot_id: BA13894H
+          team_id: T8N4K1JN
+          state:
+            values: {}
+    ViewPublishSuccessExample:
+      summary: Successful view publish response
+      value:
+        ok: true
+        view:
+          id: VMHU10V25
+          type: home
+          blocks:
+            - type: section
+              block_id: 2WGp9
+              text:
+                type: mrkdwn
+                text: A simple section with some sample sentence.
+                verbatim: false
+          private_metadata: Shh it is a secret
+          callback_id: identify_your_home_tab
+          clear_on_close: false
+          notify_on_close: false
+          external_id: ''
+          hash: '156772938.1827394'
+          root_view_id: VMHU10V25
+          previous_view_id: null
+          submit: null
+          close: null
+          app_id: AA4928AQ
+          bot_id: BA13894H
+          team_id: T8N4K1JN
+          state:
+            values: {}
+    ViewPushSuccessExample:
+      summary: Successful view push response
+      value:
+        ok: true
+        view:
+          id: VNM522E2U
+          type: modal
+          title:
+            type: plain_text
+            text: Pushed Modal
+            emoji: true
+          submit:
+            type: plain_text
+            text: Save
+            emoji: true
+          close:
+            type: plain_text
+            text: Back
+            emoji: true
+          blocks:
+            - type: input
+              block_id: edit_details
+              element:
+                type: plain_text_input
+                action_id: detail_input
+              label:
+                type: plain_text
+                text: Edit details
+              optional: false
+          private_metadata: ''
+          callback_id: view_4
+          clear_on_close: true
+          notify_on_close: false
+          external_id: ''
+          hash: 1569362015.55b5e41b
+          root_view_id: VNN729E3U
+          previous_view_id: null
+          app_id: AAD3351BQ
+          bot_id: BADF7A34H
+          team_id: T9M4RL1JM
+          state:
+            values: {}
+    ViewUpdateSuccessExample:
+      summary: Successful view update response
+      value:
+        ok: true
+        view:
+          id: VNM522E2U
+          type: modal
+          title:
+            type: plain_text
+            text: Updated Modal
+            emoji: true
+          submit: null
+          close:
+            type: plain_text
+            text: Close
+            emoji: true
+          blocks:
+            - type: section
+              block_id: s_block
+              text:
+                type: plain_text
+                text: I am but an updated modal
+                emoji: true
+              accessory:
+                type: button
+                action_id: button_4
+                text:
+                  type: plain_text
+                  text: Click me
+          private_metadata: ''
+          callback_id: view_2
+          clear_on_close: true
+          notify_on_close: false
+          external_id: ''
+          hash: 1569262015.55b5e41b
+          root_view_id: VNN729E3U
+          previous_view_id: null
+          app_id: AAD3351BQ
+          bot_id: BADF7A34H
+          team_id: T9M4RL1JM
+          state:
+            values: {}
+    InvalidTriggerIdError:
+      summary: Invalid trigger_id error response
+      value:
+        ok: false
+        error: invalid_arguments
+        response_metadata:
+          messages:
+            - invalid `trigger_id`
+    InvalidUserIdError:
+      summary: Invalid user_id error response
+      value:
+        ok: false
+        error: invalid_arguments
+        response_metadata:
+          messages:
+            - invalid `user_id`
+    MissingTitleError:
+      summary: Missing required field error response
+      value:
+        ok: false
+        error: invalid_arguments
+        response_metadata:
+          messages:
+            - 'missing required field: title'
+    NotFoundError:
+      summary: View not found error response
+      value:
+        ok: false
+        error: not_found

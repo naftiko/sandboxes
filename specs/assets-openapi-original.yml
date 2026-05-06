@@ -1,0 +1,1074 @@
+openapi: 3.1.0
+info:
+  title: webflow-assets-api
+  description: >
+    API for managing digital assets within Webflow sites. Assets include
+    images, 
+
+    documents, videos, and other files that can be uploaded and used throughout 
+
+    your Webflow projects. This API supports uploading, retrieving, updating, 
+
+    and deleting assets.
+  version: 1.0.0
+servers:
+  - url: https://api.webflow.com/v2
+    description: Webflow API v2 Production Server
+  - url: http://localhost:8080/rest/webflow-assets-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Assets
+    description: >-
+      Operations for managing digital assets including upload, retrieval,
+      update, and deletion
+paths:
+  /sites/{site_id}/assets:
+    get:
+      operationId: listAssets
+      summary: List Assets
+      description: |
+        Retrieve a paginated list of all assets uploaded to a specified site.
+        Assets can be filtered and paginated using query parameters.
+
+        Required scope | `assets:read`
+      tags:
+        - Assets
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "ListAssetsSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - assets:read
+      parameters:
+        - $ref: '#/components/parameters/SiteIdPath'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Successfully retrieved the list of assets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetListResponse'
+              examples:
+                ListAssetsSuccessResponse:
+                  $ref: '#/components/examples/ListAssetsSuccessResponse'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestError'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedError'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundError'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  $ref: '#/components/examples/InternalServerError'
+    post:
+      operationId: createAsset
+      summary: Upload Asset
+      description: >
+        Initiate an asset upload to a site. This endpoint generates upload
+        credentials 
+
+        including `uploadUrl` and `uploadDetails` that should be used to
+        complete 
+
+        the upload via a POST request to Amazon S3.
+
+
+        To learn more about how to upload assets to Webflow, see the assets
+        guide.
+
+
+        Required scope | `assets:write`
+      tags:
+        - Assets
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "CreateAssetSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - assets:write
+      parameters:
+        - $ref: '#/components/parameters/SiteIdPath'
+      requestBody:
+        description: Information about the asset to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAssetRequest'
+            examples:
+              CreateAssetRequest:
+                $ref: '#/components/examples/CreateAssetRequest'
+      responses:
+        '200':
+          description: Successfully initiated asset upload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetUploadResponse'
+              examples:
+                CreateAssetSuccessResponse:
+                  $ref: '#/components/examples/CreateAssetSuccessResponse'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestError'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedError'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundError'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  $ref: '#/components/examples/InternalServerError'
+  /assets/{asset_id}:
+    get:
+      operationId: getAsset
+      summary: Get Asset
+      description: >
+        Retrieve detailed information about a specific asset by its unique
+        identifier.
+
+
+        Required scope | `assets:read`
+      tags:
+        - Assets
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "GetAssetSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - assets:read
+      parameters:
+        - $ref: '#/components/parameters/AssetIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved the asset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+              examples:
+                GetAssetSuccessResponse:
+                  $ref: '#/components/examples/GetAssetSuccessResponse'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestError'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedError'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundError'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  $ref: '#/components/examples/InternalServerError'
+    patch:
+      operationId: updateAsset
+      summary: Update Asset
+      description: |
+        Update the metadata of an existing asset, such as its display name or 
+        locale-specific information.
+
+        Required scope | `assets:write`
+      tags:
+        - Assets
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "UpdateAssetSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - assets:write
+      parameters:
+        - $ref: '#/components/parameters/AssetIdPath'
+      requestBody:
+        description: Information about the asset to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAssetRequest'
+            examples:
+              UpdateAssetRequest:
+                $ref: '#/components/examples/UpdateAssetRequest'
+      responses:
+        '200':
+          description: Successfully updated the asset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+              examples:
+                UpdateAssetSuccessResponse:
+                  $ref: '#/components/examples/UpdateAssetSuccessResponse'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestError'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedError'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundError'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  $ref: '#/components/examples/InternalServerError'
+    delete:
+      operationId: deleteAsset
+      summary: Delete Asset
+      description: |
+        Permanently delete an asset from a site. This action cannot be undone.
+
+        Required scope | `assets:write`
+      tags:
+        - Assets
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "DeleteAssetSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - assets:write
+      parameters:
+        - $ref: '#/components/parameters/AssetIdPath'
+      responses:
+        '204':
+          description: Successfully deleted the asset. No content returned.
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestError'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedError'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundError'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  $ref: '#/components/examples/InternalServerError'
+components:
+  parameters:
+    SiteIdPath:
+      name: site_id
+      in: path
+      description: Unique identifier for a Site
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 580e63e98c9a982ac9b8b741
+    AssetIdPath:
+      name: asset_id
+      in: path
+      description: Unique identifier for an Asset on a site
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 580e63fc8c9a982ac9b8b745
+    OffsetQuery:
+      name: offset
+      in: query
+      description: Offset used for pagination if the results have more than limit records
+      required: false
+      allowEmptyValue: true
+      schema:
+        type: integer
+      example: 0
+    LimitQuery:
+      name: limit
+      in: query
+      description: Maximum number of records to be returned (max limit is 100)
+      required: false
+      allowEmptyValue: true
+      schema:
+        type: integer
+      example: 100
+  schemas:
+    Asset:
+      type: object
+      description: Asset details
+      required:
+        - id
+        - contentType
+        - size
+        - siteId
+        - hostedUrl
+        - originalFileName
+        - displayName
+        - lastUpdated
+        - createdOn
+        - variants
+        - altText
+      properties:
+        id:
+          type: string
+          format: objectid
+          description: Unique identifier for this asset
+          example: 63e5889e7fe4eafa7384cea4
+          readOnly: true
+        contentType:
+          type: string
+          format: mime-type
+          description: File format type
+          example: image/png
+          readOnly: true
+        size:
+          type: integer
+          description: Size in bytes
+          example: 2212772
+          readOnly: true
+        siteId:
+          type: string
+          format: objectid
+          description: Unique identifier for the site that hosts this asset
+          example: 63938b302ea6b0aa6f3d8745
+          readOnly: true
+        hostedUrl:
+          type: string
+          format: uri
+          description: Link to the asset
+          example: >-
+            https://s3.amazonaws.com/webflow-prod-assets/63938b302ea6b0aa6f3d8745/63e5889e7fe4eafa7384cea4_Vectors-Wrapper.svg
+          readOnly: true
+        originalFileName:
+          type: string
+          description: Original file name at the time of upload
+          example: Candy-Wrapper.svg
+          readOnly: true
+        displayName:
+          type: string
+          description: Display name of the asset
+          example: 63e5889e7fe4eafa7384cea4_Candy-Wrapper.png
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Date the asset metadata was last updated
+          example: '2023-03-01T23:42:57.862Z'
+          readOnly: true
+        createdOn:
+          type: string
+          format: date-time
+          description: Date the asset metadata was created
+          example: '2023-02-09T23:58:22.294Z'
+          readOnly: true
+        variants:
+          type: array
+          description: >-
+            A list of asset variants created by Webflow to serve your site
+            responsively
+          items:
+            $ref: '#/components/schemas/AssetVariant'
+        altText:
+          type: string
+          nullable: true
+          description: The visual description of the asset
+          example: A single candy wrapper
+    AssetVariant:
+      type: object
+      description: Asset variant details for responsive serving
+      required:
+        - hostedUrl
+        - originalFileName
+        - displayName
+        - format
+        - width
+        - height
+        - quality
+      properties:
+        hostedUrl:
+          type: string
+          format: uri
+          description: URL of where the asset variant is hosted
+          example: >-
+            https://s3.amazonaws.com/webflow-prod-assets/6258612d1ee792848f805dcf/660d83ce30f3a599ddb0bdb3_Screenshot-p-500.png
+        originalFileName:
+          type: string
+          description: Original file name of the variant
+          example: Screenshot-p-500.png
+        displayName:
+          type: string
+          description: Display name of the variant
+          example: 660d83ce30f3a599ddb0bdb3_Screenshot-p-500.png
+        format:
+          type: string
+          description: Format of the variant
+          example: png
+        width:
+          type: integer
+          description: Width in pixels
+          example: 500
+        height:
+          type: integer
+          nullable: true
+          description: Height in pixels
+          example: null
+        quality:
+          type: integer
+          description: Value between 0 and 100 representing the image quality
+          example: 100
+        error:
+          type: string
+          nullable: true
+          description: Any associated validation errors
+          example: null
+    AssetListResponse:
+      type: object
+      description: Response containing a list of assets with pagination
+      required:
+        - assets
+        - pagination
+      properties:
+        assets:
+          type: array
+          description: A list of assets
+          items:
+            $ref: '#/components/schemas/Asset'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    CreateAssetRequest:
+      type: object
+      description: Request payload for initiating an asset upload
+      required:
+        - fileName
+        - fileHash
+      properties:
+        fileName:
+          type: string
+          description: >-
+            File name including file extension. File names must be less than 100
+            characters.
+          example: file.png
+        fileHash:
+          type: string
+          description: MD5 hash of the file
+          example: 3c7d87c9575702bc3b1e991f4d3c638e
+        parentFolder:
+          type: string
+          description: ID of the Asset folder (optional)
+          example: 6436b1ce5281cace05b65aea
+    UpdateAssetRequest:
+      type: object
+      description: Request payload for updating an asset
+      properties:
+        localeId:
+          type: string
+          description: >-
+            Unique identifier for a specific locale. Applicable when using
+            localization.
+          example: 65427cf400e02b306eaa04a0
+        displayName:
+          type: string
+          description: A human readable name for the asset
+          example: bulldoze.png
+    AssetUploadResponse:
+      type: object
+      description: Response containing upload credentials for completing asset upload
+      properties:
+        uploadDetails:
+          $ref: '#/components/schemas/UploadDetails'
+        contentType:
+          type: string
+          format: mime-type
+          description: Content type of the asset
+          example: image/png
+        id:
+          type: string
+          format: objectid
+          description: Unique identifier for the asset
+          example: 64358b9544249dc43d37d2b7
+        parentFolder:
+          type: string
+          format: objectid
+          nullable: true
+          description: Parent folder for the asset
+          example: 6436b1ce5281cace05b65aea
+        uploadUrl:
+          type: string
+          format: uri
+          description: S3 URL for uploading the asset binary
+          example: >-
+            https://s3.amazonaws.com/webflow-dev-assets/643021114e290e0d3a0602b2/64358b9544249dc43d37d2b7_file.png
+        assetUrl:
+          type: string
+          format: uri
+          description: S3 link to the asset
+          example: >-
+            https://s3.amazonaws.com/webflow-prod-assets/6258612d1ee792848f805dcf/660d907ab9e91e3e9f56385e_file.png
+        hostedUrl:
+          type: string
+          format: uri
+          description: Represents the link to the asset
+          example: >-
+            https://dev-assets.website-files.com/643021114e290e0d3a0602b2/64358b9544249dc43d37d2b7_file.png
+        originalFileName:
+          type: string
+          description: Original file name when uploaded
+          example: file.png
+        createdOn:
+          type: string
+          format: date-time
+          description: Date the asset metadata was created
+          example: '2023-04-11T16:32:21.804Z'
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Date the asset metadata was last updated
+          example: '2023-04-12T20:31:03.197Z'
+    UploadDetails:
+      type: object
+      description: Metadata for uploading the asset binary to S3
+      properties:
+        acl:
+          type: string
+          description: Access control list setting
+          example: public-read
+        bucket:
+          type: string
+          description: S3 bucket name
+          example: webflow-bucket-name
+        X-Amz-Algorithm:
+          type: string
+          description: AWS signature algorithm
+          example: AWS4-HMAC-SHA256
+        X-Amz-Credential:
+          type: string
+          description: AWS credential string
+          example: AKIAIOSFODNN7EXAMPLE/20230411/us-east-1/s3/aws4_request
+        X-Amz-Date:
+          type: string
+          description: AWS date timestamp
+          example: 20230411T163221Z
+        key:
+          type: string
+          description: S3 object key
+          example: 643021114e290e0d3a0602b2/64358b9544249dc43d37d2b7_file.png
+        Policy:
+          type: string
+          description: Base64-encoded policy document
+          example: >-
+            eyJleHBpcmF0aW9uIjoiMjAyMy0wNC0xMVQxNzozMjoyMVoiLCJjb25kaXRpb25zIjpbXX0=
+        X-Amz-Signature:
+          type: string
+          description: AWS signature
+          example: f853c598c1e34234d987f2b3f98765e4321abc987654321fedcba0987654321
+        success_action_status:
+          type: string
+          description: HTTP status code to return on success
+          example: '201'
+        content-type:
+          type: string
+          format: mime-type
+          description: Content type header value
+          example: image/png
+        Cache-Control:
+          type: string
+          description: Cache control header value
+          example: max-age=31536000, must-revalidate
+    Pagination:
+      type: object
+      description: Pagination metadata
+      required:
+        - limit
+        - offset
+        - total
+      properties:
+        limit:
+          type: integer
+          description: The limit used for pagination
+          example: 100
+          readOnly: true
+        offset:
+          type: integer
+          description: The offset used for pagination
+          example: 0
+          readOnly: true
+        total:
+          type: integer
+          description: The total number of records
+          example: 2
+          readOnly: true
+    ErrorResponse:
+      type: object
+      description: Standard error response
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+          example: not_authorized
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          nullable: true
+          description: Link to more information
+          example: null
+        details:
+          type: array
+          description: Array of error details
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field that caused the error
+              message:
+                type: string
+                description: Error message for the field
+          example: []
+  examples:
+    ListAssetsSuccessResponse:
+      summary: Successfully retrieved list of assets
+      value:
+        assets:
+          - id: 63e5889e7fe4eafa7384cea4
+            originalFileName: Candy-Wrapper.svg
+            displayName: 63e5889e7fe4eafa7384cea4_Candy-Wrapper.png
+            contentType: image/png
+            size: 2212772
+            siteId: 63938b302ea6b0aa6f3d8745
+            createdOn: '2023-02-09T23:58:22.294Z'
+            lastUpdated: '2023-03-01T23:42:57.862Z'
+            hostedUrl: >-
+              https://s3.amazonaws.com/webflow-prod-assets/63938b302ea6b0aa6f3d8745/63e5889e7fe4eafa7384cea4_Vectors-Wrapper.svg
+            variants:
+              - hostedUrl: >-
+                  https://s3.amazonaws.com/webflow-prod-assets/6258612d1ee792848f805dcf/660d83ce30f3a599ddb0bdb3_Screenshot-p-500.png
+                originalFileName: Screenshot-p-500.png
+                displayName: 660d83ce30f3a599ddb0bdb3_Screenshot-p-500.png
+                format: png
+                width: 500
+                height: null
+                quality: 100
+                error: null
+            altText: A single candy wrapper
+          - id: 63e5889e7fe4eafa7384cea5
+            originalFileName: Gum-Wrapper.svg
+            displayName: 63e5889e7fe4eafa7384cea5_Gum-Wrapper.png
+            contentType: image/png
+            size: 2212772
+            siteId: 63938b302ea6b0aa6f3d8745
+            createdOn: '2023-02-09T23:58:22.294Z'
+            lastUpdated: '2023-03-01T23:42:57.862Z'
+            hostedUrl: >-
+              https://s3.amazonaws.com/webflow-prod-assets/63938b302ea6b0aa6f3d8745/63e5889e7fe4eafa7384cea5_Gum-Wrapper.svg
+            variants:
+              - hostedUrl: >-
+                  https://s3.amazonaws.com/webflow-prod-assets/6258612d1ee792848f805dcf/660d83ce30f3a599ddb0bdb3_Screenshot-p-500.png
+                originalFileName: Screenshot-p-500.png
+                displayName: 660d83ce30f3a599ddb0bdb3_Screenshot-p-500.png
+                format: png
+                width: 500
+                height: null
+                quality: 100
+                error: null
+            altText: A single gum wrapper
+        pagination:
+          total: 2
+          offset: 0
+          limit: 100
+    CreateAssetRequest:
+      summary: Request to initiate asset upload
+      value:
+        fileName: file.png
+        fileHash: 3c7d87c9575702bc3b1e991f4d3c638e
+        parentFolder: 6436b1ce5281cace05b65aea
+    CreateAssetSuccessResponse:
+      summary: Successfully initiated asset upload
+      value:
+        uploadDetails:
+          acl: public-read
+          bucket: webflow-bucket-name
+          X-Amz-Algorithm: AWS4-HMAC-SHA256
+          X-Amz-Credential: AKIAIOSFODNN7EXAMPLE/20230411/us-east-1/s3/aws4_request
+          X-Amz-Date: 20230411T163221Z
+          key: 643021114e290e0d3a0602b2/64358b9544249dc43d37d2b7_file.png
+          Policy: >-
+            eyJleHBpcmF0aW9uIjoiMjAyMy0wNC0xMVQxNzozMjoyMVoiLCJjb25kaXRpb25zIjpbXX0=
+          X-Amz-Signature: f853c598c1e34234d987f2b3f98765e4321abc987654321fedcba0987654321
+          success_action_status: '201'
+          content-type: image/png
+          Cache-Control: max-age=31536000, must-revalidate
+        contentType: image/png
+        id: 64358b9544249dc43d37d2b7
+        parentFolder: 6436b1ce5281cace05b65aea
+        uploadUrl: >-
+          https://s3.amazonaws.com/webflow-dev-assets/643021114e290e0d3a0602b2/64358b9544249dc43d37d2b7_file.png
+        assetUrl: >-
+          https://s3.amazonaws.com/webflow-prod-assets/6258612d1ee792848f805dcf/660d907ab9e91e3e9f56385e_file.png
+        hostedUrl: >-
+          https://dev-assets.website-files.com/643021114e290e0d3a0602b2/64358b9544249dc43d37d2b7_file.png
+        originalFileName: file.png
+        createdOn: '2023-04-11T16:32:21.804Z'
+        lastUpdated: '2023-04-12T20:31:03.197Z'
+    GetAssetSuccessResponse:
+      summary: Successfully retrieved asset
+      value:
+        id: 63e5889e7fe4eafa7384cea4
+        originalFileName: Candy-Wrapper.svg
+        displayName: 63e5889e7fe4eafa7384cea4_Candy-Wrapper.png
+        contentType: image/png
+        size: 2212772
+        siteId: 63938b302ea6b0aa6f3d8745
+        createdOn: '2023-02-09T23:58:22.294Z'
+        lastUpdated: '2023-03-01T23:42:57.862Z'
+        hostedUrl: >-
+          https://s3.amazonaws.com/webflow-prod-assets/63938b302ea6b0aa6f3d8745/63e5889e7fe4eafa7384cea4_Vectors-Wrapper.svg
+        variants:
+          - hostedUrl: >-
+              https://s3.amazonaws.com/webflow-prod-assets/6258612d1ee792848f805dcf/660d83ce30f3a599ddb0bdb3_Screenshot-p-500.png
+            originalFileName: Screenshot-p-500.png
+            displayName: 660d83ce30f3a599ddb0bdb3_Screenshot-p-500.png
+            format: png
+            width: 500
+            height: null
+            quality: 100
+            error: null
+        altText: A single candy wrapper
+    UpdateAssetRequest:
+      summary: Request to update asset
+      value:
+        localeId: 65427cf400e02b306eaa04a0
+        displayName: bulldoze.png
+    UpdateAssetSuccessResponse:
+      summary: Successfully updated asset
+      value:
+        id: 63e5889e7fe4eafa7384cea4
+        originalFileName: Candy-Wrapper.svg
+        displayName: bulldoze.png
+        contentType: image/png
+        size: 2212772
+        siteId: 63938b302ea6b0aa6f3d8745
+        createdOn: '2023-02-09T23:58:22.294Z'
+        lastUpdated: '2023-03-01T23:42:57.862Z'
+        hostedUrl: >-
+          https://s3.amazonaws.com/webflow-prod-assets/63938b302ea6b0aa6f3d8745/63e5889e7fe4eafa7384cea4_Vectors-Wrapper.svg
+        variants:
+          - hostedUrl: >-
+              https://s3.amazonaws.com/webflow-prod-assets/6258612d1ee792848f805dcf/660d83ce30f3a599ddb0bdb3_Screenshot-p-500.png
+            originalFileName: Screenshot-p-500.png
+            displayName: 660d83ce30f3a599ddb0bdb3_Screenshot-p-500.png
+            format: png
+            width: 500
+            height: null
+            quality: 100
+            error: null
+        altText: A single candy wrapper
+    BadRequestError:
+      summary: Bad request error
+      value:
+        code: bad_request
+        message: 'Bad Request: Request is malformed'
+        externalReference: null
+        details: []
+    UnauthorizedError:
+      summary: Unauthorized error
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    NotFoundError:
+      summary: Resource not found error
+      value:
+        code: resource_not_found
+        message: 'Requested resource not found: The asset cannot be found'
+        externalReference: null
+        details: []
+    RateLimitError:
+      summary: Rate limit exceeded error
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    InternalServerError:
+      summary: Internal server error
+      value:
+        code: internal_error
+        message: An Internal Error occurred
+        externalReference: null
+        details: []
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://webflow.com/oauth/authorize
+          tokenUrl: https://api.webflow.com/oauth/token
+          scopes:
+            authorized_user:read: Read details about the authorized user
+            assets:read: Read assets on the site
+            assets:write: Write assets on a site
+            cms:read: Read collections and items for a site
+            cms:write: Write to collections and items for a site
+            sites:read: Read sites on the site
+            sites:write: Modify pages on the site

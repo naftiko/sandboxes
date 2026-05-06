@@ -1,100 +1,12 @@
-specificationVersion: '0.19'
-
-aid: naftiko-sandboxes
-type: Index
-visibility: Public
-
-name: Naftiko Sandboxes
-description: >-
-  This is an index of all sandboxes available in the Naftiko organization for
-  working with 3rd-party services and open-source tooling. Each sandbox uses
-  OpenAPI, Microcks, Bruno, and Backstage to provide REST API and MCP sandboxes.
-
-image: https://naftiko.s3.us-east-1.amazonaws.com/naftiko-logo-blue-icon.png
-
-created: '2026-02-25'
-modified: '2026-02-25'
-
-url: https://github.com/naftiko/sandboxes/blob/main/README.md
-
-network:
-
-  - name: Anthropic API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/anthropic-sandbox/refs/heads/main/apis.yml
-
-  - name: Apache Airflow API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/apache-airflow-sandbox/refs/heads/main/apis.yml
-
-  - name: Apache Flink API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/apache-flink-sandbox/refs/heads/main/apis.yml
-
-  - name: Apache Spark API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/apache-spark-sandbox/refs/heads/main/apis.yml
-
-  - name: Bluesky API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/bluesky-sandbox/refs/heads/main/apis.yml
-
-  - name: Copilot Agentic LLM Integration API Governance Rules
-    url: https://raw.githubusercontent.com/naftiko/copilot-agentic-llm-integration-api-governance-rules/refs/heads/main/apis.yml
-
-  - name: Figma API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/figma-sandbox/refs/heads/main/apis.yml
-
-  - name: GitHub API Sandbox
-    url: https://raw.githubusercontent.com/naftiko/github-sandbox/refs/heads/main/apis.yml
-
-  - name: Google API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/google-sandbox/refs/heads/main/apis.yml
-
-  - name: HubSpot API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/hubspot-sandbox/refs/heads/main/apis.yml
-
-  - name: LinkedIn API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/linkedin-sandbox/refs/heads/main/apis.yml
-
-  - name: Microsoft 365 Copilot API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/microsoft-365-copilot-sandbox/refs/heads/main/apis.yml
-
-  - name: Microsoft Excel API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/microsoft-excel-sandbox/refs/heads/main/apis.yml
-
-  - name: Microsoft Outlook API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/microsoft-outlook-sandbox/refs/heads/main/apis.yml
-
-  - name: Microsoft PowerPoint API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/microsoft-powerpoint-sandbox/refs/heads/main/apis.yml
-
-  - name: Microsoft Teams API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/microsoft-teams-sandbox/refs/heads/main/apis.yml
-
-  - name: Microsoft Word API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/microsoft-word-sandbox/refs/heads/main/apis.yml
-
-  - name: NIST Cybersecurity Framework Sandbox
-    url: https://raw.githubusercontent.com/naftiko/nist-cybersecurity-framework-sandbox/refs/heads/main/apis.yml
-
-  - name: NIST SP 800-53 Sandbox
-    url: https://raw.githubusercontent.com/naftiko/nist-sp-800-53-sandbox/refs/heads/main/apis.yml
-
-  - name: Notion API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/notion-sandbox/refs/heads/main/apis.yml
-
-  - name: OpenAI API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/openai-sandbox/refs/heads/main/apis.yml
-
-  - name: Slack API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/slack-sandbox/refs/heads/main/apis.yml
-
-  - name: Webflow API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/webflow-sandbox/refs/heads/main/apis.yml
-
-  - name: YouTube API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/youtube-sandbox/refs/heads/main/apis.yml
-
-  - name: Zoom API & MCP Sandbox
-    url: https://raw.githubusercontent.com/naftiko/zoom-sandbox/refs/heads/main/apis.yml
-
+aid: "https://github.com/naftiko/manage-microcks"
+name: "Manage Microcks"
+description: "API mock services and OpenAPI spec imports via the Microcks API"
+image: "https://kinlane-productions2.s3.amazonaws.com/naftiko/naftiko-logo.png"
+tags:
+  - Naftiko
+  - Capabilities
+  - Management
+apis: []
 maintainers:
-
   - FN: Kin Lane
-    email: kinlane@naftiko.io
+    email: kin@naftiko.io

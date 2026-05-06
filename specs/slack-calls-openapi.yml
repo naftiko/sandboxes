@@ -1,0 +1,721 @@
+openapi: 3.1.0
+info:
+  title: slack-calls-api
+  description: >-
+    Slack's Calls API lets apps represent third-party voice or video calls
+    inside Slack  by creating a "call" object with a join URL and metadata, so
+    users see a rich call  message with a Join button, status, and participant
+    list in channels or DMs. Through  endpoints to create, update, and end
+    calls—and to add or remove participants—an app  can keep that call message
+    in sync as people join or leave and as the call progresses.  The API doesn't
+    handle the media itself; it's for coordinating and rendering the Slack  UI
+    around calls hosted by services like Zoom or Webex, making it easy to start,
+    find,  and join those calls from Slack.
+  version: 1.0.0
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-calls-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Calls
+    description: Operations for managing Call objects in Slack
+  - name: Call Participants
+    description: Operations for managing participants in a Call
+paths:
+  /calls.add:
+    post:
+      tags:
+        - Calls
+      summary: Register a new Call
+      description: Registers a new Call object in Slack with the provided details.
+      operationId: callsAdd
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/calls.add
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallsAddRequest'
+            examples:
+              CallsAddRequestExample:
+                $ref: '#/components/examples/CallsAddRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CallsAddRequest'
+            examples:
+              CallsAddRequestExample:
+                $ref: '#/components/examples/CallsAddRequestExample'
+      responses:
+        '200':
+          description: Successful response when a Call is registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallsAddResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/CallsAddSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponseExample'
+      security:
+        - SlackAuth:
+            - calls:write
+  /calls.end:
+    post:
+      tags:
+        - Calls
+      summary: End a Call
+      description: Ends an existing Call and optionally records its duration.
+      operationId: callsEnd
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/calls.end
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallsEndRequest'
+            examples:
+              CallsEndRequestExample:
+                $ref: '#/components/examples/CallsEndRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CallsEndRequest'
+            examples:
+              CallsEndRequestExample:
+                $ref: '#/components/examples/CallsEndRequestExample'
+      responses:
+        '200':
+          description: Successful response when a Call is ended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponseExample'
+      security:
+        - SlackAuth:
+            - calls:write
+  /calls.info:
+    get:
+      tags:
+        - Calls
+      summary: Get Call information
+      description: Returns detailed information about a specific Call.
+      operationId: callsInfo
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/calls.info
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthToken'
+        - $ref: '#/components/parameters/CallId'
+      responses:
+        '200':
+          description: Successful response with Call information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallsInfoResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/CallsInfoSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponseExample'
+      security:
+        - SlackAuth:
+            - calls:read
+  /calls.update:
+    post:
+      tags:
+        - Calls
+      summary: Update Call information
+      description: Updates information about an existing Call.
+      operationId: callsUpdate
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/calls.update
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallsUpdateRequest'
+            examples:
+              CallsUpdateRequestExample:
+                $ref: '#/components/examples/CallsUpdateRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CallsUpdateRequest'
+            examples:
+              CallsUpdateRequestExample:
+                $ref: '#/components/examples/CallsUpdateRequestExample'
+      responses:
+        '200':
+          description: Successful response when a Call is updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponseExample'
+      security:
+        - SlackAuth:
+            - calls:write
+  /calls.participants.add:
+    post:
+      tags:
+        - Call Participants
+      summary: Add participants to a Call
+      description: Registers new participants added to an existing Call.
+      operationId: callsParticipantsAdd
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/calls.participants.add
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallsParticipantsAddRequest'
+            examples:
+              CallsParticipantsAddRequestExample:
+                $ref: '#/components/examples/CallsParticipantsAddRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CallsParticipantsAddRequest'
+            examples:
+              CallsParticipantsAddRequestExample:
+                $ref: '#/components/examples/CallsParticipantsAddRequestExample'
+      responses:
+        '200':
+          description: Successful response when participants are added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponseExample'
+      security:
+        - SlackAuth:
+            - calls:write
+  /calls.participants.remove:
+    post:
+      tags:
+        - Call Participants
+      summary: Remove participants from a Call
+      description: Registers participants removed from an existing Call.
+      operationId: callsParticipantsRemove
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/calls.participants.remove
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallsParticipantsRemoveRequest'
+            examples:
+              CallsParticipantsRemoveRequestExample:
+                $ref: '#/components/examples/CallsParticipantsRemoveRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CallsParticipantsRemoveRequest'
+            examples:
+              CallsParticipantsRemoveRequestExample:
+                $ref: '#/components/examples/CallsParticipantsRemoveRequestExample'
+      responses:
+        '200':
+          description: Successful response when participants are removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponseExample'
+      security:
+        - SlackAuth:
+            - calls:write
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      description: Slack OAuth2 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            calls:read: Read information about calls
+            calls:write: Create, update, and end calls
+  parameters:
+    AuthToken:
+      name: token
+      in: header
+      description: >-
+        Authentication token. Requires scope: `calls:write` or `calls:read`
+        depending on the operation.
+      required: true
+      schema:
+        type: string
+      example: example-key1234567890-abcdefghijklmnop
+    CallId:
+      name: id
+      in: query
+      description: The unique identifier of the Call returned by the `calls.add` method.
+      required: true
+      schema:
+        type: string
+      example: R1234567890
+  schemas:
+    OkTrue:
+      type: boolean
+      const: true
+      description: Indicates a successful operation
+    OkFalse:
+      type: boolean
+      const: false
+      description: Indicates a failed operation
+    CallId:
+      type: string
+      description: The unique identifier for a Call object
+      example: R1234567890
+    UserId:
+      type: string
+      description: A valid Slack user ID
+      example: U1234567890
+    ExternalUniqueId:
+      type: string
+      description: >-
+        An ID supplied by the 3rd-party Call provider. Must be unique across all
+        Calls from that service.
+      example: external-call-12345
+    JoinUrl:
+      type: string
+      format: uri
+      description: The URL required for a client to join the Call
+      example: https://example.com/calls/join/abc123
+    DesktopAppJoinUrl:
+      type: string
+      format: uri
+      description: >-
+        When supplied, available Slack clients will attempt to directly launch
+        the 3rd-party Call with this URL
+      example: myapp://calls/join/abc123
+    CallTitle:
+      type: string
+      description: The name of the Call
+      example: Weekly Team Standup
+    CallUser:
+      type: object
+      description: A user participating in a Call
+      properties:
+        SlackId:
+          type: string
+          description: The Slack user ID
+          example: U1234567890
+        ExternalId:
+          type: string
+          description: An external ID for non-Slack users
+          example: ext-user-123
+        DisplayName:
+          type: string
+          description: Display name for the user
+          example: John Doe
+        AvatarUrl:
+          type: string
+          format: uri
+          description: URL for the user's avatar
+          example: https://example.com/avatars/john.png
+    CallUsersList:
+      type: array
+      description: List of users participating in a Call
+      items:
+        $ref: '#/components/schemas/CallUser'
+    CallObject:
+      type: object
+      description: A Call object containing all call details
+      properties:
+        Id:
+          $ref: '#/components/schemas/CallId'
+        ExternalUniqueId:
+          $ref: '#/components/schemas/ExternalUniqueId'
+        ExternalDisplayId:
+          type: string
+          description: Human-readable ID supplied by the 3rd-party Call provider
+          example: CALL-2024-001
+        JoinUrl:
+          $ref: '#/components/schemas/JoinUrl'
+        DesktopAppJoinUrl:
+          $ref: '#/components/schemas/DesktopAppJoinUrl'
+        Title:
+          $ref: '#/components/schemas/CallTitle'
+        DateStart:
+          type: integer
+          format: int64
+          description: Call start time in UTC UNIX timestamp format
+          example: 1704067200
+        DateEnd:
+          type: integer
+          format: int64
+          description: Call end time in UTC UNIX timestamp format
+          example: 1704070800
+        Users:
+          $ref: '#/components/schemas/CallUsersList'
+        Channels:
+          type: array
+          description: List of channel IDs where the call was shared
+          items:
+            type: string
+          example:
+            - C1234567890
+            - C0987654321
+    CallsAddRequest:
+      type: object
+      required:
+        - external_unique_id
+        - join_url
+      properties:
+        external_unique_id:
+          $ref: '#/components/schemas/ExternalUniqueId'
+        external_display_id:
+          type: string
+          description: >-
+            An optional, human-readable ID supplied by the 3rd-party Call
+            provider
+          example: CALL-2024-001
+        join_url:
+          $ref: '#/components/schemas/JoinUrl'
+        desktop_app_join_url:
+          $ref: '#/components/schemas/DesktopAppJoinUrl'
+        date_start:
+          type: integer
+          format: int32
+          description: Call start time in UTC UNIX timestamp format
+          example: 1704067200
+        title:
+          $ref: '#/components/schemas/CallTitle'
+        created_by:
+          type: string
+          description: The valid Slack user ID of the user who created this Call
+          example: U1234567890
+        users:
+          type: string
+          description: JSON array of users to register as participants in the Call
+          example: '[{"slack_id":"U1234567890"},{"slack_id":"U0987654321"}]'
+    CallsEndRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: >-
+            The Call ID returned when registering the call using the `calls.add`
+            method
+          example: R1234567890
+        duration:
+          type: integer
+          format: int32
+          description: Call duration in seconds
+          example: 3600
+    CallsUpdateRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: The Call ID returned by the `calls.add` method
+          example: R1234567890
+        title:
+          $ref: '#/components/schemas/CallTitle'
+        join_url:
+          $ref: '#/components/schemas/JoinUrl'
+        desktop_app_join_url:
+          $ref: '#/components/schemas/DesktopAppJoinUrl'
+    CallsParticipantsAddRequest:
+      type: object
+      required:
+        - id
+        - users
+      properties:
+        id:
+          type: string
+          description: The Call ID returned by the `calls.add` method
+          example: R1234567890
+        users:
+          type: string
+          description: JSON array of users to add as participants in the Call
+          example: '[{"slack_id":"U1234567890"},{"slack_id":"U0987654321"}]'
+    CallsParticipantsRemoveRequest:
+      type: object
+      required:
+        - id
+        - users
+      properties:
+        id:
+          type: string
+          description: The Call ID returned by the `calls.add` method
+          example: R1234567890
+        users:
+          type: string
+          description: JSON array of users to remove as participants in the Call
+          example: '[{"slack_id":"U1234567890"}]'
+    SuccessResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+      additionalProperties: false
+    ErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          description: A short machine-readable error code
+          example: invalid_auth
+        needed:
+          type: string
+          description: The missing OAuth scope if applicable
+          example: calls:write
+        provided:
+          type: string
+          description: The OAuth scopes that were provided
+          example: channels:read
+      additionalProperties: false
+    CallsAddResponse:
+      type: object
+      required:
+        - ok
+        - call
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        call:
+          $ref: '#/components/schemas/CallObject'
+      additionalProperties: false
+    CallsInfoResponse:
+      type: object
+      required:
+        - ok
+        - call
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        call:
+          $ref: '#/components/schemas/CallObject'
+      additionalProperties: false
+  examples:
+    CallsAddRequestExample:
+      summary: Example request to create a new Call
+      value:
+        external_unique_id: zoom-meeting-123456789
+        external_display_id: ZOOM-2024-001
+        join_url: https://zoom.us/j/123456789
+        desktop_app_join_url: zoommtg://zoom.us/join?confno=123456789
+        date_start: 1704067200
+        title: Weekly Team Standup
+        created_by: U1234567890
+        users: '[{"slack_id":"U1234567890"},{"slack_id":"U0987654321"}]'
+    CallsEndRequestExample:
+      summary: Example request to end a Call
+      value:
+        id: R1234567890
+        duration: 3600
+    CallsUpdateRequestExample:
+      summary: Example request to update a Call
+      value:
+        id: R1234567890
+        title: Updated Weekly Team Standup
+        join_url: https://zoom.us/j/987654321
+        desktop_app_join_url: zoommtg://zoom.us/join?confno=987654321
+    CallsParticipantsAddRequestExample:
+      summary: Example request to add participants to a Call
+      value:
+        id: R1234567890
+        users: '[{"slack_id":"U1111111111"},{"slack_id":"U2222222222"}]'
+    CallsParticipantsRemoveRequestExample:
+      summary: Example request to remove participants from a Call
+      value:
+        id: R1234567890
+        users: '[{"slack_id":"U1111111111"}]'
+    SuccessResponseExample:
+      summary: Example of a successful response
+      value:
+        ok: true
+    ErrorResponseExample:
+      summary: Example of an error response
+      value:
+        ok: false
+        error: invalid_auth
+    CallsAddSuccessResponseExample:
+      summary: Example of a successful calls.add response
+      value:
+        ok: true
+        call:
+          Id: R1234567890
+          ExternalUniqueId: zoom-meeting-123456789
+          ExternalDisplayId: ZOOM-2024-001
+          JoinUrl: https://zoom.us/j/123456789
+          DesktopAppJoinUrl: zoommtg://zoom.us/join?confno=123456789
+          Title: Weekly Team Standup
+          DateStart: 1704067200
+          Users:
+            - SlackId: U1234567890
+              DisplayName: John Doe
+            - SlackId: U0987654321
+              DisplayName: Jane Smith
+          Channels:
+            - C1234567890
+    CallsInfoSuccessResponseExample:
+      summary: Example of a successful calls.info response
+      value:
+        ok: true
+        call:
+          Id: R1234567890
+          ExternalUniqueId: zoom-meeting-123456789
+          ExternalDisplayId: ZOOM-2024-001
+          JoinUrl: https://zoom.us/j/123456789
+          DesktopAppJoinUrl: zoommtg://zoom.us/join?confno=123456789
+          Title: Weekly Team Standup
+          DateStart: 1704067200
+          DateEnd: 1704070800
+          Users:
+            - SlackId: U1234567890
+              DisplayName: John Doe
+            - SlackId: U0987654321
+              DisplayName: Jane Smith
+            - SlackId: U1111111111
+              DisplayName: Bob Wilson
+          Channels:
+            - C1234567890
+            - C0987654321

@@ -1,0 +1,4323 @@
+openapi: 3.1.0
+info:
+  title: api-governance-rules-with-style-guide
+  version: 1.0.0
+  description: A self-documenting API that serves API design guidelines and best practices. This API presents the Unified API Style Guide as queryable resources, with each guideline section available as an endpoint. The API itself follows the guidelines it documents, serving as a living example of the principles it describes.
+  contact:
+    name: Kin Lane
+    email: kinlane@naftiko.io
+    url: https://naftiko.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+- url: http://localhost:8080/rest/api-governance-rules-with-style-guide/1.0.0
+  description: Sandbox
+tags:
+- name: Introduction
+  description: Introduction and overview of the API style guide
+- name: Design Principles
+  description: Core design principles for API development
+- name: URL Structure
+  description: Guidelines for URL and path design
+- name: Naming Conventions
+  description: Naming rules for properties, parameters, and headers
+- name: HTTP Methods
+  description: Proper usage of HTTP methods
+- name: HTTP Status Codes
+  description: Standard HTTP status code usage
+- name: Request Response
+  description: Request and response format guidelines
+- name: Data Types
+  description: Data type and format specifications
+- name: Collections
+  description: Collection and pagination patterns
+- name: Filtering Sorting
+  description: Filtering and sorting guidelines
+- name: Error Handling
+  description: Error response formats and handling
+- name: Versioning
+  description: API versioning strategies
+- name: Security
+  description: Security requirements and best practices
+- name: Hypermedia
+  description: HATEOAS and link relations
+- name: Long Running Operations
+  description: Async operation patterns
+- name: Webhooks
+  description: Webhook and push notification guidelines
+- name: Caching
+  description: Caching strategies and headers
+- name: Compatibility
+  description: Backwards compatibility and evolution
+- name: Deprecation
+  description: Deprecation process and communication
+- name: Standards
+  description: Technical standards, specifications, and conventions referenced in the style guide
+security:
+- apiKey: []
+paths:
+  /guidelines/introduction:
+    get:
+      tags:
+      - Introduction
+      summary: Get introduction overview
+      description: Returns the introduction and purpose of the API style guide
+      operationId: getIntroduction
+      responses:
+        '200':
+          description: Introduction guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+              examples:
+                Introduction:
+                  $ref: '#/components/examples/Introduction'
+  /guidelines/introduction/rules:
+    get:
+      tags:
+      - Introduction
+      summary: Get introduction section rules
+      description: Returns all rules and Spectral validations for the introduction section
+      operationId: getIntroductionRules
+      responses:
+        '200':
+          description: Introduction section rules
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionRules'
+              examples:
+                IntroductionRules:
+                  $ref: '#/components/examples/IntroductionRules'
+  /guidelines/introduction/purpose:
+    get:
+      tags:
+      - Introduction
+      summary: Get purpose statement
+      description: Returns the purpose and goals of the API style guide
+      operationId: getIntroductionPurpose
+      responses:
+        '200':
+          description: Purpose guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                IntroductionPurpose:
+                  $ref: '#/components/examples/IntroductionPurpose'
+  /guidelines/introduction/requirements-language:
+    get:
+      tags:
+      - Introduction
+      summary: Get requirements language definitions
+      description: Returns the RFC 2119 keyword definitions used throughout the guide
+      operationId: getRequirementsLanguage
+      responses:
+        '200':
+          description: Requirements language guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                RequirementsLanguage:
+                  $ref: '#/components/examples/RequirementsLanguage'
+  /guidelines/design-principles:
+    get:
+      tags:
+      - Design Principles
+      summary: Get design principles overview
+      description: Returns all core design principles
+      operationId: getDesignPrinciples
+      responses:
+        '200':
+          description: Design principles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+              examples:
+                DesignPrinciples:
+                  $ref: '#/components/examples/DesignPrinciples'
+  /guidelines/design-principles/rules:
+    get:
+      tags:
+      - Design Principles
+      summary: Get design principles rules
+      description: Returns all rules and Spectral validations for design principles
+      operationId: getDesignPrinciplesRules
+      responses:
+        '200':
+          description: Design principles rules
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionRules'
+              examples:
+                DesignPrinciplesRules:
+                  $ref: '#/components/examples/DesignPrinciplesRules'
+  /guidelines/design-principles/api-first:
+    get:
+      tags:
+      - Design Principles
+      summary: Get API First principle
+      description: Returns the API First design principle guidelines
+      operationId: getApiFirst
+      responses:
+        '200':
+          description: API First guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                ApiFirst:
+                  $ref: '#/components/examples/ApiFirst'
+  /guidelines/design-principles/robustness:
+    get:
+      tags:
+      - Design Principles
+      summary: Get Robustness principle
+      description: Returns Postel's Law and related guidelines
+      operationId: getRobustness
+      responses:
+        '200':
+          description: Robustness guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                Robustness:
+                  $ref: '#/components/examples/Robustness'
+  /guidelines/url-structure:
+    get:
+      tags:
+      - URL Structure
+      summary: Get URL structure guidelines
+      description: Returns all URL and path design guidelines
+      operationId: getUrlStructure
+      responses:
+        '200':
+          description: URL structure guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+              examples:
+                UrlStructure:
+                  $ref: '#/components/examples/UrlStructure'
+  /guidelines/url-structure/rules:
+    get:
+      tags:
+      - URL Structure
+      summary: Get URL rules
+      description: Returns all URL formatting rules
+      operationId: getUrlRules
+      responses:
+        '200':
+          description: URL rules
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                UrlRules:
+                  $ref: '#/components/examples/UrlRules'
+  /guidelines/url-structure/general-format:
+    get:
+      tags:
+      - URL Structure
+      summary: Get general URL format
+      description: Returns the standard URL format pattern
+      operationId: getUrlFormat
+      responses:
+        '200':
+          description: URL format guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                UrlFormat:
+                  $ref: '#/components/examples/UrlFormat'
+  /guidelines/url-structure/resource-naming:
+    get:
+      tags:
+      - URL Structure
+      summary: Get resource naming guidelines
+      description: Returns guidelines for naming resources in URLs
+      operationId: getResourceNaming
+      responses:
+        '200':
+          description: Resource naming guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                ResourceNaming:
+                  $ref: '#/components/examples/ResourceNaming'
+  /guidelines/url-structure/path-segments:
+    get:
+      tags:
+      - URL Structure
+      summary: Get path segment conventions
+      description: Returns path segment casing conventions with alternatives
+      operationId: getPathSegments
+      responses:
+        '200':
+          description: Path segment guidelines with alternatives
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                PathSegments:
+                  $ref: '#/components/examples/PathSegments'
+  /guidelines/naming-conventions:
+    get:
+      tags:
+      - Naming Conventions
+      summary: Get naming conventions overview
+      description: Returns all naming convention guidelines
+      operationId: getNamingConventions
+      responses:
+        '200':
+          description: Naming convention guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+              examples:
+                NamingConventions:
+                  $ref: '#/components/examples/NamingConventions'
+  /guidelines/naming-conventions/rules:
+    get:
+      tags:
+      - Naming Conventions
+      summary: Get naming conventions rules
+      description: Returns all rules and Spectral validations for naming conventions
+      operationId: getNamingConventionsRules
+      responses:
+        '200':
+          description: Naming conventions rules with Spectral implementations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionRules'
+              examples:
+                NamingConventionsRules:
+                  $ref: '#/components/examples/NamingConventionsRules'
+  /guidelines/naming-conventions/json-properties:
+    get:
+      tags:
+      - Naming Conventions
+      summary: Get JSON property naming guidelines
+      description: Returns guidelines for naming JSON properties
+      operationId: getJsonPropertyNaming
+      responses:
+        '200':
+          description: JSON property naming guidelines with alternatives
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                JsonPropertyNaming:
+                  $ref: '#/components/examples/JsonPropertyNaming'
+  /guidelines/naming-conventions/http-headers:
+    get:
+      tags:
+      - Naming Conventions
+      summary: Get HTTP header naming guidelines
+      description: Returns guidelines for naming HTTP headers
+      operationId: getHttpHeaderNaming
+      responses:
+        '200':
+          description: HTTP header naming guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                HttpHeaderNaming:
+                  $ref: '#/components/examples/HttpHeaderNaming'
+  /guidelines/http-methods:
+    get:
+      tags:
+      - HTTP Methods
+      summary: Get HTTP methods overview
+      description: Returns overview of HTTP method usage
+      operationId: getHttpMethods
+      responses:
+        '200':
+          description: HTTP methods overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+              examples:
+                HttpMethods:
+                  $ref: '#/components/examples/HttpMethods'
+  /guidelines/http-methods/rules:
+    get:
+      tags:
+      - HTTP Methods
+      summary: Get HTTP methods rules
+      description: Returns all rules and Spectral validations for HTTP methods
+      operationId: getHttpMethodsRules
+      responses:
+        '200':
+          description: HTTP methods rules with Spectral implementations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionRules'
+              examples:
+                HttpMethodsRules:
+                  $ref: '#/components/examples/HttpMethodsRules'
+  /guidelines/http-methods/semantics:
+    get:
+      tags:
+      - HTTP Methods
+      summary: Get method semantics
+      description: Returns the semantic meaning and properties of each HTTP method
+      operationId: getMethodSemantics
+      responses:
+        '200':
+          description: Method semantics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                MethodSemantics:
+                  $ref: '#/components/examples/MethodSemantics'
+  /guidelines/http-methods/get:
+    get:
+      tags:
+      - HTTP Methods
+      summary: Get GET method guidelines
+      description: Returns detailed guidelines for the GET method
+      operationId: getGetMethod
+      responses:
+        '200':
+          description: GET method guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                GetMethod:
+                  $ref: '#/components/examples/GetMethod'
+  /guidelines/http-methods/post:
+    get:
+      tags:
+      - HTTP Methods
+      summary: Get POST method guidelines
+      description: Returns detailed guidelines for the POST method
+      operationId: getPostMethod
+      responses:
+        '200':
+          description: POST method guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                PostMethod:
+                  $ref: '#/components/examples/PostMethod'
+  /guidelines/http-methods/delete:
+    get:
+      tags:
+      - HTTP Methods
+      summary: Get DELETE method guidelines
+      description: Returns detailed guidelines for the DELETE method
+      operationId: getDeleteMethod
+      responses:
+        '200':
+          description: DELETE method guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                DeleteMethod:
+                  $ref: '#/components/examples/DeleteMethod'
+  /guidelines/http-status-codes:
+    get:
+      tags:
+      - HTTP Status Codes
+      summary: Get status codes overview
+      description: Returns overview of HTTP status code usage
+      operationId: getHttpStatusCodes
+      responses:
+        '200':
+          description: Status codes overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+              examples:
+                HttpStatusCodes:
+                  $ref: '#/components/examples/HttpStatusCodes'
+  /guidelines/http-status-codes/rules:
+    get:
+      tags:
+      - HTTP Status Codes
+      summary: Get status codes rules
+      description: Returns all rules and Spectral validations for HTTP status codes
+      operationId: getHttpStatusCodesRules
+      responses:
+        '200':
+          description: HTTP status codes rules with Spectral implementations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionRules'
+              examples:
+                HttpStatusCodesRules:
+                  $ref: '#/components/examples/HttpStatusCodesRules'
+  /guidelines/http-status-codes/recommended:
+    get:
+      tags:
+      - HTTP Status Codes
+      summary: Get recommended status codes
+      description: Returns the recommended subset of HTTP status codes
+      operationId: getRecommendedStatusCodes
+      responses:
+        '200':
+          description: Recommended status codes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                RecommendedStatusCodes:
+                  $ref: '#/components/examples/RecommendedStatusCodes'
+  /guidelines/http-status-codes/by-method:
+    get:
+      tags:
+      - HTTP Status Codes
+      summary: Get status codes by method
+      description: Returns appropriate status codes for each HTTP method
+      operationId: getStatusCodesByMethod
+      parameters:
+      - name: method
+        in: query
+        description: Filter by HTTP method
+        schema:
+          type: string
+          enum:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+      responses:
+        '200':
+          description: Status codes by method
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                StatusCodesByMethod:
+                  $ref: '#/components/examples/StatusCodesByMethod'
+  /guidelines/data-types:
+    get:
+      tags:
+      - Data Types
+      summary: Get data types overview
+      description: Returns data type and format specifications
+      operationId: getDataTypes
+      responses:
+        '200':
+          description: Data types overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+              examples:
+                DataTypes:
+                  $ref: '#/components/examples/DataTypes'
+  /guidelines/data-types/rules:
+    get:
+      tags:
+      - Data Types
+      summary: Get data types rules
+      description: Returns all rules and Spectral validations for data types
+      operationId: getDataTypesRules
+      responses:
+        '200':
+          description: Data types rules with Spectral implementations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionRules'
+              examples:
+                DataTypesRules:
+                  $ref: '#/components/examples/DataTypesRules'
+  /guidelines/data-types/standard-types:
+    get:
+      tags:
+      - Data Types
+      summary: Get standard data types
+      description: Returns standard data type definitions
+      operationId: getStandardDataTypes
+      responses:
+        '200':
+          description: Standard data types
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                StandardDataTypes:
+                  $ref: '#/components/examples/StandardDataTypes'
+  /guidelines/data-types/date-time:
+    get:
+      tags:
+      - Data Types
+      summary: Get date-time guidelines
+      description: Returns date and time formatting guidelines
+      operationId: getDateTimeGuidelines
+      responses:
+        '200':
+          description: Date-time guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                DateTimeGuidelines:
+                  $ref: '#/components/examples/DateTimeGuidelines'
+  /guidelines/data-types/money:
+    get:
+      tags:
+      - Data Types
+      summary: Get money object guidelines
+      description: Returns guidelines for representing monetary values
+      operationId: getMoneyGuidelines
+      responses:
+        '200':
+          description: Money object guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                MoneyGuidelines:
+                  $ref: '#/components/examples/MoneyGuidelines'
+  /guidelines/error-handling:
+    get:
+      tags:
+      - Error Handling
+      summary: Get error handling overview
+      description: Returns error handling guidelines
+      operationId: getErrorHandling
+      responses:
+        '200':
+          description: Error handling guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+              examples:
+                ErrorHandling:
+                  $ref: '#/components/examples/ErrorHandling'
+  /guidelines/error-handling/rules:
+    get:
+      tags:
+      - Error Handling
+      summary: Get error handling rules
+      description: Returns all rules and Spectral validations for error handling
+      operationId: getErrorHandlingRules
+      responses:
+        '200':
+          description: Error handling rules with Spectral implementations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionRules'
+              examples:
+                ErrorHandlingRules:
+                  $ref: '#/components/examples/ErrorHandlingRules'
+  /guidelines/error-handling/response-format:
+    get:
+      tags:
+      - Error Handling
+      summary: Get error response format
+      description: Returns the recommended error response format
+      operationId: getErrorResponseFormat
+      responses:
+        '200':
+          description: Error response format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                ErrorResponseFormat:
+                  $ref: '#/components/examples/ErrorResponseFormat'
+  /guidelines/collections:
+    get:
+      tags:
+      - Collections
+      summary: Get collections overview
+      description: Returns collection and pagination guidelines
+      operationId: getCollections
+      responses:
+        '200':
+          description: Collections guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+              examples:
+                Collections:
+                  $ref: '#/components/examples/Collections'
+  /guidelines/collections/rules:
+    get:
+      tags:
+      - Collections
+      summary: Get collections rules
+      description: Returns all rules and Spectral validations for collections and pagination
+      operationId: getCollectionsRules
+      responses:
+        '200':
+          description: Collections rules with Spectral implementations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionRules'
+              examples:
+                CollectionsRules:
+                  $ref: '#/components/examples/CollectionsRules'
+  /guidelines/collections/pagination:
+    get:
+      tags:
+      - Collections
+      summary: Get pagination guidelines
+      description: Returns pagination approach guidelines
+      operationId: getPagination
+      responses:
+        '200':
+          description: Pagination guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                Pagination:
+                  $ref: '#/components/examples/Pagination'
+  /guidelines/security:
+    get:
+      tags:
+      - Security
+      summary: Get security overview
+      description: Returns security guidelines
+      operationId: getSecurity
+      responses:
+        '200':
+          description: Security guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+              examples:
+                Security:
+                  $ref: '#/components/examples/Security'
+  /guidelines/security/rules:
+    get:
+      tags:
+      - Security
+      summary: Get security rules
+      description: Returns all rules and Spectral validations for security
+      operationId: getSecurityRules
+      responses:
+        '200':
+          description: Security rules with Spectral implementations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionRules'
+              examples:
+                SecurityRules:
+                  $ref: '#/components/examples/SecurityRules'
+  /guidelines/security/transport:
+    get:
+      tags:
+      - Security
+      summary: Get transport security guidelines
+      description: Returns TLS and transport security guidelines
+      operationId: getTransportSecurity
+      responses:
+        '200':
+          description: Transport security guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                TransportSecurity:
+                  $ref: '#/components/examples/TransportSecurity'
+  /guidelines/security/authentication:
+    get:
+      tags:
+      - Security
+      summary: Get authentication guidelines
+      description: Returns authentication guidelines
+      operationId: getAuthentication
+      responses:
+        '200':
+          description: Authentication guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                Authentication:
+                  $ref: '#/components/examples/Authentication'
+  /guidelines/versioning:
+    get:
+      tags:
+      - Versioning
+      summary: Get versioning overview
+      description: Returns API versioning guidelines
+      operationId: getVersioning
+      responses:
+        '200':
+          description: Versioning guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+              examples:
+                Versioning:
+                  $ref: '#/components/examples/Versioning'
+  /guidelines/versioning/rules:
+    get:
+      tags:
+      - Versioning
+      summary: Get versioning rules
+      description: Returns all rules and Spectral validations for versioning
+      operationId: getVersioningRules
+      responses:
+        '200':
+          description: Versioning rules with Spectral implementations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionRules'
+              examples:
+                VersioningRules:
+                  $ref: '#/components/examples/VersioningRules'
+  /guidelines/versioning/strategies:
+    get:
+      tags:
+      - Versioning
+      summary: Get versioning strategies
+      description: Returns different API versioning strategies
+      operationId: getVersioningStrategies
+      responses:
+        '200':
+          description: Versioning strategies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                VersioningStrategies:
+                  $ref: '#/components/examples/VersioningStrategies'
+  /guidelines/versioning/breaking-changes:
+    get:
+      tags:
+      - Versioning
+      summary: Get breaking changes definition
+      description: Returns what constitutes a breaking change
+      operationId: getBreakingChanges
+      responses:
+        '200':
+          description: Breaking changes guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guideline'
+              examples:
+                BreakingChanges:
+                  $ref: '#/components/examples/BreakingChanges'
+  /guidelines:
+    get:
+      tags:
+      - Introduction
+      summary: List all guideline sections
+      description: Returns a list of all guideline sections
+      operationId: listGuidelines
+      parameters:
+      - name: severity
+        in: query
+        description: Filter rules by severity level
+        schema:
+          type: string
+          enum:
+          - error
+          - warn
+          - info
+          - hint
+      - name: requirement
+        in: query
+        description: Filter rules by requirement level
+        schema:
+          type: string
+          enum:
+          - MUST
+          - MUST NOT
+          - SHOULD
+          - SHOULD NOT
+          - MAY
+      responses:
+        '200':
+          description: List of guideline sections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GuidelineSectionSummary'
+                  links:
+                    $ref: '#/components/schemas/PaginationLinks'
+              examples:
+                ListGuidelines:
+                  $ref: '#/components/examples/ListGuidelines'
+  /guidelines/search:
+    get:
+      tags:
+      - Introduction
+      summary: Search guidelines
+      description: Search across all guidelines by keyword
+      operationId: searchGuidelines
+      parameters:
+      - name: q
+        in: query
+        required: true
+        description: Search query
+        schema:
+          type: string
+          minLength: 2
+      - name: limit
+        in: query
+        description: Maximum results to return
+        schema:
+          type: integer
+          format: int32
+          default: 20
+          maximum: 100
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query:
+                    type: string
+                  totalResults:
+                    type: integer
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SearchResult'
+              examples:
+                SearchGuidelines:
+                  $ref: '#/components/examples/SearchGuidelines'
+  /guidelines/rules:
+    get:
+      tags:
+      - Introduction
+      summary: List all rules
+      description: Returns all individual rules across all sections
+      operationId: listRules
+      parameters:
+      - name: severity
+        in: query
+        description: Filter by severity
+        schema:
+          type: string
+          enum:
+          - error
+          - warn
+          - info
+      - name: requirement
+        in: query
+        description: Filter by requirement level
+        schema:
+          type: string
+          enum:
+          - MUST
+          - MUST NOT
+          - SHOULD
+          - SHOULD NOT
+          - MAY
+      - name: spectralRule
+        in: query
+        description: Filter rules that have Spectral implementations
+        schema:
+          type: boolean
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 50
+      - name: cursor
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: List of rules
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Rule'
+                  nextCursor:
+                    type: string
+              examples:
+                ListRules:
+                  $ref: '#/components/examples/ListRules'
+  /standards:
+    get:
+      tags:
+      - Standards
+      summary: List all standards categories
+      description: Returns all categories of technical standards referenced in the API style guide
+      operationId: listStandards
+      responses:
+        '200':
+          description: List of standards categories
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsIndex'
+              examples:
+                StandardsIndex:
+                  $ref: '#/components/examples/StandardsIndex'
+  /standards/rfc:
+    get:
+      tags:
+      - Standards
+      summary: Get RFC Standards (IETF)
+      description: Internet Engineering Task Force Request for Comments specifications that define core internet protocols
+        and best practices for HTTP APIs.
+      operationId: getRfcStandards
+      responses:
+        '200':
+          description: RFC Standards (IETF) list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsSection'
+              examples:
+                StandardsRfc:
+                  $ref: '#/components/examples/StandardsRfc'
+  /standards/iso:
+    get:
+      tags:
+      - Standards
+      summary: Get ISO Standards
+      description: International Organization for Standardization specifications for data formats, codes, and representations
+        used in APIs.
+      operationId: getIsoStandards
+      responses:
+        '200':
+          description: ISO Standards list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsSection'
+              examples:
+                StandardsIso:
+                  $ref: '#/components/examples/StandardsIso'
+  /standards/openapi-json-schema:
+    get:
+      tags:
+      - Standards
+      summary: Get OpenAPI & JSON Schema
+      description: Specifications for describing API contracts and validating JSON data structures.
+      operationId: getOpenapiStandards
+      responses:
+        '200':
+          description: OpenAPI & JSON Schema list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsSection'
+              examples:
+                StandardsOpenapiJsonSchema:
+                  $ref: '#/components/examples/StandardsOpenapiJsonSchema'
+  /standards/hypermedia:
+    get:
+      tags:
+      - Standards
+      summary: Get Hypermedia Standards
+      description: Specifications for adding hypermedia controls and link relations to API responses enabling HATEOAS.
+      operationId: getHypermediaStandards
+      responses:
+        '200':
+          description: Hypermedia Standards list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsSection'
+              examples:
+                StandardsHypermedia:
+                  $ref: '#/components/examples/StandardsHypermedia'
+  /standards/security-standards:
+    get:
+      tags:
+      - Standards
+      summary: Get Security Standards
+      description: Specifications for securing API communications, authentication, and authorization.
+      operationId: getSecurityStandards
+      responses:
+        '200':
+          description: Security Standards list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsSection'
+              examples:
+                StandardsSecurityStandards:
+                  $ref: '#/components/examples/StandardsSecurityStandards'
+  /standards/versioning-standards:
+    get:
+      tags:
+      - Standards
+      summary: Get Versioning Standards
+      description: Conventions for versioning APIs and communicating version information.
+      operationId: getVersioningStandards
+      responses:
+        '200':
+          description: Versioning Standards list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsSection'
+              examples:
+                StandardsVersioningStandards:
+                  $ref: '#/components/examples/StandardsVersioningStandards'
+  /standards/naming-conventions:
+    get:
+      tags:
+      - Standards
+      summary: Get Naming Conventions
+      description: Standard casing and naming patterns used for different API elements.
+      operationId: getNamingStandards
+      responses:
+        '200':
+          description: Naming Conventions list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsSection'
+              examples:
+                StandardsNamingConventions:
+                  $ref: '#/components/examples/StandardsNamingConventions'
+  /standards/http-status-codes:
+    get:
+      tags:
+      - Standards
+      summary: Get HTTP Status Codes
+      description: Standard HTTP response status codes as defined in RFC 9110 and their appropriate usage in REST APIs.
+      operationId: getStatuscodesStandards
+      responses:
+        '200':
+          description: HTTP Status Codes list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsSection'
+              examples:
+                StandardsHttpStatusCodes:
+                  $ref: '#/components/examples/StandardsHttpStatusCodes'
+  /standards/content-types:
+    get:
+      tags:
+      - Standards
+      summary: Get Content Types (MIME Types)
+      description: Media types used in Content-Type and Accept headers for API requests and responses.
+      operationId: getContenttypesStandards
+      responses:
+        '200':
+          description: Content Types (MIME Types) list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsSection'
+              examples:
+                StandardsContentTypes:
+                  $ref: '#/components/examples/StandardsContentTypes'
+  /standards/pagination-rate-limiting:
+    get:
+      tags:
+      - Standards
+      summary: Get Pagination & Rate Limiting
+      description: Conventions for paginating large collections and communicating rate limits.
+      operationId: getPaginationStandards
+      responses:
+        '200':
+          description: Pagination & Rate Limiting list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsSection'
+              examples:
+                StandardsPaginationRateLimiting:
+                  $ref: '#/components/examples/StandardsPaginationRateLimiting'
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for accessing the guidelines API
+  schemas:
+    GuidelineSection:
+      type: object
+      description: A major section of the API style guide
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the section
+        title:
+          type: string
+          description: Human-readable title
+        description:
+          type: string
+          description: Brief description of the section
+        subsections:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubsectionLink'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+    SubsectionLink:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        href:
+          type: string
+          format: uri
+    SectionRules:
+      type: object
+      description: All rules and Spectral validations for a section
+      properties:
+        section:
+          type: string
+          description: Section identifier
+        title:
+          type: string
+          description: Section title
+        description:
+          type: string
+          description: Section description
+        totalRules:
+          type: integer
+          format: int32
+          description: Total number of rules in this section
+        spectralRules:
+          type: array
+          description: Spectral rule definitions for automated validation
+          items:
+            $ref: '#/components/schemas/SpectralRule'
+        rules:
+          type: array
+          description: Human-readable rules
+          items:
+            $ref: '#/components/schemas/Rule'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+    SpectralRule:
+      type: object
+      description: A Spectral rule definition for automated OpenAPI validation
+      properties:
+        name:
+          type: string
+          description: Rule identifier used in Spectral configuration
+        severity:
+          type: string
+          enum:
+          - error
+          - warn
+          - info
+          - hint
+          description: Severity level when rule is violated
+        message:
+          type: string
+          description: Message shown when rule is violated
+        description:
+          type: string
+          description: Detailed description of what the rule validates
+        given:
+          type: string
+          description: JSONPath expression selecting target elements
+        then:
+          oneOf:
+          - $ref: '#/components/schemas/SpectralThen'
+          - type: array
+            items:
+              $ref: '#/components/schemas/SpectralThen'
+          description: Validation function(s) to apply
+    SpectralThen:
+      type: object
+      description: Spectral validation function configuration
+      properties:
+        field:
+          type: string
+          description: Property to validate (optional)
+        function:
+          type: string
+          description: Spectral function name (e.g., truthy, falsy, pattern, enumeration, schema)
+        functionOptions:
+          type: object
+          description: Options passed to the function
+          additionalProperties: true
+    Guideline:
+      type: object
+      description: A specific guideline with rules and examples
+      properties:
+        id:
+          type: string
+          description: Unique identifier
+        title:
+          type: string
+          description: Human-readable title
+        section:
+          type: string
+          description: Parent section identifier
+        content:
+          type: string
+          description: Main content/description
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rule'
+        examples:
+          type: array
+          items:
+            $ref: '#/components/schemas/Example'
+        alternatives:
+          type: array
+          description: Alternative approaches when multiple valid options exist
+          items:
+            $ref: '#/components/schemas/Alternative'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+    Rule:
+      type: object
+      description: A specific rule within a guideline
+      properties:
+        id:
+          type: string
+        requirement:
+          type: string
+          enum:
+          - MUST
+          - MUST NOT
+          - SHOULD
+          - SHOULD NOT
+          - MAY
+          - RECOMMENDED
+        rule:
+          type: string
+          description: The rule statement
+        severity:
+          type: string
+          enum:
+          - error
+          - warn
+          - info
+          - hint
+        spectralRule:
+          type: string
+          description: Corresponding Spectral rule name if available
+        examples:
+          type: object
+          properties:
+            recommended:
+              type: array
+              items:
+                type: string
+            notRecommended:
+              type: array
+              items:
+                type: string
+    Example:
+      type: object
+      description: A code or API example
+      properties:
+        description:
+          type: string
+        request:
+          type: object
+          properties:
+            method:
+              type: string
+            path:
+              type: string
+            headers:
+              type: object
+            body:
+              type: object
+        response:
+          type: object
+          properties:
+            status:
+              type: integer
+            headers:
+              type: object
+            body:
+              type: object
+    Alternative:
+      type: object
+      description: An alternative approach with sources
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        sources:
+          type: array
+          items:
+            type: string
+          description: Organizations that recommend this approach
+        pattern:
+          type: string
+        examples:
+          type: array
+          items:
+            type: string
+    GuidelineSectionSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        href:
+          type: string
+          format: uri
+    SearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        section:
+          type: string
+        excerpt:
+          type: string
+        href:
+          type: string
+          format: uri
+        relevance:
+          type: number
+          format: float
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+        parent:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+    PaginationLinks:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+        next:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+        prev:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+    ProblemDetail:
+      type: object
+      description: RFC 7807 Problem Details
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+    StandardsIndex:
+      type: object
+      description: Index of all standards categories
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/StandardsCategory'
+        totalStandards:
+          type: integer
+          format: int32
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+    StandardsCategory:
+      type: object
+      description: A category of standards
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        standardCount:
+          type: integer
+          format: int32
+        href:
+          type: string
+          format: uri
+    StandardsSection:
+      type: object
+      description: A section containing related standards
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        standards:
+          type: array
+          items:
+            $ref: '#/components/schemas/Standard'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+    Standard:
+      type: object
+      description: A technical standard or specification
+      properties:
+        id:
+          type: string
+          description: Unique identifier
+        name:
+          type: string
+          description: Short name (e.g., RFC 7807)
+        title:
+          type: string
+          description: Full title
+        description:
+          type: string
+          description: Detailed description
+        url:
+          type: string
+          format: uri
+          description: Link to specification
+        usedFor:
+          type: array
+          items:
+            type: string
+          description: What this standard is used for in APIs
+        examples:
+          type: array
+          items:
+            type: string
+          description: Example values or usage
+  examples:
+    Introduction:
+      summary: API Style Guide Introduction - Overview and navigation
+      value:
+        id: introduction
+        title: Introduction
+        description: Overview of the API Style Guide
+        subsections:
+        - id: purpose
+          title: Purpose
+          href: /v1/guidelines/introduction/purpose
+        - id: requirements-language
+          title: Requirements Language
+          href: /v1/guidelines/introduction/requirements-language
+        - id: scope
+          title: Scope
+          href: /v1/guidelines/introduction/scope
+        links:
+          self:
+            href: /v1/guidelines/introduction
+      description: The introduction section provides an overview of the API Style Guide, its purpose, and how to navigate
+        the guidance. It establishes the foundation for understanding the requirements language (MUST, SHOULD, MAY) used throughout
+        the guide and defines the scope of coverage.
+    IntroductionRules:
+      summary: Introduction Rules - Core principles for API design
+      value:
+        section: introduction
+        title: Introduction Rules
+        description: Core principles that guide all API design decisions
+        totalRules: 3
+        spectralRules: []
+        rules:
+        - id: api-first-design
+          requirement: MUST
+          rule: API design (description, schema) is the master of truth, not the implementation
+          severity: error
+          spectralRule: null
+          rationale: Ensures consistent contracts and enables parallel development
+        - id: api-first-compliance
+          requirement: MUST
+          rule: API implementation MUST always be compliant with the approved API design contract
+          severity: error
+          spectralRule: null
+        - id: robustness-ignore-unknown
+          requirement: MUST
+          rule: Clients MUST safely ignore unexpected fields in responses
+          severity: error
+          spectralRule: null
+          rationale: Enables API evolution without breaking clients
+      description: Foundational rules that underpin all API design decisions including the API-first principle (design before
+        implementation), robustness requirements (tolerant reader pattern), and contract compliance. These principles ensure
+        consistent, evolvable APIs.
+    IntroductionPurpose:
+      summary: Style Guide Purpose - Goals and consolidation of best practices
+      value:
+        id: introduction-purpose
+        title: Purpose
+        section: introduction
+        content: This document provides a unified set of guidelines for designing and developing REST APIs. It consolidates
+          best practices from multiple industry-leading organizations to facilitate consistency, stability, and extensibility
+          across API development.
+        rules: []
+        links:
+          self:
+            href: /v1/guidelines/introduction/purpose
+          parent:
+            href: /v1/guidelines/introduction
+      description: 'Explains why this style guide exists: to consolidate best practices from industry-leading organizations
+        (adidas, Microsoft, Azure, Cisco, Cloud Foundry, Monite) into a unified set of guidelines that facilitate consistency,
+        stability, and extensibility across API development.'
+    RequirementsLanguage:
+      summary: RFC 2119 Requirements Language - MUST, SHOULD, MAY definitions
+      value:
+        id: introduction-requirements-language
+        title: Requirements Language
+        section: introduction
+        content: The keywords in this document are to be interpreted as described in RFC 2119.
+        rules:
+        - keyword: MUST
+          meaning: Absolute requirement
+          severity: error
+        - keyword: MUST NOT
+          meaning: Absolute prohibition
+          severity: error
+        - keyword: SHOULD
+          meaning: Strong recommendation
+          severity: warn
+        - keyword: SHOULD NOT
+          meaning: Strong discouragement
+          severity: warn
+        - keyword: MAY
+          meaning: Optional
+          severity: info
+        links:
+          self:
+            href: /v1/guidelines/introduction/requirements-language
+      description: 'Defines the requirement levels used throughout the guide based on RFC 2119. MUST/MUST NOT indicate absolute
+        requirements (severity: error). SHOULD/SHOULD NOT indicate strong recommendations (severity: warn). MAY indicates
+        optional features (severity: info).'
+    DesignPrinciples:
+      summary: Design Principles - Core philosophy for API design
+      value:
+        id: design-principles
+        title: Design Principles
+        description: Core principles that guide API design decisions
+        subsections:
+        - id: api-first
+          title: API First
+          href: /v1/guidelines/design-principles/api-first
+        - id: robustness
+          title: Robustness (Postel's Law)
+          href: /v1/guidelines/design-principles/robustness
+        - id: minimal-surface
+          title: Minimal API Surface
+          href: /v1/guidelines/design-principles/minimal-surface
+      description: The fundamental principles that guide all API design decisions including API-first development, Postel's
+        Law (robustness principle), and minimal API surface. These principles help teams make consistent architectural decisions.
+    DesignPrinciplesRules:
+      summary: Design Principles Rules - Foundational requirements
+      value:
+        section: design-principles
+        title: Design Principles Rules
+        description: Foundational principles for API design
+        totalRules: 5
+        spectralRules: []
+        rules:
+        - id: api-first
+          requirement: MUST
+          rule: Development must start with API design without upfront coding
+          severity: error
+        - id: robustness-send
+          requirement: SHOULD
+          rule: Send the minimum necessary data in responses
+          severity: warn
+        - id: robustness-accept
+          requirement: SHOULD
+          rule: Be as tolerant as possible when consuming another service
+          severity: warn
+        - id: robustness-ignore
+          requirement: MUST
+          rule: Clients must safely ignore unexpected fields
+          severity: error
+        - id: minimal-surface
+          requirement: MUST
+          rule: API design must aim for minimal surface without sacrificing requirements
+          severity: error
+      description: 'Specific rules derived from core design principles: API-first mandates design before implementation, robustness
+        requires sending minimal data and accepting tolerantly, minimal surface avoids unnecessary complexity. No Spectral
+        rules as these are architectural principles.'
+    ApiFirst:
+      summary: API First Principle - Design before implementation
+      value:
+        id: design-principles-api-first
+        title: API First
+        section: design-principles
+        content: Development of an API MUST always start with API design without upfront coding activities.
+        rules:
+        - id: api-first-design
+          requirement: MUST
+          rule: API design (description, schema) is the master of truth, not the implementation
+          severity: error
+        - id: api-first-compliance
+          requirement: MUST
+          rule: API implementation MUST always be compliant with the approved API design contract
+          severity: error
+        - id: api-first-updates
+          requirement: MUST
+          rule: Updates to the contract MUST be implemented and approved before any change to an API is made
+          severity: error
+      description: The API-first principle requires that API design (OpenAPI specification) is completed and approved before
+        any coding begins. The spec becomes the contract and source of truth. Implementation must comply with the approved
+        design, and changes require contract updates first.
+    Robustness:
+      summary: Robustness Principle (Postel's Law) - Be conservative/liberal
+      value:
+        id: design-principles-robustness
+        title: Robustness (Postel's Law)
+        section: design-principles
+        content: Be conservative in what you send, be liberal in what you accept.
+        rules:
+        - id: robustness-send
+          requirement: SHOULD
+          rule: Send the minimum necessary data
+        - id: robustness-accept
+          requirement: SHOULD
+          rule: Be as tolerant as possible when consuming another service
+        - id: robustness-ignore
+          requirement: MUST
+          rule: Clients MUST safely ignore unexpected fields in responses
+        - id: robustness-order
+          requirement: MUST NOT
+          rule: Clients MUST NOT rely on the order of fields in JSON responses
+      description: 'Based on Postel''s Law: ''Be conservative in what you send, be liberal in what you accept.'' APIs should
+        send minimal necessary data, clients must ignore unknown fields, and neither should rely on field ordering. This enables
+        API evolution without breaking changes.'
+    UrlStructure:
+      summary: URL Structure Guidelines - Path design and formatting
+      value:
+        id: url-structure
+        title: URL Structure
+        subsections:
+        - id: general-format
+          title: General URL Format
+          href: /v1/guidelines/url-structure/general-format
+        - id: rules
+          title: URL Rules
+          href: /v1/guidelines/url-structure/rules
+        - id: resource-naming
+          title: Resource Naming
+          href: /v1/guidelines/url-structure/resource-naming
+      description: Comprehensive guidelines for structuring API URLs including the standard format pattern, casing rules,
+        versioning placement, and resource hierarchy. Covers the foundational rules that affect all API endpoints.
+    UrlRules:
+      summary: URL Rules - Formatting requirements with examples
+      value:
+        id: url-structure-rules
+        title: URL Rules
+        section: url-structure
+        rules:
+        - id: url-lowercase
+          requirement: MUST
+          rule: Use lowercase letters only
+          severity: error
+          spectralRule: url-lowercase
+          examples:
+            notRecommended:
+            - /v1/Users
+            - /v1/OrderItems
+            recommended:
+            - /v1/users
+            - /v1/order-items
+        - id: url-no-trailing-slash
+          requirement: MUST NOT
+          rule: End URLs with a trailing slash
+          severity: error
+          spectralRule: url-no-trailing-slash
+          examples:
+            notRecommended:
+            - /v1/users/
+            recommended:
+            - /v1/users
+        - id: url-no-extensions
+          requirement: MUST NOT
+          rule: Include file extensions
+          severity: warn
+          spectralRule: url-no-file-extensions
+          examples:
+            notRecommended:
+            - /v1/users.json
+            - /v1/report.xml
+            recommended:
+            - /v1/users
+            - /v1/report
+        - id: url-version
+          requirement: MUST
+          rule: Include version prefix
+          severity: warn
+          spectralRule: url-version-prefix
+          examples:
+            notRecommended:
+            - /users
+            recommended:
+            - /v1/users
+            - /v2/users
+      description: Detailed URL formatting rules with recommended and not-recommended examples. Covers lowercase requirement
+        (MUST), trailing slash prohibition (MUST NOT), file extension prohibition (MUST NOT), and version prefix requirement
+        (MUST). Each rule includes Spectral rule references.
+    UrlFormat:
+      summary: General URL Format - Hierarchical structure pattern
+      value:
+        id: url-structure-general-format
+        title: General URL Format
+        section: url-structure
+        content: All API URLs should follow a consistent hierarchical structure.
+        pattern: https://{host}/{version}/{resource-collection}/{resource-id}/{sub-resource}
+        examples:
+          recommended:
+          - url: https://api.example.com/v1/invoices
+            description: Collection of invoices
+          - url: https://api.example.com/v1/invoices/123
+            description: Single invoice resource
+          - url: https://api.example.com/v1/invoices/123/line-items
+            description: Sub-collection of line items
+      description: 'Defines the standard URL pattern: https://{host}/{version}/{resource-collection}/{resource-id}/{sub-resource}.
+        Shows how to structure URLs for collections, individual resources, and nested sub-resources with practical examples.'
+    ResourceNaming:
+      summary: Resource Naming - Nouns vs verbs and pluralization
+      value:
+        id: url-structure-resource-naming
+        title: Resource Naming
+        section: url-structure
+        rules:
+        - id: use-nouns
+          requirement: MUST
+          rule: Use nouns, not verbs, to represent resources
+          examples:
+            notRecommended:
+            - POST /createUser
+            - GET /getUsers
+            - POST /deleteUser
+            recommended:
+            - POST /users
+            - GET /users
+            - DELETE /users/{id}
+        - id: plural-collections
+          requirement: SHOULD
+          rule: Use plural nouns for collections
+          examples:
+            notRecommended:
+            - /v1/user
+            - /v1/order
+            recommended:
+            - /v1/users
+            - /v1/orders
+        - id: singular-singletons
+          requirement: SHOULD
+          rule: Use singular nouns for singleton resources
+          examples:
+            recommended:
+            - /v1/me
+            - /v1/config
+      description: 'Guidelines for naming resources in URLs: use nouns not verbs (POST /users not POST /createUser), use plural
+        nouns for collections (/users not /user), use singular for singletons (/me, /config). Prevents RPC-style URLs in REST
+        APIs.'
+    PathSegments:
+      summary: Path Segment Conventions - kebab-case vs snake_case alternatives
+      value:
+        id: url-structure-path-segments
+        title: Path Segment Conventions
+        section: url-structure
+        content: Path segments should use consistent casing. Two common approaches are supported.
+        alternatives:
+        - id: kebab-case
+          name: Kebab Case
+          sources:
+          - adidas
+          - Microsoft
+          pattern: lowercase-with-hyphens
+          examples:
+          - /v1/system-orders
+          - /v1/order-items
+          - /v1/user-profiles
+        - id: snake-case
+          name: Snake Case
+          sources:
+          - Monite
+          - Cloud Foundry
+          pattern: lowercase_with_underscores
+          examples:
+          - /v1/system_orders
+          - /v1/order_items
+          - /v1/user_profiles
+      description: 'Documents two valid approaches for multi-word path segments: kebab-case (recommended by adidas, Microsoft)
+        like /user-profiles, and snake_case (used by Cloud Foundry, Monite) like /user_profiles. Teams should choose one and
+        apply consistently.'
+    NamingConventions:
+      summary: Naming Conventions - Properties, parameters, and headers
+      value:
+        id: naming-conventions
+        title: Naming Conventions
+        subsections:
+        - id: general
+          title: General Rules
+          href: /v1/guidelines/naming-conventions/general
+        - id: json-properties
+          title: JSON Property Names
+          href: /v1/guidelines/naming-conventions/json-properties
+        - id: http-headers
+          title: HTTP Header Names
+          href: /v1/guidelines/naming-conventions/http-headers
+      description: Comprehensive naming guidelines covering JSON property names, query parameters, path parameters, and HTTP
+        headers. Addresses casing conventions, character restrictions, and consistency requirements across all API elements.
+    NamingConventionsRules:
+      summary: Naming Conventions Rules - 3 Spectral rules with alternatives
+      value:
+        section: naming-conventions
+        title: Naming Conventions Rules
+        description: Rules for naming properties, parameters, and headers
+        totalRules: 6
+        spectralRules:
+        - name: property-camel-case
+          severity: warn
+          message: Property names should use camelCase
+          description: Uses custom function checkPropertyCase with exceptions for HAL (_links, _embedded) and OData (@odata.*)
+          given: $.components.schemas[*].properties[*]~
+          then:
+            function: checkPropertyCase
+            functionOptions:
+              style: camelCase
+        - name: query-param-camel-case
+          severity: warn
+          message: Query parameter names should use camelCase
+          given: $.paths[*][*].parameters[?(@.in=='query')].name
+          then:
+            function: casing
+            functionOptions:
+              type: camel
+        - name: header-kebab-case
+          severity: warn
+          message: Custom header names should use kebab-case
+          given: $.paths[*][*].parameters[?(@.in=='header')].name
+          then:
+            function: pattern
+            functionOptions:
+              match: ^[A-Z][a-z]*(-[A-Z][a-z]*)*$|^[a-z]+(-[a-z]+)*$
+        rules:
+        - id: property-camel-case
+          requirement: SHOULD
+          rule: JSON property names should use camelCase
+          severity: warn
+          spectralRule: property-camel-case
+          examples:
+            notRecommended:
+            - order_number
+            - FirstName
+            - CREATED_AT
+            recommended:
+            - orderNumber
+            - firstName
+            - createdAt
+          alternatives:
+          - name: snake_case
+            spectralRule: property-snake-case
+            sources:
+            - Cloud Foundry
+            - Monite
+            examples:
+            - order_number
+            - first_name
+            - created_at
+        - id: query-param-camel-case
+          requirement: SHOULD
+          rule: Query parameter names should use camelCase
+          severity: warn
+          spectralRule: query-param-camel-case
+        - id: header-kebab-case
+          requirement: SHOULD
+          rule: Custom header names should use Kebab-Case or kebab-case
+          severity: warn
+          spectralRule: header-kebab-case
+        - id: property-ascii-only
+          requirement: MUST
+          rule: Property names must be ASCII alphanumeric characters only
+          severity: error
+        - id: property-case-sensitive
+          requirement: MUST
+          rule: Property names must be treated with case sensitivity
+          severity: error
+        - id: array-plural-names
+          requirement: SHOULD
+          rule: Array property names should be plural
+          severity: warn
+      description: 'Three Spectral rules for naming validation: property-camel-case (with exceptions for HAL and OData), query-param-camel-case,
+        and header-kebab-case. Also includes snake_case alternatives for organizations preferring that convention.'
+    JsonPropertyNaming:
+      summary: JSON Property Naming - camelCase vs snake_case conventions
+      value:
+        id: naming-conventions-json-properties
+        title: JSON Property Names
+        section: naming-conventions
+        alternatives:
+        - id: camel-case
+          name: camelCase
+          sources:
+          - adidas
+          - Microsoft
+          - Azure
+          examples:
+          - property: orderNumber
+          - property: createdAt
+          - property: firstName
+          - property: isActive
+        - id: snake-case
+          name: snake_case
+          sources:
+          - Cloud Foundry
+          - Monite
+          examples:
+          - property: order_number
+          - property: created_at
+          - property: first_name
+          - property: is_active
+        rules:
+        - requirement: MUST
+          rule: Be ASCII alphanumeric characters only
+        - requirement: MUST
+          rule: Be treated with case sensitivity
+        - requirement: SHOULD
+          rule: Use plural names for array fields
+        - requirement: MUST NOT
+          rule: Boolean fields must not be null
+      description: 'Guidelines for JSON property naming with two supported conventions: camelCase (recommended by adidas,
+        Microsoft, Azure) using patterns like orderNumber, createdAt; and snake_case (used by Cloud Foundry, Monite) using
+        patterns like order_number, created_at. Includes examples for both styles.'
+    HttpHeaderNaming:
+      summary: HTTP Header Naming - Hyphenated conventions
+      value:
+        id: naming-conventions-http-headers
+        title: HTTP Header Names
+        section: naming-conventions
+        rules:
+        - requirement: SHOULD
+          rule: Use Hyphenated-Pascal-Case or lower-kebab-case
+        - requirement: SHOULD NOT
+          rule: Custom headers should not start with X- (per RFC 6648)
+        examples:
+          recommended:
+          - Content-Type
+          - Authorization
+          - X-Request-Id
+          - x-correlation-id
+          notRecommended:
+          - content_type
+          - CONTENT-TYPE
+      description: 'HTTP header naming guidelines: use Hyphenated-Pascal-Case (Content-Type, X-Request-Id) or lower-kebab-case
+        (x-correlation-id). Custom headers should not use the deprecated X- prefix per RFC 6648. Consistent casing improves
+        interoperability.'
+    HttpMethods:
+      summary: HTTP Methods Overview - Semantics and proper usage
+      value:
+        id: http-methods
+        title: HTTP Methods
+        subsections:
+        - id: semantics
+          title: Method Semantics
+          href: /v1/guidelines/http-methods/semantics
+        - id: get
+          title: GET
+          href: /v1/guidelines/http-methods/get
+        - id: post
+          title: POST
+          href: /v1/guidelines/http-methods/post
+        - id: put
+          title: PUT
+          href: /v1/guidelines/http-methods/put
+        - id: patch
+          title: PATCH
+          href: /v1/guidelines/http-methods/patch
+        - id: delete
+          title: DELETE
+          href: /v1/guidelines/http-methods/delete
+      description: Overview of HTTP method semantics covering GET, POST, PUT, PATCH, and DELETE. Defines which methods are
+        idempotent, safe, and whether they should have request bodies. Foundation for RESTful API design.
+    HttpMethodsRules:
+      summary: HTTP Methods Rules - 5 Spectral rules for method validation
+      value:
+        section: http-methods
+        title: HTTP Methods Rules
+        description: Rules for proper HTTP method usage
+        totalRules: 5
+        spectralRules:
+        - name: get-no-request-body
+          severity: error
+          message: GET operations must not have a request body
+          given: $.paths[*].get
+          then:
+            field: requestBody
+            function: falsy
+        - name: delete-no-request-body
+          severity: error
+          message: DELETE operations must not have a request body
+          given: $.paths[*].delete
+          then:
+            field: requestBody
+            function: falsy
+        - name: post-should-have-request-body
+          severity: info
+          message: POST operations should have a request body
+          given: $.paths[*].post
+          then:
+            field: requestBody
+            function: truthy
+        - name: put-should-have-request-body
+          severity: warn
+          message: PUT operations should have a request body
+          given: $.paths[*].put
+          then:
+            field: requestBody
+            function: truthy
+        - name: patch-should-have-request-body
+          severity: warn
+          message: PATCH operations should have a request body
+          given: $.paths[*].patch
+          then:
+            field: requestBody
+            function: truthy
+        rules:
+        - id: get-no-body
+          requirement: MUST NOT
+          rule: GET operations must not have a request body
+          severity: error
+          spectralRule: get-no-request-body
+          rationale: GET is defined as a safe, idempotent method for retrieval only
+        - id: delete-no-body
+          requirement: MUST NOT
+          rule: DELETE operations must not have a request body
+          severity: error
+          spectralRule: delete-no-request-body
+        - id: post-has-body
+          requirement: SHOULD
+          rule: POST operations should have a request body
+          severity: info
+          spectralRule: post-should-have-request-body
+        - id: put-has-body
+          requirement: SHOULD
+          rule: PUT operations should have a request body
+          severity: warn
+          spectralRule: put-should-have-request-body
+        - id: patch-has-body
+          requirement: SHOULD
+          rule: PATCH operations should have a request body
+          severity: warn
+          spectralRule: patch-should-have-request-body
+      description: 'Five Spectral rules validating HTTP method usage: GET and DELETE must not have request bodies (error),
+        POST/PUT/PATCH should have request bodies (warn/info). These rules enforce proper REST semantics automatically.'
+    MethodSemantics:
+      summary: Method Semantics - Idempotency, safety, and request bodies
+      value:
+        id: http-methods-semantics
+        title: Method Semantics
+        section: http-methods
+        methods:
+        - method: GET
+          purpose: Retrieve resource(s)
+          idempotent: true
+          safe: true
+          requestBody: false
+        - method: POST
+          purpose: Create resource or trigger action
+          idempotent: false
+          safe: false
+          requestBody: true
+        - method: PUT
+          purpose: Replace entire resource
+          idempotent: true
+          safe: false
+          requestBody: true
+        - method: PATCH
+          purpose: Partial update
+          idempotent: true
+          safe: false
+          requestBody: true
+        - method: DELETE
+          purpose: Remove resource
+          idempotent: true
+          safe: false
+          requestBody: false
+      description: 'Detailed semantics for each HTTP method: GET (retrieve, idempotent, safe, no body), POST (create/action,
+        not idempotent, body required), PUT (replace, idempotent, body required), PATCH (partial update, idempotent, body
+        required), DELETE (remove, idempotent, no body).'
+    GetMethod:
+      summary: GET Method - Retrieval without side effects
+      value:
+        id: http-methods-get
+        title: GET
+        section: http-methods
+        rules:
+        - requirement: MUST
+          rule: Be idempotent
+          severity: error
+        - requirement: MUST NOT
+          rule: Have side effects on resource state
+          severity: error
+        - requirement: MAY
+          rule: Include query parameters
+        - requirement: MUST NOT
+          rule: Include a request body
+          severity: error
+          spectralRule: get-no-request-body
+        examples:
+        - description: Retrieve a collection
+          request:
+            method: GET
+            path: /v1/users
+          response:
+            status: 200
+            body:
+              value:
+              - id: '123'
+                name: John
+        - description: Retrieve a single resource
+          request:
+            method: GET
+            path: /v1/users/123
+          response:
+            status: 200
+      description: 'GET method guidelines: must be idempotent and safe (no side effects), must not have request body, may
+        include query parameters for filtering/pagination. Returns 200 OK with resource representation. Used for both collections
+        and individual resources.'
+    PostMethod:
+      summary: POST Method - Resource creation and actions
+      value:
+        id: http-methods-post
+        title: POST
+        section: http-methods
+        useCases:
+        - Creating new resources in a collection
+        - Triggering actions on resources
+        - Operations that are not idempotent
+        rules:
+        - requirement: SHOULD
+          rule: Return 201 Created for resource creation
+        - requirement: SHOULD
+          rule: Include Location header with new resource URL
+        - requirement: MAY
+          rule: Return 202 Accepted for async operations
+        examples:
+        - description: Create a resource
+          request:
+            method: POST
+            path: /v1/orders
+            body:
+              customerId: '123'
+              items: []
+          response:
+            status: 201
+            headers:
+              Location: /v1/orders/456
+        - description: Trigger an action
+          request:
+            method: POST
+            path: /v1/orders/456/actions/cancel
+          response:
+            status: 200
+      description: 'POST method guidelines: used for creating resources (return 201 Created with Location header) or triggering
+        actions (return 200 OK). Not idempotent - multiple identical requests may create multiple resources. May return 202
+        Accepted for async operations.'
+    DeleteMethod:
+      summary: DELETE Method - Resource removal
+      value:
+        id: http-methods-delete
+        title: DELETE
+        section: http-methods
+        rules:
+        - requirement: MUST
+          rule: Be idempotent
+        - requirement: MUST NOT
+          rule: Include a request body
+          severity: error
+          spectralRule: delete-no-request-body
+        - requirement: SHOULD
+          rule: Return 204 No Content on success
+        - requirement: MAY
+          rule: Implement soft delete
+        examples:
+        - description: Delete a resource
+          request:
+            method: DELETE
+            path: /v1/products/123
+          response:
+            status: 204
+        - description: Soft delete pattern
+          request:
+            method: DELETE
+            path: /v1/documents/456
+          notes: Resource marked as deleted but not removed
+        - description: Hard delete with purge
+          request:
+            method: DELETE
+            path: /v1/documents/456?purge=true
+          notes: Permanently removes the resource
+      description: 'DELETE method guidelines: must be idempotent (deleting non-existent resource returns 404), must not have
+        request body, returns 204 No Content on success. May implement soft delete internally. Supports purge query parameter
+        for hard delete.'
+    HttpStatusCodes:
+      summary: HTTP Status Codes Overview - Standard codes and usage
+      value:
+        id: http-status-codes
+        title: HTTP Status Codes
+        subsections:
+        - id: recommended
+          title: Recommended Status Codes
+          href: /v1/guidelines/http-status-codes/recommended
+        - id: by-method
+          title: Status Codes by Method
+          href: /v1/guidelines/http-status-codes/by-method
+      description: Overview of HTTP status code usage covering success codes (2xx), client errors (4xx), and server errors
+        (5xx). Emphasizes using only standard codes to ensure client interoperability and provides mapping to common scenarios.
+    HttpStatusCodesRules:
+      summary: HTTP Status Codes Rules - 5 Spectral rules for response validation
+      value:
+        section: http-status-codes
+        title: HTTP Status Codes Rules
+        description: Rules for proper status code usage
+        totalRules: 5
+        spectralRules:
+        - name: standard-status-codes
+          severity: error
+          message: Use only standard HTTP status codes
+          given: $.paths[*][*].responses[*]~
+          then:
+            function: enumeration
+            functionOptions:
+              values:
+              - '200'
+              - '201'
+              - '202'
+              - '204'
+              - '301'
+              - '304'
+              - '400'
+              - '401'
+              - '403'
+              - '404'
+              - '405'
+              - '409'
+              - '410'
+              - '412'
+              - '415'
+              - '422'
+              - '429'
+              - '500'
+              - '503'
+              - default
+        - name: get-response-200
+          severity: warn
+          message: GET operations should return 200 OK
+          given: $.paths[*].get.responses
+          then:
+            field: '200'
+            function: truthy
+        - name: post-response-201-or-200
+          severity: warn
+          message: POST operations should return 201 Created or 200 OK
+          given: $.paths[*].post.responses
+          then:
+            function: xor
+            functionOptions:
+              properties:
+              - '200'
+              - '201'
+              - '202'
+        - name: delete-response-204-or-202
+          severity: warn
+          message: DELETE operations should return 204 No Content or 202 Accepted
+          given: $.paths[*].delete.responses
+          then:
+            function: xor
+            functionOptions:
+              properties:
+              - '202'
+              - '204'
+        - name: operation-error-response
+          severity: info
+          message: Operations should define at least one 4xx error response
+          given: $.paths[*][get,post,put,patch,delete].responses
+          then:
+            function: schema
+            functionOptions:
+              schema:
+                anyOf:
+                - required:
+                  - '400'
+                - required:
+                  - '401'
+                - required:
+                  - '403'
+                - required:
+                  - '404'
+                - required:
+                  - '422'
+                - required:
+                  - default
+        rules:
+        - id: standard-codes-only
+          requirement: MUST
+          rule: Use only standard HTTP status codes
+          severity: error
+          spectralRule: standard-status-codes
+          rationale: Non-standard codes create client interoperability issues
+        - id: get-returns-200
+          requirement: SHOULD
+          rule: GET operations should return 200 OK for successful requests
+          severity: warn
+          spectralRule: get-response-200
+        - id: post-returns-201
+          requirement: SHOULD
+          rule: POST operations creating resources should return 201 Created
+          severity: warn
+          spectralRule: post-response-201-or-200
+        - id: delete-returns-204
+          requirement: SHOULD
+          rule: DELETE operations should return 204 No Content
+          severity: warn
+          spectralRule: delete-response-204-or-202
+        - id: define-error-responses
+          requirement: SHOULD
+          rule: Operations should define at least one 4xx error response
+          severity: info
+          spectralRule: operation-error-response
+      description: 'Five Spectral rules for status code validation: standard-status-codes (whitelist of allowed codes), get-response-200,
+        post-response-201-or-200, delete-response-204-or-202, and operation-error-response (require 4xx definition). Ensures
+        consistent response handling.'
+    RecommendedStatusCodes:
+      summary: Recommended Status Codes - Minimal set for consistency
+      value:
+        id: http-status-codes-recommended
+        title: Recommended Status Codes
+        section: http-status-codes
+        content: SHOULD use only these standard status codes to minimize client complexity.
+        statusCodes:
+          success:
+          - code: 200
+            name: OK
+            useCase: Successful GET, PATCH, PUT, or action POST
+          - code: 201
+            name: Created
+            useCase: Successful resource creation via POST
+          - code: 202
+            name: Accepted
+            useCase: Request accepted for async processing
+          - code: 204
+            name: No Content
+            useCase: Successful DELETE or action with no body
+          clientErrors:
+          - code: 400
+            name: Bad Request
+            useCase: Malformed request syntax
+          - code: 401
+            name: Unauthorized
+            useCase: Missing or invalid authentication
+          - code: 403
+            name: Forbidden
+            useCase: Authenticated but not authorized
+          - code: 404
+            name: Not Found
+            useCase: Resource doesn't exist
+          - code: 409
+            name: Conflict
+            useCase: Request conflicts with current state
+          - code: 422
+            name: Unprocessable Entity
+            useCase: Validation errors
+          - code: 429
+            name: Too Many Requests
+            useCase: Rate limit exceeded
+          serverErrors:
+          - code: 500
+            name: Internal Server Error
+            useCase: Unexpected server error
+          - code: 503
+            name: Service Unavailable
+            useCase: Service temporarily unavailable
+      description: 'The recommended subset of HTTP status codes: Success (200, 201, 202, 204), Client Errors (400, 401, 403,
+        404, 409, 422, 429), Server Errors (500, 503). Using a limited set reduces client complexity and improves consistency.'
+    StatusCodesByMethod:
+      summary: Status Codes by Method - Appropriate responses per verb
+      value:
+        id: http-status-codes-by-method
+        title: Status Codes by Method
+        section: http-status-codes
+        methods:
+          GET:
+            success:
+            - 200
+            errors:
+            - 400
+            - 401
+            - 403
+            - 404
+            - 422
+            - 500
+          POST:
+            success:
+            - 200
+            - 201
+            - 202
+            errors:
+            - 400
+            - 401
+            - 403
+            - 404
+            - 409
+            - 422
+            - 500
+          PATCH:
+            success:
+            - 200
+            errors:
+            - 400
+            - 401
+            - 403
+            - 404
+            - 409
+            - 422
+            - 500
+          PUT:
+            success:
+            - 200
+            - 201
+            errors:
+            - 400
+            - 401
+            - 403
+            - 404
+            - 422
+            - 500
+          DELETE:
+            success:
+            - 202
+            - 204
+            errors:
+            - 400
+            - 401
+            - 403
+            - 404
+            - 422
+            - 500
+      description: 'Maps HTTP methods to appropriate status codes: GET returns 200, POST returns 201/200/202, PUT returns
+        200/201, PATCH returns 200, DELETE returns 204/202. All methods may return standard error codes (400, 401, 403, 404,
+        422, 500).'
+    DataTypes:
+      summary: Data Types Overview - Formats and standards
+      value:
+        id: data-types
+        title: Data Types & Formats
+        subsections:
+        - id: standard-types
+          title: Standard Data Types
+          href: /v1/guidelines/data-types/standard-types
+        - id: date-time
+          title: Date and Time
+          href: /v1/guidelines/data-types/date-time
+        - id: money
+          title: Money Object
+          href: /v1/guidelines/data-types/money
+      description: Overview of data type specifications covering standard JSON types with OpenAPI formats, date/time handling
+        (ISO 8601), and special types like money objects. Ensures consistent data representation across all API endpoints.
+    DataTypesRules:
+      summary: Data Types Rules - 6 Spectral rules for format validation
+      value:
+        section: data-types
+        title: Data Types Rules
+        description: Rules for data type formats and standards
+        totalRules: 6
+        spectralRules:
+        - name: datetime-format
+          severity: warn
+          message: 'Date-time fields should use ISO 8601 format with format: date-time'
+          given: $.components.schemas[*].properties[?(@ && @.type=='string' && (@.description && /date|time|timestamp|created|updated|modified/i.test(@.description)))]
+          then:
+            field: format
+            function: enumeration
+            functionOptions:
+              values:
+              - date-time
+              - date
+              - time
+        - name: integer-format-specified
+          severity: info
+          message: Integer types should specify format (int32 or int64)
+          given: $.components.schemas[*].properties[?(@.type=='integer')]
+          then:
+            field: format
+            function: truthy
+        - name: number-format-specified
+          severity: info
+          message: Number types should specify format (float or double)
+          given: $.components.schemas[*].properties[?(@.type=='number')]
+          then:
+            field: format
+            function: truthy
+        - name: string-email-format
+          severity: warn
+          message: 'Email fields should use format: email'
+          given: $.components.schemas[*].properties[?(@ && @.type=='string' && /email/i.test(@property))]
+          then:
+            field: format
+            function: enumeration
+            functionOptions:
+              values:
+              - email
+        - name: string-uri-format
+          severity: warn
+          message: 'URI fields should use format: uri'
+          given: $.components.schemas[*].properties[?(@ && @.type=='string' && /url|uri|href|link/i.test(@property))]
+          then:
+            field: format
+            function: enumeration
+            functionOptions:
+              values:
+              - uri
+              - uri-reference
+        - name: string-uuid-format
+          severity: info
+          message: 'UUID fields should use format: uuid'
+          given: $.components.schemas[*].properties[?(@ && @.type=='string' && /uuid|guid/i.test(@property))]
+          then:
+            field: format
+            function: enumeration
+            functionOptions:
+              values:
+              - uuid
+        rules:
+        - id: datetime-iso8601
+          requirement: MUST
+          rule: Use ISO 8601 format for all date and time values
+          severity: warn
+          spectralRule: datetime-format
+          examples:
+            notRecommended:
+            - 01/15/2024
+            - '1705315800'
+            recommended:
+            - '2024-01-15T10:30:00Z'
+        - id: integer-format
+          requirement: SHOULD
+          rule: Specify int32 or int64 format for integer types
+          severity: info
+          spectralRule: integer-format-specified
+        - id: number-format
+          requirement: SHOULD
+          rule: Specify float or double format for number types
+          severity: info
+          spectralRule: number-format-specified
+        - id: email-format
+          requirement: SHOULD
+          rule: 'Use format: email for email fields'
+          severity: warn
+          spectralRule: string-email-format
+        - id: uri-format
+          requirement: SHOULD
+          rule: 'Use format: uri for URL/URI fields'
+          severity: warn
+          spectralRule: string-uri-format
+        - id: uuid-format
+          requirement: SHOULD
+          rule: 'Use format: uuid for UUID/GUID fields'
+          severity: info
+          spectralRule: string-uuid-format
+      description: 'Six Spectral rules for data type validation: datetime-format (ISO 8601), integer-format-specified (int32/int64),
+        number-format-specified (float/double), string-email-format, string-uri-format, and string-uuid-format. Ensures proper
+        OpenAPI format annotations.'
+    StandardDataTypes:
+      summary: Standard Data Types - JSON Schema types with OpenAPI formats
+      value:
+        id: data-types-standard-types
+        title: Standard Data Types
+        section: data-types
+        types:
+        - type: Integer (32-bit)
+          jsonType: number
+          format: int32
+          example: 42
+        - type: Integer (64-bit)
+          jsonType: number
+          format: int64
+          example: 9007199254740992
+        - type: Float
+          jsonType: number
+          format: float
+          example: 3.14
+        - type: Double
+          jsonType: number
+          format: double
+          example: 3.141592653589793
+        - type: String
+          jsonType: string
+          format: null
+          example: Hello
+        - type: Boolean
+          jsonType: boolean
+          format: null
+          example: true
+        - type: Date-Time
+          jsonType: string
+          format: date-time
+          example: '2024-01-15T10:30:00Z'
+        - type: UUID
+          jsonType: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        - type: Email
+          jsonType: string
+          format: email
+          example: user@example.com
+        - type: URI
+          jsonType: string
+          format: uri
+          example: https://example.com
+      description: 'Maps standard data types to JSON Schema types and OpenAPI format annotations: integers (int32, int64),
+        numbers (float, double), strings with formats (date-time, uuid, email, uri). Each type includes the JSON representation
+        and example values.'
+    DateTimeGuidelines:
+      summary: Date/Time Guidelines - ISO 8601 format requirements
+      value:
+        id: data-types-date-time
+        title: Date and Time
+        section: data-types
+        rules:
+        - requirement: MUST
+          rule: Use ISO 8601 format
+        - requirement: MUST
+          rule: Use UTC timezone (indicated by Z suffix)
+        format: YYYY-MM-DDTHH:mm:ss.sssZ
+        examples:
+        - type: DateTime
+          format: date-time
+          example: '2024-01-15T10:30:00Z'
+        - type: Date only
+          format: date
+          example: '2024-01-15'
+        - type: Duration
+          format: duration
+          example: P3Y6M4DT12H30M5S
+        - type: Interval
+          format: interval
+          example: 2024-01-01T00:00:00Z/2024-12-31T23:59:59Z
+      description: 'Date and time handling requirements: MUST use ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ), MUST use UTC
+        timezone indicated by Z suffix. Covers date-time, date-only, duration (P3Y6M4DT12H30M5S), and interval formats with
+        practical examples.'
+    MoneyGuidelines:
+      summary: Money Object - data-types guidance
+      value:
+        id: data-types-money
+        title: Money Object
+        section: data-types
+        content: SHOULD use a consistent money representation across the API.
+        schema:
+          type: object
+          properties:
+            amount:
+              type: integer
+              format: int64
+              description: Amount in minor units (e.g., cents)
+            currency:
+              type: string
+              format: currency
+              description: ISO 4217 currency code
+        examples:
+        - description: $19.99 USD
+          value:
+            amount: 1999
+            currency: USD
+        - description: €150.00 EUR
+          value:
+            amount: 15000
+            currency: EUR
+        rules:
+        - requirement: SHOULD NOT
+          rule: Use float or double for monetary amounts due to precision issues
+        - requirement: SHOULD
+          rule: Store amounts as integers in minor units
+      description: SHOULD use a consistent money representation across the API.
+    ErrorHandling:
+      summary: Error Handling Overview - Response formats and patterns
+      value:
+        id: error-handling
+        title: Error Handling
+        subsections:
+        - id: response-format
+          title: Error Response Format
+          href: /v1/guidelines/error-handling/response-format
+        - id: fields
+          title: Error Response Fields
+          href: /v1/guidelines/error-handling/fields
+      description: Overview of error handling including response format standards (RFC 7807 Problem Details), required and
+        optional fields, and guidelines for providing actionable error information to API consumers.
+    ErrorHandlingRules:
+      summary: Error Handling Rules - 2 Spectral rules plus security requirements
+      value:
+        section: error-handling
+        title: Error Handling Rules
+        description: Rules for error response formats
+        totalRules: 3
+        spectralRules:
+        - name: error-response-structure
+          severity: info
+          message: Error responses should follow RFC 7807 Problem Details format
+          description: Validates that 4xx and 5xx responses include problem detail fields
+          given: $.paths[*][*].responses[?(@property >= '400' && @property <= '599')].content['application/json'].schema
+          then:
+            function: schema
+            functionOptions:
+              schema:
+                type: object
+                properties:
+                  properties:
+                    type: object
+                    anyOf:
+                    - required:
+                      - type
+                    - required:
+                      - title
+                    - required:
+                      - status
+        - name: error-content-type
+          severity: info
+          message: Error responses should use application/problem+json content type
+          given: $.paths[*][*].responses[?(@property >= '400' && @property <= '599')].content
+          then:
+            field: application/problem+json
+            function: truthy
+        rules:
+        - id: rfc7807-format
+          requirement: SHOULD
+          rule: Error responses should follow RFC 7807 Problem Details format
+          severity: info
+          spectralRule: error-response-structure
+          examples:
+            recommended:
+            - "{\n  \"type\": \"https://api.example.com/errors/validation\",\n  \"title\": \"Validation Error\",\n  \"status\"\
+              : 422,\n  \"detail\": \"The request body contains invalid data.\"\n}\n"
+        - id: problem-json-content-type
+          requirement: SHOULD
+          rule: Use application/problem+json content type for errors
+          severity: info
+          spectralRule: error-content-type
+        - id: no-stack-traces
+          requirement: MUST NOT
+          rule: Include stack traces in production error responses
+          severity: error
+          rationale: Stack traces expose internal implementation details and security vulnerabilities
+      description: 'Spectral rules for error responses: error-response-structure (validates RFC 7807 fields), error-content-type
+        (application/problem+json). Also includes security rule: MUST NOT include stack traces in production error responses.'
+    ErrorResponseFormat:
+      summary: Error Response Format - RFC 7807 Problem Details
+      value:
+        id: error-handling-response-format
+        title: Error Response Format
+        section: error-handling
+        content: SHOULD use RFC 7807 Problem Detail format for errors.
+        contentType: application/problem+json
+        schema:
+          type: object
+          properties:
+            type:
+              type: string
+              format: uri
+              description: URI identifying the problem type
+            title:
+              type: string
+              description: Short human-readable summary
+            status:
+              type: integer
+              description: HTTP status code
+            detail:
+              type: string
+              description: Human-readable explanation
+            instance:
+              type: string
+              format: uri
+              description: URI identifying the specific occurrence
+        example:
+          type: https://api.example.com/errors/validation-error
+          title: Validation Error
+          status: 422
+          detail: The request body contains invalid data.
+          instance: /v1/orders/123
+          errors:
+          - field: email
+            message: Must be a valid email address
+      description: 'RFC 7807 Problem Details format for errors with fields: type (URI identifying problem), title (short summary),
+        status (HTTP code), detail (explanation), instance (specific occurrence URI). Use content-type application/problem+json.'
+    Collections:
+      summary: Collections Overview - Response structure and pagination
+      value:
+        id: collections
+        title: Collections & Pagination
+        subsections:
+        - id: response-structure
+          title: Collection Response Structure
+          href: /v1/guidelines/collections/response-structure
+        - id: pagination
+          title: Pagination Approaches
+          href: /v1/guidelines/collections/pagination
+      description: Guidelines for collection endpoints covering response structure (wrapped arrays), pagination approaches
+        (cursor vs offset), and metadata inclusion. Ensures consistent handling of list operations across all resources.
+    CollectionsRules:
+      summary: Collections Rules - 2 Spectral rules for pagination validation
+      value:
+        section: collections
+        title: Collections & Pagination Rules
+        description: Rules for collection responses and pagination
+        totalRules: 3
+        spectralRules:
+        - name: collection-response-structure
+          severity: info
+          message: Collection responses should wrap arrays in an object
+          description: Validates that GET operations returning arrays use a wrapper object with value/data/items property
+          given: $.paths[*].get.responses.200.content['application/json'].schema
+          then:
+            function: schema
+            functionOptions:
+              schema:
+                type: object
+                required:
+                - type
+                properties:
+                  type:
+                    const: object
+        - name: pagination-param-names
+          severity: info
+          message: Pagination parameters should use standard names (limit, offset, cursor)
+          given: $.paths[*].get.parameters[?(@.in=='query')]
+          then:
+            field: name
+            function: enumeration
+            functionOptions:
+              values:
+              - limit
+              - offset
+              - cursor
+              - page
+              - pageSize
+              - page_size
+              - top
+              - skip
+        rules:
+        - id: wrap-collections
+          requirement: SHOULD
+          rule: Collection responses should wrap arrays in an object
+          severity: info
+          spectralRule: collection-response-structure
+          rationale: Enables adding metadata without breaking changes
+          examples:
+            notRecommended:
+            - '[{"id": 1}, {"id": 2}]'
+            recommended:
+            - '{"value": [{"id": 1}, {"id": 2}], "totalCount": 100}'
+        - id: standard-pagination-params
+          requirement: SHOULD
+          rule: Use standard pagination parameter names
+          severity: info
+          spectralRule: pagination-param-names
+          examples:
+            recommended:
+            - ?limit=20&offset=40
+            - ?cursor=abc123
+        - id: cursor-based-preferred
+          requirement: SHOULD
+          rule: Prefer cursor-based pagination over offset-based
+          severity: info
+          rationale: More reliable for large datasets and handles concurrent modifications
+      description: 'Spectral rules for collections: collection-response-structure (arrays wrapped in objects), pagination-param-names
+        (standard names: limit, offset, cursor). Also recommends cursor-based pagination over offset-based for reliability.'
+    Pagination:
+      summary: Pagination Approaches - Cursor-based vs offset-based
+      value:
+        id: collections-pagination
+        title: Pagination Approaches
+        section: collections
+        approaches:
+        - id: cursor-based
+          name: Cursor-Based (Server-Driven)
+          recommended: true
+          description: Server controls page size, client uses opaque cursor
+          example:
+            request: GET /v1/items?cursor=abc123
+            response:
+              value:
+              - '...'
+              nextLink: /v1/items?cursor=def456
+          pros:
+          - More reliable for large datasets
+          - Handles concurrent modifications better
+          cons:
+          - Cannot jump to arbitrary page
+        - id: offset-based
+          name: Offset-Based (Client-Driven)
+          recommended: false
+          description: Client specifies limit and offset
+          example:
+            request: GET /v1/items?limit=20&offset=40
+          pros:
+          - Can jump to any page
+          - Familiar pattern
+          cons:
+          - Inconsistent with concurrent modifications
+          - Performance degrades with large offsets
+        parameters:
+        - name: limit
+          aliases:
+          - top
+          - per_page
+          - page_size
+          description: Maximum items to return
+        - name: offset
+          aliases:
+          - skip
+          description: Items to skip
+        - name: cursor
+          aliases:
+          - continuation
+          - page_token
+          description: Opaque pagination token
+      description: 'Two pagination approaches: Cursor-based (recommended) uses opaque tokens, handles concurrent modifications
+        well, but cannot jump to arbitrary pages. Offset-based uses limit/offset, allows page jumping, but may miss or duplicate
+        items during modifications.'
+    Security:
+      summary: Security Overview - Transport, authentication, and rate limiting
+      value:
+        id: security
+        title: Security
+        subsections:
+        - id: transport
+          title: Transport Security
+          href: /v1/guidelines/security/transport
+        - id: authentication
+          title: Authentication
+          href: /v1/guidelines/security/authentication
+        - id: rate-limiting
+          title: Rate Limiting
+          href: /v1/guidelines/security/rate-limiting
+      description: Security requirements covering transport security (TLS 1.2+), authentication methods (OAuth 2.0, API keys),
+        and rate limiting. Every API must be authenticated and use HTTPS. Credentials must never appear in URLs.
+    SecurityRules:
+      summary: Security Rules - 5 Spectral rules for security validation
+      value:
+        section: security
+        title: Security Rules
+        description: Rules for API security requirements
+        totalRules: 5
+        spectralRules:
+        - name: servers-https-only
+          severity: error
+          message: Server URLs must use HTTPS
+          given: $.servers[*].url
+          then:
+            function: pattern
+            functionOptions:
+              match: ^https://
+        - name: security-schemes-defined
+          severity: warn
+          message: API should define security schemes
+          given: $.components
+          then:
+            field: securitySchemes
+            function: truthy
+        - name: global-security-defined
+          severity: info
+          message: API should define global security requirements
+          given: $
+          then:
+            field: security
+            function: truthy
+        - name: no-api-key-in-url
+          severity: error
+          message: API keys should not be passed in query parameters
+          given: $.components.securitySchemes[?(@.type=='apiKey')]
+          then:
+            field: in
+            function: pattern
+            functionOptions:
+              notMatch: ^query$
+        - name: oauth2-security
+          severity: info
+          message: Consider using OAuth 2.0 for authentication
+          given: $.components.securitySchemes
+          then:
+            function: schema
+            functionOptions:
+              schema:
+                type: object
+                additionalProperties:
+                  anyOf:
+                  - properties:
+                      type:
+                        const: oauth2
+        rules:
+        - id: https-required
+          requirement: MUST
+          rule: All API traffic must use HTTPS
+          severity: error
+          spectralRule: servers-https-only
+          rationale: TLS protects data in transit from eavesdropping and tampering
+        - id: security-schemes-defined
+          requirement: SHOULD
+          rule: API should define security schemes
+          severity: warn
+          spectralRule: security-schemes-defined
+        - id: global-security
+          requirement: SHOULD
+          rule: API should define global security requirements
+          severity: info
+          spectralRule: global-security-defined
+        - id: no-api-key-in-url
+          requirement: MUST NOT
+          rule: API keys must not be passed in URL query parameters
+          severity: error
+          spectralRule: no-api-key-in-url
+          rationale: URLs are logged in browser history, server logs, and referrer headers
+          examples:
+            notRecommended:
+            - GET /v1/users?api_key=secret123
+            recommended:
+            - 'GET /v1/users\nX-API-Key: secret123'
+        - id: use-oauth2
+          requirement: SHOULD
+          rule: Use OAuth 2.0 for authentication
+          severity: info
+          spectralRule: oauth2-security
+      description: 'Five Spectral rules: servers-https-only (error), security-schemes-defined (warn), global-security-defined
+        (info), no-api-key-in-url (error), oauth2-security (info). Automatically validates critical security requirements
+        in OpenAPI specs.'
+    TransportSecurity:
+      summary: Transport Security - HTTPS and TLS requirements
+      value:
+        id: security-transport
+        title: Transport Security
+        section: security
+        rules:
+        - requirement: MUST
+          rule: Require TLS 1.2 or higher
+          severity: error
+          spectralRule: servers-https-only
+        - requirement: SHOULD
+          rule: Reject non-TLS requests with 403 Forbidden
+        - requirement: MUST
+          rule: Send webhooks only via HTTPS
+      description: 'Transport security requirements: MUST require TLS 1.2 or higher for all API traffic, SHOULD reject non-TLS
+        requests with 403 Forbidden, MUST send webhooks only via HTTPS. Spectral rule servers-https-only validates server
+        URLs.'
+    Authentication:
+      summary: Authentication - OAuth 2.0 and API key guidelines
+      value:
+        id: security-authentication
+        title: Authentication
+        section: security
+        rules:
+        - requirement: MUST
+          rule: Every API must be authenticated
+          severity: error
+        - requirement: SHOULD
+          rule: Use OAuth 2.0 for authentication
+        - requirement: SHOULD
+          rule: Send API keys as headers, not URL parameters
+        - requirement: MUST NOT
+          rule: Include credentials in URLs
+          severity: error
+        examples:
+          recommended:
+          - header: 'Authorization: Bearer {token}'
+          - header: 'X-API-Key: {api-key}'
+          notRecommended:
+          - url: /v1/users?api_key=secret123
+      description: 'Authentication requirements: every API MUST be authenticated, SHOULD use OAuth 2.0, API keys SHOULD be
+        sent as headers (X-API-Key) not URL parameters. Credentials MUST NOT appear in URLs (logged in browser history and
+        server logs).'
+    Versioning:
+      summary: Versioning Overview - Strategies and compatibility
+      value:
+        id: versioning
+        title: Versioning
+        subsections:
+        - id: strategies
+          title: Versioning Strategies
+          href: /v1/guidelines/versioning/strategies
+        - id: breaking-changes
+          title: Breaking Changes
+          href: /v1/guidelines/versioning/breaking-changes
+      description: API versioning guidelines covering versioning strategies (URL path, header, query parameter), semantic
+        versioning for API descriptions, and what constitutes breaking vs non-breaking changes.
+    VersioningRules:
+      summary: Versioning Rules - 3 Spectral rules for version validation
+      value:
+        section: versioning
+        title: Versioning Rules
+        description: Rules for API versioning and compatibility
+        totalRules: 4
+        spectralRules:
+        - name: api-version-defined
+          severity: info
+          message: API should define a version in info.version
+          given: $.info
+          then:
+            field: version
+            function: truthy
+        - name: api-version-semver
+          severity: info
+          message: API version should follow semantic versioning
+          given: $.info.version
+          then:
+            function: pattern
+            functionOptions:
+              match: ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$
+        - name: deprecated-has-description
+          severity: warn
+          message: Deprecated operations should explain deprecation
+          given: $.paths[*][*][?(@.deprecated==true)]
+          then:
+          - field: description
+            function: truthy
+          - field: description
+            function: pattern
+            functionOptions:
+              match: deprecated|sunset|replaced|migration
+        rules:
+        - id: api-version-required
+          requirement: MUST
+          rule: API must define a version in info.version
+          severity: info
+          spectralRule: api-version-defined
+        - id: semver-format
+          requirement: SHOULD
+          rule: API version should follow semantic versioning
+          severity: info
+          spectralRule: api-version-semver
+          examples:
+            notRecommended:
+            - v1
+            - 2024-01
+            recommended:
+            - 1.0.0
+            - 2.1.0-beta
+        - id: deprecation-documentation
+          requirement: SHOULD
+          rule: Deprecated endpoints should document deprecation
+          severity: warn
+          spectralRule: deprecated-has-description
+        - id: no-breaking-changes
+          requirement: MUST NOT
+          rule: Breaking changes must not be made without version increment
+          severity: error
+          rationale: Breaking changes without version increment can break existing clients
+          breakingChanges:
+          - Removing or renaming endpoints
+          - Removing or renaming fields
+          - Changing field types
+          - Making optional fields required
+          - Removing enum values
+      description: 'Spectral rules for versioning: api-version-defined (info.version required), api-version-semver (semantic
+        versioning pattern), deprecated-has-description (explain deprecation). Also includes breaking change prevention guidelines.'
+    VersioningStrategies:
+      summary: Versioning Strategies - URL path vs header vs query
+      value:
+        id: versioning-strategies
+        title: Versioning Strategies
+        section: versioning
+        strategies:
+        - id: url-path
+          name: URL Path Versioning
+          recommended: true
+          example: GET /v1/products
+          pros:
+          - Explicit and visible
+          - Easy to implement
+          - Cache-friendly
+        - id: header
+          name: Header Versioning
+          recommended: false
+          example: 'Accept: application/vnd.example.v2+json'
+          pros:
+          - Cleaner URLs
+          cons:
+          - Less visible
+          - Harder to test
+        - id: query-param
+          name: Query Parameter
+          recommended: false
+          example: GET /products?api-version=2024-01-15
+          pros:
+          - Flexible
+          cons:
+          - Can be forgotten
+      description: 'Three versioning strategies: URL path (/v1/users) is recommended for visibility and caching; Header versioning
+        (Accept: application/vnd.example.v2+json) keeps URLs clean; Query parameter (?api-version=2024-01-15) is flexible
+        but forgettable.'
+    BreakingChanges:
+      summary: Breaking Changes - What requires a new version
+      value:
+        id: versioning-breaking-changes
+        title: Breaking Changes
+        section: versioning
+        content: The following changes are considered breaking and require a new API version.
+        breakingChanges:
+        - Removing or renaming APIs, parameters, or fields
+        - Changing the type of a field
+        - Making optional parameters required
+        - Adding required parameters without defaults
+        - Removing enum values
+        - Changing error codes
+        - Changing URL structure
+        nonBreakingChanges:
+        - Adding new optional fields to responses
+        - Adding new optional query parameters
+        - Adding new endpoints
+        - Adding new HTTP methods on existing endpoints
+        - Adding new enum values (if clients prepared)
+      description: 'Defines breaking changes requiring new version: removing/renaming endpoints or fields, changing types,
+        making optional required, removing enum values, changing error codes, changing URLs. Non-breaking: adding optional
+        fields, new endpoints, new enum values.'
+    ListGuidelines:
+      summary: All Guidelines List - Index of all sections
+      value:
+        value:
+        - id: introduction
+          title: Introduction
+          href: /v1/guidelines/introduction
+        - id: design-principles
+          title: Design Principles
+          href: /v1/guidelines/design-principles
+        - id: url-structure
+          title: URL Structure
+          href: /v1/guidelines/url-structure
+        - id: naming-conventions
+          title: Naming Conventions
+          href: /v1/guidelines/naming-conventions
+        - id: http-methods
+          title: HTTP Methods
+          href: /v1/guidelines/http-methods
+        - id: http-status-codes
+          title: HTTP Status Codes
+          href: /v1/guidelines/http-status-codes
+        - id: data-types
+          title: Data Types & Formats
+          href: /v1/guidelines/data-types
+        - id: collections
+          title: Collections & Pagination
+          href: /v1/guidelines/collections
+        - id: error-handling
+          title: Error Handling
+          href: /v1/guidelines/error-handling
+        - id: versioning
+          title: Versioning
+          href: /v1/guidelines/versioning
+        - id: security
+          title: Security
+          href: /v1/guidelines/security
+        links:
+          self:
+            href: /v1/guidelines
+      description: Complete index of all guideline sections with links. Use severity and requirement query parameters to filter
+        rules. Each section contains subsections for specific topics, and a /rules endpoint for Spectral validation rules.
+    SearchGuidelines:
+      summary: Search Guidelines - Full-text search across all content
+      value:
+        query: pagination
+        totalResults: 3
+        value:
+        - id: collections-pagination
+          title: Pagination Approaches
+          section: collections
+          excerpt: '...cursor-based pagination over offset-based pagination...'
+          href: /v1/guidelines/collections/pagination
+          relevance: 0.95
+        - id: collections-response-structure
+          title: Collection Response Structure
+          section: collections
+          excerpt: '...pagination links in collection responses...'
+          href: /v1/guidelines/collections/response-structure
+          relevance: 0.72
+      description: Search endpoint for finding relevant guidelines by keyword. Returns matching sections with excerpts and
+        relevance scores. Use for discovering guidance on specific topics across all sections of the style guide.
+    ListRules:
+      summary: All Rules List - Every rule across all sections
+      value:
+        value:
+        - id: url-lowercase
+          section: url-structure
+          requirement: MUST
+          rule: Use lowercase letters only in URLs
+          severity: error
+          spectralRule: url-lowercase
+        - id: get-no-body
+          section: http-methods
+          requirement: MUST NOT
+          rule: Include a request body in GET requests
+          severity: error
+          spectralRule: get-no-request-body
+        nextCursor: eyJvZmZzZXQiOjUwfQ==
+      description: Aggregated list of all rules from all sections with filtering by severity (error, warn, info), requirement
+        level (MUST, SHOULD, MAY), and Spectral implementation availability. Useful for compliance checking and rule discovery.
+    StandardsIndex:
+      summary: Standards Index - All categories of technical standards
+      description: Complete index of all technical standards, specifications, and conventions referenced in the API style
+        guide. Includes RFCs, ISO standards, OpenAPI/JSON Schema, hypermedia formats, security standards, naming conventions,
+        and more.
+      value:
+        title: API Style Guide Standards Reference
+        description: Technical standards, specifications, and conventions referenced throughout the unified API style guide.
+        categories:
+        - id: rfc-standards
+          title: RFC Standards (IETF)
+          description: Internet Engineering Task Force specifications
+          standardCount: 15
+          href: /v1/standards/rfc
+        - id: iso-standards
+          title: ISO Standards
+          description: International Organization for Standardization specifications
+          standardCount: 4
+          href: /v1/standards/iso
+        - id: openapi-json-schema
+          title: OpenAPI & JSON Schema
+          description: API contract and data validation specifications
+          standardCount: 3
+          href: /v1/standards/openapi-json-schema
+        - id: hypermedia-standards
+          title: Hypermedia Standards
+          description: HATEOAS and link relation specifications
+          standardCount: 4
+          href: /v1/standards/hypermedia
+        - id: security-standards
+          title: Security Standards
+          description: Authentication and transport security
+          standardCount: 5
+          href: /v1/standards/security-standards
+        - id: versioning-standards
+          title: Versioning Standards
+          description: Version numbering conventions
+          standardCount: 2
+          href: /v1/standards/versioning-standards
+        - id: naming-conventions
+          title: Naming Conventions
+          description: Casing and naming patterns
+          standardCount: 5
+          href: /v1/standards/naming-conventions
+        - id: http-status-codes
+          title: HTTP Status Codes
+          description: Response status code categories
+          standardCount: 4
+          href: /v1/standards/http-status-codes
+        - id: content-types
+          title: Content Types
+          description: MIME types for API communication
+          standardCount: 8
+          href: /v1/standards/content-types
+        - id: pagination-conventions
+          title: Pagination & Rate Limiting
+          description: Collection pagination patterns
+          standardCount: 3
+          href: /v1/standards/pagination-rate-limiting
+        totalStandards: 53
+        links:
+          self:
+            href: /v1/standards
+    StandardsRfc:
+      summary: RFC Standards (IETF) - Technical specifications and conventions
+      description: Internet Engineering Task Force Request for Comments specifications that define core internet protocols
+        and best practices for HTTP APIs.
+      value:
+        id: rfc-standards
+        title: RFC Standards (IETF)
+        description: Internet Engineering Task Force Request for Comments specifications that define core internet protocols
+          and best practices for HTTP APIs.
+        standards:
+        - id: rfc-2119
+          name: RFC 2119
+          title: Key Words for Use in RFCs
+          description: 'Defines the meaning of requirement levels: MUST, MUST NOT, SHOULD, SHOULD NOT, MAY, REQUIRED, RECOMMENDED,
+            OPTIONAL. Used throughout the style guide to indicate compliance levels. Maps to Spectral severity: MUST/MUST
+            NOT → error, SHOULD/SHOULD NOT → warn, MAY → info.'
+          url: https://datatracker.ietf.org/doc/html/rfc2119
+          usedFor:
+          - Requirements language
+          - Compliance levels
+          - Spectral rule severity
+        - id: rfc-3986
+          name: RFC 3986
+          title: 'Uniform Resource Identifier (URI): Generic Syntax'
+          description: Defines the structure and syntax of URIs. Basis for URL path design rules (lowercase, no trailing slash,
+            hierarchical structure). Covers scheme, authority, path, query, and fragment components.
+          url: https://datatracker.ietf.org/doc/html/rfc3986
+          usedFor:
+          - URL structure
+          - Path design
+          - Query parameters
+        - id: rfc-4122
+          name: RFC 4122
+          title: A Universally Unique Identifier (UUID) URN Namespace
+          description: 'Defines the UUID format (128-bit identifier). Used for resource identifiers. Example: 550e8400-e29b-41d4-a716-446655440000.
+            OpenAPI format: uuid.'
+          url: https://datatracker.ietf.org/doc/html/rfc4122
+          usedFor:
+          - Resource identifiers
+          - 'OpenAPI format: uuid'
+          example: 550e8400-e29b-41d4-a716-446655440000
+        - id: rfc-5322
+          name: RFC 5322
+          title: Internet Message Format
+          description: 'Defines email address format. Referenced for email field validation. OpenAPI format: email.'
+          url: https://datatracker.ietf.org/doc/html/rfc5322
+          usedFor:
+          - Email validation
+          - 'OpenAPI format: email'
+        - id: rfc-6570
+          name: RFC 6570
+          title: URI Template
+          description: 'Defines URI template syntax for describing URI spaces. Used in OpenAPI path parameters: /users/{userId}.
+            Supports path, query, and fragment expansion.'
+          url: https://datatracker.ietf.org/doc/html/rfc6570
+          usedFor:
+          - Path parameters
+          - URI templates
+          example: /users/{userId}/orders/{orderId}
+        - id: rfc-6648
+          name: RFC 6648
+          title: Deprecating the 'X-' Prefix in Application Protocols
+          description: 'Recommends against using X- prefix for custom headers. Custom headers should use descriptive names
+            without prefix. Example: Use Request-Id instead of X-Request-Id.'
+          url: https://datatracker.ietf.org/doc/html/rfc6648
+          usedFor:
+          - Custom header naming
+          recommendation: SHOULD NOT use X- prefix for new custom headers
+        - id: rfc-6749
+          name: RFC 6749
+          title: The OAuth 2.0 Authorization Framework
+          description: Defines OAuth 2.0 authentication/authorization flows. Recommended authentication mechanism for APIs.
+            Covers authorization code, implicit, client credentials, and resource owner flows.
+          url: https://datatracker.ietf.org/doc/html/rfc6749
+          usedFor:
+          - API authentication
+          - Authorization flows
+        - id: rfc-6750
+          name: RFC 6750
+          title: 'The OAuth 2.0 Authorization Framework: Bearer Token Usage'
+          description: 'Defines how to use bearer tokens in HTTP requests. Authorization header format: Authorization: Bearer
+            {token}.'
+          url: https://datatracker.ietf.org/doc/html/rfc6750
+          usedFor:
+          - Bearer token authentication
+          example: 'Authorization: Bearer eyJhbGciOiJIUzI1NiIs...'
+        - id: rfc-7396
+          name: RFC 7396
+          title: JSON Merge Patch
+          description: 'Defines a simple format for partial JSON updates. Content-Type: application/merge-patch+json. Null
+            values indicate field deletion. Recommended for PATCH operations.'
+          url: https://datatracker.ietf.org/doc/html/rfc7396
+          usedFor:
+          - PATCH operations
+          - Partial updates
+          contentType: application/merge-patch+json
+        - id: rfc-7807
+          name: RFC 7807
+          title: Problem Details for HTTP APIs
+          description: 'Defines a standard format for error responses. Content-Type: application/problem+json. Fields: type
+            (URI), title, status, detail, instance. Extensible with custom fields (e.g., errors array).'
+          url: https://datatracker.ietf.org/doc/html/rfc7807
+          usedFor:
+          - Error responses
+          - Problem details
+          contentType: application/problem+json
+          fields:
+          - type
+          - title
+          - status
+          - detail
+          - instance
+        - id: rfc-8288
+          name: RFC 8288
+          title: Web Linking
+          description: Defines the Link header and link relations. Used for pagination (next, prev, first, last). Used for
+            hypermedia navigation.
+          url: https://datatracker.ietf.org/doc/html/rfc8288
+          usedFor:
+          - Pagination links
+          - Hypermedia
+          - Link relations
+        - id: rfc-8594
+          name: RFC 8594
+          title: The Sunset HTTP Header Field
+          description: 'Defines the Sunset header for deprecation communication. Format: Sunset: Sat, 31 Dec 2024 23:59:59
+            GMT. Used with Deprecation header for API lifecycle management.'
+          url: https://datatracker.ietf.org/doc/html/rfc8594
+          usedFor:
+          - API deprecation
+          - Lifecycle management
+          example: 'Sunset: Sat, 31 Dec 2024 23:59:59 GMT'
+        - id: rfc-9110
+          name: RFC 9110
+          title: HTTP Semantics
+          description: Current HTTP semantics specification (obsoletes RFC 7230-7235). Defines methods (GET, POST, PUT, PATCH,
+            DELETE), status codes, headers. Source of truth for HTTP method properties (safe, idempotent).
+          url: https://datatracker.ietf.org/doc/html/rfc9110
+          usedFor:
+          - HTTP methods
+          - Status codes
+          - Method semantics
+        - id: rfc-9111
+          name: RFC 9111
+          title: HTTP Caching
+          description: Defines HTTP caching mechanisms. Cache-Control, ETag, If-None-Match, If-Match headers. Basis for caching
+            and conditional request guidelines.
+          url: https://datatracker.ietf.org/doc/html/rfc9111
+          usedFor:
+          - Caching
+          - ETags
+          - Conditional requests
+        - id: rfc-7519
+          name: RFC 7519
+          title: JSON Web Token (JWT)
+          description: 'Compact, URL-safe token format. Structure: header.payload.signature. Used for access tokens and ID
+            tokens in OAuth 2.0 and OpenID Connect.'
+          url: https://datatracker.ietf.org/doc/html/rfc7519
+          usedFor:
+          - Access tokens
+          - ID tokens
+          - Authentication
+        links:
+          self:
+            href: /v1/standards/rfc
+          parent:
+            href: /v1/standards
+    StandardsIso:
+      summary: ISO Standards - Technical specifications and conventions
+      description: International Organization for Standardization specifications for data formats, codes, and representations
+        used in APIs.
+      value:
+        id: iso-standards
+        title: ISO Standards
+        description: International Organization for Standardization specifications for data formats, codes, and representations
+          used in APIs.
+        standards:
+        - id: iso-8601
+          name: ISO 8601
+          title: Date and Time Format
+          description: 'International standard for date and time representation. Format: YYYY-MM-DDTHH:mm:ss.sssZ. Required
+            for all date-time fields in APIs. Includes formats for date, time, duration, and intervals.'
+          url: https://www.iso.org/iso-8601-date-and-time-format.html
+          usedFor:
+          - Date-time fields
+          - Timestamps
+          - Durations
+          formats:
+            dateTime: '2024-01-15T10:30:00Z'
+            date: '2024-01-15'
+            time: 10:30:00Z
+            duration: P3Y6M4DT12H30M5S
+            interval: 2024-01-01T00:00:00Z/2024-12-31T23:59:59Z
+        - id: iso-4217
+          name: ISO 4217
+          title: Currency Codes
+          description: 'Three-letter alphabetic codes for currencies. Required in Money objects alongside amount. Examples:
+            USD (US Dollar), EUR (Euro), GBP (British Pound), JPY (Japanese Yen).'
+          url: https://www.iso.org/iso-4217-currency-codes.html
+          usedFor:
+          - Currency representation
+          - Money objects
+          examples:
+          - USD
+          - EUR
+          - GBP
+          - JPY
+          - CNY
+          - CAD
+          - AUD
+        - id: iso-3166-1
+          name: ISO 3166-1
+          title: Country Codes
+          description: 'Two-letter (alpha-2), three-letter (alpha-3), and numeric country codes. Used for locale and region
+            fields. Examples: US/USA/840 (United States), GB/GBR/826 (United Kingdom).'
+          url: https://www.iso.org/iso-3166-country-codes.html
+          usedFor:
+          - Country fields
+          - Locale
+          - Region codes
+          formats:
+            alpha2: US
+            alpha3: USA
+            numeric: '840'
+        - id: iso-639-1
+          name: ISO 639-1
+          title: Language Codes
+          description: 'Two-letter codes for language names. Used in Accept-Language and Content-Language headers. Examples:
+            en (English), es (Spanish), zh (Chinese), fr (French).'
+          url: https://www.iso.org/iso-639-language-codes.html
+          usedFor:
+          - Language headers
+          - Localization
+          - Content negotiation
+          examples:
+          - en
+          - es
+          - zh
+          - fr
+          - de
+          - ja
+          - pt
+        links:
+          self:
+            href: /v1/standards/iso
+          parent:
+            href: /v1/standards
+    StandardsOpenapiJsonSchema:
+      summary: OpenAPI & JSON Schema - Technical specifications and conventions
+      description: Specifications for describing API contracts and validating JSON data structures.
+      value:
+        id: openapi-json-schema
+        title: OpenAPI & JSON Schema
+        description: Specifications for describing API contracts and validating JSON data structures.
+        standards:
+        - id: openapi-3-1
+          name: OpenAPI Specification 3.1
+          title: OpenAPI Specification
+          description: Standard for describing REST APIs. JSON Schema-based data type definitions. Defines paths, operations,
+            parameters, request/response bodies. Used as the API-first contract format.
+          url: https://spec.openapis.org/oas/v3.1.0
+          usedFor:
+          - API contracts
+          - Documentation
+          - Code generation
+          components:
+          - paths
+          - components
+          - schemas
+          - parameters
+          - responses
+          - securitySchemes
+        - id: json-schema
+          name: JSON Schema (Draft 2020-12)
+          title: JSON Schema
+          description: 'Vocabulary for annotating and validating JSON documents. Defines types: string, number, integer, boolean,
+            array, object, null. Supports formats: date-time, date, email, uri, uuid.'
+          url: https://json-schema.org/specification.html
+          usedFor:
+          - Data validation
+          - Type definitions
+          - Schema documentation
+          types:
+          - string
+          - number
+          - integer
+          - boolean
+          - array
+          - object
+          - 'null'
+          formats:
+          - date-time
+          - date
+          - time
+          - email
+          - uri
+          - uuid
+          - hostname
+          - ipv4
+          - ipv6
+        - id: json-rfc-8259
+          name: JSON (RFC 8259)
+          title: JavaScript Object Notation
+          description: 'JavaScript Object Notation data interchange format. Default content type for API request/response
+            bodies. Content-Type: application/json.'
+          url: https://datatracker.ietf.org/doc/html/rfc8259
+          usedFor:
+          - Request bodies
+          - Response bodies
+          - Data interchange
+          contentType: application/json
+        links:
+          self:
+            href: /v1/standards/openapi-json-schema
+          parent:
+            href: /v1/standards
+    StandardsHypermedia:
+      summary: Hypermedia Standards - Technical specifications and conventions
+      description: Specifications for adding hypermedia controls and link relations to API responses enabling HATEOAS.
+      value:
+        id: hypermedia-standards
+        title: Hypermedia Standards
+        description: Specifications for adding hypermedia controls and link relations to API responses enabling HATEOAS.
+        standards:
+        - id: hal
+          name: HAL
+          title: Hypertext Application Language
+          description: 'JSON-based format for hypermedia APIs. Reserved properties: _links, _embedded. Link relation types
+            follow IANA registry. Widely adopted for RESTful hypermedia.'
+          url: https://stateless.co/hal_specification.html
+          usedFor:
+          - Hypermedia responses
+          - Link relations
+          - Resource embedding
+          contentType: application/hal+json
+          reservedProperties:
+          - _links
+          - _embedded
+        - id: json-api
+          name: JSON:API
+          title: JSON:API Specification
+          description: Specification for building JSON APIs. Defines document structure, resource objects, relationships.
+            Alternative to HAL for hypermedia. Includes conventions for filtering, sorting, pagination.
+          url: https://jsonapi.org/
+          usedFor:
+          - API structure
+          - Relationships
+          - Compound documents
+          contentType: application/vnd.api+json
+        - id: iana-link-relations
+          name: IANA Link Relations Registry
+          title: Link Relation Types
+          description: 'Official registry of link relation types. Standard relations: self, next, prev, first, last, collection,
+            item. Custom relations should use URI format.'
+          url: https://www.iana.org/assignments/link-relations/
+          usedFor:
+          - Link relations
+          - Pagination
+          - Navigation
+          standardRelations:
+          - self
+          - next
+          - prev
+          - first
+          - last
+          - collection
+          - item
+          - edit
+          - related
+        - id: odata
+          name: OData
+          title: Open Data Protocol
+          description: 'Standard for building and consuming RESTful APIs. Defines query options: $filter, $orderby, $select,
+            $expand. Property naming uses @odata. prefix for metadata.'
+          url: https://www.odata.org/
+          usedFor:
+          - Query options
+          - Filtering
+          - Data expansion
+          queryOptions:
+          - $filter
+          - $orderby
+          - $select
+          - $expand
+          - $top
+          - $skip
+          - $count
+        links:
+          self:
+            href: /v1/standards/hypermedia
+          parent:
+            href: /v1/standards
+    StandardsSecurityStandards:
+      summary: Security Standards - Technical specifications and conventions
+      description: Specifications for securing API communications, authentication, and authorization.
+      value:
+        id: security-standards
+        title: Security Standards
+        description: Specifications for securing API communications, authentication, and authorization.
+        standards:
+        - id: tls-1-2
+          name: TLS 1.2 / TLS 1.3
+          title: Transport Layer Security
+          description: Transport Layer Security protocol for encrypted communications. Minimum TLS 1.2 required for all API
+            traffic. TLS 1.3 (RFC 8446) is the latest version with improved security and performance.
+          url: https://datatracker.ietf.org/doc/html/rfc8446
+          usedFor:
+          - Transport encryption
+          - HTTPS
+          - Secure communications
+          requirement: MUST use TLS 1.2 or higher
+        - id: oauth-2-0
+          name: OAuth 2.0
+          title: OAuth 2.0 Authorization Framework
+          description: 'Authorization framework for API access (RFC 6749, 6750). Flows: Authorization Code, Client Credentials,
+            Device Code. Bearer token format for API authentication.'
+          url: https://datatracker.ietf.org/doc/html/rfc6749
+          usedFor:
+          - Authorization
+          - Access tokens
+          - Delegated access
+          flows:
+          - Authorization Code
+          - Client Credentials
+          - Device Code
+          - Refresh Token
+        - id: openid-connect
+          name: OpenID Connect
+          title: OpenID Connect (OIDC)
+          description: Identity layer on top of OAuth 2.0. Provides user authentication. ID tokens contain user identity claims.
+            Standardizes user info endpoint and token formats.
+          url: https://openid.net/connect/
+          usedFor:
+          - User authentication
+          - Identity
+          - ID tokens
+        - id: jwt
+          name: JWT
+          title: JSON Web Token (RFC 7519)
+          description: 'Compact, URL-safe token format. Structure: header.payload.signature. Used for access tokens and ID
+            tokens. Self-contained tokens with claims.'
+          url: https://datatracker.ietf.org/doc/html/rfc7519
+          usedFor:
+          - Access tokens
+          - ID tokens
+          - Stateless authentication
+          structure: header.payload.signature
+        - id: api-key
+          name: API Key Authentication
+          title: API Key Authentication
+          description: 'Simple authentication using a secret key. Should be passed in headers, not URL parameters. Header:
+            X-API-Key: {key} or Authorization: ApiKey {key}. Less secure than OAuth 2.0, suitable for server-to-server.'
+          usedFor:
+          - Simple authentication
+          - Server-to-server
+          - Rate limiting
+          headerFormats:
+          - 'X-API-Key: {key}'
+          - 'Authorization: ApiKey {key}'
+          recommendation: SHOULD be passed in headers, MUST NOT appear in URLs
+        links:
+          self:
+            href: /v1/standards/security-standards
+          parent:
+            href: /v1/standards
+    StandardsVersioningStandards:
+      summary: Versioning Standards - Technical specifications and conventions
+      description: Conventions for versioning APIs and communicating version information.
+      value:
+        id: versioning-standards
+        title: Versioning Standards
+        description: Conventions for versioning APIs and communicating version information.
+        standards:
+        - id: semver
+          name: Semantic Versioning 2.0.0
+          title: Semantic Versioning (SemVer)
+          description: 'Version format: MAJOR.MINOR.PATCH. MAJOR: Breaking changes. MINOR: New features, backwards compatible.
+            PATCH: Bug fixes, backwards compatible. Pre-release and build metadata supported.'
+          url: https://semver.org/
+          usedFor:
+          - API versions
+          - info.version field
+          - Breaking change communication
+          format: MAJOR.MINOR.PATCH
+          examples:
+          - 1.0.0
+          - 2.1.0
+          - 1.0.0-beta.1
+          - 2.0.0-rc.1+build.123
+        - id: calver
+          name: CalVer
+          title: Calendar Versioning
+          description: 'Version format based on release date. Various formats: YYYY.MM.DD, YYYY.MM, YY.MM. Alternative to
+            SemVer, used by some APIs. Good for APIs with regular release cycles.'
+          url: https://calver.org/
+          usedFor:
+          - Date-based versions
+          - Regular release cycles
+          examples:
+          - '2024-01-15'
+          - '2024.01'
+          - '24.1'
+        links:
+          self:
+            href: /v1/standards/versioning-standards
+          parent:
+            href: /v1/standards
+    StandardsNamingConventions:
+      summary: Naming Conventions - Technical specifications and conventions
+      description: Standard casing and naming patterns used for different API elements.
+      value:
+        id: naming-conventions
+        title: Naming Conventions
+        description: Standard casing and naming patterns used for different API elements.
+        standards:
+        - id: camel-case
+          name: camelCase
+          title: Camel Case
+          description: First word lowercase, subsequent words capitalized. No separators between words. Used for JSON properties
+            and query parameters in adidas, Microsoft, and Azure style guides.
+          usedFor:
+          - JSON properties
+          - Query parameters
+          sources:
+          - adidas
+          - Microsoft
+          - Azure
+          examples:
+          - firstName
+          - orderNumber
+          - createdAt
+          - isActive
+          - totalCount
+        - id: snake-case
+          name: snake_case
+          title: Snake Case
+          description: All lowercase with underscores between words. Used for JSON properties and query parameters in Cloud
+            Foundry and Monite style guides. Common in Python ecosystems.
+          usedFor:
+          - JSON properties
+          - Query parameters
+          sources:
+          - Cloud Foundry
+          - Monite
+          examples:
+          - first_name
+          - order_number
+          - created_at
+          - is_active
+          - total_count
+        - id: kebab-case
+          name: kebab-case
+          title: Kebab Case (Spinal Case)
+          description: All lowercase with hyphens between words. Used for URL path segments. Also known as spinal-case or
+            lisp-case. Recommended for multi-word path segments.
+          usedFor:
+          - URL path segments
+          - Some headers
+          examples:
+          - /user-profiles
+          - /order-items
+          - /system-settings
+        - id: pascal-case
+          name: PascalCase
+          title: Pascal Case (Upper Camel Case)
+          description: Every word capitalized including first word. No separators. Used for schema names and type definitions
+            in OpenAPI specifications.
+          usedFor:
+          - Schema names
+          - Type names
+          - Class names
+          examples:
+          - UserProfile
+          - OrderItem
+          - PaymentMethod
+          - ApiResponse
+        - id: header-case
+          name: Hyphenated-Pascal-Case
+          title: HTTP Header Case
+          description: Pascal case with hyphens between words. Traditional HTTP header naming convention. Each word starts
+            with uppercase letter.
+          usedFor:
+          - HTTP headers
+          examples:
+          - Content-Type
+          - X-Request-Id
+          - Accept-Language
+          - Cache-Control
+        links:
+          self:
+            href: /v1/standards/naming-conventions
+          parent:
+            href: /v1/standards
+    StandardsHttpStatusCodes:
+      summary: HTTP Status Codes - Technical specifications and conventions
+      description: Standard HTTP response status codes as defined in RFC 9110 and their appropriate usage in REST APIs.
+      value:
+        id: http-status-codes
+        title: HTTP Status Codes
+        description: Standard HTTP response status codes as defined in RFC 9110 and their appropriate usage in REST APIs.
+        standards:
+        - id: 2xx-success
+          name: 2xx Success
+          title: Success Status Codes
+          description: Indicates the request was successfully received, understood, and accepted.
+          codes:
+          - code: 200
+            name: OK
+            usage: Successful GET, PUT, PATCH, or action POST
+          - code: 201
+            name: Created
+            usage: Successful resource creation via POST
+          - code: 202
+            name: Accepted
+            usage: Request accepted for async processing
+          - code: 204
+            name: No Content
+            usage: Successful DELETE or action with no response body
+        - id: 3xx-redirection
+          name: 3xx Redirection
+          title: Redirection Status Codes
+          description: Indicates further action needs to be taken to complete the request.
+          codes:
+          - code: 301
+            name: Moved Permanently
+            usage: Resource URL has permanently changed
+          - code: 304
+            name: Not Modified
+            usage: Conditional GET - use cached version
+        - id: 4xx-client-error
+          name: 4xx Client Error
+          title: Client Error Status Codes
+          description: Indicates the client made an error in the request.
+          codes:
+          - code: 400
+            name: Bad Request
+            usage: Malformed request syntax
+          - code: 401
+            name: Unauthorized
+            usage: Missing or invalid authentication
+          - code: 403
+            name: Forbidden
+            usage: Authenticated but not authorized
+          - code: 404
+            name: Not Found
+            usage: Resource doesn't exist
+          - code: 405
+            name: Method Not Allowed
+            usage: HTTP method not supported for this resource
+          - code: 409
+            name: Conflict
+            usage: Request conflicts with current resource state
+          - code: 410
+            name: Gone
+            usage: Resource permanently removed
+          - code: 412
+            name: Precondition Failed
+            usage: Conditional request precondition not met
+          - code: 415
+            name: Unsupported Media Type
+            usage: Content-Type not supported
+          - code: 422
+            name: Unprocessable Entity
+            usage: Validation errors in request body
+          - code: 429
+            name: Too Many Requests
+            usage: Rate limit exceeded
+        - id: 5xx-server-error
+          name: 5xx Server Error
+          title: Server Error Status Codes
+          description: Indicates the server failed to fulfill a valid request.
+          codes:
+          - code: 500
+            name: Internal Server Error
+            usage: Unexpected server error
+          - code: 503
+            name: Service Unavailable
+            usage: Server temporarily unavailable
+        links:
+          self:
+            href: /v1/standards/http-status-codes
+          parent:
+            href: /v1/standards
+    StandardsContentTypes:
+      summary: Content Types (MIME Types) - Technical specifications and conventions
+      description: Media types used in Content-Type and Accept headers for API requests and responses.
+      value:
+        id: content-types
+        title: Content Types (MIME Types)
+        description: Media types used in Content-Type and Accept headers for API requests and responses.
+        standards:
+        - id: application-json
+          name: application/json
+          title: JSON Content Type
+          description: Standard JSON content type. Default for API request and response bodies. Defined in RFC 8259.
+          usedFor:
+          - Request bodies
+          - Response bodies
+          - General API communication
+        - id: application-problem-json
+          name: application/problem+json
+          title: Problem Details Content Type
+          description: RFC 7807 error response format. Used for structured error responses with type, title, status, detail
+            fields.
+          usedFor:
+          - Error responses
+          - Problem details
+        - id: application-merge-patch-json
+          name: application/merge-patch+json
+          title: JSON Merge Patch Content Type
+          description: RFC 7396 JSON Merge Patch format. Used for PATCH requests with partial updates. Null values indicate
+            deletion.
+          usedFor:
+          - PATCH requests
+          - Partial updates
+        - id: application-json-patch-json
+          name: application/json-patch+json
+          title: JSON Patch Content Type
+          description: RFC 6902 JSON Patch format. Array of operations (add, remove, replace, move, copy, test) for precise
+            updates.
+          usedFor:
+          - Complex PATCH operations
+          - Precise updates
+        - id: application-hal-json
+          name: application/hal+json
+          title: HAL Content Type
+          description: Hypertext Application Language format. JSON with _links and _embedded properties for hypermedia.
+          usedFor:
+          - Hypermedia responses
+          - HAL format
+        - id: application-vnd-api-json
+          name: application/vnd.api+json
+          title: JSON:API Content Type
+          description: JSON:API specification format. Structured format for resources, relationships, and metadata.
+          usedFor:
+          - JSON:API responses
+          - Structured resources
+        - id: multipart-form-data
+          name: multipart/form-data
+          title: Multipart Form Data
+          description: Used for file uploads and forms with binary data. Each part has its own content type.
+          usedFor:
+          - File uploads
+          - Binary data
+          - Forms
+        - id: application-octet-stream
+          name: application/octet-stream
+          title: Binary Content Type
+          description: Generic binary data content type. Used when specific type is unknown or for raw binary downloads.
+          usedFor:
+          - Binary downloads
+          - Unknown file types
+        links:
+          self:
+            href: /v1/standards/content-types
+          parent:
+            href: /v1/standards
+    StandardsPaginationRateLimiting:
+      summary: Pagination & Rate Limiting - Technical specifications and conventions
+      description: Conventions for paginating large collections and communicating rate limits.
+      value:
+        id: pagination-conventions
+        title: Pagination & Rate Limiting
+        description: Conventions for paginating large collections and communicating rate limits.
+        standards:
+        - id: cursor-pagination
+          name: Cursor-based Pagination
+          title: Cursor-based (Server-driven) Pagination
+          description: Server provides opaque cursor token for next page. More reliable for large datasets. Handles concurrent
+            modifications well. Cannot jump to arbitrary pages.
+          usedFor:
+          - Large collections
+          - Real-time data
+          - Concurrent access
+          parameters:
+          - cursor
+          - limit
+          responseFields:
+          - nextCursor
+          - prevCursor
+          - nextLink
+          recommendation: RECOMMENDED over offset-based
+        - id: offset-pagination
+          name: Offset-based Pagination
+          title: Offset-based (Client-driven) Pagination
+          description: Client specifies offset and limit. Allows jumping to arbitrary pages. May miss or duplicate items during
+            concurrent modifications. Performance degrades with large offsets.
+          usedFor:
+          - Simple lists
+          - Admin interfaces
+          - Known-size collections
+          parameters:
+          - offset
+          - limit
+          - skip
+          - top
+          responseFields:
+          - totalCount
+          - offset
+          - limit
+        - id: rate-limit-headers
+          name: Rate Limit Headers
+          title: Rate Limiting Headers
+          description: Headers for communicating rate limit status. Based on draft IETF standards. Helps clients manage request
+            frequency.
+          usedFor:
+          - Rate limiting
+          - Quota management
+          headers:
+          - name: RateLimit-Limit
+            description: Maximum requests allowed in window
+          - name: RateLimit-Remaining
+            description: Requests remaining in current window
+          - name: RateLimit-Reset
+            description: Unix timestamp when window resets
+          - name: Retry-After
+            description: Seconds to wait before retrying (RFC 9110)
+        links:
+          self:
+            href: /v1/standards/pagination-rate-limiting
+          parent:
+            href: /v1/standards

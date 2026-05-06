@@ -1,0 +1,1867 @@
+openapi: 3.1.0
+info:
+  title: governance-rules-api
+  version: 1.0.0
+  description: 'Modern API governance tooling is evolving to meet developers where they work. Governance rules can now be exposed as an MCP server, enabling seamless integration with AI-powered workflows including Copilot, agentic systems, and direct LLM integration. This approach addresses a longstanding pain point: while Spectral plugins exist for various IDEs, the installation process has historically been problematic, and teams often struggle with configuring the right ruleset for their needs and keeping those rules up to date as standards evolve. By centralizing governance rules in an MCP server, organizations can maintain a single source of truth that is automatically available across all integration points—whether a developer is working in their IDE, using an AI assistant, or running automated checks in a CI pipeline.'
+  contact:
+    name: Kin Lane
+    email: kinlane@naftiko.io
+    url: https://naftiko.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+- url: http://localhost:8080/rest/Spectral+Rules+API/1.0.0
+  description: Sandbox
+tags:
+- name: Categories
+  description: Operations for listing rule categories
+- name: Documentation
+  description: Rules for API metadata, info object, contact information, and license details
+- name: Best Practices
+  description: Rules for general API design best practices
+- name: Caching
+  description: Rules for Cache-Control and Expires headers
+- name: Compatibility
+  description: Rules for version compatibility (OAS2 vs OAS3)
+- name: Documentation
+  description: Rules for descriptions and markdown content
+- name: Error Handling
+  description: Rules for error responses and RFC 7807 Problem Details
+- name: Examples
+  description: Rules for examples used in mocking and documentation
+- name: Headers
+  description: Rules for HTTP header definitions and naming conventions
+- name: HTTP Methods
+  description: Rules specific to HTTP methods (GET, POST, PUT, PATCH, DELETE)
+- name: Naming Conventions
+  description: Rules for casing patterns (camelCase, PascalCase, kebab-case)
+- name: Operations
+  description: Rules for operation-level concerns including summary, tags, and operationId
+- name: Pagination
+  description: Rules for collection pagination parameters
+- name: Parameters
+  description: Rules for parameter definitions, naming, and validation
+- name: Paths
+  description: Rules for path structure, naming conventions, versioning, and depth limits
+- name: Rate Limiting
+  description: Rules for rate limit headers (RateLimit-*, Retry-After)
+- name: Request Response
+  description: Rules for request and response body structure
+- name: Responses
+  description: Rules for response definitions, status codes, and content types
+- name: Schemas
+  description: Rules for schema definitions, types, formats, and validation
+- name: Security
+  description: Rules for authentication, authorization, OAuth2, and API keys
+- name: Servers
+  description: Rules for server URLs, HTTPS requirements, and environment configuration
+- name: Validation
+  description: Rules for general validation and data integrity
+paths:
+  /rules/best-practices:
+    get:
+      tags:
+      - Best Practices
+      summary: Retrieve Best Practices Rules
+      description: Rules for general API design best practices
+      operationId: getBestPracticesRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/BestPracticesRules'
+  /rules/caching:
+    get:
+      tags:
+      - Caching
+      summary: Retrieve Caching Rules
+      description: Rules for Cache-Control and Expires headers
+      operationId: getCachingRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/CachingRules'
+  /rules/compatibility:
+    get:
+      tags:
+      - Compatibility
+      summary: Retrieve Compatibility Rules
+      description: Rules for version compatibility (OAS2 vs OAS3)
+      operationId: getCompatibilityRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/CompatibilityRules'
+  /rules/documentation:
+    get:
+      tags:
+      - Documentation
+      summary: Retrieve Documentation Rules
+      description: Rules for descriptions and markdown content
+      operationId: getDocumentationRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/DocumentationRules'
+  /rules/error-handling:
+    get:
+      tags:
+      - Error Handling
+      summary: Retrieve Error Handling Rules
+      description: Rules for error responses and RFC 7807 Problem Details
+      operationId: getErrorHandlingRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/ErrorHandlingRules'
+  /rules/examples:
+    get:
+      tags:
+      - Examples
+      summary: Retrieve Examples Rules
+      description: Rules for examples used in mocking and documentation
+      operationId: getExamplesRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/ExamplesRules'
+  /rules/headers:
+    get:
+      tags:
+      - Headers
+      summary: Retrieve Headers Rules
+      description: Rules for HTTP header definitions and naming conventions
+      operationId: getHeadersRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/HeadersRules'
+  /rules/http-methods:
+    get:
+      tags:
+      - Http Methods
+      summary: Retrieve HTTP Methods Rules
+      description: Rules specific to HTTP methods (GET, POST, PUT, PATCH, DELETE)
+      operationId: getHttpMethodsRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/HttpMethodsRules'
+  /rules/naming-conventions:
+    get:
+      tags:
+      - Naming Conventions
+      summary: Retrieve Naming Conventions Rules
+      description: Rules for casing patterns (camelCase, PascalCase, kebab-case)
+      operationId: getNamingConventionsRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/NamingConventionsRules'
+  /rules/operations:
+    get:
+      tags:
+      - Operations
+      summary: Retrieve Operations Rules
+      description: Rules for operation-level concerns including summary, tags, and operationId
+      operationId: getOperationsRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/OperationsRules'
+  /rules/pagination:
+    get:
+      tags:
+      - Pagination
+      summary: Retrieve Pagination Rules
+      description: Rules for collection pagination parameters
+      operationId: getPaginationRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginationRules'
+  /rules/parameters:
+    get:
+      tags:
+      - Parameters
+      summary: Retrieve Parameters Rules
+      description: Rules for parameter definitions, naming, and validation
+      operationId: getParametersRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/ParametersRules'
+  /rules/paths:
+    get:
+      tags:
+      - Paths
+      summary: Retrieve Paths Rules
+      description: Rules for path structure, naming conventions, versioning, and depth limits
+      operationId: getPathsRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/PathsRules'
+  /rules/rate-limiting:
+    get:
+      tags:
+      - Rate-limiting
+      summary: Retrieve Rate Limiting Rules
+      description: Rules for rate limit headers (RateLimit-*, Retry-After)
+      operationId: getRateLimitingRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/RateLimitingRules'
+  /rules/request-response:
+    get:
+      tags:
+      - Request-response
+      summary: Retrieve Request Response Rules
+      description: Rules for request and response body structure
+      operationId: getRequestResponseRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/RequestResponseRules'
+  /rules/responses:
+    get:
+      tags:
+      - Responses
+      summary: Retrieve Responses Rules
+      description: Rules for response definitions, status codes, and content types
+      operationId: getResponsesRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/ResponsesRules'
+  /rules/schemas:
+    get:
+      tags:
+      - Schemas
+      summary: Retrieve Schema rRles
+      description: Rules for schema definitions, types, formats, and validation
+      operationId: getSchemasRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/SchemasRules'
+  /rules/security:
+    get:
+      tags:
+      - Security
+      summary: Retrieve Security Rules
+      description: Rules for authentication, authorization, OAuth2, and API keys
+      operationId: getSecurityRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/SecurityRules'
+  /rules/servers:
+    get:
+      tags:
+      - Servers
+      summary: Retrieve Servers Rules
+      description: Rules for server URLs, HTTPS requirements, and environment configuration
+      operationId: getServersRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/ServersRules'
+  /rules/validation:
+    get:
+      tags:
+      - Validation
+      summary: Retrieve Validation Rules
+      description: Rules for general validation and data integrity
+      operationId: getValidationRules
+      parameters:
+      - $ref: '#/components/parameters/severityFilter'
+      responses:
+        '200':
+          $ref: '#/components/responses/ValidationRules'
+  /rules:
+    get:
+      tags:
+      - Categories
+      summary: Retrieve Rule Categories
+      description: Returns a summary of all available rule categories with their counts
+      operationId: listCategories
+      responses:
+        '200':
+          $ref: '#/components/responses/Categories'
+components:
+  schemas:
+    Severity:
+      type: string
+      defautl: all
+      enum:
+      - error
+      - warn
+      - info
+      - hint
+      description: The severity level of a linting rule
+    Rule:
+      type: object
+      description: A Spectral linting rule definition
+      required:
+      - category
+      - severity
+      properties:
+        category:
+          type: string
+          description: The category this rule belongs to
+          example: Documentation
+        description:
+          type: string
+          description: Detailed description of what the rule checks
+          example: Every API must have a description of at least 100 characters
+        message:
+          type: string
+          description: The message shown when the rule fails
+          example: API info.description must be present and at least 100 characters.
+        severity:
+          $ref: '#/components/schemas/Severity'
+        given:
+          type: string
+          description: JSONPath expression for where the rule applies
+          example: $.info
+        formats:
+          type: array
+          items:
+            type: string
+          description: OpenAPI formats this rule applies to
+          example:
+          - oas3
+    RulesResponse:
+      type: object
+      description: Response containing a map of rules for a category
+      required:
+      - category
+      - description
+      - count
+      - rules
+      properties:
+        category:
+          type: string
+          description: The category name
+        description:
+          type: string
+          description: Description of what this category covers
+        count:
+          type: integer
+          description: Number of rules in this category
+          minimum: 0
+        rules:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Rule'
+          description: Map of rule names to rule definitions
+    Error:
+      type: object
+      description: RFC 7807 Problem Details error response
+      required:
+      - type
+      - title
+      - status
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A URI reference that identifies the problem type
+          example: https://api.example.com/problems/not-found
+        title:
+          type: string
+          description: A short, human-readable summary of the problem
+          example: Category Not Found
+        status:
+          type: integer
+          description: The HTTP status code
+          example: 404
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence
+          example: The requested category does not exist
+        instance:
+          type: string
+          format: uri
+          description: A URI reference that identifies the specific occurrence
+    CategorySummary:
+      type: object
+      description: Summary of a rule category
+      required:
+      - category
+      - description
+      - count
+      properties:
+        category:
+          type: string
+          description: The category identifier
+        description:
+          type: string
+          description: Description of the category
+        count:
+          type: integer
+          description: Number of rules in this category
+          minimum: 0
+    CategoriesResponse:
+      type: object
+      description: Response containing all available categories
+      required:
+      - totalRules
+      - totalCategories
+      - categories
+      properties:
+        totalRules:
+          type: integer
+          description: Total number of rules across all categories
+          minimum: 0
+        totalCategories:
+          type: integer
+          description: Total number of categories
+          minimum: 0
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategorySummary'
+  responses:
+    NotFound:
+      description: The requested resource was not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            Success:
+              value:
+                type: https://api.example.com/problems/not-found
+                title: Not Found
+                status: 404
+                detail: The requested category does not exist
+    ServerError:
+      description: Internal server error
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            Success:
+              value:
+                type: https://api.example.com/problems/internal-error
+                title: Internal Server Error
+                status: 500
+                detail: An unexpected error occurred
+    BestPracticesRules:
+      description: Successful response with best-practices rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: best-practices
+                description: Rules for general API design best practices
+                count: 14
+                rules:
+                  extensible-enum-recommended:
+                    category: best-practices
+                    description: Consider using x-extensible-enum instead of enum for flexibility
+                    message: Consider using x-extensible-enum instead of enum for forward compatibility.
+                    severity: hint
+                    given: $.paths..[?(@.type=='string')].enum
+                    formats: []
+                  no-uri-versioning:
+                    category: best-practices
+                    description: Paths must not contain version numbers - use header versioning instead
+                    message: Path '{{property}}' must not contain version numbers (e.g., /v1/).
+                    severity: warn
+                    given: $.paths[*]~
+                    formats: []
+                  sub-resource-levels-limit:
+                    category: best-practices
+                    description: Sub-resource levels should not exceed 3
+                    message: Path '{{property}}' exceeds 3 sub-resource levels.
+                    severity: warn
+                    given: $.paths[*]~
+                    formats: []
+                  resource-types-limit:
+                    category: best-practices
+                    description: API should limit number of resource types (max 8 recommended)
+                    message: Consider limiting the number of resource types in your API.
+                    severity: hint
+                    given: $.paths
+                    formats: []
+                  standard-http-status-codes:
+                    category: best-practices
+                    description: Responses must use standard HTTP status codes
+                    message: Status code '{{property}}' is not a standard HTTP status code.
+                    severity: error
+                    given: $.paths[*][*].responses[*]~
+                    formats: []
+                  default-response-required:
+                    category: best-practices
+                    description: Operations should have a default response for unexpected errors
+                    message: Operation should have a 'default' response.
+                    severity: warn
+                    given: $.paths[*][*].responses
+                    formats: []
+                  default-response-problem-json:
+                    category: best-practices
+                    description: Default response should use application/problem+json
+                    message: Default response should use application/problem+json.
+                    severity: warn
+                    given: $.paths[*][*].responses.default
+                    formats: []
+                  datetime-example-required:
+                    category: best-practices
+                    description: Date and time properties should have examples
+                    message: Date/time property should have an example.
+                    severity: warn
+                    given: $.paths..[?(@.type==='string' && (@.format==='date-time' || @.format==='date' || @.format==='time'
+                      || @.format==='duration'))]
+                    formats: []
+                  datetime-utc-format:
+                    category: best-practices
+                    description: Date-time examples should use UTC timezone (ending with Z)
+                    message: Date-time example should use UTC format (ending with 'Z').
+                    severity: warn
+                    given: $.paths..[?(@.type==='string' && @.format==='date-time')].example
+                    formats: []
+                  number-format-valid:
+                    category: best-practices
+                    description: Number types must use valid formats (float, double, decimal)
+                    message: 'Number format must be one of: float, double, decimal.'
+                    severity: error
+                    given: $.paths..[?(@.type=='number')].format
+                    formats:
+                    - oas3
+                  integer-format-valid:
+                    category: best-practices
+                    description: Integer types must use valid formats (int32, int64, bigint)
+                    message: 'Integer format must be one of: int32, int64, bigint.'
+                    severity: error
+                    given: $.paths..[?(@.type=='integer')].format
+                    formats:
+                    - oas3
+                  standard-media-types:
+                    category: best-practices
+                    description: Prefer standard media types (application/json, application/problem+json)
+                    message: Consider using standard media types (application/json).
+                    severity: hint
+                    given: $.paths[*][*].responses[*].content[*]~
+                    formats: []
+                  api-audience-defined:
+                    category: best-practices
+                    description: API should define its audience (x-audience)
+                    message: API should define info.x-audience (component-internal, company-internal, external-public, etc.).
+                    severity: hint
+                    given: $.info
+                    formats: []
+                  enum-upper-snake-case:
+                    category: best-practices
+                    description: Enum values should use UPPER_SNAKE_CASE format
+                    message: Enum value '{{value}}' should use UPPER_SNAKE_CASE.
+                    severity: hint
+                    given: $.paths..[?(@.type=='string')].[enum,x-extensible-enum][*]
+                    formats: []
+    CachingRules:
+      description: Successful response with caching rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: caching
+                description: Rules for Cache-Control and Expires headers
+                count: 3
+                rules:
+                  cache-control-documented:
+                    category: caching
+                    description: Cache-Control parameters must document cache directives
+                    message: Cache-Control header must document directives (max-age, private, no-store, no-cache, no-transform).
+                    severity: warn
+                    given: $..[parameters][?(@.in=='header' && @.name.match(/Cache-Control/i))]
+                    formats:
+                    - oas3
+                  cache-response-headers-documented:
+                    category: caching
+                    description: Cache headers in responses should be documented
+                    message: 'Cache headers should be documented in response. Path: {{path}}'
+                    severity: hint
+                    given: $.paths[*][*].responses[?(@property.match(/^2/))].headers[?(@property.match(/Cache-Control|Expires/i))]
+                    formats:
+                    - oas3
+                  cache-headers-mutual-exclusion:
+                    category: caching
+                    description: Use either Cache-Control or Expires, not both (Cache-Control overrides Expires)
+                    message: Use Cache-Control OR Expires, not both. Cache-Control overrides Expires when max-age is set.
+                    severity: hint
+                    given: $.paths[*][*].responses[?(@property.match(/^2/))].headers
+                    formats:
+                    - oas3
+    CompatibilityRules:
+      description: Successful response with compatibility rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: compatibility
+                description: Rules for version compatibility (OAS2 vs OAS3)
+                count: 1
+                rules:
+                  no-swagger-2:
+                    category: compatibility
+                    description: Swagger 2 (OpenAPI 2.0) is deprecated - use OpenAPI 3.0+
+                    message: Swagger 2 is deprecated. Please upgrade to OpenAPI 3.0 or later.
+                    severity: error
+                    given: $
+                    formats:
+                    - oas2
+    DocumentationRules:
+      description: Successful response with documentation rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: documentation
+                description: Rules for descriptions and markdown content
+                count: 3
+                rules:
+                  description-not-empty:
+                    category: documentation
+                    description: Descriptions must not be empty
+                    message: Description must not be empty or start with whitespace.
+                    severity: error
+                    given: $..[?(@property === 'description')]
+                    formats: []
+                  description-end-with-period:
+                    category: documentation
+                    description: Property descriptions should end with a period
+                    message: Property description should end with a period.
+                    severity: warn
+                    given: $..properties[*].description
+                    formats: []
+                  description-no-email-typo:
+                    category: documentation
+                    description: Use 'email' not 'e-mail' in descriptions
+                    message: Use 'email' instead of 'e-mail'.
+                    severity: warn
+                    given: $..[?(@property === 'description')]
+                    formats: []
+                  info-description-required:
+                    category: Documentation
+                    description: Every API must have a description of at least 100 characters
+                    message: 'API info.description must be present and at least 100 characters. Path: {{path}}'
+                    severity: error
+                    given: $.info
+                    formats: []
+                  info-contact-required:
+                    category: Documentation
+                    description: API must have contact information with name, email, and URL
+                    message: Missing contact {{property}}. Every API must have complete contact information.
+                    severity: error
+                    given: $.info.contact
+                    formats: []
+                  info-terms-of-service-required:
+                    category: Documentation
+                    description: API must reference Terms of Service URL
+                    message: API must have info.termsOfService defined.
+                    severity: warn
+                    given: $
+                    formats: []
+                  info-version-semver:
+                    category: Documentation
+                    description: API version must follow semantic versioning (x.y.z)
+                    message: Version '{{value}}' should use semantic versioning (e.g., 1.0.0).
+                    severity: warn
+                    given: $.info.version
+                    formats: []
+                  info-summary-required:
+                    category: Documentation
+                    description: API should have a brief one-liner summary
+                    message: API should have info.x-summary (or info.summary in OAS 3.1) for catalog purposes.
+                    severity: warn
+                    given: $
+                    formats:
+                    - oas3
+                  info-api-id-required:
+                    category: Documentation
+                    description: API should have a unique identifier for tracking
+                    message: API should have info.x-api-id for unique identification.
+                    severity: warn
+                    given: $
+                    formats: []
+                  license-info-required:
+                    category: Documentation
+                    description: API should include license information
+                    message: API should include license information in info.license.
+                    severity: warn
+                    given: $.info
+                    formats: []
+                  license-url-required:
+                    category: Documentation
+                    description: License should include URL
+                    message: License should include a URL.
+                    severity: hint
+                    given: $.info.license
+                    formats: []                    
+    ErrorHandlingRules:
+      description: Successful response with error-handling rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: error-handling
+                description: Rules for error responses and RFC 7807 Problem Details
+                count: 5
+                rules:
+                  error-response-rfc7807:
+                    category: error-handling
+                    description: Error responses should use RFC 7807 Problem Details format
+                    message: Error response should use application/problem+json or application/problem+xml.
+                    severity: error
+                    given: $.paths[*][*].responses[?(@property.match(/^(4|5)/))].content[*]~
+                    formats:
+                    - oas3
+                  error-400-response-body:
+                    category: error-handling
+                    description: 400 responses must include a response body
+                    message: 400 response must include a response body.
+                    severity: error
+                    given: $.paths[*][*].responses["400"]
+                    formats:
+                    - oas3
+                  error-schema-rfc7807-properties:
+                    category: error-handling
+                    description: Error schemas should include RFC 7807 properties (status, title, detail, type)
+                    message: 'Error schema should include RFC 7807 properties (status, title, detail). Path: {{path}}'
+                    severity: hint
+                    given: $.paths[*][*].responses[?(@property.match(/^(4|5|default)/))].content['application/problem+json'].schema.properties
+                    formats:
+                    - oas3
+                  error-schema-no-legacy-properties:
+                    category: error-handling
+                    description: Error schemas should not use legacy properties (message, msg, code) - use RFC 7807 instead
+                    message: Error property '{{property}}' is non-standard. Use RFC 7807 properties (title, detail, status,
+                      type).
+                    severity: hint
+                    given: $.paths[*][*].responses[?(@property.match(/^(4|5|default)/))].content[*].schema.properties[*]~
+                    formats:
+                    - oas3
+                  no-explicit-5xx-codes:
+                    category: error-handling
+                    description: Use 'default' response instead of explicit 5xx status codes
+                    message: Consider using 'default' response instead of explicit 5xx codes.
+                    severity: hint
+                    given: $.paths[*][*].responses[?(@property.match(/^5[0-9][0-9]$/))]
+                    formats: []
+    ExamplesRules:
+      description: Successful response with examples rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: examples
+                description: Rules for examples used in mocking and documentation
+                count: 5
+                rules:
+                  required-parameter-examples:
+                    category: examples
+                    description: Required parameters must have examples for mocking
+                    message: 'Required parameter must have examples. Path: {{path}}'
+                    severity: warn
+                    given: $..parameters[?(@.required==true)]
+                    formats:
+                    - oas3
+                  optional-parameter-examples:
+                    category: examples
+                    description: Optional parameters should have examples
+                    message: 'Optional parameter should have examples. Path: {{path}}'
+                    severity: hint
+                    given: $..parameters[?(@.required!=true)]
+                    formats:
+                    - oas3
+                  request-body-examples:
+                    category: examples
+                    description: Request body content should have examples
+                    message: 'Request body content should have examples. Path: {{path}}'
+                    severity: warn
+                    given: $.paths[*][*].requestBody.content[*]
+                    formats:
+                    - oas3
+                  response-body-examples:
+                    category: examples
+                    description: Response content should have examples
+                    message: 'Response content should have examples. Path: {{path}}'
+                    severity: warn
+                    given: $.paths[*][*].responses[*].content[*]
+                    formats:
+                    - oas3
+                  prefer-examples-over-example:
+                    category: examples
+                    description: Use 'examples' (plural) instead of 'example' for better tool compatibility
+                    message: Consider using 'examples' (plural) instead of 'example' for better tooling support.
+                    severity: hint
+                    given: $..content[*].example
+                    formats: []
+    HeadersRules:
+      description: Successful response with headers rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: headers
+                description: Rules for HTTP header definitions and naming conventions
+                count: 4
+                rules:
+                  headers-pascal-case:
+                    category: headers
+                    description: HTTP headers should use Hyphenated-Pascal-Case
+                    message: Header '{{value}}' should use Hyphenated-Pascal-Case.
+                    severity: warn
+                    given: $..parameters[?(@.in=='header')].name
+                    formats: []
+                  headers-no-x-prefix:
+                    category: headers
+                    description: Headers should not use X- prefix (deprecated per RFC 6648)
+                    message: Header '{{value}}' should not use X- prefix (RFC 6648).
+                    severity: warn
+                    given: $..parameters[?(@.in=='header')].name
+                    formats: []
+                  response-headers-no-x-prefix:
+                    category: headers
+                    description: Response headers should not use X- prefix
+                    message: Response header should not use X- prefix.
+                    severity: warn
+                    given: $..responses[*].headers[*]~
+                    formats: []
+                  no-forbidden-headers:
+                    category: headers
+                    description: Do not specify Authorization, Content-Type, or Accept as parameters
+                    message: Header '{{value}}' should not be defined as a parameter. Use OAS constructs.
+                    severity: error
+                    given: $..parameters[?(@.in=='header')].name
+                    formats: []
+    HttpMethodsRules:
+      description: Successful response with http-methods rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: http-methods
+                description: Rules specific to HTTP methods (GET, POST, PUT, PATCH, DELETE)
+                count: 13
+                rules:
+                  get-response-body-required:
+                    category: http-methods
+                    description: GET operations must return a response body
+                    message: GET operation must return a response body.
+                    severity: error
+                    given: $.paths[*].get.responses[*]
+                    formats: []
+                  get-must-return-200:
+                    category: http-methods
+                    description: GET operations must return 200 status code
+                    message: GET operation must include 200 response.
+                    severity: error
+                    given: $.paths[*].get.responses
+                    formats: []
+                  post-must-return-201-or-202:
+                    category: http-methods
+                    description: POST operations should return 201 or 202 status code
+                    message: POST operation should include 201 (Created) or 202 (Accepted) response.
+                    severity: warn
+                    given: $.paths[*].post.responses
+                    formats: []
+                  delete-must-return-204:
+                    category: http-methods
+                    description: DELETE operations should return 204 status code
+                    message: DELETE operation should include 204 (No Content) response.
+                    severity: warn
+                    given: $.paths[*].delete.responses
+                    formats: []
+                  patch-no-application-json:
+                    category: http-methods
+                    description: PATCH requests should not use application/json - use application/json-patch+json or application/merge-patch+json
+                    message: PATCH should not use application/json. Use application/json-patch+json (RFC 6902) or application/merge-patch+json
+                      (RFC 7396).
+                    severity: warn
+                    given: $.paths[*].patch.requestBody.content
+                    formats:
+                    - oas3
+                  patch-request-body-required:
+                    category: http-methods
+                    description: PATCH operations must have a request body with required=true
+                    message: 'PATCH must have a requestBody with required: true.'
+                    severity: error
+                    given: $.paths[*].patch
+                    formats: []
+                  patch-json-patch-array-schema:
+                    category: http-methods
+                    description: JSON Patch (application/json-patch+json) request body must be an array
+                    message: 'JSON Patch (RFC 6902) schema must be type: array.'
+                    severity: warn
+                    given: $.paths[*].patch.requestBody.content['application/json-patch+json'].schema
+                    formats:
+                    - oas3
+                  http-get-no-body:
+                    category: http-methods
+                    description: GET requests must not accept a request body (RFC 7231)
+                    message: GET request must not accept a requestBody. Intermediaries may strip it.
+                    severity: error
+                    given: $.paths[*].get.requestBody
+                    formats: []
+                  http-delete-no-body:
+                    category: http-methods
+                    description: DELETE requests should not accept a request body (RFC 7231)
+                    message: DELETE request should not accept a requestBody. It may not be interoperable.
+                    severity: warn
+                    given: $.paths[*].delete.requestBody
+                    formats: []
+                  http-head-no-body:
+                    category: http-methods
+                    description: HEAD requests must not accept a request body
+                    message: HEAD request must not accept a requestBody.
+                    severity: error
+                    given: $.paths[*].head.requestBody
+                    formats: []
+                  http-options-no-body:
+                    category: http-methods
+                    description: OPTIONS requests should not accept a request body
+                    message: OPTIONS request should not accept a requestBody.
+                    severity: warn
+                    given: $.paths[*].options.requestBody
+                    formats: []
+                  http-204-205-no-content:
+                    category: http-methods
+                    description: 204 and 205 responses must not have content (RFC 7231)
+                    message: 204/205 responses must not have content.
+                    severity: error
+                    given: $.paths[*][*].responses[?(@property.match(/^(204|205)$/))]
+                    formats: []
+                  http-2xx-should-have-content:
+                    category: http-methods
+                    description: 200, 201, 202, 203, 206 responses usually have content
+                    message: '2xx response (200, 201, 202, 203, 206) usually has content. Path: {{path}}'
+                    severity: hint
+                    given: $.paths[*][*].responses[?(@property.match(/^(200|201|202|203|206)$/))]
+                    formats: []
+    NamingConventionsRules:
+      description: Successful response with naming-conventions rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: naming-conventions
+                description: Rules for casing patterns (camelCase, PascalCase, kebab-case)
+                count: 6
+                rules:
+                  property-names-camel-case:
+                    category: naming-conventions
+                    description: Property names must use camelCase
+                    message: Property name '{{property}}' must use camelCase.
+                    severity: error
+                    given: $..properties[*]~
+                    formats:
+                    - oas3
+                  response-names-pascal-case:
+                    category: naming-conventions
+                    description: Response names should use PascalCase
+                    message: Response name '{{property}}' should use PascalCase.
+                    severity: warn
+                    given: $.components.responses[*]~
+                    formats: []
+                  tag-names-sentence-case:
+                    category: naming-conventions
+                    description: Tag names should use sentence case
+                    message: Tag '{{value}}' should use sentence case.
+                    severity: warn
+                    given: $..tags[*]
+                    formats: []
+                  no-keyword-conflicts:
+                    category: naming-conventions
+                    description: Property names should not conflict with programming language keywords
+                    message: Property '{{property}}' conflicts with common programming language keywords.
+                    severity: warn
+                    given: $..properties[*]~
+                    formats: []
+                  operationid-no-http-verbs:
+                    category: naming-conventions
+                    description: OperationId should not start with HTTP method names
+                    message: OperationId '{{value}}' should not start with HTTP method name. Use semantic names like 'listUsers',
+                      'createOrder'.
+                    severity: hint
+                    given: $.paths[*][*].operationId
+                    formats:
+                    - oas3
+                  schema-names-camel-case:
+                    category: naming-conventions
+                    description: Schema names should use CamelCase (PascalCase)
+                    message: Schema name '{{property}}' should use CamelCase (PascalCase).
+                    severity: hint
+                    given: $.components.schemas[*]~
+                    formats: []
+    OperationsRules:
+      description: Successful response with operations rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: operations
+                description: Rules for operation-level concerns including summary, tags, and operationId
+                count: 7
+                rules:
+                  operation-summary-required:
+                    category: operations
+                    description: Operations must have a summary
+                    message: 'Operation must have a summary. Path: {{path}}'
+                    severity: error
+                    given: $.paths[*][get,post,put,patch,delete,options,head,trace]
+                    formats: []
+                  operation-summary-sentence-case:
+                    category: operations
+                    description: Operation summaries should use sentence case
+                    message: Summary '{{value}}' should use sentence case (capitalize first letter only).
+                    severity: warn
+                    given: $.paths[*][*].summary
+                    formats: []
+                  operation-description-required:
+                    category: operations
+                    description: Operations should have a description
+                    message: 'Operation should have a description. Path: {{path}}'
+                    severity: warn
+                    given: $.paths[*][get,post,put,patch,delete,options,head,trace]
+                    formats: []
+                  operation-tags-required:
+                    category: operations
+                    description: Operations must have at least one tag
+                    message: 'Operation must have at least one tag. Path: {{path}}'
+                    severity: error
+                    given: $.paths[*][get,post,put,patch,delete,options,head,trace]
+                    formats: []
+                  operation-success-response:
+                    category: operations
+                    description: Operations must have at least one 2xx or 3xx response
+                    message: 'Operation must define at least one success response (2xx or 3xx). Path: {{path}}'
+                    severity: error
+                    given: $.paths[*][get,post,put,patch,delete,options,head,trace].responses
+                    formats: []
+                  health-check-endpoint:
+                    category: operations
+                    description: API should define a /status or /health endpoint for health checks
+                    message: Consider adding a /status or /health endpoint for health checks.
+                    severity: hint
+                    given: $.paths
+                    formats: []
+                  health-endpoint-problem-response:
+                    category: operations
+                    description: Health check endpoint should return application/problem+json
+                    message: Health endpoint should return application/problem+json.
+                    severity: hint
+                    given: $.paths['/status','/health'].get.responses['200'].content[*]~
+                    formats: []
+    PaginationRules:
+      description: Successful response with pagination rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: pagination
+                description: Rules for collection pagination parameters
+                count: 1
+                rules:
+                  collection-pagination-parameters:
+                    category: pagination
+                    description: Collection endpoints should support pagination with limit and offset/cursor
+                    message: Collection GET endpoint should support pagination (limit + offset or cursor).
+                    severity: warn
+                    given: $.paths[?(!@property.match(/.*\{[^}]+\}.*$/))].get
+                    formats: []
+    ParametersRules:
+      description: Successful response with parameters rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: parameters
+                description: Rules for parameter definitions, naming, and validation
+                count: 6
+                rules:
+                  parameter-description-required:
+                    category: parameters
+                    description: Parameters must have a description
+                    message: 'Parameter must have a description. Path: {{path}}'
+                    severity: error
+                    given: $.paths[*][*].parameters[*]
+                    formats: []
+                  parameter-example-required:
+                    category: parameters
+                    description: Parameters should have examples
+                    message: 'Parameter should have an example or examples. Path: {{path}}'
+                    severity: warn
+                    given: $.paths[*][*].parameters[*]
+                    formats: []
+                  path-parameter-camel-case:
+                    category: parameters
+                    description: Path parameter names must use camelCase
+                    message: Path parameter '{{value}}' must use camelCase.
+                    severity: error
+                    given: $.paths[*][*].parameters[?(@.in=='path')].name
+                    formats: []
+                  query-parameter-camel-case:
+                    category: parameters
+                    description: Query parameter names must use camelCase
+                    message: Query parameter '{{value}}' must use camelCase.
+                    severity: error
+                    given: $.paths[*][*].parameters[?(@.in=='query')].name
+                    formats: []
+                  query-parameter-optional:
+                    category: parameters
+                    description: Query parameters should be optional
+                    message: 'Query parameter should be optional (required: false).'
+                    severity: warn
+                    given: $.paths[*][*].parameters[?(@.in=='query')].required
+                    formats: []
+                  query-parameter-no-sensitive-data:
+                    category: parameters
+                    description: Query parameters must not contain sensitive information
+                    message: Query parameter '{{value}}' must not contain sensitive data (apiKey, token, etc.).
+                    severity: error
+                    given: $.paths[*][*].parameters[?(@.in=='query')].name
+                    formats: []
+    PathsRules:
+      description: Successful response with paths rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: paths
+                description: Rules for path structure, naming conventions, versioning, and depth limits
+                count: 14
+                rules:
+                  paths-must-exist:
+                    category: paths
+                    description: API must have at least one path defined
+                    message: API must have at least one path defined.
+                    severity: error
+                    given: $
+                    formats: []
+                  path-no-trailing-slash:
+                    category: paths
+                    description: Paths must not end with a trailing slash
+                    message: Path '{{property}}' must not end with a trailing slash.
+                    severity: error
+                    given: $.paths
+                    formats: []
+                  path-no-query-string:
+                    category: paths
+                    description: Paths must not include query strings - use parameters instead
+                    message: Path '{{property}}' must not include query strings. Define them as parameters.
+                    severity: error
+                    given: $.paths
+                    formats: []
+                  path-declarations-not-empty:
+                    category: paths
+                    description: Path parameter declarations must not be empty
+                    message: Path parameter declaration must not be empty (e.g., '/api/{}' is invalid).
+                    severity: error
+                    given: $.paths
+                    formats: []
+                  path-kebab-case:
+                    category: paths
+                    description: Path segments must use kebab-case (lowercase with hyphens)
+                    message: Path '{{property}}' must use kebab-case for path segments.
+                    severity: error
+                    given: $.paths[*]~
+                    formats: []
+                  path-no-http-verbs:
+                    category: paths
+                    description: Paths should not contain HTTP verb names - use HTTP methods instead
+                    message: Path '{{property}}' contains HTTP verb. Use HTTP methods instead of verbs in paths.
+                    severity: warn
+                    given: $.paths[*]~
+                    formats: []
+                  path-no-technology-extensions:
+                    category: paths
+                    description: Paths must not expose technology-specific extensions
+                    message: Path '{{property}}' must not expose technology extensions (.php, .json, etc.).
+                    severity: error
+                    given: $.paths[*]~
+                    formats: []
+                  path-no-empty-segments:
+                    category: paths
+                    description: Paths must not have empty segments (double slashes)
+                    message: Path '{{property}}' must not have empty segments (//).
+                    severity: error
+                    given: $.paths[*]~
+                    formats: []
+                  path-no-environment-names:
+                    category: paths
+                    description: Paths must not include environment names
+                    message: Path '{{property}}' must not include environment names (prod, dev, stage, etc.).
+                    severity: error
+                    given: $.paths[*]~
+                    formats: []
+                  path-no-api-prefix:
+                    category: paths
+                    description: Paths should not include 'api' as a prefix
+                    message: Path '{{property}}' should not contain '/api' - it's typically in the server URL.
+                    severity: warn
+                    given: $.paths[*]~
+                    formats: []
+                  path-limit-parameters:
+                    category: paths
+                    description: Paths should not have more than 3 dynamic path parameters
+                    message: Path '{{property}}' should not have more than 3 path parameters.
+                    severity: warn
+                    given: $.paths[*]~
+                    formats: []
+                  path-limit-depth:
+                    category: paths
+                    description: Path hierarchy should not exceed 8 resource levels
+                    message: Path '{{property}}' exceeds recommended 8 resource levels.
+                    severity: warn
+                    given: $.paths[*]~
+                    formats: []
+                  path-limit-length:
+                    category: paths
+                    description: Paths should not exceed 100 characters
+                    message: Path '{{property}}' should not exceed 100 characters.
+                    severity: warn
+                    given: $.paths[*]~
+                    formats: []
+                  no-ambiguous-path-names:
+                    category: paths
+                    description: Path segments should not use ambiguous names
+                    message: Path '{{property}}' contains ambiguous names. Use specific resource names.
+                    severity: warn
+                    given: $.paths[*]~
+                    formats: []
+    RateLimitingRules:
+      description: Successful response with rate-limiting rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: rate-limiting
+                description: Rules for rate limit headers (RateLimit-*, Retry-After)
+                count: 5
+                rules:
+                  ratelimit-headers-required:
+                    category: rate-limiting
+                    description: Success responses should include rate limit headers
+                    message: 'Success response should include RateLimit-* headers. Path: {{path}}'
+                    severity: warn
+                    given: $..responses[?(@property.match(/^2/))].headers
+                    formats:
+                    - oas3
+                  retry-after-header-required:
+                    category: rate-limiting
+                    description: 429 and 503 responses should include Retry-After header
+                    message: Response should include Retry-After header.
+                    severity: warn
+                    given: $..responses[?(@property=='429' || @property=='503')].headers
+                    formats:
+                    - oas3
+                  ratelimit-429-retry-after:
+                    category: rate-limiting
+                    description: 429 responses must include Retry-After header
+                    message: 429 response must include Retry-After header.
+                    severity: warn
+                    given: $.paths[*][*].responses['429'].headers
+                    formats:
+                    - oas3
+                  ratelimit-503-retry-after:
+                    category: rate-limiting
+                    description: 503 responses should include Retry-After header
+                    message: 503 response should include Retry-After header.
+                    severity: warn
+                    given: $.paths[*][*].responses['503'].headers
+                    formats:
+                    - oas3
+                  ratelimit-headers-on-4xx:
+                    category: rate-limiting
+                    description: Rate limit headers should be present on 4xx responses
+                    message: '4xx response should include rate limit headers. Path: {{path}}'
+                    severity: hint
+                    given: $.paths[*][*].responses[?(@property.match(/^4/))].headers
+                    formats:
+                    - oas3
+    RequestResponseRules:
+      description: Successful response with request-response rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: request-response
+                description: Rules for request and response body structure
+                count: 4
+                rules:
+                  request-body-json-required:
+                    category: request-response
+                    description: Request bodies should support application/json
+                    message: Request body should support application/json.
+                    severity: error
+                    given: $.paths[*][*].requestBody.content
+                    formats:
+                    - oas3
+                  response-body-json-object:
+                    category: request-response
+                    description: JSON responses must return objects (not arrays) for extensibility
+                    message: 'JSON response must return an object type, not {{value}}. Path: {{path}}'
+                    severity: warn
+                    given: $.paths[*][*].responses[*].content[?(@property.match(/json$/))].schema
+                    formats: []
+                  response-schema-required:
+                    category: request-response
+                    description: Response content must have a schema
+                    message: 'Response content must have a schema defined. Path: {{path}}'
+                    severity: error
+                    given: $.paths[*][*].responses[*].content[*]
+                    formats: []
+                  response-example-required:
+                    category: request-response
+                    description: Responses should have examples
+                    message: 'Response should have an example. Path: {{path}}'
+                    severity: warn
+                    given: $.paths[*][*].responses[*].content[*]
+                    formats: []
+    ResponsesRules:
+      description: Successful response with responses rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: responses
+                description: Rules for response definitions, status codes, and content types
+                count: 10
+                rules:
+                  response-401-required:
+                    category: responses
+                    description: Operations should include 401 Unauthorized response
+                    message: 'Operation should include 401 (Unauthorized) response. Path: {{path}}'
+                    severity: error
+                    given: $.paths[*][get,post,put,patch,delete].responses
+                    formats: []
+                  response-404-required-for-path-params:
+                    category: responses
+                    description: Operations with path parameters should include 404 Not Found response
+                    message: Operation with path parameters should include 404 (Not Found) response.
+                    severity: error
+                    given: $.paths[?(@property.match(/.*\{.*\}.*/))]..responses
+                    formats: []
+                  response-429-required:
+                    category: responses
+                    description: Operations should include 429 Too Many Requests response
+                    message: 'Operation should include 429 (Too Many Requests) response. Path: {{path}}'
+                    severity: warn
+                    given: $.paths[*][get,post,put,patch,delete].responses
+                    formats: []
+                  response-500-required:
+                    category: responses
+                    description: Operations should include 500 Server Error response
+                    message: 'Operation should include 500 (Internal Server Error) response. Path: {{path}}'
+                    severity: warn
+                    given: $.paths[*][get,post,put,patch,delete].responses
+                    formats: []
+                  response-description-format:
+                    category: responses
+                    description: Response descriptions should be in title case without trailing period
+                    message: Response description should be in title case (e.g., 'OK', 'Not Found').
+                    severity: warn
+                    given: $.paths[*][*].responses[*].description
+                    formats: []
+                  post-201-location-header:
+                    category: responses
+                    description: POST 201 responses should include Location header pointing to created resource
+                    message: POST 201 response should include Location header.
+                    severity: warn
+                    given: $.paths[*].post.responses['201']
+                    formats: []
+                  post-415-response:
+                    category: responses
+                    description: POST and PATCH operations should include 415 Unsupported Media Type response
+                    message: POST/PATCH should include 415 response for invalid Content-Type.
+                    severity: hint
+                    given: $.paths[*][post,patch].responses
+                    formats: []
+                  get-no-201-202-204:
+                    category: responses
+                    description: GET operations typically should not return 201, 202, or 204
+                    message: GET operation typically should not use status codes 201, 202, or 204.
+                    severity: hint
+                    given: $.paths[*].get.responses[?(@property.match(/^(201|202|204)$/))]
+                    formats: []
+                  put-should-return-200-or-204:
+                    category: responses
+                    description: PUT operations should return 200 or 204
+                    message: PUT operation should include 200 or 204 response.
+                    severity: hint
+                    given: $.paths[*].put.responses
+                    formats: []
+                  response-406-for-get:
+                    category: responses
+                    description: GET operations should include 406 Not Acceptable response
+                    message: GET operation should include 406 response for content negotiation.
+                    severity: hint
+                    given: $.paths[*].get.responses
+                    formats: []
+    SchemasRules:
+      description: Successful response with schemas rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: schemas
+                description: Rules for schema definitions, types, formats, and validation
+                count: 14
+                rules:
+                  schema-description-required:
+                    category: schemas
+                    description: Schema properties should have descriptions
+                    message: 'Property should have a description. Path: {{path}}'
+                    severity: warn
+                    given: $.components.schemas[*].properties[*]
+                    formats: []
+                  schema-type-required:
+                    category: schemas
+                    description: Schema properties must have a type defined
+                    message: 'Schema property must have a type defined. Path: {{path}}'
+                    severity: error
+                    given: $..properties[*]
+                    formats: []
+                  schema-example-required:
+                    category: schemas
+                    description: Schemas should have examples
+                    message: 'Schema should have an example. Path: {{path}}'
+                    severity: warn
+                    given: $.components.schemas[*]
+                    formats: []
+                  array-items-required:
+                    category: schemas
+                    description: Array types must have items defined
+                    message: 'Array must have ''items'' property defined. Path: {{path}}'
+                    severity: error
+                    given: $..[?(@.type == 'array')]
+                    formats: []
+                  array-items-type-required:
+                    category: schemas
+                    description: Array items should have a type defined
+                    message: 'Array items should have a type defined. Path: {{path}}'
+                    severity: warn
+                    given: $..[?(@.type == 'array')].items
+                    formats: []
+                  array-boundaries-required:
+                    category: schemas
+                    description: Arrays should specify maxItems and minItems for security
+                    message: 'Array should specify maxItems and minItems. Path: {{path}}'
+                    severity: warn
+                    given: $..[?(@.type=='array')]
+                    formats:
+                    - oas3
+                  string-max-length-required:
+                    category: schemas
+                    description: Strings should specify maxLength to prevent resource exhaustion
+                    message: 'String should specify maxLength. Path: {{path}}'
+                    severity: warn
+                    given: $..[?(@.type=='string' && !@.enum && @.format!='date' && @.format!='date-time')]
+                    formats:
+                    - oas3
+                  number-format-required:
+                    category: schemas
+                    description: Numbers and integers must specify a format (int32, int64, float, double)
+                    message: 'Number/integer must specify format (int32, int64, float, double). Path: {{path}}'
+                    severity: error
+                    given: $..[?(@.type=='number' || @.type=='integer')]
+                    formats:
+                    - oas3
+                  number-boundaries-required:
+                    category: schemas
+                    description: Numbers should specify maximum and minimum values
+                    message: 'Number should specify maximum and minimum. Path: {{path}}'
+                    severity: warn
+                    given: $..[?(@.type=='number' || @.type=='integer')]
+                    formats:
+                    - oas3
+                  enum-no-duplicates:
+                    category: schemas
+                    description: Enum values must be unique
+                    message: Enum values must not have duplicates.
+                    severity: error
+                    given: $..enum
+                    formats: []
+                  id-property-string-type:
+                    category: schemas
+                    description: ID properties should use string type (for UUIDs)
+                    message: Property 'id' should use string type (preferably UUID).
+                    severity: warn
+                    given: $..[?(@property === 'id')].type
+                    formats:
+                    - oas3
+                  datetime-properties-format:
+                    category: schemas
+                    description: DateTime properties must use string type with date-time format
+                    message: DateTime property must use type:string with format:date-time.
+                    severity: error
+                    given: $..[?(@property === 'createdDateTime' || @property === 'modifiedDateTime')]
+                    formats:
+                    - oas3
+                  no-additional-properties-enabled:
+                    category: schemas
+                    description: Objects should not explicitly allow additionalProperties
+                    message: Object should not have additionalProperties:true - it bypasses validation.
+                    severity: warn
+                    given: $..[?(@.type=='object' && @.additionalProperties===true)]
+                    formats:
+                    - oas3
+                  string-format-valid:
+                    category: schemas
+                    description: String schemas should specify a well-known format
+                    message: 'String property should specify a format (date, date-time, email, uuid, uri, etc.). Path: {{path}}'
+                    severity: hint
+                    given: $..schema[?(@.type=='string' && !@.enum)]
+                    formats:
+                    - oas3
+    SecurityRules:
+      description: Successful response with security rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: security
+                description: Rules for authentication, authorization, OAuth2, and API keys
+                count: 14
+                rules:
+                  security-defined:
+                    category: security
+                    description: API must have security defined at root or operation level
+                    message: API must have security defined.
+                    severity: error
+                    given: $
+                    formats: []
+                  operation-security-defined:
+                    category: security
+                    description: Non-idempotent operations must have security defined
+                    message: 'Operation must have security defined. Path: {{path}}'
+                    severity: error
+                    given: $.paths[*][post,put,patch,delete]
+                    formats:
+                    - oas3
+                  security-no-http-basic:
+                    category: security
+                    description: HTTP Basic authentication is insecure
+                    message: HTTP Basic is insecure. Consider using OAuth2 or API keys in headers.
+                    severity: error
+                    given: $.components.securitySchemes[*]
+                    formats: []
+                  security-no-api-key-in-url:
+                    category: security
+                    description: API keys should not be passed in URL parameters
+                    message: API key should not be passed in URL (query). Use header instead.
+                    severity: error
+                    given: $.components.securitySchemes[?(@.type=='apiKey')].in
+                    formats: []
+                  security-no-oauth-insecure-flows:
+                    category: security
+                    description: OAuth2 implicit and password flows are insecure
+                    message: OAuth2 '{{property}}' flow is insecure. Use authorizationCode with PKCE.
+                    severity: error
+                    given: $.components.securitySchemes[?(@.type=='oauth2')].flows
+                    formats:
+                    - oas3
+                  security-oauth-https:
+                    category: security
+                    description: OAuth2 endpoints must use HTTPS
+                    message: OAuth2 endpoint must use https://
+                    severity: error
+                    given: $.components.securitySchemes[?(@.type=='oauth2')].flows[*][?(@property.match(/url$/i))]
+                    formats:
+                    - oas3
+                  no-eval-in-markdown:
+                    category: security
+                    description: Descriptions must not contain eval() statements
+                    message: Description must not contain eval() - potential security risk.
+                    severity: error
+                    given: $..[?(@property === 'description')]
+                    formats: []
+                  no-script-tags-in-markdown:
+                    category: security
+                    description: Descriptions must not contain script tags
+                    message: Description must not contain <script> tags - potential security risk.
+                    severity: error
+                    given: $..[?(@property === 'description')]
+                    formats: []
+                  no-empty-titles:
+                    category: security
+                    description: Schema titles must not be empty
+                    message: Title must not be empty.
+                    severity: error
+                    given: $..[?(@.title === '')]
+                    formats: []
+                  oauth2-https-endpoints:
+                    category: security
+                    description: OAuth2 endpoints must use HTTPS
+                    message: OAuth2 endpoint must use https://.
+                    severity: error
+                    given: $.components.securitySchemes[?(@.type=='oauth2')].flows[*][?(@property.match(/Url$/i))]
+                    formats:
+                    - oas3
+                  oauth2-no-insecure-flows:
+                    category: security
+                    description: OAuth2 implicit and password flows are deprecated and insecure
+                    message: OAuth2 '{{property}}' flow is insecure and deprecated. Use authorizationCode with PKCE (RFC 7636).
+                    severity: error
+                    given: $.components.securitySchemes[?(@.type=='oauth2')].flows
+                    formats:
+                    - oas3
+                  security-jwt-description:
+                    category: security
+                    description: JWT security schemes should describe RFC 8725 compliance
+                    message: JWT security scheme should reference RFC 8725 in description.
+                    severity: hint
+                    given: $.components.securitySchemes[?(@.bearerFormat=='JWT' || @.bearerFormat=='jwt')]
+                    formats:
+                    - oas3
+                  response-403-for-secured-operations:
+                    category: security
+                    description: Secured operations should include 403 Forbidden response
+                    message: Secured operation should include 403 (Forbidden) response.
+                    severity: warn
+                    given: $.paths[*][*][?(@.security)].responses
+                    formats: []
+                  no-cookie-parameters:
+                    category: security
+                    description: Cookies should not be used for session management in REST APIs
+                    message: Cookie/Set-Cookie headers should not be used for session management in REST APIs.
+                    severity: warn
+                    given:
+                    - $.paths[*][*].parameters[?(@.in=='header')].name
+                    - $.paths[*][*].responses[*].headers[*]~
+                    formats: []
+    ServersRules:
+      description: Successful response with servers rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: servers
+                description: Rules for server URLs, HTTPS requirements, and environment configuration
+                count: 5
+                rules:
+                  servers-https-required:
+                    category: servers
+                    description: Server URLs must use HTTPS (except localhost)
+                    message: Server URL must use https:// (except localhost).
+                    severity: error
+                    given: $.servers[*].url
+                    formats:
+                    - oas3
+                  servers-description-required:
+                    category: servers
+                    description: Servers must have descriptions
+                    message: Server must have a description.
+                    severity: error
+                    given: $.servers[*]
+                    formats: []
+                  servers-no-trailing-slash:
+                    category: servers
+                    description: Server URLs should not have trailing slashes
+                    message: Server URL should not end with a trailing slash.
+                    severity: warn
+                    given: $.servers[*].url
+                    formats: []
+                  servers-lowercase:
+                    category: servers
+                    description: Server URLs should be lowercase
+                    message: Server URL should be lowercase.
+                    severity: warn
+                    given: $.servers[*].url
+                    formats:
+                    - oas3
+                  servers-no-port:
+                    category: servers
+                    description: Server URLs should not specify ports (except localhost)
+                    message: Server URL should not specify a port (except localhost).
+                    severity: warn
+                    given: $.servers[*].url
+                    formats:
+                    - oas3
+    ValidationRules:
+      description: Successful response with validation rules
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RulesResponse'
+          examples:
+            Success:
+              value:
+                category: validation
+                description: Rules for general validation and data integrity
+                count: 1
+                rules:
+                  required-properties-exist:
+                    category: validation
+                    description: All fields in 'required' array must exist in schema properties
+                    message: 'Required field must exist in properties. Path: {{path}}'
+                    severity: error
+                    given: $.components.schemas[?(@.required && @.properties)]
+                    formats: []
+    Categories:
+      description: Successful response with all categories
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CategoriesResponse'
+          examples:
+            Success:
+              value:
+                totalRules: 143
+                totalCategories: 21
+                categories:
+                - category: Documentation
+                  description: Rules for API metadata, info object, contact information, and license details.
+                  count: 8
+                - category: Best Practices
+                  description: Rules for general API design best practices.
+                  count: 14
+                - category: caching
+                  description: Rules for Cache-Control and Expires headers.
+                  count: 3
+                - category: compatibility
+                  description: Rules for version compatibility (OAS2 vs OAS3)
+                  count: 1
+                - category: documentation
+                  description: Rules for descriptions and markdown content
+                  count: 3
+                - category: error-handling
+                  description: Rules for error responses and RFC 7807 Problem Details
+                  count: 5
+                - category: examples
+                  description: Rules for examples used in mocking and documentation
+                  count: 5
+                - category: headers
+                  description: Rules for HTTP header definitions and naming conventions
+                  count: 4
+                - category: http-methods
+                  description: Rules specific to HTTP methods (GET, POST, PUT, PATCH, DELETE)
+                  count: 13
+                - category: naming-conventions
+                  description: Rules for casing patterns (camelCase, PascalCase, kebab-case)
+                  count: 6
+                - category: operations
+                  description: Rules for operation-level concerns including summary, tags, and operationId
+                  count: 7
+                - category: pagination
+                  description: Rules for collection pagination parameters
+                  count: 1
+                - category: parameters
+                  description: Rules for parameter definitions, naming, and validation
+                  count: 6
+                - category: paths
+                  description: Rules for path structure, naming conventions, versioning, and depth limits
+                  count: 14
+                - category: rate-limiting
+                  description: Rules for rate limit headers (RateLimit-*, Retry-After)
+                  count: 5
+                - category: request-response
+                  description: Rules for request and response body structure
+                  count: 4
+                - category: responses
+                  description: Rules for response definitions, status codes, and content types
+                  count: 10
+                - category: schemas
+                  description: Rules for schema definitions, types, formats, and validation
+                  count: 14
+                - category: security
+                  description: Rules for authentication, authorization, OAuth2, and API keys
+                  count: 14
+                - category: servers
+                  description: Rules for server URLs, HTTPS requirements, and environment configuration
+                  count: 5
+                - category: validation
+                  description: Rules for general validation and data integrity
+                  count: 1
+  parameters:
+    severityFilter:
+      name: severity
+      in: query
+      description: Filter rules by severity level.
+      required: true
+      schema:
+        $ref: '#/components/schemas/Severity'
+      examples:
+        Success:
+          value: all

@@ -1,0 +1,421 @@
+openapi: 3.1.0
+info:
+  title: figma-images-api
+  version: 0.21.0
+  description: |-
+    Figma allows designers to create and prototype their digital experiences -
+    together in real-time and in one place - helping them turn their ideas and
+    visions into products, faster. Figma's mission is to make design
+    accessible to everyone. The Figma API is one of the ways we aim to do
+    that.
+  termsOfService: https://www.figma.com/developer-terms/
+  contact:
+    email: support@figma.com
+servers:
+  - url: https://api.figma.com
+    description: Figma Production API Server
+  - url: http://localhost:8080/rest/figma-images-api/0.21.0
+    description: Sandbox
+tags:
+  - name: Images
+    description: Operations for rendering and exporting images from Figma files
+  - name: Files
+    description: Operations related to Figma file resources
+paths:
+  /v1/images/{file_key}:
+    get:
+      tags:
+        - Images
+        - Files
+      summary: Render images of file nodes
+      security:
+        - PersonalAccessToken: []
+        - OAuth2:
+            - files:read
+      description: >
+        Renders images from a file.
+
+        If no error occurs, `"images"` will be populated with a map from node
+        IDs to URLs of the rendered images, and `"status"` will be omitted. The
+        image assets will expire after 30 days. Images up to 32 megapixels can
+        be exported. Any images that are larger will be scaled down.
+
+        Important: the image map may contain values that are `null`. This
+        indicates that rendering of that specific node has failed. This may be
+        due to the node id not existing, or other reasons such has the node
+        having no renderable components. It is guaranteed that any node that was
+        requested for rendering will be represented in this map whether or not
+        the render succeeded.
+
+        To render multiple images from the same file, use the `ids` query
+        parameter to specify multiple node ids.
+
+        ``` GET /v1/images/:key?ids=1:2,1:3,1:4 ```
+      operationId: getImages
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |        
+          return "GetImagesSuccessExample"
+      parameters:
+        - $ref: '#/components/parameters/FileKeyPath'
+        - $ref: '#/components/parameters/NodeIdsQuery'
+        - $ref: '#/components/parameters/VersionQuery'
+        - $ref: '#/components/parameters/ScaleQuery'
+        - $ref: '#/components/parameters/FormatQuery'
+        - $ref: '#/components/parameters/SvgOutlineTextQuery'
+        - $ref: '#/components/parameters/SvgIncludeIdQuery'
+        - $ref: '#/components/parameters/SvgIncludeNodeIdQuery'
+        - $ref: '#/components/parameters/SvgSimplifyStrokeQuery'
+        - $ref: '#/components/parameters/ContentsOnlyQuery'
+        - $ref: '#/components/parameters/UseAbsoluteBoundsQuery'
+      responses:
+        '200':
+          $ref: '#/components/responses/GetImagesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestErrorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+components:
+  securitySchemes:
+    PersonalAccessToken:
+      type: http
+      scheme: bearer
+      description: Personal access token for authentication
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://www.figma.com/oauth
+          tokenUrl: https://www.figma.com/api/oauth/token
+          scopes:
+            files:read: Read access to files
+  parameters:
+    FileKeyPath:
+      name: file_key
+      in: path
+      description: >-
+        File to export images from. This can be a file key or branch key. Use
+        `GET /v1/files/:key` with the `branch_data` query param to get the
+        branch key.
+      required: true
+      schema:
+        type: string
+      example: abc123XYZ789
+    NodeIdsQuery:
+      name: ids
+      in: query
+      description: A comma separated list of node IDs to render.
+      required: true
+      schema:
+        type: string
+      example: 1:2,1:3,1:4
+    VersionQuery:
+      name: version
+      in: query
+      description: >-
+        A specific version ID to get. Omitting this will get the current version
+        of the file.
+      schema:
+        type: string
+      example: '1234567890'
+    ScaleQuery:
+      name: scale
+      in: query
+      description: A number between 0.01 and 4, the image scaling factor.
+      schema:
+        type: number
+        minimum: 0.01
+        maximum: 4
+      example: 2
+    FormatQuery:
+      name: format
+      in: query
+      description: A string enum for the image output format.
+      schema:
+        type: string
+        enum:
+          - jpg
+          - png
+          - svg
+          - pdf
+        default: png
+      example: png
+    SvgOutlineTextQuery:
+      name: svg_outline_text
+      in: query
+      description: >-
+        Whether text elements are rendered as outlines (vector paths) or as
+        `<text>` elements in SVGs.
+      schema:
+        type: boolean
+        default: true
+      example: true
+    SvgIncludeIdQuery:
+      name: svg_include_id
+      in: query
+      description: >-
+        Whether to include id attributes for all SVG elements. Adds the layer
+        name to the `id` attribute of an svg element.
+      schema:
+        type: boolean
+        default: false
+      example: false
+    SvgIncludeNodeIdQuery:
+      name: svg_include_node_id
+      in: query
+      description: >-
+        Whether to include node id attributes for all SVG elements. Adds the
+        node id to a `data-node-id` attribute of an svg element.
+      schema:
+        type: boolean
+        default: false
+      example: false
+    SvgSimplifyStrokeQuery:
+      name: svg_simplify_stroke
+      in: query
+      description: >-
+        Whether to simplify inside/outside strokes and use stroke attribute if
+        possible instead of `<mask>`.
+      schema:
+        type: boolean
+        default: true
+      example: true
+    ContentsOnlyQuery:
+      name: contents_only
+      in: query
+      description: >-
+        Whether content that overlaps the node should be excluded from
+        rendering. Passing false (i.e., rendering overlaps) may increase
+        processing time, since more of the document must be included in
+        rendering.
+      schema:
+        type: boolean
+        default: true
+      example: true
+    UseAbsoluteBoundsQuery:
+      name: use_absolute_bounds
+      in: query
+      description: >-
+        Use the full dimensions of the node regardless of whether or not it is
+        cropped or the space around it is empty. Use this to export text nodes
+        without cropping.
+      schema:
+        type: boolean
+        default: false
+      example: false
+  schemas:
+    GetImagesResponseBody:
+      type: object
+      description: Successful response containing rendered image URLs.
+      properties:
+        err:
+          type: 'null'
+          description: For successful requests, this value is always `null`.
+        images:
+          type: object
+          description: A map from node IDs to URLs of the rendered images.
+          additionalProperties:
+            type:
+              - string
+              - 'null'
+            description: A URL to the requested image.
+            format: uri
+      required:
+        - err
+        - images
+      example:
+        err: null
+        images:
+          '1:2': https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/abc123
+          '1:3': https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/def456
+          '1:4': null
+    ErrorResponsePayload:
+      type: object
+      description: A response indicating an error occurred.
+      properties:
+        status:
+          type: number
+          description: Status code
+        err:
+          type: string
+          description: A string describing the error
+      required:
+        - status
+        - err
+    BadRequestError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponsePayload'
+        - type: object
+          properties:
+            status:
+              type: number
+              description: Status code
+              enum:
+                - 400
+          required:
+            - status
+      example:
+        status: 400
+        err: 'Invalid parameter: scale must be between 0.01 and 4'
+    ForbiddenError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponsePayload'
+        - type: object
+          properties:
+            status:
+              type: number
+              description: Status code
+              enum:
+                - 403
+          required:
+            - status
+      example:
+        status: 403
+        err: Access denied. You do not have permission to access this file.
+    NotFoundError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponsePayload'
+        - type: object
+          properties:
+            status:
+              type: number
+              description: Status code
+              enum:
+                - 404
+          required:
+            - status
+      example:
+        status: 404
+        err: File not found
+    TooManyRequestsError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponsePayload'
+        - type: object
+          properties:
+            status:
+              type: number
+              description: Status code
+              enum:
+                - 429
+          required:
+            - status
+      example:
+        status: 429
+        err: Rate limit exceeded. Please wait before retrying.
+    InternalServerError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponsePayload'
+        - type: object
+          properties:
+            status:
+              type: number
+              description: Status code
+              enum:
+                - 500
+          required:
+            - status
+      example:
+        status: 500
+        err: Internal server error
+  responses:
+    GetImagesResponse:
+      description: Response from the GET /v1/images/{file_key} endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GetImagesResponseBody'
+          examples:
+            GetImagesSuccessExample:
+              summary: Successful image rendering response
+              value:
+                err: null
+                images:
+                  '1:2': >-
+                    https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/abc123
+                  '1:3': >-
+                    https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/def456
+                  '1:4': null
+    BadRequestErrorResponse:
+      description: >-
+        Bad request. Parameters are invalid or malformed. Please check the input
+        formats. This error can also happen if the requested resources are too
+        large to complete the request, which results in a timeout. Please reduce
+        the number and size of objects requested.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+          examples:
+            BadRequestExample:
+              summary: Invalid parameter error
+              value:
+                status: 400
+                err: 'Invalid parameter: scale must be between 0.01 and 4'
+    ForbiddenErrorResponse:
+      description: >-
+        The request was valid, but the server is refusing action. The user might
+        not have the necessary permissions for a resource, or may need an
+        account of some sort.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+          examples:
+            ForbiddenExample:
+              summary: Access denied error
+              value:
+                status: 403
+                err: Access denied. You do not have permission to access this file.
+    NotFoundErrorResponse:
+      description: The requested file or resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+          examples:
+            NotFoundExample:
+              summary: File not found error
+              value:
+                status: 404
+                err: File not found
+    TooManyRequestsErrorResponse:
+      description: >-
+        In some cases API requests may be throttled or rate limited. Please wait
+        a while before attempting the request again (typically a minute).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TooManyRequestsError'
+          examples:
+            TooManyRequestsExample:
+              summary: Rate limit exceeded error
+              value:
+                status: 429
+                err: Rate limit exceeded. Please wait before retrying.
+    InternalServerErrorResponse:
+      description: An internal server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+          examples:
+            InternalServerErrorExample:
+              summary: Internal server error
+              value:
+                status: 500
+                err: Internal server error
+  examples:
+    GetImagesSuccessExample:
+      summary: Successful image rendering response
+      value:
+        err: null
+        images:
+          '1:2': https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/abc123
+          '1:3': https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/def456
+          '1:4': null

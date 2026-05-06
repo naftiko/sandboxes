@@ -1,0 +1,475 @@
+openapi: 3.1.0
+info:
+  title: figma-activity-logs-api
+  version: 0.21.0
+  description: |-
+    Figma allows designers to create and prototype their digital experiences -
+    together in real-time and in one place - helping them turn their ideas and
+    visions into products, faster. Figma's mission is to make design
+    accessible to everyone. The Figma API is one of the ways we aim to do that.
+  termsOfService: https://www.figma.com/developer-terms/
+  contact:
+    email: support@figma.com
+servers:
+  - url: https://api.figma.com
+    description: Figma Production API Server
+  - url: http://localhost:8080/rest/figma-activity-logs-api/0.21.0
+    description: Sandbox
+tags:
+  - name: Activity Logs
+    description: Operations related to retrieving activity logs for an organization
+paths:
+  /v1/activity_logs:
+    get:
+      tags:
+        - Activity Logs
+      summary: Get activity logs
+      security:
+        - OrgOAuth2:
+            - org:activity_log_read
+      description: Returns a list of activity log events
+      operationId: getActivityLogs
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |        
+          return "GetActivityLogsSuccessExample"
+      parameters:
+        - $ref: '#/components/parameters/EventsQueryParam'
+        - $ref: '#/components/parameters/StartTimeQueryParam'
+        - $ref: '#/components/parameters/EndTimeQueryParam'
+        - $ref: '#/components/parameters/LimitQueryParam'
+        - $ref: '#/components/parameters/OrderQueryParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/GetActivityLogsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+components:
+  securitySchemes:
+    OrgOAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://www.figma.com/oauth
+          tokenUrl: https://api.figma.com/v1/oauth/token
+          scopes:
+            org:activity_log_read: Read organization activity logs
+  parameters:
+    EventsQueryParam:
+      name: events
+      description: >-
+        Event type(s) to include in the response. Can have multiple values
+        separated by comma. All events are returned by default.
+      in: query
+      schema:
+        type: string
+      example: file.created,file.deleted
+    StartTimeQueryParam:
+      name: start_time
+      description: >-
+        Unix timestamp of the least recent event to include. This param defaults
+        to one year ago if unspecified. Events prior to one year ago are not
+        available.
+      in: query
+      schema:
+        type: number
+      example: 1704067200
+    EndTimeQueryParam:
+      name: end_time
+      description: >-
+        Unix timestamp of the most recent event to include. This param defaults
+        to the current timestamp if unspecified.
+      in: query
+      schema:
+        type: number
+      example: 1706745600
+    LimitQueryParam:
+      name: limit
+      description: >-
+        Maximum number of events to return. This param defaults to 1000 if
+        unspecified.
+      in: query
+      schema:
+        type: number
+      example: 100
+    OrderQueryParam:
+      name: order
+      description: >-
+        Event order by timestamp. This param can be either "asc" (default) or
+        "desc".
+      in: query
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: asc
+      example: desc
+  responses:
+    GetActivityLogsResponse:
+      description: Response from the GET /v1/activity_logs endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GetActivityLogsResponseBody'
+          examples:
+            GetActivityLogsSuccessExample:
+              $ref: '#/components/examples/GetActivityLogsSuccessExample'
+    BadRequestErrorResponse:
+      description: >-
+        Bad request. Parameters are invalid or malformed. Please check the input
+        formats.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            BadRequestExample:
+              $ref: '#/components/examples/BadRequestExample'
+    UnauthorizedErrorResponse:
+      description: Token is missing or incorrect.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            UnauthorizedExample:
+              $ref: '#/components/examples/UnauthorizedExample'
+    ForbiddenErrorResponse:
+      description: >-
+        The request was valid, but the server is refusing action. The user might
+        not have the necessary permissions for a resource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            ForbiddenExample:
+              $ref: '#/components/examples/ForbiddenExample'
+    TooManyRequestsErrorResponse:
+      description: >-
+        API requests may be throttled or rate limited. Please wait a while
+        before attempting the request again.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            TooManyRequestsExample:
+              $ref: '#/components/examples/TooManyRequestsExample'
+    InternalServerErrorResponse:
+      description: An internal server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            InternalServerErrorExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
+  schemas:
+    GetActivityLogsResponseBody:
+      type: object
+      properties:
+        status:
+          type: number
+          enum:
+            - 200
+          description: The response status code.
+        error:
+          type: boolean
+          enum:
+            - false
+          description: For successful requests, this value is always `false`.
+        meta:
+          $ref: '#/components/schemas/ActivityLogsMeta'
+      required:
+        - status
+        - error
+        - meta
+    ActivityLogsMeta:
+      type: object
+      properties:
+        activityLogs:
+          type: array
+          description: >-
+            An array of activity logs sorted by timestamp in ascending order by
+            default.
+          items:
+            $ref: '#/components/schemas/ActivityLog'
+        cursor:
+          type: string
+          description: Encodes the last event (the most recent event)
+        nextPage:
+          type: boolean
+          description: Whether there is a next page of events
+      required:
+        - activityLogs
+        - nextPage
+    ActivityLog:
+      type: object
+      description: An event returned by the Activity Logs API.
+      properties:
+        id:
+          type: string
+          description: The ID of the event.
+        timestamp:
+          type: number
+          description: The timestamp of the event in seconds since the Unix epoch.
+        actor:
+          $ref: '#/components/schemas/ActivityLogActor'
+        action:
+          $ref: '#/components/schemas/ActivityLogAction'
+        entity:
+          $ref: '#/components/schemas/ActivityLogEntity'
+        context:
+          $ref: '#/components/schemas/ActivityLogContext'
+      required:
+        - id
+        - timestamp
+        - actor
+        - action
+        - entity
+        - context
+    ActivityLogActor:
+      type:
+        - object
+        - 'null'
+      description: The user who performed the action.
+      properties:
+        type:
+          type: string
+          description: The type of the user.
+          enum:
+            - user
+        id:
+          type: string
+          description: The ID of the user.
+        name:
+          type: string
+          description: The name of the user.
+        email:
+          type: string
+          description: The email of the user.
+      required:
+        - name
+    ActivityLogAction:
+      type: object
+      description: The task or activity the actor performed.
+      properties:
+        type:
+          type: string
+          description: The type of the action.
+        details:
+          type:
+            - object
+            - 'null'
+          description: Metadata of the action.
+          additionalProperties: true
+      required:
+        - type
+        - details
+    ActivityLogEntity:
+      description: The resource the actor took the action on.
+      oneOf:
+        - $ref: '#/components/schemas/ActivityLogUserEntity'
+        - $ref: '#/components/schemas/ActivityLogFileEntity'
+        - $ref: '#/components/schemas/ActivityLogProjectEntity'
+        - $ref: '#/components/schemas/ActivityLogTeamEntity'
+        - $ref: '#/components/schemas/ActivityLogOrgEntity'
+      discriminator:
+        propertyName: type
+        mapping:
+          user: '#/components/schemas/ActivityLogUserEntity'
+          file: '#/components/schemas/ActivityLogFileEntity'
+          project: '#/components/schemas/ActivityLogProjectEntity'
+          team: '#/components/schemas/ActivityLogTeamEntity'
+          org: '#/components/schemas/ActivityLogOrgEntity'
+    ActivityLogUserEntity:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - user
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+      required:
+        - type
+        - id
+    ActivityLogFileEntity:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - file
+        id:
+          type: string
+        name:
+          type: string
+      required:
+        - type
+        - id
+    ActivityLogProjectEntity:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - project
+        id:
+          type: string
+        name:
+          type: string
+      required:
+        - type
+        - id
+    ActivityLogTeamEntity:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - team
+        id:
+          type: string
+        name:
+          type: string
+      required:
+        - type
+        - id
+    ActivityLogOrgEntity:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - org
+        id:
+          type: string
+        name:
+          type: string
+      required:
+        - type
+        - id
+    ActivityLogContext:
+      type: object
+      description: Contextual information about the event.
+      properties:
+        clientName:
+          type:
+            - string
+            - 'null'
+          description: The third-party application that triggered the event.
+        ipAddress:
+          type: string
+          description: The IP address from of the client that sent the event request.
+        isFigmaSupportTeamAction:
+          type: boolean
+          description: If Figma's Support team triggered the event.
+        orgId:
+          type: string
+          description: The id of the organization where the event took place.
+        teamId:
+          type:
+            - string
+            - 'null'
+          description: The id of the team where the event took place.
+      required:
+        - clientName
+        - ipAddress
+        - isFigmaSupportTeamAction
+        - orgId
+        - teamId
+    ErrorResponsePayload:
+      type: object
+      description: A response indicating an error occurred.
+      properties:
+        error:
+          type: boolean
+          description: For erroneous requests, this value is always `true`.
+          enum:
+            - true
+        status:
+          type: number
+          description: Status code
+        message:
+          type: string
+          description: A string describing the error
+      required:
+        - error
+        - status
+        - message
+  examples:
+    GetActivityLogsSuccessExample:
+      summary: Successful activity logs response
+      value:
+        status: 200
+        error: false
+        meta:
+          activityLogs:
+            - id: evt_123456789
+              timestamp: 1706745600
+              actor:
+                type: user
+                id: usr_abc123
+                name: John Doe
+                email: john.doe@example.com
+              action:
+                type: file.created
+                details:
+                  fileName: My Design File
+              entity:
+                type: file
+                id: file_xyz789
+                name: My Design File
+              context:
+                clientName: null
+                ipAddress: 192.168.1.100
+                isFigmaSupportTeamAction: false
+                orgId: org_123
+                teamId: team_456
+          cursor: eyJsYXN0X2V2ZW50X2lkIjoiZXZ0XzEyMzQ1Njc4OSJ9
+          nextPage: true
+    BadRequestExample:
+      summary: Bad request error
+      value:
+        error: true
+        status: 400
+        message: 'Invalid parameter: start_time must be a valid Unix timestamp'
+    UnauthorizedExample:
+      summary: Unauthorized error
+      value:
+        error: true
+        status: 401
+        message: Token is missing or incorrect
+    ForbiddenExample:
+      summary: Forbidden error
+      value:
+        error: true
+        status: 403
+        message: You do not have permission to access this resource
+    TooManyRequestsExample:
+      summary: Rate limit error
+      value:
+        error: true
+        status: 429
+        message: Rate limit exceeded. Please wait before making another request
+    InternalServerErrorExample:
+      summary: Internal server error
+      value:
+        error: true
+        status: 500
+        message: An internal server error occurred

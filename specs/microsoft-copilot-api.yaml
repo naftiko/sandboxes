@@ -1,0 +1,2076 @@
+openapi: 3.1.0
+info:
+  title: microsoft-365-copilot-apis
+  description: >
+    The Copilot APIs provide a comprehensive set of capabilities that enable you
+    to build AI-powered applications grounded in enterprise data. These APIs
+    connect your applications to Microsoft 365 content in a secure, compliant,
+    and intelligent way.
+  version: 1.0.0
+  contact:
+    name: Microsoft Graph
+    url: https://learn.microsoft.com/en-us/graph/
+  license:
+    name: Microsoft API License
+    url: https://learn.microsoft.com/en-us/legal/microsoft-apis/terms-of-use
+
+servers:
+
+  - url: http://localhost:8080/rest/microsoft-365-copilot-apis/1.0.0
+    description: Sandbox   
+  - url: https://graph.microsoft.com/v1.0
+    description: Production
+  - url: https://graph.microsoft.com/beta
+    description: Beta 
+
+security:
+  - OAuth2: []
+
+tags:
+  - name: Content Retrieval
+    description: >
+      Secure, compliant access to relevant Microsoft 365 content such as
+      documents, policies, and knowledge bases. Grounding for custom AI models
+      without data extraction, with full respect for document access controls
+      and sensitivity labels.
+  - name: Content Search
+    description: >
+      Hybrid semantic and lexical search across OneDrive for work or school
+      content. Natural language queries with contextual understanding and
+      intelligent result ranking while maintaining security and compliance.
+      (Preview)
+  - name: Interaction Exports
+    description: >
+      Compliance-oriented capture and archival of user interactions with Copilot
+      across Microsoft 365 applications. Records of AI interactions for
+      monitoring, auditing, and regulatory compliance in regulated industries.
+  - name: Change Notifications
+    description: >
+      Webhook subscriptions for Copilot interaction events across Microsoft 365.
+      Real-time monitoring, proactive compliance checks, anomaly detection, and
+      auditing capabilities. (Preview)
+  - name: Meeting Insights
+    description: >
+      AI-generated meeting notes, action items, decisions, and discussion topics
+      for Teams meetings. Integration points for project management tools, CRM
+      systems, and custom workflows.
+  - name: Chat Completions
+    description: >
+      Conversational experiences powered by Microsoft 365 Copilot in custom
+      applications. AI-generated responses grounded in Microsoft 365 data and
+      user context with multi-turn conversation support. (Preview)
+  - name: Usage Reports
+    description: >
+      Aggregated and per-user adoption metrics for Microsoft 365 Copilot.
+      User counts, feature-level breakdowns, and usage data for organizational
+      reporting and tracking.
+  - name: Packages
+    description: >
+      Inventory and governance of apps and agents deployed across Microsoft 365.
+      Configuration management, status controls, and deployment tracking for
+      organizational packages.
+
+paths:
+  # ──────────────────────────────────────────────
+  # Content Retrieval API
+  # ──────────────────────────────────────────────
+  /copilot/retrieval/query:
+    post:
+      operationId: queryRetrievalContent
+      summary: Retrieve relevant content from Microsoft 365
+      description: >
+        Retrieve contextually relevant information from Microsoft 365 content
+        (documents, policies, knowledge bases) while respecting document access
+        controls and sensitivity labels. Useful for building specialized
+        assistants grounded in organizational data.
+      tags:
+        - Content Retrieval
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetrievalQueryRequest'
+      responses:
+        '200':
+          description: Successfully retrieved relevant content.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrievalQueryResponse'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - id: "ret-result-001"
+                        relevanceScore: 0.94
+                        content:
+                          snippet: "The company remote work policy allows employees to work from home up to three days per week with manager approval."
+                          sensitivityLabel: "Internal"
+                        resource:
+                          type: "driveItem"
+                          id: "01ABCDEF23456789"
+                          name: "Remote-Work-Policy-2025.docx"
+                          webUrl: "https://contoso.sharepoint.com/sites/hr/Shared%20Documents/Remote-Work-Policy-2025.docx"
+                      - id: "ret-result-002"
+                        relevanceScore: 0.87
+                        content:
+                          snippet: "Eligible employees must complete the remote work agreement form and submit it to HR before beginning any remote arrangement."
+                          sensitivityLabel: "Internal"
+                        resource:
+                          type: "driveItem"
+                          id: "01ABCDEF98765432"
+                          name: "HR-Onboarding-Guide.docx"
+                          webUrl: "https://contoso.sharepoint.com/sites/hr/Shared%20Documents/HR-Onboarding-Guide.docx"
+                    '@odata.count': 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ──────────────────────────────────────────────
+  # Content Search API (preview)
+  # ──────────────────────────────────────────────
+  /copilot/search/query:
+    post:
+      operationId: querySearchContent
+      summary: Search OneDrive content using natural language
+      description: >
+        Perform hybrid search (semantic and lexical) across OneDrive for work or
+        school content using natural language queries. Results are returned with
+        contextual understanding and intelligent ranking while maintaining
+        security and compliance.
+      tags:
+        - Content Search
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchQueryRequest'
+      responses:
+        '200':
+          description: Search results returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchQueryResponse'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - hitId: "hit-001"
+                        rank: 1
+                        summary: "Q3 2025 budget presentation covering departmental allocations and projected spending through year end."
+                        resource:
+                          '@odata.type': "#microsoft.graph.driveItem"
+                          id: "01XYZABC12345678"
+                          name: "Q3-2025-Budget-Presentation.pptx"
+                          webUrl: "https://contoso-my.sharepoint.com/personal/jdoe/Documents/Q3-2025-Budget-Presentation.pptx"
+                          lastModifiedDateTime: "2025-08-15T14:30:00Z"
+                          createdBy:
+                            user:
+                              displayName: "Jane Doe"
+                              id: "user-abc-123"
+                      - hitId: "hit-002"
+                        rank: 2
+                        summary: "Annual budget planning template with quarterly breakdown and variance tracking worksheets."
+                        resource:
+                          '@odata.type': "#microsoft.graph.driveItem"
+                          id: "01XYZABC87654321"
+                          name: "Annual-Budget-Template.xlsx"
+                          webUrl: "https://contoso-my.sharepoint.com/personal/jsmith/Documents/Annual-Budget-Template.xlsx"
+                          lastModifiedDateTime: "2025-07-01T09:00:00Z"
+                          createdBy:
+                            user:
+                              displayName: "John Smith"
+                              id: "user-def-456"
+                    '@odata.count': 2
+                    moreResultsAvailable: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ──────────────────────────────────────────────
+  # Interaction Exports API
+  # ──────────────────────────────────────────────
+  /copilot/interactions:
+    get:
+      operationId: listCopilotInteractions
+      summary: List Copilot interactions
+      description: >
+        Retrieve a list of user interactions with Copilot across Microsoft 365
+        applications. Supports filtering by date range, user, and application.
+        Enables compliance solutions to capture and archive AI interactions.
+      tags:
+        - Interaction Exports
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/TopParam'
+        - $ref: '#/components/parameters/SkipParam'
+        - $ref: '#/components/parameters/FilterParam'
+        - $ref: '#/components/parameters/OrderByParam'
+        - name: startDateTime
+          in: query
+          description: Start of the date/time range for interactions (ISO 8601).
+          schema:
+            type: string
+            format: date-time
+        - name: endDateTime
+          in: query
+          description: End of the date/time range for interactions (ISO 8601).
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: A collection of Copilot interactions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InteractionCollectionResponse'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - id: "interaction-001"
+                        createdDateTime: "2025-09-10T10:15:00Z"
+                        userId: "user-abc-123"
+                        userDisplayName: "Jane Doe"
+                        appId: "Word"
+                        interactionType: "prompt"
+                        content: "Summarize the key points from the Q3 sales report."
+                        contextReferences:
+                          - type: "driveItem"
+                            id: "01ABCDEF11111111"
+                            name: "Q3-Sales-Report.docx"
+                            webUrl: "https://contoso.sharepoint.com/sites/sales/Q3-Sales-Report.docx"
+                      - id: "interaction-002"
+                        createdDateTime: "2025-09-10T10:15:05Z"
+                        userId: "user-abc-123"
+                        userDisplayName: "Jane Doe"
+                        appId: "Word"
+                        interactionType: "response"
+                        content: "The Q3 sales report highlights a 12% increase in revenue year-over-year driven by strong performance in the enterprise segment."
+                        contextReferences: []
+                    '@odata.count': 2
+                    '@odata.nextLink': "https://graph.microsoft.com/v1.0/copilot/interactions?$skip=2&$top=25"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /copilot/interactions/{interactionId}:
+    get:
+      operationId: getCopilotInteraction
+      summary: Get a specific Copilot interaction
+      description: Retrieve details of a specific Copilot interaction by its ID.
+      tags:
+        - Interaction Exports
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: interactionId
+          in: path
+          required: true
+          description: Unique identifier for the interaction.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The requested interaction.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotInteraction'
+              examples:
+                Default:
+                  value:
+                    id: "interaction-001"
+                    createdDateTime: "2025-09-10T10:15:00Z"
+                    userId: "user-abc-123"
+                    userDisplayName: "Jane Doe"
+                    appId: "Word"
+                    interactionType: "prompt"
+                    content: "Summarize the key points from the Q3 sales report."
+                    contextReferences:
+                      - type: "driveItem"
+                        id: "01ABCDEF11111111"
+                        name: "Q3-Sales-Report.docx"
+                        webUrl: "https://contoso.sharepoint.com/sites/sales/Q3-Sales-Report.docx"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ──────────────────────────────────────────────
+  # Change Notifications API (preview)
+  # ──────────────────────────────────────────────
+  /copilot/subscriptions:
+    post:
+      operationId: createCopilotSubscription
+      summary: Create a change notification subscription
+      description: >
+        Subscribe to change notifications for Copilot interactions across
+        Microsoft 365. Enables real-time monitoring, proactive compliance
+        checks, anomaly detection, and auditing.
+      tags:
+        - Change Notifications
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionRequest'
+      responses:
+        '201':
+          description: Subscription created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+              examples:
+                Default:
+                  value:
+                    id: "sub-001-abc"
+                    resource: "/copilot/interactions"
+                    changeType: "created"
+                    notificationUrl: "https://contoso.com/webhooks/copilot-notifications"
+                    expirationDateTime: "2025-10-15T00:00:00Z"
+                    clientState: "contoso-secret-state-value"
+                    createdDateTime: "2025-09-10T12:00:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      operationId: listCopilotSubscriptions
+      summary: List active change notification subscriptions
+      description: Retrieve all active Copilot change notification subscriptions.
+      tags:
+        - Change Notifications
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      responses:
+        '200':
+          description: A list of active subscriptions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionCollectionResponse'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - id: "sub-001-abc"
+                        resource: "/copilot/interactions"
+                        changeType: "created"
+                        notificationUrl: "https://contoso.com/webhooks/copilot-notifications"
+                        expirationDateTime: "2025-10-15T00:00:00Z"
+                        clientState: "contoso-secret-state-value"
+                        createdDateTime: "2025-09-10T12:00:00Z"
+                      - id: "sub-002-def"
+                        resource: "/copilot/interactions"
+                        changeType: "updated"
+                        notificationUrl: "https://contoso.com/webhooks/copilot-updates"
+                        expirationDateTime: "2025-10-20T00:00:00Z"
+                        clientState: "contoso-update-state"
+                        createdDateTime: "2025-09-11T08:30:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /copilot/subscriptions/{subscriptionId}:
+    get:
+      operationId: getCopilotSubscription
+      summary: Get a specific subscription
+      tags:
+        - Change Notifications
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: subscriptionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The requested subscription.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+              examples:
+                Default:
+                  value:
+                    id: "sub-001-abc"
+                    resource: "/copilot/interactions"
+                    changeType: "created"
+                    notificationUrl: "https://contoso.com/webhooks/copilot-notifications"
+                    expirationDateTime: "2025-10-15T00:00:00Z"
+                    clientState: "contoso-secret-state-value"
+                    createdDateTime: "2025-09-10T12:00:00Z"
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      operationId: updateCopilotSubscription
+      summary: Renew or update a subscription
+      tags:
+        - Change Notifications
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: subscriptionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionUpdateRequest'
+      responses:
+        '200':
+          description: Subscription updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+              examples:
+                Default:
+                  value:
+                    id: "sub-001-abc"
+                    resource: "/copilot/interactions"
+                    changeType: "created"
+                    notificationUrl: "https://contoso.com/webhooks/copilot-notifications"
+                    expirationDateTime: "2025-11-15T00:00:00Z"
+                    clientState: "contoso-secret-state-value"
+                    createdDateTime: "2025-09-10T12:00:00Z"
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      operationId: deleteCopilotSubscription
+      summary: Delete a subscription
+      tags:
+        - Change Notifications
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: subscriptionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Subscription deleted successfully.
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────────────────────────────────────────
+  # Meeting Insights API
+  # ──────────────────────────────────────────────
+  /copilot/meetings/{meetingId}/insights:
+    get:
+      operationId: getMeetingInsightsById
+      summary: Get AI-generated meeting insights
+      description: >
+        Extract AI-generated meeting notes, action items, decisions, and
+        discussion topics for a specific Teams meeting. Useful for integrating
+        with project management tools, CRM systems, or custom workflows.
+      tags:
+        - Meeting Insights
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          description: >
+            The unique identifier of the Teams meeting (online meeting ID or
+            join URL encoded).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Meeting insights retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingInsights'
+              examples:
+                Default:
+                  value:
+                    meetingId: "meeting-xyz-789"
+                    subject: "Q3 Product Roadmap Review"
+                    startDateTime: "2025-09-10T14:00:00Z"
+                    endDateTime: "2025-09-10T15:00:00Z"
+                    summary: "The team reviewed the Q3 product roadmap, confirmed the launch date for the new dashboard feature, and discussed resource allocation for the mobile app initiative."
+                    topics:
+                      - id: "topic-001"
+                        title: "Dashboard Feature Launch"
+                        description: "Discussion of the new analytics dashboard feature timeline and QA readiness."
+                        timestamp: "00:05:30"
+                      - id: "topic-002"
+                        title: "Mobile App Resource Allocation"
+                        description: "Review of staffing needs for the mobile app initiative in Q4."
+                        timestamp: "00:25:00"
+                    actionItems:
+                      - id: "action-001"
+                        description: "Finalize QA test plan for the dashboard feature by end of week."
+                        assignedTo:
+                          userId: "user-abc-123"
+                          displayName: "Jane Doe"
+                        dueDate: "2025-09-14"
+                        status: "pending"
+                      - id: "action-002"
+                        description: "Draft resource request for two additional mobile developers."
+                        assignedTo:
+                          userId: "user-def-456"
+                          displayName: "John Smith"
+                        dueDate: "2025-09-17"
+                        status: "pending"
+                    decisions:
+                      - id: "decision-001"
+                        description: "Dashboard feature launch confirmed for October 1, 2025."
+                        madeBy:
+                          userId: "user-ghi-789"
+                          displayName: "Maria Garcia"
+                    participants:
+                      - userId: "user-ghi-789"
+                        displayName: "Maria Garcia"
+                        role: "organizer"
+                      - userId: "user-abc-123"
+                        displayName: "Jane Doe"
+                        role: "presenter"
+                      - userId: "user-def-456"
+                        displayName: "John Smith"
+                        role: "attendee"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /copilot/meetings:
+    get:
+      operationId: listMeetingsWithInsights
+      summary: List meetings with available insights
+      description: >
+        List Teams meetings for which AI-generated insights are available.
+        Supports filtering by date range and participants.
+      tags:
+        - Meeting Insights
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/TopParam'
+        - $ref: '#/components/parameters/SkipParam'
+        - $ref: '#/components/parameters/FilterParam'
+        - name: startDateTime
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDateTime
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: A list of meetings with available insights.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingCollectionResponse'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - meetingId: "meeting-xyz-789"
+                        subject: "Q3 Product Roadmap Review"
+                        startDateTime: "2025-09-10T14:00:00Z"
+                        endDateTime: "2025-09-10T15:00:00Z"
+                        insightsAvailable: true
+                      - meetingId: "meeting-uvw-456"
+                        subject: "Weekly Engineering Standup"
+                        startDateTime: "2025-09-09T09:00:00Z"
+                        endDateTime: "2025-09-09T09:30:00Z"
+                        insightsAvailable: true
+                    '@odata.count': 2
+                    '@odata.nextLink': "https://graph.microsoft.com/v1.0/copilot/meetings?$skip=2&$top=25"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ──────────────────────────────────────────────
+  # Chat Completions API (preview)
+  # ──────────────────────────────────────────────
+  /copilot/chat/completions:
+    post:
+      operationId: createChatCompletion
+      summary: Send a message to Microsoft 365 Copilot
+      description: >
+        Enable conversational experiences powered by Microsoft 365 Copilot.
+        Send user messages and receive AI-generated responses grounded in
+        Microsoft 365 data and user context. Supports multi-turn conversations.
+      tags:
+        - Chat Completions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatCompletionRequest'
+      responses:
+        '200':
+          description: Chat completion response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatCompletionResponse'
+              examples:
+                Default:
+                  value:
+                    id: "chatcmpl-001-xyz"
+                    threadId: "thread-abc-123"
+                    created: "2025-09-10T16:00:00Z"
+                    choices:
+                      - index: 0
+                        message:
+                          role: "assistant"
+                          content: "Based on your organization's travel policy, international travel requires VP-level approval at least two weeks in advance. The policy also requires booking through the approved travel portal. You can find the full policy in the Employee Handbook on SharePoint."
+                        finishReason: "stop"
+                    citations:
+                      - id: "cite-001"
+                        name: "Employee-Handbook-2025.pdf"
+                        webUrl: "https://contoso.sharepoint.com/sites/hr/Employee-Handbook-2025.pdf"
+                        snippet: "International travel requires VP-level approval submitted at least 14 calendar days prior to departure."
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /copilot/chat/threads:
+    post:
+      operationId: createChatThread
+      summary: Create a new chat thread
+      description: >
+        Create a new conversational thread with Microsoft 365 Copilot for
+        multi-turn interactions.
+      tags:
+        - Chat Completions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatThreadRequest'
+      responses:
+        '201':
+          description: Chat thread created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatThread'
+              examples:
+                Default:
+                  value:
+                    id: "thread-abc-123"
+                    displayName: "Travel Policy Questions"
+                    createdDateTime: "2025-09-10T16:00:00Z"
+                    lastUpdatedDateTime: "2025-09-10T16:00:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /copilot/chat/threads/{threadId}:
+    get:
+      operationId: getChatThreadById
+      summary: Get a chat thread
+      tags:
+        - Chat Completions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: threadId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The requested chat thread.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatThread'
+              examples:
+                Default:
+                  value:
+                    id: "thread-abc-123"
+                    displayName: "Travel Policy Questions"
+                    createdDateTime: "2025-09-10T16:00:00Z"
+                    lastUpdatedDateTime: "2025-09-10T16:45:00Z"
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────────────────────────────────────────
+  # Usage Reports API
+  # ──────────────────────────────────────────────
+  /reports/copilot/usage:
+    get:
+      operationId: getCopilotUsageReport
+      summary: Get Copilot usage report
+      description: >
+        Query aggregated user counts and usage data for Microsoft 365 Copilot
+        across your organization. Use for tracking adoption and building
+        internal reports.
+      tags:
+        - Usage Reports
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: period
+          in: query
+          required: true
+          description: >
+            The reporting period. Supported values: D7, D30, D90, D180.
+          schema:
+            type: string
+            enum:
+              - D7
+              - D30
+              - D90
+              - D180
+        - name: date
+          in: query
+          description: >
+            Specific date to report on (ISO 8601 date). If omitted, returns the
+            latest available data.
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/TopParam'
+        - $ref: '#/components/parameters/SkipParam'
+      responses:
+        '200':
+          description: Copilot usage report data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageReportResponse'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - reportDate: "2025-09-10"
+                        totalEnabledUsers: 5000
+                        totalActiveUsers: 3250
+                        wordActiveUsers: 2100
+                        excelActiveUsers: 1800
+                        powerPointActiveUsers: 1200
+                        outlookActiveUsers: 2800
+                        teamsActiveUsers: 2500
+                        oneNoteActiveUsers: 600
+                        loopActiveUsers: 350
+                        copilotChatActiveUsers: 1900
+                    '@odata.count': 1
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reports/copilot/usage/userDetail:
+    get:
+      operationId: getCopilotUsageUserDetail
+      summary: Get per-user Copilot usage details
+      description: >
+        Retrieve detailed per-user usage data for Microsoft 365 Copilot,
+        including feature-level breakdowns.
+      tags:
+        - Usage Reports
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: period
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - D7
+              - D30
+              - D90
+              - D180
+        - $ref: '#/components/parameters/TopParam'
+        - $ref: '#/components/parameters/SkipParam'
+        - $ref: '#/components/parameters/FilterParam'
+      responses:
+        '200':
+          description: Per-user usage details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageUserDetailResponse'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - userId: "user-abc-123"
+                        userPrincipalName: "jdoe@contoso.com"
+                        displayName: "Jane Doe"
+                        lastActivityDate: "2025-09-10"
+                        wordUsed: true
+                        excelUsed: true
+                        powerPointUsed: false
+                        outlookUsed: true
+                        teamsUsed: true
+                        oneNoteUsed: false
+                        loopUsed: false
+                        copilotChatUsed: true
+                      - userId: "user-def-456"
+                        userPrincipalName: "jsmith@contoso.com"
+                        displayName: "John Smith"
+                        lastActivityDate: "2025-09-09"
+                        wordUsed: false
+                        excelUsed: true
+                        powerPointUsed: true
+                        outlookUsed: true
+                        teamsUsed: true
+                        oneNoteUsed: true
+                        loopUsed: false
+                        copilotChatUsed: false
+                    '@odata.count': 2
+                    '@odata.nextLink': "https://graph.microsoft.com/v1.0/reports/copilot/usage/userDetail?$skip=2&$top=25"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ──────────────────────────────────────────────
+  # Packages API
+  # ──────────────────────────────────────────────
+  /copilot/packages:
+    get:
+      operationId: listCopilotPackages
+      summary: List apps and agents
+      description: >
+        View all apps and agents deployed across Microsoft 365 in your
+        organization. Useful for inventory management and governance.
+      tags:
+        - Packages
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/TopParam'
+        - $ref: '#/components/parameters/SkipParam'
+        - $ref: '#/components/parameters/FilterParam'
+        - $ref: '#/components/parameters/OrderByParam'
+        - name: type
+          in: query
+          description: Filter by package type.
+          schema:
+            type: string
+            enum:
+              - app
+              - agent
+              - all
+            default: all
+      responses:
+        '200':
+          description: A list of packages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PackageCollectionResponse'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - id: "pkg-001-abc"
+                        displayName: "Contoso Sales Assistant"
+                        description: "AI agent that helps sales teams draft proposals and analyze pipeline data."
+                        type: "agent"
+                        publisher: "Contoso IT"
+                        version: "2.1.0"
+                        status: "active"
+                        createdDateTime: "2025-06-01T09:00:00Z"
+                        lastModifiedDateTime: "2025-09-01T14:30:00Z"
+                        permissions:
+                          - name: "Sites.Read.All"
+                            type: "delegated"
+                          - name: "Mail.Read"
+                            type: "delegated"
+                        deployedTo:
+                          - id: "group-sales-team"
+                            displayName: "Sales Team"
+                            type: "group"
+                      - id: "pkg-002-def"
+                        displayName: "IT Helpdesk Bot"
+                        description: "Application for automated IT support ticket triage and resolution."
+                        type: "app"
+                        publisher: "Contoso IT"
+                        version: "1.5.3"
+                        status: "active"
+                        createdDateTime: "2025-03-15T10:00:00Z"
+                        lastModifiedDateTime: "2025-08-20T11:00:00Z"
+                        permissions:
+                          - name: "User.Read.All"
+                            type: "application"
+                        deployedTo:
+                          - id: "org-contoso"
+                            displayName: "Contoso"
+                            type: "organization"
+                    '@odata.count': 2
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /copilot/packages/{packageId}:
+    get:
+      operationId: getCopilotPackageById
+      summary: Get a specific package
+      description: Retrieve details about a specific app or agent.
+      tags:
+        - Packages
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: packageId
+          in: path
+          required: true
+          description: The unique identifier of the package.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Package details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+              examples:
+                Default:
+                  value:
+                    id: "pkg-001-abc"
+                    displayName: "Contoso Sales Assistant"
+                    description: "AI agent that helps sales teams draft proposals and analyze pipeline data."
+                    type: "agent"
+                    publisher: "Contoso IT"
+                    version: "2.1.0"
+                    status: "active"
+                    createdDateTime: "2025-06-01T09:00:00Z"
+                    lastModifiedDateTime: "2025-09-01T14:30:00Z"
+                    permissions:
+                      - name: "Sites.Read.All"
+                        type: "delegated"
+                      - name: "Mail.Read"
+                        type: "delegated"
+                    deployedTo:
+                      - id: "group-sales-team"
+                        displayName: "Sales Team"
+                        type: "group"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      operationId: updateCopilotPackage
+      summary: Update a package
+      description: Update configuration or status of an app or agent.
+      tags:
+        - Packages
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: packageId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackageUpdateRequest'
+      responses:
+        '200':
+          description: Package updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+              examples:
+                Default:
+                  value:
+                    id: "pkg-001-abc"
+                    displayName: "Contoso Sales Assistant"
+                    description: "AI agent that helps sales teams draft proposals and analyze pipeline data. Updated with Q4 product catalog."
+                    type: "agent"
+                    publisher: "Contoso IT"
+                    version: "2.1.0"
+                    status: "active"
+                    createdDateTime: "2025-06-01T09:00:00Z"
+                    lastModifiedDateTime: "2025-09-11T08:00:00Z"
+                    permissions:
+                      - name: "Sites.Read.All"
+                        type: "delegated"
+                      - name: "Mail.Read"
+                        type: "delegated"
+                    deployedTo:
+                      - id: "group-sales-team"
+                        displayName: "Sales Team"
+                        type: "group"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      operationId: deleteCopilotPackage
+      summary: Remove a package
+      description: Remove an app or agent from your organization.
+      tags:
+        - Packages
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: packageId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Package removed successfully.
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+# ════════════════════════════════════════════════
+# Components
+# ════════════════════════════════════════════════
+components:
+
+  # ── Security Schemes ──────────────────────────
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: OAuth 2.0 authorization using Microsoft identity platform.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+          tokenUrl: https://login.microsoftonline.com/common/oauth2/v2.0/token
+          scopes:
+            Copilot.Retrieval.Read: Read Microsoft 365 content via Copilot retrieval.
+            Copilot.Search.Read: Search OneDrive content via Copilot.
+            Copilot.Interaction.Read: Read Copilot interaction records.
+            Copilot.Interaction.ReadWrite: Read and export Copilot interactions.
+            Copilot.ChangeNotification.ReadWrite: Manage change notification subscriptions.
+            Copilot.MeetingInsights.Read: Read AI-generated meeting insights.
+            Copilot.Chat.ReadWrite: Send and receive Copilot chat messages.
+            Reports.Read.All: Read usage reports.
+            Copilot.Package.ReadWrite.All: Manage apps and agents.
+
+  # ── Reusable Parameters ───────────────────────
+  parameters:
+    TopParam:
+      name: $top
+      in: query
+      description: Maximum number of results to return.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 999
+        default: 25
+
+    SkipParam:
+      name: $skip
+      in: query
+      description: Number of results to skip for pagination.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+    FilterParam:
+      name: $filter
+      in: query
+      description: OData filter expression.
+      schema:
+        type: string
+
+    OrderByParam:
+      name: $orderby
+      in: query
+      description: OData order-by expression.
+      schema:
+        type: string
+
+  # ── Reusable Responses ────────────────────────
+  responses:
+    BadRequest:
+      description: Bad request — invalid input or missing required fields.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            BadRequest:
+              value:
+                error:
+                  code: "BadRequest"
+                  message: "The request is invalid. Check the request body for missing or malformed fields."
+                  innerError:
+                    requestId: "req-err-400-001"
+                    date: "2025-09-10T12:00:00Z"
+
+    Unauthorized:
+      description: Unauthorized — missing or invalid authentication token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            Unauthorized:
+              value:
+                error:
+                  code: "Unauthorized"
+                  message: "Authentication token is missing, expired, or invalid."
+                  innerError:
+                    requestId: "req-err-401-001"
+                    date: "2025-09-10T12:00:00Z"
+
+    Forbidden:
+      description: Forbidden — insufficient permissions for this operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            Forbidden:
+              value:
+                error:
+                  code: "Forbidden"
+                  message: "Insufficient privileges to complete the operation. Verify the required permissions are granted."
+                  innerError:
+                    requestId: "req-err-403-001"
+                    date: "2025-09-10T12:00:00Z"
+
+    NotFound:
+      description: The requested resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            NotFound:
+              value:
+                error:
+                  code: "NotFound"
+                  message: "The requested resource could not be found."
+                  innerError:
+                    requestId: "req-err-404-001"
+                    date: "2025-09-10T12:00:00Z"
+
+    TooManyRequests:
+      description: Rate limit exceeded. Retry after the period in the Retry-After header.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            TooManyRequests:
+              value:
+                error:
+                  code: "TooManyRequests"
+                  message: "Rate limit exceeded. Please retry after the number of seconds specified in the Retry-After header."
+                  innerError:
+                    requestId: "req-err-429-001"
+                    date: "2025-09-10T12:00:00Z"
+
+    InternalServerError:
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            InternalServerError:
+              value:
+                error:
+                  code: "InternalServerError"
+                  message: "An unexpected error occurred while processing the request. Please try again later."
+                  innerError:
+                    requestId: "req-err-500-001"
+                    date: "2025-09-10T12:00:00Z"
+
+  # ── Schemas ───────────────────────────────────
+  schemas:
+
+    # — Common ————————————————————————————————————
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code.
+            message:
+              type: string
+              description: Human-readable error message.
+            innerError:
+              type: object
+              properties:
+                requestId:
+                  type: string
+                date:
+                  type: string
+                  format: date-time
+          required:
+            - code
+            - message
+
+    # — Content Retrieval API —————————————————————
+    RetrievalQueryRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: The natural language query to retrieve relevant content.
+          examples:
+            - What is our company's remote work policy?
+        contentSources:
+          type: array
+          description: >
+            Optional list of content sources to scope the retrieval (e.g.,
+            SharePoint sites, OneDrive locations).
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                  - sharePointSite
+                  - oneDrive
+                  - teams
+              id:
+                type: string
+                description: Resource identifier (site ID, drive ID, etc.).
+        maxResults:
+          type: integer
+          description: Maximum number of content chunks to return.
+          default: 10
+          minimum: 1
+          maximum: 50
+        options:
+          type: object
+          properties:
+            respectSensitivityLabels:
+              type: boolean
+              default: true
+              description: Whether to enforce sensitivity label restrictions.
+            includeSnippets:
+              type: boolean
+              default: true
+              description: Include text snippets from matched content.
+
+    RetrievalQueryResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/RetrievalResult'
+        '@odata.count':
+          type: integer
+
+    RetrievalResult:
+      type: object
+      properties:
+        id:
+          type: string
+        relevanceScore:
+          type: number
+          format: double
+          description: Score indicating relevance of the result (0.0 – 1.0).
+        content:
+          type: object
+          properties:
+            snippet:
+              type: string
+              description: Text excerpt from the matched content.
+            sensitivityLabel:
+              type: string
+              description: Sensitivity label applied to the source document.
+        resource:
+          type: object
+          description: Reference to the source Microsoft 365 resource.
+          properties:
+            type:
+              type: string
+              description: Resource type (e.g., driveItem, listItem, message).
+            id:
+              type: string
+            name:
+              type: string
+            webUrl:
+              type: string
+              format: uri
+
+    # — Content Search API ————————————————————————
+    SearchQueryRequest:
+      type: object
+      required:
+        - queryString
+      properties:
+        queryString:
+          type: string
+          description: Natural language search query.
+          examples:
+            - quarterly budget presentation
+        entityTypes:
+          type: array
+          description: Types of entities to search.
+          items:
+            type: string
+            enum:
+              - driveItem
+              - listItem
+              - site
+          default:
+            - driveItem
+        from:
+          type: integer
+          description: Offset for pagination.
+          default: 0
+        size:
+          type: integer
+          description: Number of results to return.
+          default: 25
+          maximum: 100
+        sortProperties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              isDescending:
+                type: boolean
+                default: false
+
+    SearchQueryResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHit'
+        '@odata.count':
+          type: integer
+        moreResultsAvailable:
+          type: boolean
+
+    SearchHit:
+      type: object
+      properties:
+        hitId:
+          type: string
+        rank:
+          type: integer
+        summary:
+          type: string
+          description: AI-generated summary of the search hit.
+        resource:
+          type: object
+          properties:
+            '@odata.type':
+              type: string
+            id:
+              type: string
+            name:
+              type: string
+            webUrl:
+              type: string
+              format: uri
+            lastModifiedDateTime:
+              type: string
+              format: date-time
+            createdBy:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    displayName:
+                      type: string
+                    id:
+                      type: string
+
+    # — Interaction Exports API ———————————————————
+    InteractionCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/CopilotInteraction'
+        '@odata.count':
+          type: integer
+        '@odata.nextLink':
+          type: string
+          format: uri
+          description: URL to retrieve the next page of results.
+
+    CopilotInteraction:
+      type: object
+      properties:
+        id:
+          type: string
+        createdDateTime:
+          type: string
+          format: date-time
+        userId:
+          type: string
+          description: ID of the user who initiated the interaction.
+        userDisplayName:
+          type: string
+        appId:
+          type: string
+          description: >
+            Microsoft 365 application where the interaction occurred (e.g.,
+            Word, Excel, Teams).
+        interactionType:
+          type: string
+          enum:
+            - prompt
+            - response
+            - feedback
+        content:
+          type: string
+          description: The text content of the interaction.
+        contextReferences:
+          type: array
+          description: Resources referenced during the interaction.
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              id:
+                type: string
+              name:
+                type: string
+              webUrl:
+                type: string
+                format: uri
+
+    # — Change Notifications API ——————————————————
+    SubscriptionRequest:
+      type: object
+      required:
+        - changeType
+        - notificationUrl
+        - resource
+        - expirationDateTime
+      properties:
+        changeType:
+          type: string
+          description: Type of change to subscribe to.
+          enum:
+            - created
+            - updated
+            - deleted
+        notificationUrl:
+          type: string
+          format: uri
+          description: >
+            HTTPS endpoint that will receive the change notifications.
+        resource:
+          type: string
+          description: >
+            The resource path to monitor (e.g., /copilot/interactions).
+        expirationDateTime:
+          type: string
+          format: date-time
+          description: When the subscription expires.
+        clientState:
+          type: string
+          description: >
+            An opaque string sent back in each notification for validation.
+
+    SubscriptionUpdateRequest:
+      type: object
+      properties:
+        expirationDateTime:
+          type: string
+          format: date-time
+
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: string
+        resource:
+          type: string
+        changeType:
+          type: string
+        notificationUrl:
+          type: string
+          format: uri
+        expirationDateTime:
+          type: string
+          format: date-time
+        clientState:
+          type: string
+        createdDateTime:
+          type: string
+          format: date-time
+
+    SubscriptionCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+
+    # — Meeting Insights API ——————————————————————
+    MeetingCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            type: object
+            properties:
+              meetingId:
+                type: string
+              subject:
+                type: string
+              startDateTime:
+                type: string
+                format: date-time
+              endDateTime:
+                type: string
+                format: date-time
+              insightsAvailable:
+                type: boolean
+        '@odata.count':
+          type: integer
+        '@odata.nextLink':
+          type: string
+          format: uri
+
+    MeetingInsights:
+      type: object
+      properties:
+        meetingId:
+          type: string
+        subject:
+          type: string
+        startDateTime:
+          type: string
+          format: date-time
+        endDateTime:
+          type: string
+          format: date-time
+        summary:
+          type: string
+          description: AI-generated summary of the meeting.
+        topics:
+          type: array
+          description: Key discussion topics identified in the meeting.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+              timestamp:
+                type: string
+                description: Approximate time in the meeting when the topic was discussed.
+        actionItems:
+          type: array
+          description: Action items extracted from the meeting.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              description:
+                type: string
+              assignedTo:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                  displayName:
+                    type: string
+              dueDate:
+                type: string
+                format: date
+              status:
+                type: string
+                enum:
+                  - pending
+                  - inProgress
+                  - completed
+        decisions:
+          type: array
+          description: Decisions made during the meeting.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              description:
+                type: string
+              madeBy:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                  displayName:
+                    type: string
+        participants:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              displayName:
+                type: string
+              role:
+                type: string
+                enum:
+                  - organizer
+                  - presenter
+                  - attendee
+
+    # — Chat Completions API ——————————————————————
+    ChatCompletionRequest:
+      type: object
+      required:
+        - messages
+      properties:
+        messages:
+          type: array
+          description: Conversation message history.
+          items:
+            type: object
+            required:
+              - role
+              - content
+            properties:
+              role:
+                type: string
+                enum:
+                  - system
+                  - user
+                  - assistant
+              content:
+                type: string
+        threadId:
+          type: string
+          description: >
+            Optional thread ID to continue a multi-turn conversation.
+        options:
+          type: object
+          properties:
+            groundInM365Content:
+              type: boolean
+              default: true
+              description: >
+                Whether to ground responses in the user's Microsoft 365 data.
+            maxTokens:
+              type: integer
+              default: 4096
+            temperature:
+              type: number
+              format: double
+              minimum: 0.0
+              maximum: 1.0
+              default: 0.7
+
+    ChatCompletionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        threadId:
+          type: string
+        created:
+          type: string
+          format: date-time
+        choices:
+          type: array
+          items:
+            type: object
+            properties:
+              index:
+                type: integer
+              message:
+                type: object
+                properties:
+                  role:
+                    type: string
+                  content:
+                    type: string
+              finishReason:
+                type: string
+                enum:
+                  - stop
+                  - length
+                  - contentFilter
+        citations:
+          type: array
+          description: Microsoft 365 resources cited in the response.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              webUrl:
+                type: string
+                format: uri
+              snippet:
+                type: string
+
+    ChatThreadRequest:
+      type: object
+      properties:
+        displayName:
+          type: string
+          description: Optional display name for the thread.
+        initialMessage:
+          type: string
+          description: Optional first message to send in the thread.
+
+    ChatThread:
+      type: object
+      properties:
+        id:
+          type: string
+        displayName:
+          type: string
+        createdDateTime:
+          type: string
+          format: date-time
+        lastUpdatedDateTime:
+          type: string
+          format: date-time
+
+    # — Usage Reports API —————————————————————————
+    UsageReportResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            type: object
+            properties:
+              reportDate:
+                type: string
+                format: date
+              totalEnabledUsers:
+                type: integer
+                description: Number of users licensed for Copilot.
+              totalActiveUsers:
+                type: integer
+                description: Number of users who used Copilot in the period.
+              wordActiveUsers:
+                type: integer
+              excelActiveUsers:
+                type: integer
+              powerPointActiveUsers:
+                type: integer
+              outlookActiveUsers:
+                type: integer
+              teamsActiveUsers:
+                type: integer
+              oneNoteActiveUsers:
+                type: integer
+              loopActiveUsers:
+                type: integer
+              copilotChatActiveUsers:
+                type: integer
+        '@odata.count':
+          type: integer
+        '@odata.nextLink':
+          type: string
+          format: uri
+
+    UsageUserDetailResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userPrincipalName:
+                type: string
+              displayName:
+                type: string
+              lastActivityDate:
+                type: string
+                format: date
+              wordUsed:
+                type: boolean
+              excelUsed:
+                type: boolean
+              powerPointUsed:
+                type: boolean
+              outlookUsed:
+                type: boolean
+              teamsUsed:
+                type: boolean
+              oneNoteUsed:
+                type: boolean
+              loopUsed:
+                type: boolean
+              copilotChatUsed:
+                type: boolean
+        '@odata.count':
+          type: integer
+        '@odata.nextLink':
+          type: string
+          format: uri
+
+    # — Packages API ——————————————————————————————
+    PackageCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Package'
+        '@odata.count':
+          type: integer
+        '@odata.nextLink':
+          type: string
+          format: uri
+
+    Package:
+      type: object
+      properties:
+        id:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - app
+            - agent
+        publisher:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+          enum:
+            - active
+            - disabled
+            - pendingApproval
+        createdDateTime:
+          type: string
+          format: date-time
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+        permissions:
+          type: array
+          description: Permissions required by the package.
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+                enum:
+                  - delegated
+                  - application
+        deployedTo:
+          type: array
+          description: Groups or users the package is deployed to.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              displayName:
+                type: string
+              type:
+                type: string
+                enum:
+                  - user
+                  - group
+                  - organization
+
+    PackageUpdateRequest:
+      type: object
+      properties:
+        displayName:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - active
+            - disabled

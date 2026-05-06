@@ -1,0 +1,394 @@
+openapi: 3.1.0
+info:
+  title: zoom-chat-messages-api
+  description: >
+    The Zoom Chat Messages API provides access to archived chat message history
+    within your Zoom organization. 
+
+    This API enables administrators to retrieve chat sessions and their
+    associated messages for compliance, 
+
+    auditing, and archival purposes.
+
+
+    **Key Features:**
+
+    - Retrieve chat history lists for specified time periods
+
+    - Access detailed chat messages within specific sessions
+
+    - Support for pagination through large result sets
+
+    - Filter chat history by email address
+
+
+    **Note:** Access requires administrative privileges with archived chat
+    message viewing permissions.
+  contact:
+    name: Zoom Developers
+    url: https://zoom.us/developer
+    email: developer@zoom.us
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+externalDocs:
+  description: Zoom REST API Documentation
+  url: https://zoom.github.io/api
+servers:
+  - url: https://api.zoom.us/v1
+    description: Zoom Production API Server
+  - url: http://localhost:8080/rest/zoom-chat-messages-api/1.0.0
+    description: Sandbox
+security:
+  - ApiKeyAuth: []
+  - ApiSecretAuth: []
+tags:
+  - name: Chat History
+    description: Operations for retrieving archived chat sessions and message history
+paths:
+  /chat/list:
+    post:
+      tags:
+        - Chat History
+      summary: List chat sessions
+      description: >
+        Retrieves a paginated list of chat sessions (conversations) for a
+        specified time period.
+
+
+        This endpoint returns metadata about chat sessions including:
+
+        - Session identifiers
+
+        - Chat type (Group or Direct)
+
+        - Participant information
+
+        - Group names (for group chats)
+
+        - Timestamp of the last message
+
+
+        Use the `session_id` from this response with the `/chat/get` endpoint to
+        retrieve 
+
+        the actual messages within a session.
+      operationId: listChatSessions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.access_token && requestBody.from && requestBody.to) {
+            return "ListChatSessionsSuccessResponse"
+          }
+
+          return "ListChatSessionsSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListChatSessionsRequest'
+            examples:
+              ListChatSessionsRequestExample:
+                $ref: '#/components/examples/ListChatSessionsRequestExample'
+      responses:
+        '200':
+          description: Chat sessions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListChatSessionsResponse'
+              examples:
+                ListChatSessionsSuccessResponse:
+                  $ref: '#/components/examples/ListChatSessionsSuccessResponse'
+  /chat/get:
+    post:
+      tags:
+        - Chat History
+      summary: Get chat messages
+      description: >
+        Retrieves the actual chat messages within a specific session for a
+        specified time period.
+
+
+        This endpoint returns:
+
+        - Individual message content
+
+        - Sender information
+
+        - Message timestamps
+
+        - Session and group metadata
+
+
+        **Note:** You must first use the `/chat/list` endpoint to obtain the
+        `session_id` 
+
+        required for this endpoint.
+      operationId: getChatMessages
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.access_token && requestBody.session_id &&
+          requestBody.from && requestBody.to) {
+            return "GetChatMessagesSuccessResponse"
+          }
+
+          return "GetChatMessagesSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GetChatMessagesRequest'
+            examples:
+              GetChatMessagesRequestExample:
+                $ref: '#/components/examples/GetChatMessagesRequestExample'
+      responses:
+        '200':
+          description: Chat messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetChatMessagesResponse'
+              examples:
+                GetChatMessagesSuccessResponse:
+                  $ref: '#/components/examples/GetChatMessagesSuccessResponse'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: query
+      name: api_key
+    ApiSecretAuth:
+      type: apiKey
+      in: query
+      name: api_secret
+  schemas:
+    ListChatSessionsRequest:
+      type: object
+      required:
+        - access_token
+        - from
+        - to
+      properties:
+        access_token:
+          type: string
+          description: >-
+            Archived chat messages access token. Admin with viewing privileges
+            will receive this token.
+        from:
+          type: string
+          format: date
+          description: Start date for the chat history query (YYYY-MM-DD format).
+        to:
+          type: string
+          format: date
+          description: End date for the chat history query (YYYY-MM-DD format).
+        page_size:
+          type: string
+          description: Number of records per page. Defaults to 30, maximum of 30.
+          default: '30'
+        email:
+          type: string
+          format: email
+          description: Filter chat history by specific email address.
+        next_page_token:
+          type: string
+          description: >-
+            Token for pagination. Returned when results exceed 100 records.
+            Expires after 30 minutes.
+    ListChatSessionsResponse:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+          description: Start date of the query range.
+        to:
+          type: string
+          format: date-time
+          description: End date of the query range.
+        page_size:
+          type: integer
+          description: Number of records per page.
+        page_count:
+          type: integer
+          description: Total number of pages available.
+        next_page_token:
+          type: string
+          description: Token for retrieving the next page of results.
+        chat_list:
+          type: array
+          description: List of chat sessions.
+          items:
+            $ref: '#/components/schemas/ChatSession'
+    ChatSession:
+      type: object
+      properties:
+        session_id:
+          type: string
+          description: Unique identifier for the chat session.
+        type:
+          type: string
+          description: Type of chat session (e.g., "Group" or "Direct").
+          enum:
+            - Group
+            - Direct
+        participants:
+          type: string
+          description: >-
+            Comma-separated list of participant email addresses (for direct
+            chats).
+        group_name:
+          type: string
+          description: Name of the group (for group chats).
+        last_message_send_time:
+          type: string
+          format: date-time
+          description: Timestamp of the last message sent in this session.
+    GetChatMessagesRequest:
+      type: object
+      required:
+        - access_token
+        - session_id
+        - from
+        - to
+      properties:
+        access_token:
+          type: string
+          description: >-
+            Archived chat messages access token. Admin with viewing privileges
+            will receive this token.
+        session_id:
+          type: string
+          description: Session ID of the chat conversation (obtained from /chat/list).
+        from:
+          type: string
+          format: date
+          description: Start date for the message query (YYYY-MM-DD format).
+        to:
+          type: string
+          format: date
+          description: End date for the message query (YYYY-MM-DD format).
+        page_size:
+          type: string
+          description: Number of records per page. Defaults to 30, maximum of 30.
+          default: '30'
+        next_page_token:
+          type: string
+          description: >-
+            Token for pagination. Returned when results exceed 100 records.
+            Expires after 30 minutes.
+    GetChatMessagesResponse:
+      type: object
+      properties:
+        session_id:
+          type: string
+          description: Session ID of the chat conversation.
+        group_name:
+          type: string
+          description: Name of the group (for group chats).
+        from:
+          type: string
+          format: date-time
+          description: Start date of the query range.
+        to:
+          type: string
+          format: date-time
+          description: End date of the query range.
+        page_size:
+          type: integer
+          description: Number of records per page.
+        page_count:
+          type: integer
+          description: Total number of pages available.
+        next_page_token:
+          type: string
+          description: Token for retrieving the next page of results.
+        chat_messages:
+          type: array
+          description: List of chat messages.
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+    ChatMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Content of the chat message.
+        sender:
+          type: string
+          description: Email address or name of the message sender.
+        date_time:
+          type: string
+          format: date-time
+          description: Timestamp when the message was sent.
+  examples:
+    ListChatSessionsRequestExample:
+      summary: Example request for listing chat sessions
+      value:
+        access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.example
+        from: '2024-01-16'
+        to: '2024-01-22'
+        page_size: '30'
+    ListChatSessionsSuccessResponse:
+      summary: Successful list chat sessions response
+      value:
+        from: '2024-01-16T00:00:00.000Z'
+        to: '2024-01-22T00:00:00.000Z'
+        page_size: 30
+        page_count: 1
+        next_page_token: ''
+        chat_list:
+          - session_id: sess_abc123def456
+            type: Group
+            participants: ''
+            group_name: Engineering Team
+            last_message_send_time: '2024-01-18T06:40:56.000Z'
+          - session_id: sess_ghi789jkl012
+            type: Direct
+            participants: user1@example.com,user2@example.com
+            group_name: ''
+            last_message_send_time: '2024-01-20T14:22:30.000Z'
+          - session_id: sess_mno345pqr678
+            type: Group
+            participants: ''
+            group_name: Marketing Discussion
+            last_message_send_time: '2024-01-21T09:15:00.000Z'
+    GetChatMessagesRequestExample:
+      summary: Example request for getting chat messages
+      value:
+        access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.example
+        session_id: sess_abc123def456
+        from: '2024-01-16'
+        to: '2024-01-22'
+        page_size: '30'
+    GetChatMessagesSuccessResponse:
+      summary: Successful get chat messages response
+      value:
+        session_id: sess_abc123def456
+        group_name: Engineering Team
+        from: '2024-01-16T00:00:00.000Z'
+        to: '2024-01-22T00:00:00.000Z'
+        page_size: 30
+        page_count: 1
+        next_page_token: ''
+        chat_messages:
+          - message: Hello team, let's discuss the new feature implementation.
+            sender: john.smith@example.com
+            date_time: '2024-01-18T06:40:56.000Z'
+          - message: Sounds good! I've prepared the technical design document.
+            sender: jane.doe@example.com
+            date_time: '2024-01-18T06:42:15.000Z'
+          - message: Great, let's review it in our standup tomorrow.
+            sender: john.smith@example.com
+            date_time: '2024-01-18T06:45:30.000Z'

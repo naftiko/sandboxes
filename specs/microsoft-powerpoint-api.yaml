@@ -1,0 +1,1435 @@
+openapi: 3.1.0
+info:
+  title: microsoft-powerpoint-api
+  description: >
+    OpenAPI specification for Microsoft Graph Drive API endpoints covering
+    file upload, download, PDF conversion, property/permission management,
+    and search operations on OneDrive and SharePoint. Examples throughout
+    demonstrate typical PowerPoint presentation (.pptx) use cases.
+  version: 1.0.0
+  contact:
+    name: Microsoft Graph
+    url: https://learn.microsoft.com/en-us/graph/api/resources/onedrive
+
+servers:
+
+  - url: http://localhost:8080/rest/microsoft-powerpoint-api/1.0.0
+    description: Sandbox   
+  - url: https://graph.microsoft.com/v1.0
+    description: Production
+  - url: https://graph.microsoft.com/beta
+    description: Beta 
+
+security:
+  - OAuth2: []
+
+tags:
+  - name: Uploads
+    description: Endpoints for uploading and creating files in OneDrive.
+  - name: Content
+    description: Endpoints for downloading file content and format conversion.
+  - name: Metadata
+    description: Endpoints for reading and updating drive item properties.
+  - name: Permissions
+    description: Endpoints for managing sharing permissions on drive items.
+  - name: DocumentLocks
+    description: Endpoints for document check-out and check-in operations.
+  - name: Search
+    description: Endpoints for searching files across OneDrive and SharePoint.
+
+paths:
+  # ──────────────────────────────────────────────
+  #  UPLOADS
+  # ──────────────────────────────────────────────
+
+  /me/drive/items/{parent-id}:/{filename}:/content:
+    put:
+      operationId: uploadFile
+      summary: Upload or replace a file (simple upload ≤ 4 MB)
+      description: >
+        Creates or replaces a file under the specified parent folder using a
+        simple PUT with the raw file bytes in the request body.
+        For files larger than 4 MB use the upload session endpoint.
+      tags:
+        - Uploads
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ParentId'
+        - $ref: '#/components/parameters/Filename'
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/vnd.openxmlformats-officedocument.presentationml.presentation
+        - name: "@microsoft.graph.conflictBehavior"
+          in: query
+          description: Conflict resolution behaviour when a file with the same name exists.
+          schema:
+            type: string
+            enum: [rename, replace, fail]
+            default: replace
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: File replaced successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriveItem'
+              examples:
+                Default:
+                  value:
+                    id: "01ABCDEF12345678"
+                    name: "Keynote-Deck.pptx"
+                    size: 2457600
+                    webUrl: "https://onedrive.live.com/redir?resid=01ABCDEF12345678"
+                    createdDateTime: "2025-01-10T09:00:00Z"
+                    lastModifiedDateTime: "2025-06-15T14:30:00Z"
+                    createdBy:
+                      user:
+                        id: "user-abc-123"
+                        displayName: "Jane Smith"
+                        email: "jane.smith@contoso.com"
+                    lastModifiedBy:
+                      user:
+                        id: "user-abc-123"
+                        displayName: "Jane Smith"
+                        email: "jane.smith@contoso.com"
+                    parentReference:
+                      driveId: "b!drive-id-001"
+                      driveType: "business"
+                      id: "01PARENT00000001"
+                      path: "/drive/root:/Presentations"
+                    file:
+                      mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                      hashes:
+                        quickXorHash: "aXhvckhBc2g="
+                    "@microsoft.graph.downloadUrl": "https://contoso-my.sharepoint.com/_api/download/01ABCDEF12345678"
+        '201':
+          description: File created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriveItem'
+              examples:
+                Default:
+                  value:
+                    id: "01NEWFILE7890ABCD"
+                    name: "Keynote-Deck.pptx"
+                    size: 2457600
+                    webUrl: "https://onedrive.live.com/redir?resid=01NEWFILE7890ABCD"
+                    createdDateTime: "2025-06-15T14:30:00Z"
+                    lastModifiedDateTime: "2025-06-15T14:30:00Z"
+                    createdBy:
+                      user:
+                        id: "user-abc-123"
+                        displayName: "Jane Smith"
+                        email: "jane.smith@contoso.com"
+                    lastModifiedBy:
+                      user:
+                        id: "user-abc-123"
+                        displayName: "Jane Smith"
+                        email: "jane.smith@contoso.com"
+                    parentReference:
+                      driveId: "b!drive-id-001"
+                      driveType: "business"
+                      id: "01PARENT00000001"
+                      path: "/drive/root:/Presentations"
+                    file:
+                      mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                      hashes:
+                        quickXorHash: "bXlvckhCdGg="
+                    "@microsoft.graph.downloadUrl": "https://contoso-my.sharepoint.com/_api/download/01NEWFILE7890ABCD"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /me/drive/items/{parent-id}:/{filename}:/createUploadSession:
+    post:
+      operationId: createUploadSession
+      summary: Create an upload session (resumable upload for large files)
+      description: >
+        Initiates a resumable upload session for files larger than 4 MB.
+        The response contains an `uploadUrl` to which byte-range PUT requests
+        should be sent.
+      tags:
+        - Uploads
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ParentId'
+        - $ref: '#/components/parameters/Filename'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item:
+                  type: object
+                  properties:
+                    "@microsoft.graph.conflictBehavior":
+                      type: string
+                      enum: [rename, replace, fail]
+                    name:
+                      type: string
+                    description:
+                      type: string
+      responses:
+        '200':
+          description: Upload session created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadSession'
+              examples:
+                Default:
+                  value:
+                    uploadUrl: "https://contoso-my.sharepoint.com/_api/v2.0/upload/01PARENT00000001/All-Hands-Meeting.pptx"
+                    expirationDateTime: "2025-06-16T14:30:00Z"
+                    nextExpectedRanges:
+                      - "0-"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /me/drive/items/{parent-id}/children:
+    post:
+      operationId: createChildItem
+      summary: Create a new file or folder metadata entry
+      description: >
+        Creates a new DriveItem (folder or empty file placeholder) as a child
+        of the specified parent item.
+      tags:
+        - Uploads
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ParentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  example: Product-Launch-Slides.pptx
+                file:
+                  type: object
+                  description: Empty object to indicate the item is a file.
+                folder:
+                  type: object
+                  description: Empty object to indicate the item is a folder.
+                "@microsoft.graph.conflictBehavior":
+                  type: string
+                  enum: [rename, replace, fail]
+      responses:
+        '201':
+          description: Item created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriveItem'
+              examples:
+                Default:
+                  value:
+                    id: "01CHILD0099887766"
+                    name: "Product-Launch-Slides.pptx"
+                    size: 0
+                    webUrl: "https://onedrive.live.com/redir?resid=01CHILD0099887766"
+                    createdDateTime: "2025-06-15T15:00:00Z"
+                    lastModifiedDateTime: "2025-06-15T15:00:00Z"
+                    createdBy:
+                      user:
+                        id: "user-abc-123"
+                        displayName: "Jane Smith"
+                        email: "jane.smith@contoso.com"
+                    lastModifiedBy:
+                      user:
+                        id: "user-abc-123"
+                        displayName: "Jane Smith"
+                        email: "jane.smith@contoso.com"
+                    parentReference:
+                      driveId: "b!drive-id-001"
+                      driveType: "business"
+                      id: "01PARENT00000001"
+                      path: "/drive/root:/Presentations"
+                    file:
+                      mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Conflict — an item with the same name already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataError'
+              examples:
+                Default:
+                  value:
+                    error:
+                      code: "nameAlreadyExists"
+                      message: "An item with the same name already exists under the specified parent."
+                      innerError:
+                        request-id: "e2f3a4b5-c6d7-8901-abcd-ef0123456789"
+                        date: "2025-06-15T15:00:01Z"
+
+  # ──────────────────────────────────────────────
+  #  CONTENT
+  # ──────────────────────────────────────────────
+
+  /me/drive/items/{item-id}/content:
+    get:
+      operationId: getFileContent
+      summary: Download file content or convert to another format
+      description: >
+        Returns the binary content of the file. When the optional `format`
+        query parameter is supplied the file is converted server-side
+        (e.g. `format=pdf` converts a PowerPoint presentation to PDF).
+      tags:
+        - Content
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+        - name: format
+          in: query
+          description: >
+            Target format for server-side conversion.
+            Supported values depend on the source file type.
+          schema:
+            type: string
+            enum: [pdf, html, jpg, png]
+          example: pdf
+      responses:
+        '200':
+          description: File content stream.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+              examples:
+                Default:
+                  summary: Binary file content returned as an octet stream.
+                  value: "(binary content)"
+        '302':
+          description: >
+            Redirect to a pre-authenticated download URL
+            (`@microsoft.graph.downloadUrl`).
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              examples:
+                Default:
+                  value:
+                    "@microsoft.graph.downloadUrl": "https://contoso-my.sharepoint.com/_api/download/01ABCDEF12345678?tempauth=token123"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────────────────────────────────────────
+  #  METADATA
+  # ──────────────────────────────────────────────
+
+  /me/drive/items/{item-id}:
+    get:
+      operationId: getDriveItem
+      summary: Get drive item metadata
+      description: Retrieve metadata for a file or folder by its unique item ID.
+      tags:
+        - Metadata
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+        - name: $select
+          in: query
+          description: Comma-separated list of properties to return.
+          schema:
+            type: string
+          example: id,name,size,lastModifiedDateTime
+        - name: $expand
+          in: query
+          description: Relationships to expand inline.
+          schema:
+            type: string
+          example: thumbnails
+      responses:
+        '200':
+          description: Drive item metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriveItem'
+              examples:
+                Default:
+                  value:
+                    id: "01ABCDEF12345678"
+                    name: "Q2-Strategy-Deck.pptx"
+                    description: "Q2 2025 corporate strategy presentation"
+                    size: 3145728
+                    webUrl: "https://onedrive.live.com/redir?resid=01ABCDEF12345678"
+                    createdDateTime: "2025-04-01T08:00:00Z"
+                    lastModifiedDateTime: "2025-06-14T17:45:00Z"
+                    createdBy:
+                      user:
+                        id: "user-abc-123"
+                        displayName: "Jane Smith"
+                        email: "jane.smith@contoso.com"
+                    lastModifiedBy:
+                      user:
+                        id: "user-def-456"
+                        displayName: "John Doe"
+                        email: "john.doe@contoso.com"
+                    parentReference:
+                      driveId: "b!drive-id-001"
+                      driveType: "business"
+                      id: "01PARENT00000001"
+                      path: "/drive/root:/Decks"
+                    file:
+                      mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                      hashes:
+                        quickXorHash: "cXlvckhDdHg="
+                    "@microsoft.graph.downloadUrl": "https://contoso-my.sharepoint.com/_api/download/01ABCDEF12345678"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      operationId: updateDriveItem
+      summary: Update drive item properties
+      description: >
+        Update writeable metadata properties on a drive item (name,
+        description, parentReference for move, etc.).
+      tags:
+        - Metadata
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                parentReference:
+                  $ref: '#/components/schemas/ItemReference'
+                fileSystemInfo:
+                  type: object
+                  properties:
+                    createdDateTime:
+                      type: string
+                      format: date-time
+                    lastModifiedDateTime:
+                      type: string
+                      format: date-time
+      responses:
+        '200':
+          description: Item updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriveItem'
+              examples:
+                Default:
+                  value:
+                    id: "01ABCDEF12345678"
+                    name: "Q2-Strategy-Deck-Final.pptx"
+                    description: "Q2 2025 corporate strategy presentation — approved"
+                    size: 3145728
+                    webUrl: "https://onedrive.live.com/redir?resid=01ABCDEF12345678"
+                    createdDateTime: "2025-04-01T08:00:00Z"
+                    lastModifiedDateTime: "2025-06-15T16:00:00Z"
+                    createdBy:
+                      user:
+                        id: "user-abc-123"
+                        displayName: "Jane Smith"
+                        email: "jane.smith@contoso.com"
+                    lastModifiedBy:
+                      user:
+                        id: "user-abc-123"
+                        displayName: "Jane Smith"
+                        email: "jane.smith@contoso.com"
+                    parentReference:
+                      driveId: "b!drive-id-001"
+                      driveType: "business"
+                      id: "01PARENT00000001"
+                      path: "/drive/root:/Decks"
+                    file:
+                      mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                      hashes:
+                        quickXorHash: "cXlvckhDdHg="
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict (e.g. name collision on move).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataError'
+              examples:
+                Default:
+                  value:
+                    error:
+                      code: "nameAlreadyExists"
+                      message: "The destination already contains an item with the same name."
+                      innerError:
+                        request-id: "f3a4b5c6-d7e8-9012-bcde-f01234567890"
+                        date: "2025-06-15T16:00:01Z"
+
+    delete:
+      operationId: deleteDriveItem
+      summary: Delete a drive item
+      description: Move a file or folder to the recycle bin (soft delete).
+      tags:
+        - Metadata
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        '204':
+          description: Item deleted.
+          content:
+            application/json:
+              examples:
+                Default:
+                  summary: No content returned on successful deletion.
+                  value: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────────────────────────────────────────
+  #  PERMISSIONS
+  # ──────────────────────────────────────────────
+
+  /me/drive/items/{item-id}/permissions:
+    get:
+      operationId: listItemPermissions
+      summary: List permissions on a drive item
+      description: Returns the set of effective sharing permissions for a file or folder.
+      tags:
+        - Permissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        '200':
+          description: Permission collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionCollection'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - id: "perm-001-owner"
+                        roles:
+                          - "owner"
+                        grantedTo:
+                          user:
+                            id: "user-abc-123"
+                            displayName: "Jane Smith"
+                            email: "jane.smith@contoso.com"
+                      - id: "perm-002-write"
+                        roles:
+                          - "write"
+                        grantedTo:
+                          user:
+                            id: "user-def-456"
+                            displayName: "John Doe"
+                            email: "john.doe@contoso.com"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /me/drive/items/{item-id}/permissions/{permission-id}:
+    get:
+      operationId: getItemPermission
+      summary: Get a specific permission
+      tags:
+        - Permissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+        - $ref: '#/components/parameters/PermissionId'
+      responses:
+        '200':
+          description: Permission details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permission'
+              examples:
+                Default:
+                  value:
+                    id: "perm-002-write"
+                    roles:
+                      - "write"
+                    grantedTo:
+                      user:
+                        id: "user-def-456"
+                        displayName: "John Doe"
+                        email: "john.doe@contoso.com"
+                    grantedToV2:
+                      user:
+                        id: "user-def-456"
+                        displayName: "John Doe"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      operationId: updateItemPermission
+      summary: Update a permission (e.g. change role)
+      tags:
+        - Permissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+        - $ref: '#/components/parameters/PermissionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum: [read, write, owner]
+      responses:
+        '200':
+          description: Permission updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permission'
+              examples:
+                Default:
+                  value:
+                    id: "perm-002-write"
+                    roles:
+                      - "read"
+                    grantedTo:
+                      user:
+                        id: "user-def-456"
+                        displayName: "John Doe"
+                        email: "john.doe@contoso.com"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      operationId: deleteItemPermission
+      summary: Remove a permission
+      tags:
+        - Permissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+        - $ref: '#/components/parameters/PermissionId'
+      responses:
+        '204':
+          description: Permission removed.
+          content:
+            application/json:
+              examples:
+                Default:
+                  summary: No content returned on successful deletion.
+                  value: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /me/drive/items/{item-id}/invite:
+    post:
+      operationId: inviteItemRecipients
+      summary: Send a sharing invitation
+      description: >
+        Grants permissions and optionally sends a sharing invitation email
+        to the specified recipients.
+      tags:
+        - Permissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [recipients, roles]
+              properties:
+                recipients:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        format: email
+                message:
+                  type: string
+                  description: Optional message to include in the invitation email.
+                requireSignIn:
+                  type: boolean
+                  default: true
+                sendInvitation:
+                  type: boolean
+                  default: true
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum: [read, write]
+      responses:
+        '200':
+          description: Invitation sent; permissions created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionCollection'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - id: "perm-003-invite"
+                        roles:
+                          - "write"
+                        grantedTo:
+                          user:
+                            id: "user-ghi-789"
+                            displayName: "Alice Wang"
+                            email: "alice.wang@contoso.com"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /me/drive/items/{item-id}/createLink:
+    post:
+      operationId: createSharingLink
+      summary: Create a sharing link
+      description: >
+        Creates a new anonymous or organizational sharing link for the item.
+      tags:
+        - Permissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type]
+              properties:
+                type:
+                  type: string
+                  enum: [view, edit, embed]
+                scope:
+                  type: string
+                  enum: [anonymous, organization, users]
+                password:
+                  type: string
+                expirationDateTime:
+                  type: string
+                  format: date-time
+      responses:
+        '201':
+          description: Sharing link created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permission'
+              examples:
+                Default:
+                  value:
+                    id: "perm-link-004"
+                    roles:
+                      - "read"
+                    link:
+                      type: "view"
+                      scope: "anonymous"
+                      webUrl: "https://contoso-my.sharepoint.com/:p:/g/personal/jane_smith/EaBcDeFgHiJkLmNoPqRsTu"
+                      preventsDownload: false
+                    expirationDateTime: "2025-07-15T00:00:00Z"
+                    hasPassword: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ──────────────────────────────────────────────
+  #  DOCUMENT LOCKS
+  # ──────────────────────────────────────────────
+
+  /me/drive/items/{item-id}/checkout:
+    post:
+      operationId: checkoutItem
+      summary: Check out a drive item
+      description: >
+        Locks the file for exclusive editing by the current user.
+        Other users will see the presentation as read-only until it is checked in.
+      tags:
+        - DocumentLocks
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        '204':
+          description: File checked out.
+          content:
+            application/json:
+              examples:
+                Default:
+                  summary: No content returned on successful checkout.
+                  value: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '423':
+          description: Locked — the file is already checked out by another user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataError'
+              examples:
+                Default:
+                  value:
+                    error:
+                      code: "resourceLocked"
+                      message: "The file is already checked out by another user."
+                      innerError:
+                        request-id: "a1b2c3d4-e5f6-7890-abcd-ef0123456789"
+                        date: "2025-06-15T16:30:00Z"
+
+  /me/drive/items/{item-id}/checkin:
+    post:
+      operationId: checkinItem
+      summary: Check in a drive item
+      description: >
+        Releases the exclusive lock on the file and (optionally) publishes
+        a new major or minor version.
+      tags:
+        - DocumentLocks
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  description: Check-in comment associated with the version.
+                  example: Updated slide transitions and speaker notes.
+      responses:
+        '204':
+          description: File checked in.
+          content:
+            application/json:
+              examples:
+                Default:
+                  summary: No content returned on successful check-in.
+                  value: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────────────────────────────────────────
+  #  SEARCH
+  # ──────────────────────────────────────────────
+
+  /me/drive/root/search(q='{search-text}'):
+    get:
+      operationId: searchDriveItems
+      summary: Search for items in the current user's drive
+      description: >
+        Searches file names, metadata, and (where indexed) file content in
+        the signed-in user's OneDrive.
+      tags:
+        - Search
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - name: search-text
+          in: path
+          required: true
+          schema:
+            type: string
+          example: product roadmap
+        - name: $select
+          in: query
+          schema:
+            type: string
+          example: id,name,webUrl
+        - name: $top
+          in: query
+          description: Maximum number of results to return.
+          schema:
+            type: integer
+            default: 25
+      responses:
+        '200':
+          description: Search results.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriveItemCollection'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - id: "01ABCDEF12345678"
+                        name: "Product-Roadmap-Q2.pptx"
+                        size: 4194304
+                        webUrl: "https://onedrive.live.com/redir?resid=01ABCDEF12345678"
+                        createdDateTime: "2025-04-01T08:00:00Z"
+                        lastModifiedDateTime: "2025-06-14T17:45:00Z"
+                        file:
+                          mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                      - id: "01XYZABC98765432"
+                        name: "Product-Roadmap-Q1.pptx"
+                        size: 3670016
+                        webUrl: "https://onedrive.live.com/redir?resid=01XYZABC98765432"
+                        createdDateTime: "2025-01-15T10:00:00Z"
+                        lastModifiedDateTime: "2025-03-30T12:00:00Z"
+                        file:
+                          mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /search/query:
+    post:
+      operationId: microsoftSearchQuery
+      summary: Search across OneDrive and SharePoint via Microsoft Search
+      description: >
+        Uses the Microsoft Search API to find files (including PowerPoint
+        presentations) across OneDrive and SharePoint sites the user has
+        access to. Supports KQL (Keyword Query Language) filters.
+      tags:
+        - Search
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [requests]
+              properties:
+                requests:
+                  type: array
+                  items:
+                    type: object
+                    required: [entityTypes, query]
+                    properties:
+                      entityTypes:
+                        type: array
+                        items:
+                          type: string
+                          enum: [driveItem, listItem, list, site]
+                        example: [driveItem]
+                      query:
+                        type: object
+                        required: [queryString]
+                        properties:
+                          queryString:
+                            type: string
+                            description: >
+                              Search text. Supports KQL syntax, e.g.
+                              `filetype:pptx product roadmap`.
+                            example: "filetype:pptx product roadmap"
+                      from:
+                        type: integer
+                        description: Offset for paging.
+                        default: 0
+                      size:
+                        type: integer
+                        description: Number of results per page.
+                        default: 25
+                      fields:
+                        type: array
+                        items:
+                          type: string
+                        description: Specific fields to return per hit.
+      responses:
+        '200':
+          description: Search response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+              examples:
+                Default:
+                  value:
+                    value:
+                      - searchTerms:
+                          - "product"
+                          - "roadmap"
+                        hitsContainers:
+                          - total: 2
+                            moreResultsAvailable: false
+                            hits:
+                              - hitId: "01ABCDEF12345678"
+                                rank: 1
+                                summary: "Q2 2025 product roadmap with milestone timelines and feature prioritization…"
+                                resource:
+                                  id: "01ABCDEF12345678"
+                                  name: "Product-Roadmap-Q2.pptx"
+                                  size: 4194304
+                                  webUrl: "https://onedrive.live.com/redir?resid=01ABCDEF12345678"
+                                  file:
+                                    mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                              - hitId: "01XYZABC98765432"
+                                rank: 2
+                                summary: "Q1 2025 product strategy and competitive landscape overview…"
+                                resource:
+                                  id: "01XYZABC98765432"
+                                  name: "Product-Roadmap-Q1.pptx"
+                                  size: 3670016
+                                  webUrl: "https://onedrive.live.com/redir?resid=01XYZABC98765432"
+                                  file:
+                                    mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+# ════════════════════════════════════════════════
+#  COMPONENTS
+# ════════════════════════════════════════════════
+
+components:
+
+  # ── Security Schemes ──────────────────────────
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: >
+        Microsoft Identity Platform (Azure AD) OAuth 2.0.
+        Common delegated scopes: Files.Read, Files.ReadWrite,
+        Files.Read.All, Files.ReadWrite.All, Sites.Read.All.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+          tokenUrl: https://login.microsoftonline.com/common/oauth2/v2.0/token
+          scopes:
+            Files.Read: Read user files
+            Files.ReadWrite: Read and write user files
+            Files.Read.All: Read all files the user can access
+            Files.ReadWrite.All: Read and write all files the user can access
+            Sites.Read.All: Read SharePoint sites
+
+  # ── Parameters ────────────────────────────────
+  parameters:
+    ParentId:
+      name: parent-id
+      in: path
+      required: true
+      description: Unique ID of the parent folder.
+      schema:
+        type: string
+
+    Filename:
+      name: filename
+      in: path
+      required: true
+      description: Desired file name including extension.
+      schema:
+        type: string
+      example: Keynote-Deck.pptx
+
+    ItemId:
+      name: item-id
+      in: path
+      required: true
+      description: Unique ID of the drive item.
+      schema:
+        type: string
+
+    PermissionId:
+      name: permission-id
+      in: path
+      required: true
+      description: Unique ID of the permission entry.
+      schema:
+        type: string
+
+  # ── Reusable Responses ────────────────────────
+  responses:
+    Unauthorized:
+      description: Authentication required or token expired.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ODataError'
+          examples:
+            Unauthorized:
+              value:
+                error:
+                  code: "unauthenticated"
+                  message: "Access token is missing, expired, or invalid."
+                  innerError:
+                    request-id: "00000000-0000-0000-0000-000000000001"
+                    date: "2025-06-15T12:00:00Z"
+
+    Forbidden:
+      description: Insufficient permissions.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ODataError'
+          examples:
+            Forbidden:
+              value:
+                error:
+                  code: "accessDenied"
+                  message: "The caller does not have permission to perform the action."
+                  innerError:
+                    request-id: "00000000-0000-0000-0000-000000000002"
+                    date: "2025-06-15T12:00:01Z"
+
+    NotFound:
+      description: The specified item was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ODataError'
+          examples:
+            NotFound:
+              value:
+                error:
+                  code: "itemNotFound"
+                  message: "The resource could not be found."
+                  innerError:
+                    request-id: "00000000-0000-0000-0000-000000000003"
+                    date: "2025-06-15T12:00:02Z"
+
+  # ── Schemas ───────────────────────────────────
+  schemas:
+
+    DriveItem:
+      type: object
+      description: Represents a file, folder, or other item stored in a drive.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the item within the drive.
+        name:
+          type: string
+          example: Keynote-Deck.pptx
+        description:
+          type: string
+        size:
+          type: integer
+          format: int64
+          description: Size of the item in bytes.
+        webUrl:
+          type: string
+          format: uri
+        createdDateTime:
+          type: string
+          format: date-time
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+        createdBy:
+          $ref: '#/components/schemas/IdentitySet'
+        lastModifiedBy:
+          $ref: '#/components/schemas/IdentitySet'
+        parentReference:
+          $ref: '#/components/schemas/ItemReference'
+        file:
+          type: object
+          description: Present when the item is a file.
+          properties:
+            mimeType:
+              type: string
+              example: application/vnd.openxmlformats-officedocument.presentationml.presentation
+            hashes:
+              type: object
+              properties:
+                sha1Hash:
+                  type: string
+                sha256Hash:
+                  type: string
+                quickXorHash:
+                  type: string
+        folder:
+          type: object
+          description: Present when the item is a folder.
+          properties:
+            childCount:
+              type: integer
+        "@microsoft.graph.downloadUrl":
+          type: string
+          format: uri
+          description: Pre-authenticated short-lived URL for downloading the file content.
+
+    DriveItemCollection:
+      type: object
+      description: A collection of DriveItem resources.
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/DriveItem'
+
+    ItemReference:
+      type: object
+      properties:
+        driveId:
+          type: string
+        driveType:
+          type: string
+          enum: [personal, business, documentLibrary]
+        id:
+          type: string
+        path:
+          type: string
+        siteId:
+          type: string
+
+    IdentitySet:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            displayName:
+              type: string
+            email:
+              type: string
+              format: email
+        application:
+          type: object
+          properties:
+            id:
+              type: string
+            displayName:
+              type: string
+
+    Permission:
+      type: object
+      properties:
+        id:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+            enum: [read, write, owner]
+        grantedTo:
+          $ref: '#/components/schemas/IdentitySet'
+        grantedToV2:
+          type: object
+          properties:
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                displayName:
+                  type: string
+        inheritedFrom:
+          $ref: '#/components/schemas/ItemReference'
+        link:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [view, edit, embed]
+            scope:
+              type: string
+              enum: [anonymous, organization, users]
+            webUrl:
+              type: string
+              format: uri
+            preventsDownload:
+              type: boolean
+        shareId:
+          type: string
+        expirationDateTime:
+          type: string
+          format: date-time
+        hasPassword:
+          type: boolean
+
+    PermissionCollection:
+      type: object
+      description: A collection of Permission resources.
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+
+    UploadSession:
+      type: object
+      properties:
+        uploadUrl:
+          type: string
+          format: uri
+          description: >
+            Pre-authenticated URL to which byte-range PUT requests should be
+            sent. Valid for a limited time.
+        expirationDateTime:
+          type: string
+          format: date-time
+        nextExpectedRanges:
+          type: array
+          items:
+            type: string
+          description: >
+            Byte ranges the server still expects,
+            e.g. ["12345-55232", "77829-99999"].
+
+    SearchResponse:
+      type: object
+      description: Response from the Microsoft Search API.
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResultSet'
+
+    SearchResultSet:
+      type: object
+      properties:
+        searchTerms:
+          type: array
+          items:
+            type: string
+        hitsContainers:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHitsContainer'
+
+    SearchHitsContainer:
+      type: object
+      properties:
+        total:
+          type: integer
+        moreResultsAvailable:
+          type: boolean
+        hits:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHit'
+
+    SearchHit:
+      type: object
+      properties:
+        hitId:
+          type: string
+        rank:
+          type: integer
+        summary:
+          type: string
+        resource:
+          $ref: '#/components/schemas/DriveItem'
+
+    ODataError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: itemNotFound
+            message:
+              type: string
+              example: The resource could not be found.
+            innerError:
+              type: object
+              properties:
+                request-id:
+                  type: string
+                date:
+                  type: string
+                  format: date-time

@@ -1,0 +1,695 @@
+openapi: 3.1.0
+info:
+  title: slack-oauth-api
+  version: 1.0.0
+  description: >-
+    The Slack OAuth API implements the OAuth 2.0 flow that lets developers
+    securely install Slack apps to workspaces and obtain access tokens with
+    specific, granular scopes. An app redirects a user to Slack for consent;
+    after approval, Slack returns an authorization code that the app exchanges
+    for tokens (typically a bot token, and optionally a user token) to call the
+    Web API within the granted permissions. The OAuth system manages scopes,
+    workspace and enterprise installations, admin approvals, reauthorization
+    when scopes change, token rotation with refresh tokens, and revocation when
+    apps are uninstalled or access is removed. For user sign-in, Slack also
+    offers an OpenID Connect-based flow. In short, it provides consent-driven
+    installation, permissioning, and token lifecycle management for Slack apps.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-oauth-api/1.0.0
+    description: Sandbox
+tags:
+  - name: OAuth Legacy
+    description: Legacy OAuth 1.0 token exchange operations
+  - name: OAuth V2
+    description: OAuth 2.0 token exchange operations
+paths:
+  /oauth.access:
+    get:
+      operationId: getOAuthAccess
+      summary: Exchange OAuth Code For Access Token
+      description: >-
+        Exchanges a temporary OAuth verifier code for an access token. This is a
+        legacy endpoint for older Slack apps.
+      tags:
+        - OAuth Legacy
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/oauth.access
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParameter'
+        - $ref: '#/components/parameters/ClientSecretParameter'
+        - $ref: '#/components/parameters/CodeParameter'
+        - $ref: '#/components/parameters/RedirectUriParameter'
+        - $ref: '#/components/parameters/SingleChannelParameter'
+      responses:
+        '200':
+          description: Successful user token negotiation for a single scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthAccessSuccessResponse'
+              examples:
+                SuccessfulTokenExample:
+                  $ref: '#/components/examples/OAuthAccessSuccessExample'
+        '400':
+          description: Bad request due to invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErrorResponse'
+              examples:
+                InvalidCodeExample:
+                  $ref: '#/components/examples/InvalidCodeErrorExample'
+        '401':
+          description: Authentication error due to invalid client credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErrorResponse'
+              examples:
+                InvalidClientIdExample:
+                  $ref: '#/components/examples/InvalidClientIdErrorExample'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErrorResponse'
+              examples:
+                GenericErrorExample:
+                  $ref: '#/components/examples/GenericOAuthErrorExample'
+      security:
+        - SlackAuth:
+            - none
+  /oauth.token:
+    get:
+      operationId: getOAuthToken
+      summary: Exchange OAuth Code For Workspace Token
+      description: >-
+        Exchanges a temporary OAuth verifier code for a workspace token. Used
+        specifically for legacy workspace apps.
+      tags:
+        - OAuth Legacy
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/oauth.token
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParameter'
+        - $ref: '#/components/parameters/ClientSecretParameter'
+        - $ref: '#/components/parameters/CodeParameter'
+        - $ref: '#/components/parameters/RedirectUriParameter'
+        - $ref: '#/components/parameters/SingleChannelParameter'
+      responses:
+        '200':
+          description: Successful workspace token exchange
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthTokenSuccessResponse'
+              examples:
+                SuccessfulWorkspaceTokenExample:
+                  $ref: '#/components/examples/OAuthTokenSuccessExample'
+        '400':
+          description: Bad request due to invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErrorResponse'
+              examples:
+                InvalidCodeExample:
+                  $ref: '#/components/examples/InvalidCodeErrorExample'
+        '401':
+          description: Authentication error due to invalid client credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErrorResponse'
+              examples:
+                InvalidClientIdExample:
+                  $ref: '#/components/examples/InvalidClientIdErrorExample'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErrorResponse'
+              examples:
+                GenericErrorExample:
+                  $ref: '#/components/examples/GenericOAuthErrorExample'
+      security:
+        - SlackAuth:
+            - none
+  /oauth.v2.access:
+    get:
+      operationId: getOAuthV2Access
+      summary: Exchange OAuth 2.0 Code For Access Token
+      description: >-
+        Exchanges a temporary OAuth verifier code for an access token using the
+        modern OAuth 2.0 flow. This is the recommended endpoint for new Slack
+        apps and supports both bot and user tokens.
+      tags:
+        - OAuth V2
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/oauth.v2.access
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParameter'
+        - $ref: '#/components/parameters/ClientSecretParameter'
+        - $ref: '#/components/parameters/CodeRequiredParameter'
+        - $ref: '#/components/parameters/RedirectUriParameter'
+      responses:
+        '200':
+          description: Successful token request with scopes for both bot and user tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthV2AccessSuccessResponse'
+              examples:
+                SuccessfulV2TokenExample:
+                  $ref: '#/components/examples/OAuthV2AccessSuccessExample'
+        '400':
+          description: Bad request due to invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErrorResponse'
+              examples:
+                InvalidCodeExample:
+                  $ref: '#/components/examples/InvalidCodeErrorExample'
+        '401':
+          description: Authentication error due to invalid client credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErrorResponse'
+              examples:
+                InvalidClientIdExample:
+                  $ref: '#/components/examples/InvalidClientIdErrorExample'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthErrorResponse'
+              examples:
+                GenericErrorExample:
+                  $ref: '#/components/examples/GenericOAuthErrorExample'
+      security:
+        - SlackAuth:
+            - none
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      description: Slack OAuth 2.0 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            none: No specific scope required for token exchange
+  parameters:
+    ClientIdParameter:
+      name: client_id
+      in: query
+      description: Issued when you created your application
+      required: false
+      schema:
+        $ref: '#/components/schemas/ClientId'
+      example: '1234567890.1234567890'
+    ClientSecretParameter:
+      name: client_secret
+      in: query
+      description: Issued when you created your application
+      required: false
+      schema:
+        $ref: '#/components/schemas/ClientSecret'
+      example: abcdef1234567890abcdef1234567890
+    CodeParameter:
+      name: code
+      in: query
+      description: The `code` param returned via the OAuth callback
+      required: false
+      schema:
+        $ref: '#/components/schemas/AuthorizationCode'
+      example: 1234567890.abcdef1234567890
+    CodeRequiredParameter:
+      name: code
+      in: query
+      description: The `code` param returned via the OAuth callback
+      required: true
+      schema:
+        $ref: '#/components/schemas/AuthorizationCode'
+      example: 1234567890.abcdef1234567890
+    RedirectUriParameter:
+      name: redirect_uri
+      in: query
+      description: This must match the originally submitted URI (if one was sent)
+      required: false
+      schema:
+        $ref: '#/components/schemas/RedirectUri'
+      example: https://example.com/oauth/callback
+    SingleChannelParameter:
+      name: single_channel
+      in: query
+      description: >-
+        Request the user to add your app only to a single channel. Only valid
+        with legacy workspace apps.
+      required: false
+      schema:
+        type: boolean
+        default: false
+      example: false
+  schemas:
+    ClientId:
+      type: string
+      description: OAuth client identifier issued when the application was created
+      pattern: ^[0-9]+\.[0-9]+$
+      example: '1234567890.1234567890'
+    ClientSecret:
+      type: string
+      description: OAuth client secret issued when the application was created
+      example: abcdef1234567890abcdef1234567890
+    AuthorizationCode:
+      type: string
+      description: Temporary authorization code received from OAuth callback
+      example: 1234567890.abcdef1234567890
+    RedirectUri:
+      type: string
+      format: uri
+      description: OAuth redirect URI registered with the application
+      example: https://example.com/oauth/callback
+    AccessToken:
+      type: string
+      description: OAuth access token for API calls
+      pattern: ^xox[pboa]-[0-9a-zA-Z-]+$
+      example: example-key1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+    TeamId:
+      type: string
+      description: Slack team/workspace identifier
+      pattern: ^T[A-Z0-9]+$
+      example: T9TK3CUKW
+    TeamName:
+      type: string
+      description: Human-readable team/workspace name
+      example: Slack Softball Team
+    AppId:
+      type: string
+      description: Slack application identifier
+      pattern: ^A[A-Z0-9]+$
+      example: A0KRD7HC3
+    UserId:
+      type: string
+      description: Slack user identifier
+      pattern: ^U[A-Z0-9]+$
+      example: U0KRQLJ9H
+    ChannelId:
+      type: string
+      description: Slack channel identifier
+      pattern: ^C[A-Z0-9]+$
+      example: C061EG9T2
+    EnterpriseId:
+      type: string
+      description: Enterprise Grid organization identifier
+      pattern: ^E[A-Z0-9]+$
+      example: E12345678
+    Scope:
+      type: string
+      description: OAuth scope string (comma-separated for multiple scopes)
+      example: commands,incoming-webhook
+    TokenType:
+      type: string
+      description: Type of token issued
+      enum:
+        - bot
+        - user
+        - app
+      example: bot
+    OkTrue:
+      type: boolean
+      description: Indicates successful operation
+      const: true
+      example: true
+    OkFalse:
+      type: boolean
+      description: Indicates failed operation
+      const: false
+      example: false
+    OAuthErrorCode:
+      type: string
+      description: Error code indicating the type of OAuth failure
+      enum:
+        - invalid_client_id
+        - invalid_client_secret
+        - invalid_code
+        - bad_redirect_uri
+        - code_already_used
+        - oauth_authorization_url_mismatch
+        - invalid_grant
+        - access_denied
+        - preview_feature_not_available
+        - no_permission
+        - invalid_auth
+        - account_inactive
+        - token_revoked
+        - team_added_to_org
+        - fatal_error
+      example: invalid_client_id
+    TeamInfo:
+      type: object
+      description: Information about the workspace/team
+      required:
+        - id
+        - name
+      properties:
+        id:
+          $ref: '#/components/schemas/TeamId'
+        name:
+          $ref: '#/components/schemas/TeamName'
+      example:
+        id: T9TK3CUKW
+        name: Slack Softball Team
+    EnterpriseInfo:
+      type: object
+      description: Information about the Enterprise Grid organization
+      required:
+        - id
+        - name
+      properties:
+        id:
+          $ref: '#/components/schemas/EnterpriseId'
+        name:
+          type: string
+          description: Enterprise organization name
+      example:
+        id: E12345678
+        name: slack-sports
+    AuthedUser:
+      type: object
+      description: Information about the authenticated user and their token
+      required:
+        - id
+      properties:
+        id:
+          $ref: '#/components/schemas/UserId'
+        scope:
+          $ref: '#/components/schemas/Scope'
+        access_token:
+          $ref: '#/components/schemas/AccessToken'
+        token_type:
+          $ref: '#/components/schemas/TokenType'
+      example:
+        id: U1234
+        scope: chat:write
+        access_token: example-key1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+        token_type: user
+    ChannelPermission:
+      type: object
+      description: Permission granted for a specific channel resource
+      required:
+        - resource_id
+        - resource_type
+        - scopes
+      properties:
+        resource_id:
+          oneOf:
+            - type: integer
+            - $ref: '#/components/schemas/ChannelId'
+          description: Resource identifier (0 for all channels, or specific channel ID)
+        resource_type:
+          type: string
+          description: Type of resource
+          enum:
+            - channel
+            - app_home
+            - team
+        scopes:
+          type: array
+          description: List of scopes granted for this resource
+          items:
+            type: string
+      example:
+        resource_id: 0
+        resource_type: channel
+        scopes:
+          - channels:read
+          - chat:write:user
+    OAuthAccessSuccessResponse:
+      type: object
+      description: Successful response from oauth.access endpoint
+      required:
+        - ok
+        - access_token
+        - scope
+        - team_id
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        access_token:
+          $ref: '#/components/schemas/AccessToken'
+        scope:
+          $ref: '#/components/schemas/Scope'
+        team_id:
+          $ref: '#/components/schemas/TeamId'
+        team_name:
+          $ref: '#/components/schemas/TeamName'
+        enterprise_id:
+          oneOf:
+            - $ref: '#/components/schemas/EnterpriseId'
+            - type: 'null'
+          description: Enterprise ID if workspace is part of Enterprise Grid
+      additionalProperties: false
+      example:
+        ok: true
+        access_token: example-key1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+        scope: groups:write
+        team_id: TXXXXXXXXX
+        team_name: Wyld Stallyns LLC
+        enterprise_id: null
+    OAuthTokenSuccessResponse:
+      type: object
+      description: Successful response from oauth.token endpoint for workspace apps
+      required:
+        - ok
+        - access_token
+        - token_type
+        - app_id
+        - team_id
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        access_token:
+          $ref: '#/components/schemas/AccessToken'
+        token_type:
+          $ref: '#/components/schemas/TokenType'
+        app_id:
+          $ref: '#/components/schemas/AppId'
+        app_user_id:
+          $ref: '#/components/schemas/UserId'
+        team_id:
+          $ref: '#/components/schemas/TeamId'
+        team_name:
+          $ref: '#/components/schemas/TeamName'
+        authorizing_user_id:
+          $ref: '#/components/schemas/UserId'
+        installer_user_id:
+          $ref: '#/components/schemas/UserId'
+        permissions:
+          type: array
+          description: List of channel-specific permissions granted
+          items:
+            $ref: '#/components/schemas/ChannelPermission'
+        single_channel_id:
+          $ref: '#/components/schemas/ChannelId'
+      additionalProperties: false
+      example:
+        ok: true
+        access_token: xoxa-1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+        token_type: app
+        app_id: A012345678
+        app_user_id: U0AB12ABC
+        team_id: T061EG9Z9
+        team_name: Subarachnoid Workspace
+        authorizing_user_id: U0HTT3Q0G
+        installer_user_id: U061F7AUR
+        permissions:
+          - resource_id: 0
+            resource_type: channel
+            scopes:
+              - channels:read
+              - chat:write:user
+        single_channel_id: C061EG9T2
+    OAuthV2AccessSuccessResponse:
+      type: object
+      description: Successful response from oauth.v2.access endpoint
+      required:
+        - ok
+        - access_token
+        - token_type
+        - scope
+        - app_id
+        - team
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        access_token:
+          $ref: '#/components/schemas/AccessToken'
+        token_type:
+          $ref: '#/components/schemas/TokenType'
+        scope:
+          $ref: '#/components/schemas/Scope'
+        bot_user_id:
+          $ref: '#/components/schemas/UserId'
+        app_id:
+          $ref: '#/components/schemas/AppId'
+        team:
+          $ref: '#/components/schemas/TeamInfo'
+        enterprise:
+          oneOf:
+            - $ref: '#/components/schemas/EnterpriseInfo'
+            - type: 'null'
+          description: Enterprise info if workspace is part of Enterprise Grid
+        authed_user:
+          $ref: '#/components/schemas/AuthedUser'
+      additionalProperties: false
+      example:
+        ok: true
+        access_token: example-key1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+        token_type: bot
+        scope: commands,incoming-webhook
+        bot_user_id: U0KRQLJ9H
+        app_id: A0KRD7HC3
+        team:
+          id: T9TK3CUKW
+          name: Slack Softball Team
+        enterprise:
+          id: E12345678
+          name: slack-sports
+        authed_user:
+          id: U1234
+          scope: chat:write
+          access_token: example-key1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+          token_type: user
+    OAuthErrorResponse:
+      type: object
+      description: Error response from OAuth endpoints
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          $ref: '#/components/schemas/OAuthErrorCode'
+      additionalProperties: false
+      example:
+        ok: false
+        error: invalid_client_id
+  examples:
+    OAuthAccessSuccessExample:
+      summary: Successful legacy OAuth access token response
+      description: Example response when successfully exchanging code for access token
+      value:
+        ok: true
+        access_token: example-key1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+        scope: groups:write
+        team_id: TXXXXXXXXX
+        team_name: Wyld Stallyns LLC
+        enterprise_id: null
+    OAuthTokenSuccessExample:
+      summary: Successful workspace app token response
+      description: Example response for workspace app token exchange
+      value:
+        ok: true
+        access_token: xoxa-1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+        token_type: app
+        app_id: A012345678
+        app_user_id: U0AB12ABC
+        team_id: T061EG9Z9
+        team_name: Subarachnoid Workspace
+        authorizing_user_id: U0HTT3Q0G
+        installer_user_id: U061F7AUR
+        permissions:
+          - resource_id: 0
+            resource_type: channel
+            scopes:
+              - channels:read
+              - chat:write:user
+        single_channel_id: C061EG9T2
+    OAuthV2AccessSuccessExample:
+      summary: Successful OAuth 2.0 token response
+      description: Example response with both bot and user tokens
+      value:
+        ok: true
+        access_token: example-key1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+        token_type: bot
+        scope: commands,incoming-webhook
+        bot_user_id: U0KRQLJ9H
+        app_id: A0KRD7HC3
+        team:
+          id: T9TK3CUKW
+          name: Slack Softball Team
+        enterprise:
+          id: E12345678
+          name: slack-sports
+        authed_user:
+          id: U1234
+          scope: chat:write
+          access_token: example-key1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+          token_type: user
+    InvalidClientIdErrorExample:
+      summary: Invalid client ID error
+      description: Error when the client_id parameter is invalid or missing
+      value:
+        ok: false
+        error: invalid_client_id
+    InvalidClientSecretErrorExample:
+      summary: Invalid client secret error
+      description: Error when the client_secret parameter is invalid
+      value:
+        ok: false
+        error: invalid_client_secret
+    InvalidCodeErrorExample:
+      summary: Invalid authorization code error
+      description: Error when the authorization code is invalid or expired
+      value:
+        ok: false
+        error: invalid_code
+    CodeAlreadyUsedErrorExample:
+      summary: Code already used error
+      description: Error when the authorization code has already been exchanged
+      value:
+        ok: false
+        error: code_already_used
+    BadRedirectUriErrorExample:
+      summary: Bad redirect URI error
+      description: Error when the redirect_uri doesn't match the original
+      value:
+        ok: false
+        error: bad_redirect_uri
+    GenericOAuthErrorExample:
+      summary: Generic OAuth error
+      description: Generic error response for unexpected failures
+      value:
+        ok: false
+        error: fatal_error

@@ -1,0 +1,687 @@
+openapi: 3.1.0
+info:
+  title: zoom-report-api
+  description: >
+    The Zoom Report API provides endpoints for retrieving various usage and
+    activity reports 
+
+    for your Zoom account. This includes account-level reports, user-specific
+    reports, 
+
+    daily usage summaries, and audio/telephony usage reports.
+
+
+    These reports help administrators monitor meeting activity, track
+    participant engagement,
+
+    and analyze telephony usage across their organization.
+  contact:
+    name: Zoom Developers
+    url: https://zoom.us/developer
+    email: developer@zoom.us
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+externalDocs:
+  description: Zoom REST API Documentation
+  url: https://zoom.github.io/api
+servers:
+  - url: https://api.zoom.us/v1
+    description: Zoom API Production Server
+  - url: http://localhost:8080/rest/zoom-report-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Account Reports
+    description: Operations for retrieving account-level usage reports
+  - name: User Reports
+    description: Operations for retrieving user-specific meeting reports
+  - name: Audio Reports
+    description: Operations for retrieving telephony and audio usage reports
+security:
+  - api_key: []
+  - api_secret: []
+paths:
+  /report/getaccountreport:
+    post:
+      tags:
+        - Account Reports
+      summary: Get account report
+      description: |
+        Retrieves an account-level usage report for a specified date range.
+        The report includes total meetings, participants, and meeting minutes
+        aggregated across all users in the account.
+      operationId: getAccountReport
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "200"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountReportRequest'
+            examples:
+              AccountReportRequestExample:
+                $ref: '#/components/examples/AccountReportRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved account report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountReportResponse'
+              examples:
+                AccountReportResponseExample:
+                  $ref: '#/components/examples/AccountReportResponseExample'
+  /report/getaudioreport:
+    post:
+      tags:
+        - Audio Reports
+      summary: Get audio usage report
+      description: >
+        Retrieves telephony usage report for a specified date range.
+
+
+        **Note:** This API is only available for accounts with the 'Toll Report'
+        option enabled.
+
+
+        **Note:** Reports are limited to a maximum of one month. If the date
+        range exceeds 
+
+        one month, the 'from' date will be automatically adjusted.
+      operationId: getAudioReport
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "200"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AudioReportRequest'
+            examples:
+              AudioReportRequestExample:
+                $ref: '#/components/examples/AudioReportRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved audio usage report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AudioReportResponse'
+              examples:
+                AudioReportResponseExample:
+                  $ref: '#/components/examples/AudioReportResponseExample'
+  /report/getdailyreport:
+    post:
+      tags:
+        - Account Reports
+      summary: Get daily report
+      description: |
+        Retrieves a daily usage report for a specified month.
+
+        **Note:** Daily reports are only available for the most recent 3 months.
+      operationId: getDailyReport
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "200"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DailyReportRequest'
+            examples:
+              DailyReportRequestExample:
+                $ref: '#/components/examples/DailyReportRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved daily report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyReportResponse'
+              examples:
+                DailyReportResponseExample:
+                  $ref: '#/components/examples/DailyReportResponseExample'
+  /report/getuserreport:
+    post:
+      tags:
+        - User Reports
+      summary: Get user report
+      description: >
+        Retrieves a detailed meeting report for a specific user within a date
+        range.
+
+        The report includes information about each meeting hosted by the user,
+
+        including participant details and timing information.
+      operationId: getUserReport
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "200"
+          return result
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserReportRequest'
+            examples:
+              UserReportRequestExample:
+                $ref: '#/components/examples/UserReportRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved user report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserReportResponse'
+              examples:
+                UserReportResponseExample:
+                  $ref: '#/components/examples/UserReportResponseExample'
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: api_key
+      in: query
+    api_secret:
+      type: apiKey
+      name: api_secret
+      in: query
+  schemas:
+    AccountReportRequest:
+      type: object
+      required:
+        - from
+        - to
+      properties:
+        from:
+          type: string
+          description: Start date for the report period (YYYY-MM-DD format).
+          example: '2013-05-19'
+        to:
+          type: string
+          description: End date for the report period (YYYY-MM-DD format).
+          example: '2013-05-20'
+        page_size:
+          type: string
+          description: >-
+            Number of records to return per API call. Defaults to 30, maximum
+            300.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    AccountReportResponse:
+      type: object
+      properties:
+        page_count:
+          type: integer
+          description: Total number of pages available.
+          example: 1
+        page_number:
+          type: integer
+          description: Current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: Number of records per page.
+          example: 30
+        total_records:
+          type: integer
+          description: Total number of user records.
+          example: 5
+        from:
+          type: string
+          description: Report start date.
+          example: '2013-05-19'
+        to:
+          type: string
+          description: Report end date.
+          example: '2013-05-20'
+        total_meetings:
+          type: integer
+          description: Total number of meetings across all users.
+          example: 50
+        total_participants:
+          type: integer
+          description: Total number of participants across all meetings.
+          example: 100
+        total_meeting_minutes:
+          type: integer
+          description: Total meeting duration in minutes.
+          example: 100
+        users:
+          type: array
+          description: List of user usage summaries.
+          items:
+            $ref: '#/components/schemas/AccountReportUser'
+    AccountReportUser:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: Unique identifier for the user.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        email:
+          type: string
+          format: email
+          description: User's email address.
+          example: john@sample.com
+        type:
+          type: integer
+          description: User type (1=basic, 2=pro, 3=corp).
+          example: 2
+        meetings:
+          type: integer
+          description: Number of meetings hosted by this user.
+          example: 10
+        participants:
+          type: integer
+          description: Total participants in user's meetings.
+          example: 56
+        meeting_minutes:
+          type: integer
+          description: Total meeting duration in minutes.
+          example: 300
+        last_client_version:
+          type: string
+          description: Last Zoom client version used.
+          example: 1.0.18584.0225
+        last_login_time:
+          type: string
+          format: date-time
+          description: Last login timestamp.
+          example: '2013-02-11T08:18:09.000Z'
+    AudioReportRequest:
+      type: object
+      required:
+        - from
+        - to
+      properties:
+        from:
+          type: string
+          description: Start date for the report period.
+          example: '2016-01-08'
+        to:
+          type: string
+          description: End date for the report period.
+          example: '2016-01-21'
+        type:
+          type: string
+          description: 'Audio type: 1 = Toll-free Call-in & Call-out, 2 = Toll.'
+          default: '1'
+          example: '1'
+        page_size:
+          type: string
+          description: >-
+            Number of records to return per API call. Defaults to 30, maximum
+            300.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    AudioReportResponse:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+          description: Report start date.
+          example: '2016-01-08T00:00:00.000Z'
+        to:
+          type: string
+          format: date-time
+          description: Report end date.
+          example: '2016-01-21T00:00:00.000Z'
+        page_count:
+          type: integer
+          description: Total number of pages available.
+          example: 1
+        page_number:
+          type: integer
+          description: Current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: Number of records per page.
+          example: 30
+        total_records:
+          type: integer
+          description: Total number of telephony records.
+          example: 1
+        telephony_usage:
+          type: array
+          description: List of telephony usage records.
+          items:
+            $ref: '#/components/schemas/TelephonyUsage'
+    TelephonyUsage:
+      type: object
+      properties:
+        meeting_id:
+          type: integer
+          format: int64
+          description: Associated meeting ID.
+          example: 2932547621
+        phone_number:
+          type: string
+          description: Phone number used.
+          example: +86 8208
+        type:
+          type: string
+          description: Call type (call-in or call-out).
+          example: call-out
+        host_name:
+          type: string
+          description: Name of the meeting host.
+          example: test
+        host_email:
+          type: string
+          format: email
+          description: Email of the meeting host.
+          example: zoom.test@zoom.us
+        department:
+          type: string
+          description: Host's department.
+          example: ''
+        start_time:
+          type: string
+          format: date-time
+          description: Call start time.
+          example: '2016-01-12T02:25:34.000Z'
+        end_time:
+          type: string
+          format: date-time
+          description: Call end time.
+          example: '2016-01-12T02:26:48.000Z'
+        duration:
+          type: integer
+          description: Call duration in minutes.
+          example: 2
+        total:
+          type: number
+          format: double
+          description: Total cost.
+          example: 0.12
+    DailyReportRequest:
+      type: object
+      required:
+        - year
+        - month
+      properties:
+        year:
+          type: string
+          description: Year for the report (YYYY format).
+          example: '2013'
+        month:
+          type: string
+          description: Month for the report (1-12).
+          example: '5'
+    DailyReportResponse:
+      type: object
+      properties:
+        year:
+          type: integer
+          description: Report year.
+          example: 2013
+        month:
+          type: integer
+          description: Report month.
+          example: 5
+        dates:
+          type: array
+          description: Daily usage data for each day in the month.
+          items:
+            $ref: '#/components/schemas/DailyUsage'
+    DailyUsage:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: Date of the usage record.
+          example: '2013-05-01T00:00:00.000Z'
+        meetings:
+          type: integer
+          description: Number of meetings held on this date.
+          example: 0
+        new_user:
+          type: integer
+          description: Number of new users registered on this date.
+          example: 0
+        participants:
+          type: integer
+          description: Total participants on this date.
+          example: 0
+        meeting_minutes:
+          type: integer
+          description: Total meeting minutes on this date.
+          example: 0
+    UserReportRequest:
+      type: object
+      required:
+        - user_id
+        - from
+        - to
+      properties:
+        user_id:
+          type: string
+          description: The unique identifier of the user to generate the report for.
+          example: bNsPi5hCQ-qOzWn2EeCXJA
+        from:
+          type: string
+          description: Start date for the report period (YYYY-MM-DD format).
+          example: '2013-05-19'
+        to:
+          type: string
+          description: End date for the report period (YYYY-MM-DD format).
+          example: '2013-05-20'
+        page_size:
+          type: string
+          description: >-
+            Number of records to return per API call. Defaults to 30, maximum
+            300.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    UserReportResponse:
+      type: object
+      properties:
+        page_count:
+          type: integer
+          description: Total number of pages available.
+          example: 1
+        page_number:
+          type: integer
+          description: Current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: Number of records per page.
+          example: 30
+        total_records:
+          type: integer
+          description: Total number of meeting records.
+          example: 5
+        from:
+          type: string
+          description: Report start date.
+          example: '2013-05-19'
+        to:
+          type: string
+          description: Report end date.
+          example: '2013-05-20'
+        meetings:
+          type: array
+          description: List of meetings hosted by the user.
+          items:
+            $ref: '#/components/schemas/MeetingReport'
+    MeetingReport:
+      type: object
+      properties:
+        number:
+          type: integer
+          format: int64
+          description: Meeting number.
+          example: 111111111
+        topic:
+          type: string
+          description: Meeting topic.
+          example: Meeting Topic
+        start_time:
+          type: string
+          format: date-time
+          description: Meeting start time.
+          example: '2013-02-11T08:18:09.000Z'
+        end_time:
+          type: string
+          format: date-time
+          description: Meeting end time.
+          example: '2013-02-11T09:18:09.000Z'
+        duration:
+          type: integer
+          description: Meeting duration in minutes.
+          example: 60
+        participants:
+          type: array
+          description: List of meeting participants.
+          items:
+            $ref: '#/components/schemas/MeetingParticipant'
+    MeetingParticipant:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Participant name.
+          example: John
+        join_time:
+          type: string
+          format: date-time
+          description: Time the participant joined.
+          example: '2013-02-11T08:30:09.000Z'
+        leave_time:
+          type: string
+          format: date-time
+          description: Time the participant left.
+          example: '2013-02-11T08:50:09.000Z'
+  examples:
+    AccountReportRequestExample:
+      summary: Example account report request
+      value:
+        from: '2013-05-19'
+        to: '2013-05-20'
+        page_size: '30'
+        page_number: '1'
+    AccountReportResponseExample:
+      summary: Example account report response
+      value:
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 5
+        from: '2013-05-19'
+        to: '2013-05-20'
+        total_meetings: 50
+        total_participants: 100
+        total_meeting_minutes: 100
+        users:
+          - user_id: bNsPi5hCQ-qOzWn2EeCXJA
+            email: john@sample.com
+            type: 2
+            meetings: 10
+            participants: 56
+            meeting_minutes: 300
+            last_client_version: 1.0.18584.0225
+            last_login_time: '2013-02-11T08:18:09.000Z'
+    AudioReportRequestExample:
+      summary: Example audio report request
+      value:
+        from: '2016-01-08'
+        to: '2016-01-21'
+        type: '1'
+        page_size: '30'
+        page_number: '1'
+    AudioReportResponseExample:
+      summary: Example audio report response
+      value:
+        from: '2016-01-08T00:00:00.000Z'
+        to: '2016-01-21T00:00:00.000Z'
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 1
+        telephony_usage:
+          - meeting_id: 2932547621
+            phone_number: +86 8208
+            type: call-out
+            host_name: test
+            host_email: zoom.test@zoom.us
+            department: ''
+            start_time: '2016-01-12T02:25:34.000Z'
+            end_time: '2016-01-12T02:26:48.000Z'
+            duration: 2
+            total: 0.12
+    DailyReportRequestExample:
+      summary: Example daily report request
+      value:
+        year: '2013'
+        month: '5'
+    DailyReportResponseExample:
+      summary: Example daily report response
+      value:
+        year: 2013
+        month: 5
+        dates:
+          - date: '2013-05-01T00:00:00.000Z'
+            meetings: 0
+            new_user: 0
+            participants: 0
+            meeting_minutes: 0
+    UserReportRequestExample:
+      summary: Example user report request
+      value:
+        user_id: bNsPi5hCQ-qOzWn2EeCXJA
+        from: '2013-05-19'
+        to: '2013-05-20'
+        page_size: '30'
+        page_number: '1'
+    UserReportResponseExample:
+      summary: Example user report response
+      value:
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 5
+        from: '2013-05-19'
+        to: '2013-05-20'
+        meetings:
+          - number: 111111111
+            topic: Meeting Topic
+            start_time: '2013-02-11T08:18:09.000Z'
+            end_time: '2013-02-11T09:18:09.000Z'
+            duration: 60
+            participants:
+              - name: John
+                join_time: '2013-02-11T08:30:09.000Z'
+                leave_time: '2013-02-11T08:50:09.000Z'

@@ -1,0 +1,566 @@
+openapi: 3.1.0
+info:
+  title: slack-dialog-api
+  description: >-
+    Slack's Dialog API lets apps open form-like popups inside Slack to collect
+    structured  input from users. Apps trigger a dialog (often from a slash
+    command, message action,  or interactive message) by calling dialog.open
+    with a short-lived trigger_id, then  present fields like text inputs,
+    textareas, and select menus (including dynamic,  server-powered options).
+    When users submit or cancel, Slack sends a dialog_submission  or
+    dialog_cancellation payload to the app, which can validate inputs and send 
+    dialog_errors for inline feedback before completing the workflow. Dialogs
+    are ephemeral  to the user and well-suited for tasks like creating tickets,
+    requesting PTO, or  gathering parameters. Note: Slack now recommends using
+    Block Kit modals via the  Views API, which supersede legacy dialogs.
+  version: 1.0.0
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-dialog-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Dialogs
+    description: Operations for opening and managing dialogs with users
+paths:
+  /dialog.open:
+    get:
+      tags:
+        - Dialogs
+      summary: Open a dialog
+      description: Open a dialog with a user to collect structured input.
+      operationId: dialogOpen
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/dialog.open
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeaderRequired'
+        - $ref: '#/components/parameters/DialogDefinition'
+        - $ref: '#/components/parameters/TriggerId'
+      responses:
+        '200':
+          description: Successful response when dialog is opened
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DialogOpenErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/DialogOpenErrorResponseExample'
+      security:
+        - SlackAuth:
+            - none
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      description: Slack OAuth2 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            none: No specific scope required for dialog.open
+  parameters:
+    AuthTokenHeaderRequired:
+      name: token
+      in: header
+      description: 'Authentication token. Requires scope: `none`'
+      required: true
+      schema:
+        type: string
+      example: example-key1234567890-abcdefghijklmnop
+    DialogDefinition:
+      name: dialog
+      in: query
+      description: The dialog definition. This must be a JSON-encoded string.
+      required: true
+      schema:
+        type: string
+      example: >-
+        {"callback_id":"ticket-form","title":"Create
+        Ticket","submit_label":"Submit","elements":[{"type":"text","label":"Title","name":"title"},{"type":"textarea","label":"Description","name":"description"}]}
+    TriggerId:
+      name: trigger_id
+      in: query
+      description: >-
+        Exchange a trigger to post to the user. This is a short-lived token
+        received from user interactions.
+      required: true
+      schema:
+        type: string
+      example: 13345224609.738474920.8088930838d88f008e0
+  schemas:
+    OkTrue:
+      type: boolean
+      const: true
+      description: Indicates a successful operation
+    OkFalse:
+      type: boolean
+      const: false
+      description: Indicates a failed operation
+    DialogElement:
+      type: object
+      description: A dialog form element
+      properties:
+        Type:
+          type: string
+          description: The type of form element
+          enum:
+            - text
+            - textarea
+            - select
+          example: text
+        Label:
+          type: string
+          description: Label displayed to the user
+          example: Title
+        Name:
+          type: string
+          description: Name of the form field for submission
+          example: title
+        Placeholder:
+          type: string
+          description: Placeholder text shown in the input
+          example: Enter a title
+        Optional:
+          type: boolean
+          description: Whether the field is optional
+          example: false
+        MaxLength:
+          type: integer
+          description: Maximum character length for text inputs
+          example: 150
+        MinLength:
+          type: integer
+          description: Minimum character length for text inputs
+          example: 1
+        Hint:
+          type: string
+          description: Hint text shown below the input
+          example: Provide a descriptive title
+        Subtype:
+          type: string
+          description: Subtype for text inputs
+          enum:
+            - email
+            - number
+            - tel
+            - url
+          example: email
+        Value:
+          type: string
+          description: Default value for the field
+          example: ''
+        DataSource:
+          type: string
+          description: Data source for select menus
+          enum:
+            - users
+            - channels
+            - conversations
+            - external
+          example: users
+        Options:
+          type: array
+          description: Static options for select menus
+          items:
+            $ref: '#/components/schemas/DialogSelectOption'
+    DialogSelectOption:
+      type: object
+      description: An option for a select menu
+      properties:
+        Label:
+          type: string
+          description: Display text for the option
+          example: Option 1
+        Value:
+          type: string
+          description: Value submitted when selected
+          example: option_1
+    DialogDefinitionObject:
+      type: object
+      description: The dialog definition object
+      required:
+        - CallbackId
+        - Title
+        - Elements
+      properties:
+        CallbackId:
+          type: string
+          description: An identifier for the dialog, used in submissions
+          maxLength: 255
+          example: ticket-form
+        Title:
+          type: string
+          description: Title displayed at the top of the dialog
+          maxLength: 24
+          example: Create Ticket
+        SubmitLabel:
+          type: string
+          description: Label for the submit button
+          maxLength: 24
+          example: Submit
+        NotifyOnCancel:
+          type: boolean
+          description: Whether to send a dialog_cancellation payload on cancel
+          example: false
+        Elements:
+          type: array
+          description: Array of form elements (1-10 elements)
+          minItems: 1
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/DialogElement'
+    DialogSubmissionPayload:
+      type: object
+      description: Payload sent when user submits a dialog
+      properties:
+        Type:
+          type: string
+          const: dialog_submission
+          description: The type of payload
+        CallbackId:
+          type: string
+          description: The callback_id from the dialog definition
+          example: ticket-form
+        Submission:
+          type: object
+          description: Key-value pairs of submitted form data
+          additionalProperties:
+            type: string
+          example:
+            title: Bug Report
+            description: Found an issue with the login page
+        User:
+          type: object
+          description: User who submitted the dialog
+          properties:
+            Id:
+              type: string
+              example: U012A3CDE
+            Name:
+              type: string
+              example: johndoe
+        Channel:
+          type: object
+          description: Channel where the dialog was triggered
+          properties:
+            Id:
+              type: string
+              example: C012AB3CD
+            Name:
+              type: string
+              example: general
+        Team:
+          type: object
+          description: Team/workspace information
+          properties:
+            Id:
+              type: string
+              example: T012AB3CD
+            Domain:
+              type: string
+              example: myworkspace
+        ActionTs:
+          type: string
+          description: Timestamp of the action
+          example: '1593473566.000200'
+        Token:
+          type: string
+          description: Verification token (deprecated, use signed secrets)
+          example: abcdefghijklmnop
+        ResponseUrl:
+          type: string
+          format: uri
+          description: URL for sending follow-up messages
+          example: https://hooks.slack.com/app/T012AB3CD/123456789/abcdefghijklmnop
+    DialogCancellationPayload:
+      type: object
+      description: Payload sent when user cancels a dialog (if notify_on_cancel is true)
+      properties:
+        Type:
+          type: string
+          const: dialog_cancellation
+          description: The type of payload
+        CallbackId:
+          type: string
+          description: The callback_id from the dialog definition
+          example: ticket-form
+        User:
+          type: object
+          description: User who cancelled the dialog
+          properties:
+            Id:
+              type: string
+              example: U012A3CDE
+            Name:
+              type: string
+              example: johndoe
+        Channel:
+          type: object
+          description: Channel where the dialog was triggered
+          properties:
+            Id:
+              type: string
+              example: C012AB3CD
+            Name:
+              type: string
+              example: general
+        Team:
+          type: object
+          description: Team/workspace information
+          properties:
+            Id:
+              type: string
+              example: T012AB3CD
+            Domain:
+              type: string
+              example: myworkspace
+        ActionTs:
+          type: string
+          description: Timestamp of the action
+          example: '1593473566.000200'
+        Token:
+          type: string
+          description: Verification token (deprecated, use signed secrets)
+          example: abcdefghijklmnop
+    DialogErrorsResponse:
+      type: object
+      description: Response to return validation errors to the user
+      properties:
+        Errors:
+          type: array
+          description: Array of validation errors
+          items:
+            $ref: '#/components/schemas/DialogValidationError'
+    DialogValidationError:
+      type: object
+      description: A validation error for a specific field
+      required:
+        - Name
+        - Error
+      properties:
+        Name:
+          type: string
+          description: The name of the field with an error
+          example: title
+        Error:
+          type: string
+          description: Error message to display
+          example: Title cannot be empty
+    SuccessResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+      additionalProperties: false
+    DialogOpenErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          description: Error code
+          enum:
+            - validation_errors
+            - missing_trigger
+            - missing_dialog
+            - trigger_exchanged
+            - trigger_expired
+            - invalid_trigger
+            - app_missing_action_url
+            - cannot_create_dialog
+            - failed_sending_dialog
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+        response_metadata:
+          type: object
+          description: Additional error metadata
+          properties:
+            messages:
+              type: array
+              description: Detailed validation error messages
+              items:
+                type: string
+              example:
+                - '[ERROR] missing required field: title'
+      additionalProperties: false
+  examples:
+    DialogOpenRequestExample:
+      summary: Example parameters for opening a dialog
+      value:
+        token: example-key1234567890-abcdefghijklmnop
+        trigger_id: 13345224609.738474920.8088930838d88f008e0
+        dialog: >-
+          {"callback_id":"ticket-form","title":"Create
+          Ticket","submit_label":"Submit","elements":[{"type":"text","label":"Title","name":"title"},{"type":"textarea","label":"Description","name":"description"}]}
+    DialogDefinitionExample:
+      summary: Example dialog definition object
+      value:
+        CallbackId: ticket-form
+        Title: Create Ticket
+        SubmitLabel: Submit
+        NotifyOnCancel: false
+        Elements:
+          - Type: text
+            Label: Title
+            Name: title
+            Placeholder: Enter ticket title
+            Optional: false
+            MaxLength: 150
+          - Type: textarea
+            Label: Description
+            Name: description
+            Placeholder: Describe the issue
+            Optional: false
+            MaxLength: 3000
+          - Type: select
+            Label: Priority
+            Name: priority
+            Options:
+              - Label: Low
+                Value: low
+              - Label: Medium
+                Value: medium
+              - Label: High
+                Value: high
+    DialogWithSelectMenuExample:
+      summary: Example dialog with dynamic select menu
+      value:
+        CallbackId: assign-task
+        Title: Assign Task
+        SubmitLabel: Assign
+        Elements:
+          - Type: text
+            Label: Task Name
+            Name: task_name
+          - Type: select
+            Label: Assignee
+            Name: assignee
+            DataSource: users
+          - Type: select
+            Label: Channel
+            Name: channel
+            DataSource: conversations
+    SuccessResponseExample:
+      summary: Example of a successful response
+      value:
+        ok: true
+    DialogOpenErrorResponseExample:
+      summary: Example error response when trigger is missing
+      value:
+        ok: false
+        error: missing_trigger
+    DialogOpenValidationErrorResponseExample:
+      summary: Example error response with validation errors
+      value:
+        ok: false
+        error: validation_errors
+        response_metadata:
+          messages:
+            - '[ERROR] missing required field: title'
+            - '[ERROR] failed to match all allowed schemas for field: elements'
+    DialogOpenTriggerExpiredErrorResponseExample:
+      summary: Example error response when trigger has expired
+      value:
+        ok: false
+        error: trigger_expired
+    DialogOpenTriggerExchangedErrorResponseExample:
+      summary: Example error response when trigger was already used
+      value:
+        ok: false
+        error: trigger_exchanged
+    DialogSubmissionPayloadExample:
+      summary: Example dialog submission payload received by your app
+      value:
+        Type: dialog_submission
+        CallbackId: ticket-form
+        Submission:
+          title: Bug Report
+          description: Found an issue with the login page
+          priority: high
+        User:
+          Id: U012A3CDE
+          Name: johndoe
+        Channel:
+          Id: C012AB3CD
+          Name: general
+        Team:
+          Id: T012AB3CD
+          Domain: myworkspace
+        ActionTs: '1593473566.000200'
+        Token: abcdefghijklmnop
+        ResponseUrl: https://hooks.slack.com/app/T012AB3CD/123456789/abcdefghijklmnop
+    DialogCancellationPayloadExample:
+      summary: Example dialog cancellation payload received by your app
+      value:
+        Type: dialog_cancellation
+        CallbackId: ticket-form
+        User:
+          Id: U012A3CDE
+          Name: johndoe
+        Channel:
+          Id: C012AB3CD
+          Name: general
+        Team:
+          Id: T012AB3CD
+          Domain: myworkspace
+        ActionTs: '1593473566.000200'
+        Token: abcdefghijklmnop
+    DialogErrorsResponseExample:
+      summary: Example response to return validation errors to user
+      value:
+        Errors:
+          - Name: title
+            Error: Title cannot be empty
+          - Name: description
+            Error: Description must be at least 10 characters

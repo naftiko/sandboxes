@@ -1,0 +1,583 @@
+openapi: 3.1.0
+info:
+  title: openai-chat-completions-api
+  description: >
+    The OpenAI Chat Completions API enables conversational AI by processing a
+    list of messages 
+
+    comprising a conversation and returning a model-generated response. Supports
+    various features 
+
+    including streaming, function calling, vision (image input), and JSON mode.
+  version: 2.0.0
+  termsOfService: https://openai.com/policies/terms-of-use
+  contact:
+    name: OpenAI Support
+    url: https://help.openai.com/
+  license:
+    name: MIT
+    url: https://github.com/openai/openai-openapi/blob/master/LICENSE
+servers:
+  - url: https://api.openai.com/v1
+    description: OpenAI API Production Server
+  - url: http://localhost:8080/rest/openai-chat-completions-api/2.0.0
+    description: Sandbox
+tags:
+  - name: Chat Completions
+    description: >-
+      Generate model responses for conversational messages with support for
+      streaming, function calling, and vision.
+paths:
+  /chat/completions:
+    post:
+      operationId: createChatCompletion
+      tags:
+        - Chat Completions
+      summary: Create a chat completion
+      description: >-
+        Creates a model response for the given chat conversation. Supports
+        streaming, function/tool calling, image inputs, and various response
+        formats including JSON mode.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatCompletionRequest'
+            examples:
+              BasicChatRequestExample:
+                $ref: '#/components/examples/BasicChatRequestExample'
+              FunctionCallingRequestExample:
+                $ref: '#/components/examples/FunctionCallingRequestExample'
+      responses:
+        '200':
+          description: >-
+            A chat completion response object, or a streamed sequence of chat
+            completion chunk objects if streaming is enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateChatCompletionResponse'
+              examples:
+                BasicChatResponseExample:
+                  $ref: '#/components/examples/BasicChatResponseExample'
+                FunctionCallingResponseExample:
+                  $ref: '#/components/examples/FunctionCallingResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.tools != null && requestBody.tools.size() > 0) {
+            return "FunctionCallingResponseExample"
+          }
+
+          return "BasicChatResponseExample"
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+  schemas:
+    CreateChatCompletionRequest:
+      type: object
+      description: Request body for creating a chat completion.
+      properties:
+        model:
+          type: string
+          description: >-
+            ID of the model to use. See the model endpoint compatibility table
+            for details on which models work with the Chat API.
+        messages:
+          type: array
+          description: A list of messages comprising the conversation so far.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ChatCompletionRequestMessage'
+        frequency_penalty:
+          type: number
+          default: 0
+          minimum: -2
+          maximum: 2
+          description: >-
+            Number between -2.0 and 2.0. Positive values penalize new tokens
+            based on their existing frequency in the text so far.
+        logit_bias:
+          type: object
+          nullable: true
+          description: >-
+            Modify the likelihood of specified tokens appearing in the
+            completion.
+          additionalProperties:
+            type: integer
+        logprobs:
+          type: boolean
+          default: false
+          description: Whether to return log probabilities of the output tokens.
+        top_logprobs:
+          type: integer
+          minimum: 0
+          maximum: 20
+          description: >-
+            An integer between 0 and 20 specifying the number of most likely
+            tokens to return at each token position.
+        max_tokens:
+          type: integer
+          nullable: true
+          description: The maximum number of tokens to generate in the chat completion.
+        'n':
+          type: integer
+          default: 1
+          minimum: 1
+          maximum: 128
+          description: How many chat completion choices to generate for each input message.
+        presence_penalty:
+          type: number
+          default: 0
+          minimum: -2
+          maximum: 2
+          description: >-
+            Number between -2.0 and 2.0. Positive values penalize new tokens
+            based on whether they appear in the text so far.
+        response_format:
+          $ref: '#/components/schemas/ResponseFormat'
+        seed:
+          type: integer
+          nullable: true
+          description: >-
+            If specified, the system will make a best effort to sample
+            deterministically.
+        stop:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 4
+          nullable: true
+          description: Up to 4 sequences where the API will stop generating further tokens.
+        stream:
+          type: boolean
+          default: false
+          description: >-
+            If set, partial message deltas will be sent as data-only server-sent
+            events.
+        temperature:
+          type: number
+          default: 1
+          minimum: 0
+          maximum: 2
+          description: What sampling temperature to use, between 0 and 2.
+        top_p:
+          type: number
+          default: 1
+          minimum: 0
+          maximum: 1
+          description: >-
+            An alternative to sampling with temperature, called nucleus
+            sampling.
+        tools:
+          type: array
+          description: A list of tools the model may call.
+          items:
+            $ref: '#/components/schemas/ChatCompletionTool'
+        tool_choice:
+          oneOf:
+            - type: string
+              enum:
+                - none
+                - auto
+            - $ref: '#/components/schemas/ChatCompletionNamedToolChoice'
+          description: Controls which (if any) function is called by the model.
+        user:
+          type: string
+          description: A unique identifier representing your end-user.
+      required:
+        - model
+        - messages
+    ChatCompletionRequestMessage:
+      type: object
+      description: A message in the chat conversation.
+      properties:
+        role:
+          type: string
+          description: The role of the message author.
+          enum:
+            - system
+            - user
+            - assistant
+            - tool
+        content:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                $ref: '#/components/schemas/ChatCompletionContentPart'
+          description: The contents of the message.
+        name:
+          type: string
+          description: An optional name for the participant.
+        tool_calls:
+          type: array
+          description: The tool calls generated by the model.
+          items:
+            $ref: '#/components/schemas/ChatCompletionMessageToolCall'
+        tool_call_id:
+          type: string
+          description: Tool call that this message is responding to.
+      required:
+        - role
+    ChatCompletionContentPart:
+      type: object
+      description: A content part in a message, can be text or image.
+      properties:
+        type:
+          type: string
+          description: The type of content part.
+          enum:
+            - text
+            - image_url
+        text:
+          type: string
+          description: The text content.
+        image_url:
+          type: object
+          description: The image URL content.
+          properties:
+            url:
+              type: string
+              description: Either a URL of the image or the base64 encoded image data.
+            detail:
+              type: string
+              enum:
+                - auto
+                - low
+                - high
+              default: auto
+              description: Specifies the detail level of the image.
+    ChatCompletionTool:
+      type: object
+      description: A tool that the model may call.
+      properties:
+        type:
+          type: string
+          description: The type of the tool. Currently, only function is supported.
+          enum:
+            - function
+        function:
+          $ref: '#/components/schemas/FunctionDefinition'
+      required:
+        - type
+        - function
+    FunctionDefinition:
+      type: object
+      description: The function definition for a tool.
+      properties:
+        name:
+          type: string
+          description: The name of the function to be called.
+        description:
+          type: string
+          description: A description of what the function does.
+        parameters:
+          type: object
+          description: >-
+            The parameters the function accepts, described as a JSON Schema
+            object.
+          additionalProperties: true
+      required:
+        - name
+    ChatCompletionNamedToolChoice:
+      type: object
+      description: Specifies a tool the model should use.
+      properties:
+        type:
+          type: string
+          enum:
+            - function
+        function:
+          type: object
+          properties:
+            name:
+              type: string
+              description: The name of the function to call.
+          required:
+            - name
+      required:
+        - type
+        - function
+    ChatCompletionMessageToolCall:
+      type: object
+      description: A tool call generated by the model.
+      properties:
+        id:
+          type: string
+          description: The ID of the tool call.
+        type:
+          type: string
+          description: The type of the tool.
+          enum:
+            - function
+        function:
+          type: object
+          description: The function that the model called.
+          properties:
+            name:
+              type: string
+              description: The name of the function to call.
+            arguments:
+              type: string
+              description: The arguments to call the function with, as a JSON string.
+          required:
+            - name
+            - arguments
+      required:
+        - id
+        - type
+        - function
+    ResponseFormat:
+      type: object
+      description: An object specifying the format that the model must output.
+      properties:
+        type:
+          type: string
+          description: The type of response format.
+          enum:
+            - text
+            - json_object
+          default: text
+    CreateChatCompletionResponse:
+      type: object
+      description: Represents a chat completion response returned by the model.
+      properties:
+        id:
+          type: string
+          description: A unique identifier for the chat completion.
+        choices:
+          type: array
+          description: A list of chat completion choices.
+          items:
+            $ref: '#/components/schemas/ChatCompletionChoice'
+        created:
+          type: integer
+          description: >-
+            The Unix timestamp (in seconds) of when the chat completion was
+            created.
+        model:
+          type: string
+          description: The model used for the chat completion.
+        system_fingerprint:
+          type: string
+          description: >-
+            This fingerprint represents the backend configuration that the model
+            runs with.
+        object:
+          type: string
+          description: The object type, which is always chat.completion.
+          enum:
+            - chat.completion
+        usage:
+          $ref: '#/components/schemas/CompletionUsage'
+      required:
+        - id
+        - choices
+        - created
+        - model
+        - object
+    ChatCompletionChoice:
+      type: object
+      description: A chat completion choice.
+      properties:
+        finish_reason:
+          type: string
+          description: The reason the model stopped generating tokens.
+          enum:
+            - stop
+            - length
+            - tool_calls
+            - content_filter
+            - function_call
+        index:
+          type: integer
+          description: The index of the choice in the list of choices.
+        message:
+          $ref: '#/components/schemas/ChatCompletionResponseMessage'
+        logprobs:
+          type: object
+          nullable: true
+          description: Log probability information for the choice.
+          properties:
+            content:
+              type: array
+              nullable: true
+              description: >-
+                A list of message content tokens with log probability
+                information.
+              items:
+                $ref: '#/components/schemas/ChatCompletionTokenLogprob'
+      required:
+        - finish_reason
+        - index
+        - message
+        - logprobs
+    ChatCompletionResponseMessage:
+      type: object
+      description: A chat completion message generated by the model.
+      properties:
+        role:
+          type: string
+          description: The role of the author of this message.
+          enum:
+            - assistant
+        content:
+          type: string
+          nullable: true
+          description: The contents of the message.
+        tool_calls:
+          type: array
+          description: The tool calls generated by the model.
+          items:
+            $ref: '#/components/schemas/ChatCompletionMessageToolCall'
+      required:
+        - role
+    ChatCompletionTokenLogprob:
+      type: object
+      description: Log probability information for a token.
+      properties:
+        token:
+          type: string
+          description: The token.
+        logprob:
+          type: number
+          description: The log probability of this token.
+        bytes:
+          type: array
+          nullable: true
+          description: >-
+            A list of integers representing the UTF-8 bytes representation of
+            the token.
+          items:
+            type: integer
+        top_logprobs:
+          type: array
+          description: List of the most likely tokens and their log probability.
+          items:
+            type: object
+            properties:
+              token:
+                type: string
+              logprob:
+                type: number
+              bytes:
+                type: array
+                nullable: true
+                items:
+                  type: integer
+      required:
+        - token
+        - logprob
+        - bytes
+        - top_logprobs
+    CompletionUsage:
+      type: object
+      description: Usage statistics for the completion request.
+      properties:
+        completion_tokens:
+          type: integer
+          description: Number of tokens in the generated completion.
+        prompt_tokens:
+          type: integer
+          description: Number of tokens in the prompt.
+        total_tokens:
+          type: integer
+          description: Total number of tokens used in the request (prompt + completion).
+      required:
+        - prompt_tokens
+        - completion_tokens
+        - total_tokens
+  examples:
+    BasicChatRequestExample:
+      summary: Basic chat completion request
+      value:
+        model: gpt-3.5-turbo
+        messages:
+          - role: system
+            content: You are a helpful assistant.
+          - role: user
+            content: Hello!
+    FunctionCallingRequestExample:
+      summary: Chat completion request with function calling
+      value:
+        model: gpt-3.5-turbo
+        messages:
+          - role: user
+            content: What is the weather like in Boston?
+        tools:
+          - type: function
+            function:
+              name: get_current_weather
+              description: Get the current weather in a given location
+              parameters:
+                type: object
+                properties:
+                  location:
+                    type: string
+                    description: The city and state, e.g. San Francisco, CA
+                  unit:
+                    type: string
+                    enum:
+                      - celsius
+                      - fahrenheit
+                required:
+                  - location
+        tool_choice: auto
+    BasicChatResponseExample:
+      summary: Basic chat completion response
+      value:
+        id: chatcmpl-123
+        object: chat.completion
+        created: 1677652288
+        model: gpt-3.5-turbo-0613
+        system_fingerprint: fp_44709d6fcb
+        choices:
+          - index: 0
+            message:
+              role: assistant
+              content: |-
+
+
+                Hello there, how may I assist you today?
+            logprobs: null
+            finish_reason: stop
+        usage:
+          prompt_tokens: 9
+          completion_tokens: 12
+          total_tokens: 21
+    FunctionCallingResponseExample:
+      summary: Chat completion response with function call
+      value:
+        id: chatcmpl-abc123
+        object: chat.completion
+        created: 1699896916
+        model: gpt-3.5-turbo-0613
+        choices:
+          - index: 0
+            message:
+              role: assistant
+              content: null
+              tool_calls:
+                - id: call_abc123
+                  type: function
+                  function:
+                    name: get_current_weather
+                    arguments: '{"location": "Boston, MA"}'
+            logprobs: null
+            finish_reason: tool_calls
+        usage:
+          prompt_tokens: 82
+          completion_tokens: 17
+          total_tokens: 99
+security:
+  - ApiKeyAuth: []

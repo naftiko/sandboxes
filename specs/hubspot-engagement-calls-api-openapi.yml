@@ -1,0 +1,1418 @@
+openapi: 3.1.0
+info:
+  title: hubspot-crm-engagement-calls-api
+  description: >
+    The HubSpot CRM Engagement Calls API enables you to manage call engagements
+    within your HubSpot CRM.
+
+
+    Use this API to:
+
+    - Create, read, update, and delete call records
+
+    - Perform batch operations on multiple calls
+
+    - Search for calls using filters and queries
+
+    - Associate calls with contacts, companies, deals, and other CRM objects
+
+    - Manage call properties and track call history
+
+    - Handle GDPR-compliant data purging
+
+
+    Call engagements represent phone calls logged in your CRM and can include
+    details like duration, outcome, notes, and recordings.
+  version: 3.0.0
+  contact:
+    name: HubSpot Developer Support
+    url: https://developers.hubspot.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot Production API Server
+  - url: http://localhost:8080/rest/hubspot-crm-engagement-calls-api/3.0.0
+    description: Sandbox
+tags:
+  - name: Basic Operations
+    description: Create, read, update, and delete individual call records
+  - name: Batch Operations
+    description: Perform bulk operations on multiple call records
+  - name: Search
+    description: Search and filter call records
+  - name: GDPR Compliance
+    description: GDPR-compliant data management operations
+paths:
+  /crm/v3/objects/calls:
+    get:
+      tags:
+        - Basic Operations
+      summary: List all calls
+      description: >
+        Returns a paginated list of all call engagements in the CRM.
+
+        Use query parameters to filter by properties, limit results, and
+        paginate through records.
+      operationId: listCalls
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListCallsSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/AfterParam'
+        - $ref: '#/components/parameters/PropertiesParam'
+        - $ref: '#/components/parameters/PropertiesWithHistoryParam'
+        - $ref: '#/components/parameters/AssociationsParam'
+        - $ref: '#/components/parameters/ArchivedParam'
+      responses:
+        '200':
+          description: Successfully retrieved the list of calls
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallCollectionResponse'
+              examples:
+                ListCallsSuccessResponse:
+                  $ref: '#/components/examples/ListCallsSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateApp:
+            - crm.objects.contacts.read
+    post:
+      tags:
+        - Basic Operations
+      summary: Create a call
+      description: >
+        Creates a new call engagement in the CRM.
+
+        You can specify call properties and optionally associate the call with
+        other CRM objects.
+      operationId: createCall
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "CreateCallSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallCreateRequest'
+            examples:
+              CreateCallRequest:
+                $ref: '#/components/examples/CreateCallRequest'
+      responses:
+        '201':
+          description: Successfully created the call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+              examples:
+                CreateCallSuccessResponse:
+                  $ref: '#/components/examples/CreateCallSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+  /crm/v3/objects/calls/{callId}:
+    get:
+      tags:
+        - Basic Operations
+      summary: Get a call by ID
+      description: >
+        Retrieves a single call engagement by its unique identifier.
+
+        Optionally include specific properties, property history, and
+        associations.
+      operationId: getCallById
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GetCallSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/CallIdParam'
+        - $ref: '#/components/parameters/PropertiesParam'
+        - $ref: '#/components/parameters/PropertiesWithHistoryParam'
+        - $ref: '#/components/parameters/AssociationsParam'
+        - $ref: '#/components/parameters/ArchivedParam'
+      responses:
+        '200':
+          description: Successfully retrieved the call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+              examples:
+                GetCallSuccessResponse:
+                  $ref: '#/components/examples/GetCallSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateApp:
+            - crm.objects.contacts.read
+    patch:
+      tags:
+        - Basic Operations
+      summary: Update a call
+      description: |
+        Updates an existing call engagement with new property values.
+        Only the properties specified in the request body will be updated.
+      operationId: updateCall
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "UpdateCallSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/CallIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallUpdateRequest'
+            examples:
+              UpdateCallRequest:
+                $ref: '#/components/examples/UpdateCallRequest'
+      responses:
+        '200':
+          description: Successfully updated the call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+              examples:
+                UpdateCallSuccessResponse:
+                  $ref: '#/components/examples/UpdateCallSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+    delete:
+      tags:
+        - Basic Operations
+      summary: Archive a call
+      description: >
+        Archives (soft deletes) a call engagement by moving it to the recycling
+        bin.
+
+        Archived calls can be restored within 90 days.
+      operationId: archiveCall
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ArchiveCallSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/CallIdParam'
+      responses:
+        '204':
+          description: Successfully archived the call (no content returned)
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+  /crm/v3/objects/calls/batch/create:
+    post:
+      tags:
+        - Batch Operations
+      summary: Create a batch of calls
+      description: |
+        Creates multiple call engagements in a single request.
+        Each call can have its own properties and associations.
+        Maximum of 100 calls per batch request.
+      operationId: batchCreateCalls
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "BatchCreateCallsSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateCallsRequest'
+            examples:
+              BatchCreateCallsRequest:
+                $ref: '#/components/examples/BatchCreateCallsRequest'
+      responses:
+        '201':
+          description: Successfully created the batch of calls
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCallsResponse'
+              examples:
+                BatchCreateCallsSuccessResponse:
+                  $ref: '#/components/examples/BatchCreateCallsSuccessResponse'
+        '207':
+          description: Multi-status response (some operations succeeded, some failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCallsResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+  /crm/v3/objects/calls/batch/read:
+    post:
+      tags:
+        - Batch Operations
+      summary: Read a batch of calls
+      description: >
+        Retrieves multiple call engagements by their IDs or a unique property
+        value.
+
+        Maximum of 100 calls per batch request.
+      operationId: batchReadCalls
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "BatchReadCallsSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/ArchivedParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchReadCallsRequest'
+            examples:
+              BatchReadCallsRequest:
+                $ref: '#/components/examples/BatchReadCallsRequest'
+      responses:
+        '200':
+          description: Successfully retrieved the batch of calls
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCallsResponse'
+              examples:
+                BatchReadCallsSuccessResponse:
+                  $ref: '#/components/examples/BatchReadCallsSuccessResponse'
+        '207':
+          description: Multi-status response (some operations succeeded, some failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCallsResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateApp:
+            - crm.objects.contacts.read
+  /crm/v3/objects/calls/batch/update:
+    post:
+      tags:
+        - Batch Operations
+      summary: Update a batch of calls
+      description: |
+        Updates multiple call engagements in a single request.
+        Each call update must include the call ID and the properties to update.
+        Maximum of 100 calls per batch request.
+      operationId: batchUpdateCalls
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "BatchUpdateCallsSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpdateCallsRequest'
+            examples:
+              BatchUpdateCallsRequest:
+                $ref: '#/components/examples/BatchUpdateCallsRequest'
+      responses:
+        '200':
+          description: Successfully updated the batch of calls
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCallsResponse'
+              examples:
+                BatchUpdateCallsSuccessResponse:
+                  $ref: '#/components/examples/BatchUpdateCallsSuccessResponse'
+        '207':
+          description: Multi-status response (some operations succeeded, some failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCallsResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+  /crm/v3/objects/calls/batch/archive:
+    post:
+      tags:
+        - Batch Operations
+      summary: Archive a batch of calls
+      description: |
+        Archives (soft deletes) multiple call engagements in a single request.
+        Maximum of 100 calls per batch request.
+      operationId: batchArchiveCalls
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "BatchArchiveCallsSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchArchiveCallsRequest'
+            examples:
+              BatchArchiveCallsRequest:
+                $ref: '#/components/examples/BatchArchiveCallsRequest'
+      responses:
+        '204':
+          description: Successfully archived the batch of calls (no content returned)
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+  /crm/v3/objects/calls/search:
+    post:
+      tags:
+        - Search
+      summary: Search calls
+      description: >
+        Searches for call engagements using filters, property values, and
+        full-text search.
+
+        Supports complex filter groups with AND/OR logic.
+      operationId: searchCalls
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "SearchCallsSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallSearchRequest'
+            examples:
+              SearchCallsRequest:
+                $ref: '#/components/examples/SearchCallsRequest'
+      responses:
+        '200':
+          description: Successfully searched calls
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallSearchResponse'
+              examples:
+                SearchCallsSuccessResponse:
+                  $ref: '#/components/examples/SearchCallsSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateApp:
+            - crm.objects.contacts.read
+  /crm/v3/objects/calls/gdpr-delete:
+    post:
+      tags:
+        - GDPR Compliance
+      summary: Permanently delete a call for GDPR compliance
+      description: >
+        Permanently deletes a call engagement for GDPR compliance.
+
+        This action cannot be undone. Use this endpoint when you need to comply
+        with a data subject's right to erasure request.
+      operationId: gdprDeleteCall
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GdprDeleteCallSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GdprDeleteRequest'
+            examples:
+              GdprDeleteRequest:
+                $ref: '#/components/examples/GdprDeleteRequest'
+      responses:
+        '204':
+          description: Successfully deleted the call (no content returned)
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+components:
+  schemas:
+    Call:
+      type: object
+      description: Represents a call engagement in the CRM
+      required:
+        - id
+        - properties
+        - createdAt
+        - updatedAt
+        - archived
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the call
+          example: '512'
+        properties:
+          type: object
+          description: The call properties
+          additionalProperties:
+            type: string
+          example:
+            hs_call_title: Discovery Call
+            hs_call_body: Discussed product requirements
+            hs_call_duration: '1800000'
+            hs_call_direction: OUTBOUND
+            hs_call_disposition: connected
+            hs_call_status: COMPLETED
+            hs_timestamp: '2024-01-15T10:30:00.000Z'
+        propertiesWithHistory:
+          type: object
+          description: Properties with their change history
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/PropertyHistory'
+        createdAt:
+          type: string
+          format: date-time
+          description: When the call was created
+          example: '2024-01-15T10:30:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the call was last updated
+          example: '2024-01-15T11:00:00.000Z'
+        archived:
+          type: boolean
+          description: Whether the call is archived
+          example: false
+        archivedAt:
+          type: string
+          format: date-time
+          description: When the call was archived (if archived)
+    PropertyHistory:
+      type: object
+      description: Historical value of a property
+      properties:
+        value:
+          type: string
+          description: The historical value
+          example: Discovery Call
+        timestamp:
+          type: string
+          format: date-time
+          description: When the value was set
+          example: '2024-01-15T10:30:00.000Z'
+        sourceType:
+          type: string
+          description: The source type that set this value
+          example: CRM_UI
+        sourceId:
+          type: string
+          description: The source identifier
+          example: userId:12345
+        sourceLabel:
+          type: string
+          description: Human-readable source label
+          example: John Doe
+        updatedByUserId:
+          type: integer
+          description: The user ID who made the change
+          example: 12345
+    CallCollectionResponse:
+      type: object
+      description: A paginated collection of calls
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          description: The list of calls
+          items:
+            $ref: '#/components/schemas/Call'
+        paging:
+          $ref: '#/components/schemas/Paging'
+    CallSearchResponse:
+      type: object
+      description: Search results for calls
+      required:
+        - total
+        - results
+      properties:
+        total:
+          type: integer
+          description: Total number of matching calls
+          example: 25
+        results:
+          type: array
+          description: The matching calls
+          items:
+            $ref: '#/components/schemas/Call'
+        paging:
+          $ref: '#/components/schemas/Paging'
+    BatchCallsResponse:
+      type: object
+      description: Response for batch call operations
+      required:
+        - status
+        - results
+        - startedAt
+        - completedAt
+      properties:
+        status:
+          type: string
+          enum:
+            - PENDING
+            - PROCESSING
+            - CANCELED
+            - COMPLETE
+          description: The status of the batch operation
+          example: COMPLETE
+        results:
+          type: array
+          description: The results of the batch operation
+          items:
+            $ref: '#/components/schemas/Call'
+        requestedAt:
+          type: string
+          format: date-time
+          description: When the batch was requested
+        startedAt:
+          type: string
+          format: date-time
+          description: When the batch processing started
+          example: '2024-01-15T10:30:00.000Z'
+        completedAt:
+          type: string
+          format: date-time
+          description: When the batch processing completed
+          example: '2024-01-15T10:30:05.000Z'
+        errors:
+          type: array
+          description: Any errors that occurred during batch processing
+          items:
+            $ref: '#/components/schemas/BatchError'
+        links:
+          type: object
+          additionalProperties:
+            type: string
+    BatchError:
+      type: object
+      description: Error information for a batch operation item
+      properties:
+        status:
+          type: string
+          description: The error status
+          example: error
+        category:
+          type: string
+          description: The error category
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: The error message
+          example: Property value is invalid
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    CallCreateRequest:
+      type: object
+      description: Request body for creating a call
+      required:
+        - properties
+      properties:
+        properties:
+          type: object
+          description: The call properties to set
+          additionalProperties:
+            type: string
+          example:
+            hs_call_title: Discovery Call
+            hs_call_body: Discussed product requirements
+            hs_call_duration: '1800000'
+            hs_call_direction: OUTBOUND
+            hs_timestamp: '2024-01-15T10:30:00.000Z'
+        associations:
+          type: array
+          description: Associations to create with other objects
+          items:
+            $ref: '#/components/schemas/AssociationInput'
+    CallUpdateRequest:
+      type: object
+      description: Request body for updating a call
+      required:
+        - properties
+      properties:
+        properties:
+          type: object
+          description: The call properties to update
+          additionalProperties:
+            type: string
+          example:
+            hs_call_title: Updated Discovery Call
+            hs_call_disposition: connected
+    BatchCreateCallsRequest:
+      type: object
+      description: Request body for batch creating calls
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: Array of calls to create
+          items:
+            $ref: '#/components/schemas/CallCreateRequest'
+          maxItems: 100
+    BatchReadCallsRequest:
+      type: object
+      description: Request body for batch reading calls
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: Array of call identifiers
+          items:
+            $ref: '#/components/schemas/BatchReadInput'
+          maxItems: 100
+        properties:
+          type: array
+          description: Properties to return
+          items:
+            type: string
+        propertiesWithHistory:
+          type: array
+          description: Properties to return with history
+          items:
+            type: string
+        idProperty:
+          type: string
+          description: The property to use as the identifier
+    BatchReadInput:
+      type: object
+      description: Input for reading a single item in a batch
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: The call identifier
+          example: '512'
+    BatchUpdateCallsRequest:
+      type: object
+      description: Request body for batch updating calls
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: Array of call updates
+          items:
+            $ref: '#/components/schemas/BatchUpdateInput'
+          maxItems: 100
+    BatchUpdateInput:
+      type: object
+      description: Input for updating a single item in a batch
+      required:
+        - id
+        - properties
+      properties:
+        id:
+          type: string
+          description: The call identifier
+          example: '512'
+        properties:
+          type: object
+          description: The properties to update
+          additionalProperties:
+            type: string
+    BatchArchiveCallsRequest:
+      type: object
+      description: Request body for batch archiving calls
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: Array of call identifiers to archive
+          items:
+            $ref: '#/components/schemas/BatchReadInput'
+          maxItems: 100
+    CallSearchRequest:
+      type: object
+      description: Request body for searching calls
+      properties:
+        filterGroups:
+          type: array
+          description: Filter groups for the search (OR logic between groups)
+          items:
+            $ref: '#/components/schemas/FilterGroup'
+        sorts:
+          type: array
+          description: Sort order for results
+          items:
+            $ref: '#/components/schemas/SortOption'
+        query:
+          type: string
+          description: Full-text search query
+          example: discovery
+        properties:
+          type: array
+          description: Properties to return
+          items:
+            type: string
+        limit:
+          type: integer
+          description: Maximum results to return
+          default: 10
+          maximum: 100
+        after:
+          type: string
+          description: Pagination cursor
+    FilterGroup:
+      type: object
+      description: A group of filters (AND logic within group)
+      properties:
+        filters:
+          type: array
+          description: The filters in this group
+          items:
+            $ref: '#/components/schemas/Filter'
+    Filter:
+      type: object
+      description: A single search filter
+      required:
+        - propertyName
+        - operator
+      properties:
+        propertyName:
+          type: string
+          description: The property to filter on
+          example: hs_call_direction
+        operator:
+          type: string
+          description: The filter operator
+          enum:
+            - EQ
+            - NEQ
+            - LT
+            - LTE
+            - GT
+            - GTE
+            - BETWEEN
+            - IN
+            - NOT_IN
+            - HAS_PROPERTY
+            - NOT_HAS_PROPERTY
+            - CONTAINS_TOKEN
+            - NOT_CONTAINS_TOKEN
+          example: EQ
+        value:
+          type: string
+          description: The value to filter by
+          example: OUTBOUND
+        values:
+          type: array
+          description: Values for IN/NOT_IN operators
+          items:
+            type: string
+        highValue:
+          type: string
+          description: High value for BETWEEN operator
+    SortOption:
+      type: object
+      description: Sort option for search results
+      required:
+        - propertyName
+      properties:
+        propertyName:
+          type: string
+          description: The property to sort by
+          example: hs_timestamp
+        direction:
+          type: string
+          enum:
+            - ASCENDING
+            - DESCENDING
+          description: Sort direction
+          default: DESCENDING
+    AssociationInput:
+      type: object
+      description: Association to create with another object
+      required:
+        - to
+        - types
+      properties:
+        to:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: The ID of the object to associate with
+              example: '101'
+        types:
+          type: array
+          description: The association types
+          items:
+            $ref: '#/components/schemas/AssociationType'
+    AssociationType:
+      type: object
+      description: Type of association
+      required:
+        - associationCategory
+        - associationTypeId
+      properties:
+        associationCategory:
+          type: string
+          enum:
+            - HUBSPOT_DEFINED
+            - USER_DEFINED
+            - INTEGRATOR_DEFINED
+          description: The category of association
+          example: HUBSPOT_DEFINED
+        associationTypeId:
+          type: integer
+          description: The association type ID
+          example: 194
+    GdprDeleteRequest:
+      type: object
+      description: Request body for GDPR deletion
+      required:
+        - objectId
+      properties:
+        objectId:
+          type: string
+          description: The ID of the call to permanently delete
+          example: '512'
+        idProperty:
+          type: string
+          description: The property used as the identifier
+    Paging:
+      type: object
+      description: Pagination information
+      properties:
+        next:
+          $ref: '#/components/schemas/NextPage'
+    NextPage:
+      type: object
+      description: Information about the next page
+      required:
+        - after
+      properties:
+        after:
+          type: string
+          description: Cursor for the next page
+          example: NTI1Cg%3D%3D
+        link:
+          type: string
+          description: Link to the next page
+    Error:
+      type: object
+      description: Error response
+      required:
+        - category
+        - correlationId
+        - message
+      properties:
+        category:
+          type: string
+          description: The error category
+          example: VALIDATION_ERROR
+        correlationId:
+          type: string
+          format: uuid
+          description: Unique request identifier for debugging
+          example: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid input (details will vary based on the error)
+        subCategory:
+          type: string
+          description: More specific error category
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    ErrorDetail:
+      type: object
+      description: Detailed error information
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        in:
+          type: string
+          description: Field where error occurred
+        subCategory:
+          type: string
+          description: Error subcategory
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+  parameters:
+    CallIdParam:
+      name: callId
+      in: path
+      description: The unique identifier of the call
+      required: true
+      schema:
+        type: string
+      example: '512'
+    LimitParam:
+      name: limit
+      in: query
+      description: Maximum number of results per page
+      required: false
+      schema:
+        type: integer
+        default: 10
+        maximum: 100
+    AfterParam:
+      name: after
+      in: query
+      description: Pagination cursor from previous response
+      required: false
+      schema:
+        type: string
+    PropertiesParam:
+      name: properties
+      in: query
+      description: Comma-separated list of properties to return
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+    PropertiesWithHistoryParam:
+      name: propertiesWithHistory
+      in: query
+      description: Comma-separated list of properties to return with history
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+    AssociationsParam:
+      name: associations
+      in: query
+      description: Comma-separated list of association types to retrieve
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+    ArchivedParam:
+      name: archived
+      in: query
+      description: Whether to include archived calls
+      required: false
+      schema:
+        type: boolean
+        default: false
+  examples:
+    ListCallsSuccessResponse:
+      summary: Successful response listing calls
+      value:
+        results:
+          - id: '512'
+            properties:
+              hs_call_title: Discovery Call
+              hs_call_body: Discussed product requirements
+              hs_call_duration: '1800000'
+              hs_call_direction: OUTBOUND
+              hs_call_disposition: connected
+              hs_call_status: COMPLETED
+              hs_timestamp: '2024-01-15T10:30:00.000Z'
+            createdAt: '2024-01-15T10:30:00.000Z'
+            updatedAt: '2024-01-15T11:00:00.000Z'
+            archived: false
+          - id: '513'
+            properties:
+              hs_call_title: Follow-up Call
+              hs_call_body: Confirmed next steps
+              hs_call_duration: '900000'
+              hs_call_direction: OUTBOUND
+              hs_call_disposition: connected
+              hs_call_status: COMPLETED
+              hs_timestamp: '2024-01-16T14:00:00.000Z'
+            createdAt: '2024-01-16T14:00:00.000Z'
+            updatedAt: '2024-01-16T14:30:00.000Z'
+            archived: false
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+    GetCallSuccessResponse:
+      summary: Successful response for a single call
+      value:
+        id: '512'
+        properties:
+          hs_call_title: Discovery Call
+          hs_call_body: Discussed product requirements
+          hs_call_duration: '1800000'
+          hs_call_direction: OUTBOUND
+          hs_call_disposition: connected
+          hs_call_status: COMPLETED
+          hs_timestamp: '2024-01-15T10:30:00.000Z'
+        createdAt: '2024-01-15T10:30:00.000Z'
+        updatedAt: '2024-01-15T11:00:00.000Z'
+        archived: false
+    CreateCallRequest:
+      summary: Request to create a call
+      value:
+        properties:
+          hs_call_title: Discovery Call
+          hs_call_body: Discussed product requirements
+          hs_call_duration: '1800000'
+          hs_call_direction: OUTBOUND
+          hs_timestamp: '2024-01-15T10:30:00.000Z'
+        associations:
+          - to:
+              id: '101'
+            types:
+              - associationCategory: HUBSPOT_DEFINED
+                associationTypeId: 194
+    CreateCallSuccessResponse:
+      summary: Successful response after creating a call
+      value:
+        id: '512'
+        properties:
+          hs_call_title: Discovery Call
+          hs_call_body: Discussed product requirements
+          hs_call_duration: '1800000'
+          hs_call_direction: OUTBOUND
+          hs_timestamp: '2024-01-15T10:30:00.000Z'
+        createdAt: '2024-01-15T10:30:00.000Z'
+        updatedAt: '2024-01-15T10:30:00.000Z'
+        archived: false
+    UpdateCallRequest:
+      summary: Request to update a call
+      value:
+        properties:
+          hs_call_title: Updated Discovery Call
+          hs_call_disposition: connected
+    UpdateCallSuccessResponse:
+      summary: Successful response after updating a call
+      value:
+        id: '512'
+        properties:
+          hs_call_title: Updated Discovery Call
+          hs_call_body: Discussed product requirements
+          hs_call_duration: '1800000'
+          hs_call_direction: OUTBOUND
+          hs_call_disposition: connected
+          hs_timestamp: '2024-01-15T10:30:00.000Z'
+        createdAt: '2024-01-15T10:30:00.000Z'
+        updatedAt: '2024-01-15T12:00:00.000Z'
+        archived: false
+    BatchCreateCallsRequest:
+      summary: Request to batch create calls
+      value:
+        inputs:
+          - properties:
+              hs_call_title: Call 1
+              hs_call_direction: OUTBOUND
+              hs_timestamp: '2024-01-15T10:30:00.000Z'
+          - properties:
+              hs_call_title: Call 2
+              hs_call_direction: INBOUND
+              hs_timestamp: '2024-01-15T11:30:00.000Z'
+    BatchCreateCallsSuccessResponse:
+      summary: Successful response after batch creating calls
+      value:
+        status: COMPLETE
+        results:
+          - id: '512'
+            properties:
+              hs_call_title: Call 1
+              hs_call_direction: OUTBOUND
+              hs_timestamp: '2024-01-15T10:30:00.000Z'
+            createdAt: '2024-01-15T10:30:00.000Z'
+            updatedAt: '2024-01-15T10:30:00.000Z'
+            archived: false
+          - id: '513'
+            properties:
+              hs_call_title: Call 2
+              hs_call_direction: INBOUND
+              hs_timestamp: '2024-01-15T11:30:00.000Z'
+            createdAt: '2024-01-15T11:30:00.000Z'
+            updatedAt: '2024-01-15T11:30:00.000Z'
+            archived: false
+        startedAt: '2024-01-15T10:30:00.000Z'
+        completedAt: '2024-01-15T10:30:05.000Z'
+    BatchReadCallsRequest:
+      summary: Request to batch read calls
+      value:
+        inputs:
+          - id: '512'
+          - id: '513'
+        properties:
+          - hs_call_title
+          - hs_call_direction
+    BatchReadCallsSuccessResponse:
+      summary: Successful response after batch reading calls
+      value:
+        status: COMPLETE
+        results:
+          - id: '512'
+            properties:
+              hs_call_title: Discovery Call
+              hs_call_direction: OUTBOUND
+            createdAt: '2024-01-15T10:30:00.000Z'
+            updatedAt: '2024-01-15T11:00:00.000Z'
+            archived: false
+          - id: '513'
+            properties:
+              hs_call_title: Follow-up Call
+              hs_call_direction: INBOUND
+            createdAt: '2024-01-16T14:00:00.000Z'
+            updatedAt: '2024-01-16T14:30:00.000Z'
+            archived: false
+        startedAt: '2024-01-15T10:30:00.000Z'
+        completedAt: '2024-01-15T10:30:01.000Z'
+    BatchUpdateCallsRequest:
+      summary: Request to batch update calls
+      value:
+        inputs:
+          - id: '512'
+            properties:
+              hs_call_title: Updated Call 1
+          - id: '513'
+            properties:
+              hs_call_title: Updated Call 2
+    BatchUpdateCallsSuccessResponse:
+      summary: Successful response after batch updating calls
+      value:
+        status: COMPLETE
+        results:
+          - id: '512'
+            properties:
+              hs_call_title: Updated Call 1
+              hs_call_direction: OUTBOUND
+            createdAt: '2024-01-15T10:30:00.000Z'
+            updatedAt: '2024-01-15T12:00:00.000Z'
+            archived: false
+          - id: '513'
+            properties:
+              hs_call_title: Updated Call 2
+              hs_call_direction: INBOUND
+            createdAt: '2024-01-16T14:00:00.000Z'
+            updatedAt: '2024-01-15T12:00:00.000Z'
+            archived: false
+        startedAt: '2024-01-15T12:00:00.000Z'
+        completedAt: '2024-01-15T12:00:02.000Z'
+    BatchArchiveCallsRequest:
+      summary: Request to batch archive calls
+      value:
+        inputs:
+          - id: '512'
+          - id: '513'
+    SearchCallsRequest:
+      summary: Request to search calls
+      value:
+        filterGroups:
+          - filters:
+              - propertyName: hs_call_direction
+                operator: EQ
+                value: OUTBOUND
+        sorts:
+          - propertyName: hs_timestamp
+            direction: DESCENDING
+        properties:
+          - hs_call_title
+          - hs_call_direction
+          - hs_timestamp
+        limit: 10
+    SearchCallsSuccessResponse:
+      summary: Successful response for call search
+      value:
+        total: 25
+        results:
+          - id: '512'
+            properties:
+              hs_call_title: Discovery Call
+              hs_call_direction: OUTBOUND
+              hs_timestamp: '2024-01-15T10:30:00.000Z'
+            createdAt: '2024-01-15T10:30:00.000Z'
+            updatedAt: '2024-01-15T11:00:00.000Z'
+            archived: false
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+    GdprDeleteRequest:
+      summary: Request for GDPR deletion
+      value:
+        objectId: '512'
+    ErrorResponse:
+      summary: Example error response
+      value:
+        category: VALIDATION_ERROR
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: Invalid input (details will vary based on the error)
+        links:
+          knowledge-base: https://www.hubspot.com/products/service/knowledge-base
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.objects.contacts.read: Read call engagements
+            crm.objects.contacts.write: Create and modify call engagements
+    PrivateApp:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: Private app access token (Bearer token)

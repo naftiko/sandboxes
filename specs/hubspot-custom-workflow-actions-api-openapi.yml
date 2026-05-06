@@ -1,0 +1,1759 @@
+openapi: 3.1.0
+info:
+  title: hubspot-custom-workflow-actions-api
+  description: >
+    The HubSpot Custom Workflow Actions API enables developers to create,
+    manage, and extend workflow 
+
+    automation capabilities within HubSpot. This API allows you to define custom
+    actions that can be 
+
+    used in HubSpot workflows, manage action functions, handle callbacks for
+    asynchronous operations, 
+
+    and track revisions of action definitions.
+
+
+    Key features include:
+
+    - Create and manage custom workflow action definitions
+
+    - Define input and output fields for actions
+
+    - Implement serverless functions for pre and post action execution
+
+    - Handle asynchronous callbacks for long-running operations
+
+    - Track revision history for action definitions
+  version: 4.0.0
+  contact:
+    name: HubSpot Developer Support
+    url: https://developers.hubspot.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot Production API
+  - url: http://localhost:8080/rest/hubspot-custom-workflow-actions-api/4.0.0
+    description: Sandbox
+tags:
+  - name: Workflow Callbacks
+    description: Operations to complete workflow action callbacks for asynchronous actions
+  - name: Action Definitions
+    description: Operations to create and manage custom workflow action definitions
+  - name: Action Functions
+    description: >-
+      Operations to manage serverless functions associated with action
+      definitions
+  - name: Definition Revisions
+    description: Operations to view revision history of action definitions
+paths:
+  /automation/v4/actions/callbacks/{callbackId}/complete:
+    post:
+      tags:
+        - Workflow Callbacks
+      summary: Complete a single callback
+      description: >
+        Completes a single callback for an asynchronous workflow action,
+        providing the output 
+
+        values to continue the workflow execution. Use this endpoint when your
+        action has 
+
+        finished processing and needs to return results to HubSpot.
+      operationId: completeCallback
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "CallbackCompletionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+      parameters:
+        - $ref: '#/components/parameters/CallbackIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallbackCompletionRequest'
+            examples:
+              CallbackCompletionRequestExample:
+                $ref: '#/components/examples/CallbackCompletionRequestExample'
+      responses:
+        '204':
+          description: Callback completed successfully
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorBadRequestExample:
+                  $ref: '#/components/examples/ErrorBadRequestExample'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Callback not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorNotFoundExample:
+                  $ref: '#/components/examples/ErrorNotFoundExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /automation/v4/actions/callbacks/complete:
+    post:
+      tags:
+        - Workflow Callbacks
+      summary: Complete multiple callbacks
+      description: >
+        Completes multiple callbacks for asynchronous workflow actions in a
+        single request. 
+
+        This is useful when your action processes multiple items and needs to
+        return results 
+
+        for each callback simultaneously.
+      operationId: batchCompleteCallbacks
+      x-microcks-operation:
+        delay: 150
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "BatchCallbackCompletionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCallbackCompletionRequest'
+            examples:
+              BatchCallbackCompletionRequestExample:
+                $ref: '#/components/examples/BatchCallbackCompletionRequestExample'
+      responses:
+        '204':
+          description: All callbacks completed successfully
+        '207':
+          description: Multi-status - Some callbacks succeeded, some failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCallbackResponse'
+              examples:
+                BatchCallbackPartialSuccessExample:
+                  $ref: '#/components/examples/BatchCallbackPartialSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /automation/v4/actions/{appId}:
+    get:
+      tags:
+        - Action Definitions
+      summary: List action definitions
+      description: >
+        Retrieves a paginated list of all custom action definitions for the
+        specified 
+
+        application. Use query parameters to filter by archived status and
+        control pagination.
+      operationId: listActionDefinitions
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ActionDefinitionCollectionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/AfterQuery'
+        - $ref: '#/components/parameters/ArchivedQuery'
+      responses:
+        '200':
+          description: Successfully retrieved action definitions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionDefinitionCollection'
+              examples:
+                ActionDefinitionCollectionSuccessExample:
+                  $ref: >-
+                    #/components/examples/ActionDefinitionCollectionSuccessExample
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Action Definitions
+      summary: Create an action definition
+      description: >
+        Creates a new custom workflow action definition for the specified
+        application. 
+
+        The action definition includes input fields, output fields, labels, and
+        configuration 
+
+        for how the action appears in the HubSpot workflow editor.
+      operationId: createActionDefinition
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ActionDefinitionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionDefinitionInput'
+            examples:
+              ActionDefinitionInputExample:
+                $ref: '#/components/examples/ActionDefinitionInputExample'
+      responses:
+        '201':
+          description: Successfully created action definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionDefinition'
+              examples:
+                ActionDefinitionSuccessExample:
+                  $ref: '#/components/examples/ActionDefinitionSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /automation/v4/actions/{appId}/{definitionId}:
+    get:
+      tags:
+        - Action Definitions
+      summary: Retrieve an action definition
+      description: >
+        Retrieves a specific custom action definition by its ID. Returns the
+        complete 
+
+        action definition including all input fields, output fields, and
+        configuration.
+      operationId: getActionDefinitionById
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ActionDefinitionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/DefinitionIdPath'
+        - $ref: '#/components/parameters/ArchivedQuery'
+      responses:
+        '200':
+          description: Successfully retrieved action definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionDefinition'
+              examples:
+                ActionDefinitionSuccessExample:
+                  $ref: '#/components/examples/ActionDefinitionSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Action definition not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - Action Definitions
+      summary: Update an action definition
+      description: >
+        Updates an existing custom action definition with the provided changes. 
+
+        Only the specified fields will be updated; other fields remain
+        unchanged.
+      operationId: updateActionDefinitionById
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ActionDefinitionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/DefinitionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionDefinitionPatch'
+            examples:
+              ActionDefinitionPatchExample:
+                $ref: '#/components/examples/ActionDefinitionPatchExample'
+      responses:
+        '200':
+          description: Successfully updated action definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionDefinition'
+              examples:
+                ActionDefinitionSuccessExample:
+                  $ref: '#/components/examples/ActionDefinitionSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Action definition not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Action Definitions
+      summary: Archive an action definition
+      description: >
+        Archives (soft deletes) a custom action definition. Archived definitions
+        can be 
+
+        restored by updating their archived status. Active workflows using this
+        action 
+
+        will continue to work until modified.
+      operationId: archiveActionDefinitionById
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ArchiveActionDefinitionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/DefinitionIdPath'
+      responses:
+        '204':
+          description: Successfully archived action definition
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Action definition not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /automation/v4/actions/{appId}/{definitionId}/functions:
+    get:
+      tags:
+        - Action Functions
+      summary: List action functions
+      description: >
+        Retrieves all serverless functions associated with a custom action
+        definition. 
+
+        Functions can execute before or after the main action to transform data
+        or 
+
+        perform additional processing.
+      operationId: listActionFunctions
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ActionFunctionCollectionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/DefinitionIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved action functions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionFunctionCollection'
+              examples:
+                ActionFunctionCollectionSuccessExample:
+                  $ref: '#/components/examples/ActionFunctionCollectionSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Action definition not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /automation/v4/actions/{appId}/{definitionId}/functions/{functionType}:
+    get:
+      tags:
+        - Action Functions
+      summary: Retrieve function by type
+      description: |
+        Retrieves a function of a specific type for a custom action definition. 
+        Function types include PRE_ACTION_EXECUTION and POST_ACTION_EXECUTION.
+      operationId: getActionFunctionByType
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ActionFunctionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/DefinitionIdPath'
+        - $ref: '#/components/parameters/FunctionTypePath'
+      responses:
+        '200':
+          description: Successfully retrieved action function
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionFunction'
+              examples:
+                ActionFunctionSuccessExample:
+                  $ref: '#/components/examples/ActionFunctionSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Function not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - Action Functions
+      summary: Create or update a function
+      description: >
+        Creates or updates a serverless function for a custom action
+        definition. 
+
+        If a function of the specified type already exists, it will be replaced 
+
+        with the new function source code.
+      operationId: upsertActionFunction
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ActionFunctionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/DefinitionIdPath'
+        - $ref: '#/components/parameters/FunctionTypePath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionFunctionInput'
+            examples:
+              ActionFunctionInputExample:
+                $ref: '#/components/examples/ActionFunctionInputExample'
+      responses:
+        '200':
+          description: Successfully updated action function
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionFunction'
+              examples:
+                ActionFunctionSuccessExample:
+                  $ref: '#/components/examples/ActionFunctionSuccessExample'
+        '201':
+          description: Successfully created action function
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionFunction'
+              examples:
+                ActionFunctionSuccessExample:
+                  $ref: '#/components/examples/ActionFunctionSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Action Functions
+      summary: Delete a function by type
+      description: >
+        Permanently deletes a function of the specified type from a custom
+        action definition. 
+
+        This action cannot be undone.
+      operationId: deleteActionFunctionByType
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "DeleteActionFunctionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/DefinitionIdPath'
+        - $ref: '#/components/parameters/FunctionTypePath'
+      responses:
+        '204':
+          description: Successfully deleted action function
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Function not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /automation/v4/actions/{appId}/{definitionId}/functions/{functionType}/{functionId}:
+    get:
+      tags:
+        - Action Functions
+      summary: Retrieve a specific function
+      description: >
+        Retrieves a specific function by its ID from a custom action
+        definition. 
+
+        This provides the complete function details including source code.
+      operationId: getActionFunctionById
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ActionFunctionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/DefinitionIdPath'
+        - $ref: '#/components/parameters/FunctionTypePath'
+        - $ref: '#/components/parameters/FunctionIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved action function
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionFunction'
+              examples:
+                ActionFunctionSuccessExample:
+                  $ref: '#/components/examples/ActionFunctionSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Function not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Action Functions
+      summary: Delete a specific function
+      description: >
+        Permanently deletes a specific function by its ID from a custom action
+        definition. 
+
+        This action cannot be undone.
+      operationId: deleteActionFunctionById
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "DeleteActionFunctionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/DefinitionIdPath'
+        - $ref: '#/components/parameters/FunctionTypePath'
+        - $ref: '#/components/parameters/FunctionIdPath'
+      responses:
+        '204':
+          description: Successfully deleted action function
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Function not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /automation/v4/actions/{appId}/{definitionId}/revisions:
+    get:
+      tags:
+        - Definition Revisions
+      summary: List definition revisions
+      description: >
+        Retrieves a paginated list of all revisions for a custom action
+        definition. 
+
+        Each revision represents a snapshot of the action definition at a point
+        in time.
+      operationId: listActionDefinitionRevisions
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ActionDefinitionRevisionCollectionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/DefinitionIdPath'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/AfterQuery'
+      responses:
+        '200':
+          description: Successfully retrieved action definition revisions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionDefinitionRevisionCollection'
+              examples:
+                ActionDefinitionRevisionCollectionSuccessExample:
+                  $ref: >-
+                    #/components/examples/ActionDefinitionRevisionCollectionSuccessExample
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Action definition not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /automation/v4/actions/{appId}/{definitionId}/revisions/{revisionId}:
+    get:
+      tags:
+        - Definition Revisions
+      summary: Retrieve a specific revision
+      description: >
+        Retrieves a specific revision of a custom action definition by its
+        revision ID. 
+
+        This allows you to view the action definition as it existed at a
+        particular point in time.
+      operationId: getActionDefinitionRevisionById
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ActionDefinitionRevisionSuccessExample"
+      security:
+        - oauth2:
+            - automation
+        - privateApp: []
+      parameters:
+        - $ref: '#/components/parameters/AppIdPath'
+        - $ref: '#/components/parameters/DefinitionIdPath'
+        - $ref: '#/components/parameters/RevisionIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved action definition revision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionDefinitionRevision'
+              examples:
+                ActionDefinitionRevisionSuccessExample:
+                  $ref: '#/components/examples/ActionDefinitionRevisionSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Revision not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            automation: Access to automation API
+    privateApp:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Private app access token with prefix "Bearer"
+  parameters:
+    CallbackIdPath:
+      name: callbackId
+      in: path
+      required: true
+      description: The unique identifier of the callback to complete
+      schema:
+        type: string
+      example: callback-abc123
+    AppIdPath:
+      name: appId
+      in: path
+      required: true
+      description: The unique identifier of the HubSpot application
+      schema:
+        type: integer
+        format: int32
+      example: 12345
+    DefinitionIdPath:
+      name: definitionId
+      in: path
+      required: true
+      description: The unique identifier of the action definition
+      schema:
+        type: string
+      example: action-def-001
+    FunctionTypePath:
+      name: functionType
+      in: path
+      required: true
+      description: The type of function to operate on
+      schema:
+        type: string
+        enum:
+          - PRE_ACTION_EXECUTION
+          - PRE_FETCH_OPTIONS
+          - POST_FETCH_OPTIONS
+          - POST_ACTION_EXECUTION
+      example: PRE_ACTION_EXECUTION
+    FunctionIdPath:
+      name: functionId
+      in: path
+      required: true
+      description: The unique identifier of the function
+      schema:
+        type: string
+      example: func-xyz789
+    RevisionIdPath:
+      name: revisionId
+      in: path
+      required: true
+      description: The unique identifier of the revision
+      schema:
+        type: string
+      example: rev-001
+    LimitQuery:
+      name: limit
+      in: query
+      description: Maximum number of results to return per page
+      schema:
+        type: integer
+        default: 100
+        maximum: 500
+      example: 100
+    AfterQuery:
+      name: after
+      in: query
+      description: Pagination cursor for the next page of results
+      schema:
+        type: string
+      example: NTI1Cg%3D%3D
+    ArchivedQuery:
+      name: archived
+      in: query
+      description: Whether to include archived action definitions
+      schema:
+        type: boolean
+        default: false
+      example: false
+  schemas:
+    CallbackCompletionRequest:
+      type: object
+      description: Request body for completing a single callback
+      required:
+        - outputFields
+      properties:
+        outputFields:
+          type: object
+          description: The output values to return to the workflow
+          additionalProperties:
+            type: string
+    BatchCallbackCompletionRequest:
+      type: object
+      description: Request body for completing multiple callbacks
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: List of callbacks to complete
+          items:
+            $ref: '#/components/schemas/BatchCallbackInput'
+    BatchCallbackInput:
+      type: object
+      description: A single callback completion input
+      required:
+        - callbackId
+        - outputFields
+      properties:
+        callbackId:
+          type: string
+          description: The unique identifier of the callback
+        outputFields:
+          type: object
+          description: The output values to return
+          additionalProperties:
+            type: string
+    BatchCallbackResponse:
+      type: object
+      description: Response from a batch callback completion operation
+      properties:
+        status:
+          type: string
+          enum:
+            - COMPLETE
+            - PARTIAL
+          description: Overall status of the batch operation
+        errors:
+          type: array
+          description: List of errors for failed callbacks
+          items:
+            $ref: '#/components/schemas/BatchCallbackError'
+    BatchCallbackError:
+      type: object
+      description: Error information for a failed callback
+      required:
+        - callbackId
+        - message
+        - category
+      properties:
+        callbackId:
+          type: string
+          description: The callback that failed
+        message:
+          type: string
+          description: Error message
+        category:
+          type: string
+          description: Error category
+    ActionDefinition:
+      type: object
+      description: A custom workflow action definition
+      required:
+        - id
+        - revisionId
+        - actionUrl
+        - labels
+        - objectTypes
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the action definition
+        revisionId:
+          type: string
+          description: The current revision identifier
+        actionUrl:
+          type: string
+          format: uri
+          description: The URL that HubSpot will call when the action executes
+        labels:
+          $ref: '#/components/schemas/ActionLabels'
+        inputFields:
+          type: array
+          description: Input fields that users can configure for the action
+          items:
+            $ref: '#/components/schemas/InputField'
+        outputFields:
+          type: array
+          description: Output fields that the action returns
+          items:
+            $ref: '#/components/schemas/OutputField'
+        objectTypes:
+          type: array
+          description: CRM object types this action can operate on
+          items:
+            type: string
+            enum:
+              - CONTACT
+              - COMPANY
+              - DEAL
+              - TICKET
+              - QUOTE
+        objectRequestOptions:
+          $ref: '#/components/schemas/ObjectRequestOptions'
+        published:
+          type: boolean
+          description: Whether the action is published and available for use
+        functions:
+          type: array
+          description: Functions associated with this action
+          items:
+            $ref: '#/components/schemas/ActionFunctionReference'
+    ActionDefinitionInput:
+      type: object
+      description: Input for creating a new action definition
+      required:
+        - actionUrl
+        - labels
+        - objectTypes
+      properties:
+        actionUrl:
+          type: string
+          format: uri
+          description: The URL that HubSpot will call when the action executes
+        labels:
+          $ref: '#/components/schemas/ActionLabels'
+        inputFields:
+          type: array
+          description: Input fields for the action
+          items:
+            $ref: '#/components/schemas/InputField'
+        outputFields:
+          type: array
+          description: Output fields for the action
+          items:
+            $ref: '#/components/schemas/OutputField'
+        objectTypes:
+          type: array
+          description: CRM object types this action can operate on
+          items:
+            type: string
+            enum:
+              - CONTACT
+              - COMPANY
+              - DEAL
+              - TICKET
+              - QUOTE
+        objectRequestOptions:
+          $ref: '#/components/schemas/ObjectRequestOptions'
+        published:
+          type: boolean
+          description: Whether to publish the action immediately
+    ActionDefinitionPatch:
+      type: object
+      description: Input for updating an action definition
+      properties:
+        actionUrl:
+          type: string
+          format: uri
+          description: The URL that HubSpot will call when the action executes
+        labels:
+          $ref: '#/components/schemas/ActionLabels'
+        inputFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/InputField'
+        outputFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutputField'
+        objectTypes:
+          type: array
+          items:
+            type: string
+        objectRequestOptions:
+          $ref: '#/components/schemas/ObjectRequestOptions'
+        published:
+          type: boolean
+    ActionLabels:
+      type: object
+      description: Human-readable labels for the action
+      required:
+        - actionName
+      properties:
+        actionName:
+          type: string
+          description: The display name of the action
+        actionDescription:
+          type: string
+          description: A description of what the action does
+        appDisplayName:
+          type: string
+          description: The name of the app providing this action
+        actionCardContent:
+          type: string
+          description: Content to display on the action card in the workflow editor
+    InputField:
+      type: object
+      description: An input field for the action
+      required:
+        - typeDefinition
+        - supportedValueTypes
+      properties:
+        typeDefinition:
+          $ref: '#/components/schemas/FieldTypeDefinition'
+        supportedValueTypes:
+          type: array
+          description: The types of values that can be provided for this field
+          items:
+            type: string
+            enum:
+              - STATIC_VALUE
+              - OBJECT_PROPERTY
+              - OUTPUT_FROM_PREVIOUS_ACTION
+        isRequired:
+          type: boolean
+          description: Whether this field is required
+    OutputField:
+      type: object
+      description: An output field returned by the action
+      required:
+        - typeDefinition
+      properties:
+        typeDefinition:
+          $ref: '#/components/schemas/FieldTypeDefinition'
+    FieldTypeDefinition:
+      type: object
+      description: Definition of a field's type and configuration
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          description: The programmatic name of the field
+        type:
+          type: string
+          enum:
+            - STRING
+            - NUMBER
+            - BOOL
+            - DATE
+            - DATETIME
+            - ENUMERATION
+            - PHONE_NUMBER
+            - CURRENCY
+          description: The data type of the field
+        fieldType:
+          type: string
+          enum:
+            - TEXT
+            - TEXTAREA
+            - NUMBER
+            - SELECT
+            - BOOLEANCHECKBOX
+            - DATE
+            - FILE
+          description: The UI field type for input
+        label:
+          type: string
+          description: Human-readable label for the field
+        description:
+          type: string
+          description: Description of the field
+        options:
+          type: array
+          description: Options for enumeration fields
+          items:
+            $ref: '#/components/schemas/FieldOption'
+    FieldOption:
+      type: object
+      description: An option for an enumeration field
+      required:
+        - label
+        - value
+      properties:
+        label:
+          type: string
+          description: Display label for the option
+        value:
+          type: string
+          description: The value of the option
+        displayOrder:
+          type: integer
+          description: Order in which to display the option
+    ObjectRequestOptions:
+      type: object
+      description: Options for requesting CRM object data
+      properties:
+        properties:
+          type: array
+          description: CRM properties to include in the action execution request
+          items:
+            type: string
+    ActionFunctionReference:
+      type: object
+      description: A reference to a function associated with an action
+      required:
+        - functionType
+        - id
+      properties:
+        functionType:
+          type: string
+          enum:
+            - PRE_ACTION_EXECUTION
+            - PRE_FETCH_OPTIONS
+            - POST_FETCH_OPTIONS
+            - POST_ACTION_EXECUTION
+          description: The type of function
+        id:
+          type: string
+          description: The unique identifier of the function
+    ActionDefinitionCollection:
+      type: object
+      description: A paginated collection of action definitions
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          description: List of action definitions
+          items:
+            $ref: '#/components/schemas/ActionDefinition'
+        paging:
+          $ref: '#/components/schemas/Paging'
+    ActionFunction:
+      type: object
+      description: A serverless function associated with an action
+      required:
+        - id
+        - functionType
+        - functionSource
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the function
+        functionType:
+          type: string
+          enum:
+            - PRE_ACTION_EXECUTION
+            - PRE_FETCH_OPTIONS
+            - POST_FETCH_OPTIONS
+            - POST_ACTION_EXECUTION
+          description: The type of function
+        functionSource:
+          type: string
+          description: The JavaScript source code of the function
+    ActionFunctionInput:
+      type: object
+      description: Input for creating or updating a function
+      required:
+        - functionSource
+      properties:
+        functionSource:
+          type: string
+          description: The JavaScript source code of the function
+    ActionFunctionCollection:
+      type: object
+      description: A collection of action functions
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          description: List of action functions
+          items:
+            $ref: '#/components/schemas/ActionFunction'
+    ActionDefinitionRevision:
+      type: object
+      description: A revision of an action definition
+      required:
+        - revisionId
+        - definition
+        - createdAt
+      properties:
+        revisionId:
+          type: string
+          description: The unique identifier of the revision
+        definition:
+          $ref: '#/components/schemas/ActionDefinition'
+        createdAt:
+          type: string
+          format: date-time
+          description: When the revision was created
+    ActionDefinitionRevisionCollection:
+      type: object
+      description: A paginated collection of action definition revisions
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          description: List of revisions
+          items:
+            $ref: '#/components/schemas/ActionDefinitionRevision'
+        paging:
+          $ref: '#/components/schemas/Paging'
+    Paging:
+      type: object
+      description: Pagination information
+      properties:
+        next:
+          type: object
+          properties:
+            after:
+              type: string
+              description: Cursor for the next page
+    Error:
+      type: object
+      description: An error response
+      required:
+        - category
+        - correlationId
+        - message
+      properties:
+        category:
+          type: string
+          description: The error category
+        correlationId:
+          type: string
+          format: uuid
+          description: A unique identifier for this error instance
+        message:
+          type: string
+          description: A human-readable error message
+        subCategory:
+          type: string
+          description: A more specific error category
+        errors:
+          type: array
+          description: Detailed error information
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+        context:
+          type: object
+          description: Additional context about the error
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        links:
+          type: object
+          description: Related links
+          additionalProperties:
+            type: string
+    ErrorDetail:
+      type: object
+      description: Detailed error information
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: The error message
+        code:
+          type: string
+          description: An error code
+        in:
+          type: string
+          description: The location of the error
+        subCategory:
+          type: string
+          description: A specific error subcategory
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+  examples:
+    CallbackCompletionRequestExample:
+      summary: Example callback completion request
+      value:
+        outputFields:
+          result: success
+          processedCount: '42'
+          notificationId: notif-123
+    BatchCallbackCompletionRequestExample:
+      summary: Example batch callback completion request
+      value:
+        inputs:
+          - callbackId: callback-abc123
+            outputFields:
+              result: success
+              processedCount: '42'
+          - callbackId: callback-def456
+            outputFields:
+              result: success
+              processedCount: '18'
+    BatchCallbackPartialSuccessExample:
+      summary: Batch callback response with partial failure
+      value:
+        status: PARTIAL
+        errors:
+          - callbackId: callback-xyz789
+            message: Callback not found or already completed
+            category: NOT_FOUND
+    ActionDefinitionSuccessExample:
+      summary: Example action definition
+      value:
+        id: action-def-001
+        revisionId: rev-001
+        actionUrl: https://api.example.com/workflow-actions/execute
+        labels:
+          actionName: Send Custom Notification
+          actionDescription: Sends a custom notification to the specified channel
+          appDisplayName: Custom Notifications App
+          actionCardContent: Send notification to {{channel}}
+        inputFields:
+          - typeDefinition:
+              name: channel
+              type: ENUMERATION
+              fieldType: SELECT
+              label: Notification Channel
+              description: Select the channel to send the notification to
+              options:
+                - label: Email
+                  value: email
+                  displayOrder: 1
+                - label: SMS
+                  value: sms
+                  displayOrder: 2
+                - label: Slack
+                  value: slack
+                  displayOrder: 3
+            supportedValueTypes:
+              - STATIC_VALUE
+            isRequired: true
+          - typeDefinition:
+              name: message
+              type: STRING
+              fieldType: TEXTAREA
+              label: Message
+              description: The notification message to send
+            supportedValueTypes:
+              - STATIC_VALUE
+              - OBJECT_PROPERTY
+            isRequired: true
+        outputFields:
+          - typeDefinition:
+              name: notificationId
+              type: STRING
+              label: Notification ID
+        objectTypes:
+          - CONTACT
+          - COMPANY
+          - DEAL
+        objectRequestOptions:
+          properties:
+            - email
+            - firstname
+            - lastname
+        published: true
+        functions:
+          - functionType: PRE_ACTION_EXECUTION
+            id: func-xyz789
+    ActionDefinitionInputExample:
+      summary: Example action definition input
+      value:
+        actionUrl: https://api.example.com/workflow-actions/execute
+        labels:
+          actionName: Send Custom Notification
+          actionDescription: Sends a custom notification to the specified channel
+          appDisplayName: Custom Notifications App
+        inputFields:
+          - typeDefinition:
+              name: channel
+              type: ENUMERATION
+              fieldType: SELECT
+              label: Notification Channel
+              options:
+                - label: Email
+                  value: email
+                - label: SMS
+                  value: sms
+            supportedValueTypes:
+              - STATIC_VALUE
+            isRequired: true
+        objectTypes:
+          - CONTACT
+          - COMPANY
+        published: false
+    ActionDefinitionPatchExample:
+      summary: Example action definition patch
+      value:
+        labels:
+          actionName: Send Custom Notification V2
+          actionDescription: Updated description for the notification action
+        published: true
+    ActionDefinitionCollectionSuccessExample:
+      summary: Example collection of action definitions
+      value:
+        results:
+          - id: action-def-001
+            revisionId: rev-001
+            actionUrl: https://api.example.com/workflow-actions/execute
+            labels:
+              actionName: Send Custom Notification
+              appDisplayName: Custom Notifications App
+            objectTypes:
+              - CONTACT
+              - COMPANY
+            published: true
+          - id: action-def-002
+            revisionId: rev-003
+            actionUrl: https://api.example.com/workflow-actions/sync
+            labels:
+              actionName: Sync to External System
+              appDisplayName: Data Sync App
+            objectTypes:
+              - DEAL
+            published: true
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+    ActionFunctionSuccessExample:
+      summary: Example action function
+      value:
+        id: func-xyz789
+        functionType: PRE_ACTION_EXECUTION
+        functionSource: >-
+          exports.main = (event, callback) => { console.log('Pre-execution
+          hook'); callback({ outputFields: {} }); };
+    ActionFunctionInputExample:
+      summary: Example action function input
+      value:
+        functionSource: >-
+          exports.main = (event, callback) => { const result =
+          processData(event.inputFields); callback({ outputFields: { result:
+          result } }); };
+    ActionFunctionCollectionSuccessExample:
+      summary: Example collection of action functions
+      value:
+        results:
+          - id: func-xyz789
+            functionType: PRE_ACTION_EXECUTION
+            functionSource: >-
+              exports.main = (event, callback) => { callback({ outputFields: {}
+              }); };
+          - id: func-abc123
+            functionType: POST_ACTION_EXECUTION
+            functionSource: >-
+              exports.main = (event, callback) => { console.log('Action
+              completed'); callback({}); };
+    ActionDefinitionRevisionSuccessExample:
+      summary: Example action definition revision
+      value:
+        revisionId: rev-001
+        definition:
+          id: action-def-001
+          revisionId: rev-001
+          actionUrl: https://api.example.com/workflow-actions/execute
+          labels:
+            actionName: Send Custom Notification
+            appDisplayName: Custom Notifications App
+          objectTypes:
+            - CONTACT
+          published: true
+        createdAt: '2024-01-15T10:30:00Z'
+    ActionDefinitionRevisionCollectionSuccessExample:
+      summary: Example collection of action definition revisions
+      value:
+        results:
+          - revisionId: rev-003
+            definition:
+              id: action-def-001
+              revisionId: rev-003
+              actionUrl: https://api.example.com/workflow-actions/execute
+              labels:
+                actionName: Send Custom Notification V3
+                appDisplayName: Custom Notifications App
+              objectTypes:
+                - CONTACT
+              published: true
+            createdAt: '2024-01-20T14:00:00Z'
+          - revisionId: rev-002
+            definition:
+              id: action-def-001
+              revisionId: rev-002
+              actionUrl: https://api.example.com/workflow-actions/execute
+              labels:
+                actionName: Send Custom Notification V2
+                appDisplayName: Custom Notifications App
+              objectTypes:
+                - CONTACT
+              published: true
+            createdAt: '2024-01-18T09:15:00Z'
+          - revisionId: rev-001
+            definition:
+              id: action-def-001
+              revisionId: rev-001
+              actionUrl: https://api.example.com/workflow-actions/execute
+              labels:
+                actionName: Send Custom Notification
+                appDisplayName: Custom Notifications App
+              objectTypes:
+                - CONTACT
+              published: false
+            createdAt: '2024-01-15T10:30:00Z'
+        paging:
+          next:
+            after: MTIzNDU%3D
+    ErrorBadRequestExample:
+      summary: Bad request error response
+      value:
+        category: VALIDATION_ERROR
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: Invalid input JSON
+        subCategory: INVALID_PARAMETER
+        errors:
+          - message: actionUrl is required
+            code: REQUIRED_FIELD
+            in: body
+    ErrorNotFoundExample:
+      summary: Not found error response
+      value:
+        category: NOT_FOUND
+        correlationId: cde8f123-4567-89ab-cdef-012345678901
+        message: Resource not found
+        subCategory: OBJECT_NOT_FOUND

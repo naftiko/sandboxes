@@ -1,0 +1,2438 @@
+openapi: 3.1.0
+info:
+  title: Apache Spark REST API
+  description: |
+    Combined OpenAPI specification for Apache Spark's two built-in HTTP REST APIs:
+
+    **1. Monitoring & Management API** — Exposes application, job, stage, executor, storage,
+    streaming, SQL, and environment data as JSON. Available on the Spark UI (default port 4040)
+    and the History Server (default port 18080) under `/api/v1`.
+
+    **2. Job Submission API** — Allows programmatic submission, status polling, and killing of
+    Spark applications on a standalone cluster. Available on the Spark master (default port 6066)
+    under `/v1/submissions`. Must be enabled with `spark.master.rest.enabled=true`.
+
+    > **Note:** Spark Connect (gRPC-based) is not covered here as it is not an HTTP REST API.
+  version: 1.0.0
+  contact:
+    name: Apache Spark
+    url: https://spark.apache.org
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+servers:
+  - url: http://localhost:4040/api/v1
+    description: Spark UI — running application (Monitoring API)
+  - url: http://localhost:18080/api/v1
+    description: Spark History Server (Monitoring API)
+  - url: http://localhost:6066
+    description: Spark Master — standalone cluster (Job Submission API)
+tags:
+  - name: Applications
+    description: Spark application metadata, attempts, and event logs
+  - name: Jobs
+    description: Job-level monitoring data for a given application
+  - name: Stages
+    description: Stage-level monitoring, task lists, and task metric summaries
+  - name: Executors
+    description: Executor status, resource usage, and thread information
+  - name: Storage
+    description: RDD storage and caching details
+  - name: Streaming
+    description: Spark Streaming statistics, receivers, batches, and output operations
+  - name: SQL
+    description: SQL and DataFrame query execution details and plans
+  - name: Environment
+    description: Application runtime environment and Spark configuration
+  - name: Version
+    description: Spark version information
+  - name: Submissions
+    description: Standalone cluster job submission, status, and lifecycle management
+paths:
+  /applications:
+    get:
+      tags:
+        - Applications
+      summary: List all applications
+      operationId: listApplications
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - completed
+              - running
+        - name: minDate
+          in: query
+          description: Earliest start date/time (ISO 8601 or yyyy-MM-dd)
+          schema:
+            type: string
+        - name: maxDate
+          in: query
+          description: Latest start date/time
+          schema:
+            type: string
+        - name: minEndDate
+          in: query
+          description: Earliest end date/time
+          schema:
+            type: string
+        - name: maxEndDate
+          in: query
+          description: Latest end date/time
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of applications to return
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Array of applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApplicationInfo'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - id: app-20250115120000-0001
+                      name: SparkPi
+                      attempts:
+                        - attemptId: '1'
+                          startTime: 2025-01-15T12:00:00.000GMT
+                          endTime: 2025-01-15T12:05:30.000GMT
+                          lastUpdated: 2025-01-15T12:05:30.000GMT
+                          duration: 330000
+                          sparkUser: spark
+                          completed: true
+                          appSparkVersion: 4.0.1
+                          startTimeEpoch: 1736942400000
+                          endTimeEpoch: 1736942730000
+                          lastUpdatedEpoch: 1736942730000
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/jobs:
+    get:
+      tags:
+        - Jobs
+      summary: List all jobs for an application
+      operationId: listJobs
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - running
+              - succeeded
+              - failed
+              - unknown
+      responses:
+        '200':
+          description: Array of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobData'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - jobId: 0
+                      name: collect at SparkPi.scala:38
+                      description: collect at SparkPi.scala:38
+                      submissionTime: 2025-01-15T12:00:01.000GMT
+                      completionTime: 2025-01-15T12:05:28.000GMT
+                      stageIds:
+                        - 0
+                      jobGroup:
+                      status: SUCCEEDED
+                      numTasks: 100
+                      numActiveTasks: 0
+                      numCompletedTasks: 100
+                      numSkippedTasks: 0
+                      numFailedTasks: 0
+                      numKilledTasks: 0
+                      numCompletedIndices: 100
+                      numActiveStages: 0
+                      numCompletedStages: 1
+                      numSkippedStages: 0
+                      numFailedStages: 0
+                      killedTasksSummary: {}
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/jobs/{jobId}:
+    get:
+      tags:
+        - Jobs
+      summary: Get details for a specific job
+      operationId: getJob
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - $ref: '#/components/parameters/jobId'
+      responses:
+        '200':
+          description: Job details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobData'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    jobId: 0
+                    name: collect at SparkPi.scala:38
+                    description: collect at SparkPi.scala:38
+                    submissionTime: 2025-01-15T12:00:01.000GMT
+                    completionTime: 2025-01-15T12:05:28.000GMT
+                    stageIds:
+                      - 0
+                    jobGroup:
+                    status: SUCCEEDED
+                    numTasks: 100
+                    numActiveTasks: 0
+                    numCompletedTasks: 100
+                    numSkippedTasks: 0
+                    numFailedTasks: 0
+                    numKilledTasks: 0
+                    numCompletedIndices: 100
+                    numActiveStages: 0
+                    numCompletedStages: 1
+                    numSkippedStages: 0
+                    numFailedStages: 0
+                    killedTasksSummary: {}
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  status:
+                    type: integer
+              examples:
+                Default:
+                  summary: Resource not found
+                  value:
+                    error: Not found
+                    status: 404
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/stages:
+    get:
+      tags:
+        - Stages
+      summary: List all stages for an application
+      operationId: listStages
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - active
+              - complete
+              - pending
+              - failed
+        - name: details
+          in: query
+          description: Include task-level data
+          schema:
+            type: boolean
+        - name: taskStatus
+          in: query
+          description: Filter tasks by status (only with details=true). May be repeated.
+          schema:
+            type: string
+            enum:
+              - RUNNING
+              - SUCCESS
+              - FAILED
+              - KILLED
+              - PENDING
+        - name: withSummaries
+          in: query
+          description: Include task and executor metrics distributions
+          schema:
+            type: boolean
+        - name: quantiles
+          in: query
+          description: 'Comma-separated quantiles (default: 0.0,0.25,0.5,0.75,1.0). Only with withSummaries=true.'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of stages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StageData'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - status: COMPLETE
+                      stageId: 0
+                      attemptId: 0
+                      numTasks: 100
+                      numActiveTasks: 0
+                      numCompleteTasks: 100
+                      numFailedTasks: 0
+                      numKilledTasks: 0
+                      numCompletedIndices: 100
+                      submissionTime: 2025-01-15T12:00:01.000GMT
+                      firstTaskLaunchedTime: 2025-01-15T12:00:02.000GMT
+                      completionTime: 2025-01-15T12:05:28.000GMT
+                      executorDeserializeTime: 150
+                      executorDeserializeCpuTime: 120000000
+                      executorRunTime: 325000
+                      executorCpuTime: 310000000000
+                      resultSize: 4500
+                      jvmGcTime: 800
+                      resultSerializationTime: 5
+                      memoryBytesSpilled: 0
+                      diskBytesSpilled: 0
+                      peakExecutionMemory: 67108864
+                      inputBytes: 0
+                      inputRecords: 0
+                      outputBytes: 0
+                      outputRecords: 0
+                      shuffleReadBytes: 0
+                      shuffleReadRecords: 0
+                      shuffleWriteBytes: 0
+                      shuffleWriteRecords: 0
+                      name: reduce at SparkPi.scala:38
+                      description: reduce at SparkPi.scala:38
+                      details: org.apache.spark.rdd.RDD.reduce(RDD.scala:1089)
+                      schedulingPool: default
+                      rddIds:
+                        - 0
+                        - 1
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/stages/{stageId}:
+    get:
+      tags:
+        - Stages
+      summary: List all attempts for a given stage
+      operationId: getStageAttempts
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - $ref: '#/components/parameters/stageId'
+        - name: details
+          in: query
+          schema:
+            type: boolean
+        - name: taskStatus
+          in: query
+          schema:
+            type: string
+            enum:
+              - RUNNING
+              - SUCCESS
+              - FAILED
+              - KILLED
+              - PENDING
+        - name: withSummaries
+          in: query
+          schema:
+            type: boolean
+        - name: quantiles
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of stage attempts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StageData'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - status: COMPLETE
+                      stageId: 0
+                      attemptId: 0
+                      numTasks: 100
+                      numActiveTasks: 0
+                      numCompleteTasks: 100
+                      numFailedTasks: 0
+                      numKilledTasks: 0
+                      numCompletedIndices: 100
+                      submissionTime: 2025-01-15T12:00:01.000GMT
+                      firstTaskLaunchedTime: 2025-01-15T12:00:02.000GMT
+                      completionTime: 2025-01-15T12:05:28.000GMT
+                      executorDeserializeTime: 150
+                      executorDeserializeCpuTime: 120000000
+                      executorRunTime: 325000
+                      executorCpuTime: 310000000000
+                      resultSize: 4500
+                      jvmGcTime: 800
+                      resultSerializationTime: 5
+                      memoryBytesSpilled: 0
+                      diskBytesSpilled: 0
+                      peakExecutionMemory: 67108864
+                      inputBytes: 0
+                      inputRecords: 0
+                      outputBytes: 0
+                      outputRecords: 0
+                      shuffleReadBytes: 0
+                      shuffleReadRecords: 0
+                      shuffleWriteBytes: 0
+                      shuffleWriteRecords: 0
+                      name: reduce at SparkPi.scala:38
+                      description: reduce at SparkPi.scala:38
+                      details: org.apache.spark.rdd.RDD.reduce(RDD.scala:1089)
+                      schedulingPool: default
+                      rddIds:
+                        - 0
+                        - 1
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/stages/{stageId}/{stageAttemptId}:
+    get:
+      tags:
+        - Stages
+      summary: Get details for a specific stage attempt
+      operationId: getStageAttempt
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - $ref: '#/components/parameters/stageId'
+        - $ref: '#/components/parameters/stageAttemptId'
+        - name: details
+          in: query
+          schema:
+            type: boolean
+        - name: taskStatus
+          in: query
+          schema:
+            type: string
+            enum:
+              - RUNNING
+              - SUCCESS
+              - FAILED
+              - KILLED
+              - PENDING
+        - name: withSummaries
+          in: query
+          schema:
+            type: boolean
+        - name: quantiles
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Stage attempt details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StageData'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    status: COMPLETE
+                    stageId: 0
+                    attemptId: 0
+                    numTasks: 100
+                    numActiveTasks: 0
+                    numCompleteTasks: 100
+                    numFailedTasks: 0
+                    numKilledTasks: 0
+                    numCompletedIndices: 100
+                    submissionTime: 2025-01-15T12:00:01.000GMT
+                    firstTaskLaunchedTime: 2025-01-15T12:00:02.000GMT
+                    completionTime: 2025-01-15T12:05:28.000GMT
+                    executorDeserializeTime: 150
+                    executorDeserializeCpuTime: 120000000
+                    executorRunTime: 325000
+                    executorCpuTime: 310000000000
+                    resultSize: 4500
+                    jvmGcTime: 800
+                    resultSerializationTime: 5
+                    memoryBytesSpilled: 0
+                    diskBytesSpilled: 0
+                    peakExecutionMemory: 67108864
+                    inputBytes: 0
+                    inputRecords: 0
+                    outputBytes: 0
+                    outputRecords: 0
+                    shuffleReadBytes: 0
+                    shuffleReadRecords: 0
+                    shuffleWriteBytes: 0
+                    shuffleWriteRecords: 0
+                    name: reduce at SparkPi.scala:38
+                    description: reduce at SparkPi.scala:38
+                    details: org.apache.spark.rdd.RDD.reduce(RDD.scala:1089)
+                    schedulingPool: default
+                    rddIds:
+                      - 0
+                      - 1
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/stages/{stageId}/{stageAttemptId}/taskSummary:
+    get:
+      tags:
+        - Stages
+      summary: Summary metrics of all tasks in a stage attempt
+      operationId: getTaskSummary
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - $ref: '#/components/parameters/stageId'
+        - $ref: '#/components/parameters/stageAttemptId'
+        - name: quantiles
+          in: query
+          description: Comma-separated quantiles (e.g. 0.01,0.5,0.99)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task metrics summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskMetricsSummary'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    quantiles:
+                      - 0.0
+                      - 0.25
+                      - 0.5
+                      - 0.75
+                      - 1.0
+                    executorDeserializeTime:
+                      - 5
+                      - 10
+                      - 15
+                      - 22
+                      - 85
+                    executorDeserializeCpuTime:
+                      - 4000000
+                      - 8000000
+                      - 12000000
+                      - 18000000
+                      - 70000000
+                    executorRunTime:
+                      - 800
+                      - 1000
+                      - 1200
+                      - 1500
+                      - 3200
+                    executorCpuTime:
+                      - 700000000
+                      - 900000000
+                      - 1100000000
+                      - 1400000000
+                      - 3000000000
+                    resultSize:
+                      - 1800
+                      - 2000
+                      - 2100
+                      - 2200
+                      - 2800
+                    jvmGcTime:
+                      - 0
+                      - 0
+                      - 8
+                      - 15
+                      - 120
+                    resultSerializationTime:
+                      - 0
+                      - 0
+                      - 1
+                      - 1
+                      - 5
+                    memoryBytesSpilled:
+                      - 0
+                      - 0
+                      - 0
+                      - 0
+                      - 0
+                    diskBytesSpilled:
+                      - 0
+                      - 0
+                      - 0
+                      - 0
+                      - 0
+                    peakExecutionMemory:
+                      - 8388608
+                      - 12582912
+                      - 16777216
+                      - 25165824
+                      - 67108864
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/stages/{stageId}/{stageAttemptId}/taskList:
+    get:
+      tags:
+        - Stages
+      summary: List tasks for a stage attempt
+      operationId: getTaskList
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - $ref: '#/components/parameters/stageId'
+        - $ref: '#/components/parameters/stageAttemptId'
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: length
+          in: query
+          schema:
+            type: integer
+        - name: sortBy
+          in: query
+          description: Sort field, prefix with '-' for descending (e.g. runtime, -runtime)
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - running
+              - success
+              - killed
+              - failed
+              - unknown
+      responses:
+        '200':
+          description: Array of task data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskData'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - taskId: 0
+                      index: 0
+                      attempt: 0
+                      partitionId: 0
+                      launchTime: 2025-01-15T12:00:02.000GMT
+                      resultFetchStart: 2025-01-15T12:00:03.200GMT
+                      duration: 1250
+                      executorId: '1'
+                      host: worker-1.example.com
+                      status: SUCCESS
+                      taskLocality: PROCESS_LOCAL
+                      speculative: false
+                      taskMetrics:
+                        executorDeserializeTime: 15
+                        executorDeserializeCpuTime: 12000000
+                        executorRunTime: 1200
+                        executorCpuTime: 1100000000
+                        resultSize: 2100
+                        jvmGcTime: 8
+                        resultSerializationTime: 1
+                        memoryBytesSpilled: 0
+                        diskBytesSpilled: 0
+                        peakExecutionMemory: 16777216
+                        inputMetrics:
+                          bytesRead: 0
+                          recordsRead: 0
+                        outputMetrics:
+                          bytesWritten: 0
+                          recordsWritten: 0
+                        shuffleReadMetrics:
+                          remoteBlocksFetched: 0
+                          localBlocksFetched: 0
+                          fetchWaitTime: 0
+                          remoteBytesRead: 0
+                          remoteBytesReadToDisk: 0
+                          localBytesRead: 0
+                          recordsRead: 0
+                        shuffleWriteMetrics:
+                          bytesWritten: 0
+                          writeTime: 0
+                          recordsWritten: 0
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/executors:
+    get:
+      tags:
+        - Executors
+      summary: List all active executors
+      operationId: listExecutors
+      parameters:
+        - $ref: '#/components/parameters/appId'
+      responses:
+        '200':
+          description: Array of active executors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExecutorSummary'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - id: '1'
+                      hostPort: worker-1.example.com:42956
+                      isActive: true
+                      rddBlocks: 0
+                      memoryUsed: 0
+                      diskUsed: 0
+                      totalCores: 4
+                      maxTasks: 4
+                      activeTasks: 0
+                      failedTasks: 0
+                      completedTasks: 50
+                      totalTasks: 50
+                      totalDuration: 162000
+                      totalGCTime: 400
+                      totalInputBytes: 0
+                      totalShuffleRead: 0
+                      totalShuffleWrite: 0
+                      isBlacklisted: false
+                      maxMemory: 384093388
+                      addTime: 2025-01-15T12:00:00.500GMT
+                      executorLogs:
+                        stdout: 
+                          http://worker-1.example.com:8081/logPage/?appId=app-20250115120000-0001&executorId=1&logType=stdout
+                        stderr: 
+                          http://worker-1.example.com:8081/logPage/?appId=app-20250115120000-0001&executorId=1&logType=stderr
+                      memoryMetrics:
+                        usedOnHeapStorageMemory: 0
+                        usedOffHeapStorageMemory: 0
+                        totalOnHeapStorageMemory: 384093388
+                        totalOffHeapStorageMemory: 0
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/allexecutors:
+    get:
+      tags:
+        - Executors
+      summary: List all executors (active and dead)
+      operationId: listAllExecutors
+      parameters:
+        - $ref: '#/components/parameters/appId'
+      responses:
+        '200':
+          description: Array of all executors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExecutorSummary'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - id: '1'
+                      hostPort: worker-1.example.com:42956
+                      isActive: true
+                      rddBlocks: 0
+                      memoryUsed: 0
+                      diskUsed: 0
+                      totalCores: 4
+                      maxTasks: 4
+                      activeTasks: 0
+                      failedTasks: 0
+                      completedTasks: 50
+                      totalTasks: 50
+                      totalDuration: 162000
+                      totalGCTime: 400
+                      totalInputBytes: 0
+                      totalShuffleRead: 0
+                      totalShuffleWrite: 0
+                      isBlacklisted: false
+                      maxMemory: 384093388
+                      addTime: 2025-01-15T12:00:00.500GMT
+                      executorLogs:
+                        stdout: 
+                          http://worker-1.example.com:8081/logPage/?appId=app-20250115120000-0001&executorId=1&logType=stdout
+                        stderr: 
+                          http://worker-1.example.com:8081/logPage/?appId=app-20250115120000-0001&executorId=1&logType=stderr
+                      memoryMetrics:
+                        usedOnHeapStorageMemory: 0
+                        usedOffHeapStorageMemory: 0
+                        totalOnHeapStorageMemory: 384093388
+                        totalOffHeapStorageMemory: 0
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/executors/{executorId}/threads:
+    get:
+      tags:
+        - Executors
+      summary: Stack traces of all threads in an active executor
+      description: Not available via the History Server.
+      operationId: getExecutorThreads
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - name: executorId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Thread stack traces
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    thread-1: |-
+                      java.lang.Thread.State: RUNNABLE
+                      	at java.base/java.lang.Thread.dumpThreads(Native Method)
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/storage/rdd:
+    get:
+      tags:
+        - Storage
+      summary: List stored RDDs
+      operationId: listStorageRdds
+      parameters:
+        - $ref: '#/components/parameters/appId'
+      responses:
+        '200':
+          description: Array of stored RDD information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RDDStorageInfo'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - id: 0
+                      name: ParallelCollectionRDD[0]
+                      numPartitions: 100
+                      numCachedPartitions: 100
+                      storageLevel: Memory Deserialized 1x Replicated
+                      memoryUsed: 4194304
+                      diskUsed: 0
+                      dataDistribution:
+                        - address: worker-1.example.com:42956
+                          memoryUsed: 2097152
+                          memoryRemaining: 382000000
+                          diskUsed: 0
+                        - address: worker-2.example.com:43120
+                          memoryUsed: 2097152
+                          memoryRemaining: 382000000
+                          diskUsed: 0
+                      partitions:
+                        - blockName: rdd_0_0
+                          storageLevel: Memory Deserialized 1x Replicated
+                          memoryUsed: 41943
+                          diskUsed: 0
+                          executors:
+                            - '1'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/storage/rdd/{rddId}:
+    get:
+      tags:
+        - Storage
+      summary: Details for a stored RDD
+      operationId: getStorageRdd
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - name: rddId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: RDD storage details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RDDStorageInfo'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    id: 0
+                    name: ParallelCollectionRDD[0]
+                    numPartitions: 100
+                    numCachedPartitions: 100
+                    storageLevel: Memory Deserialized 1x Replicated
+                    memoryUsed: 4194304
+                    diskUsed: 0
+                    dataDistribution:
+                      - address: worker-1.example.com:42956
+                        memoryUsed: 2097152
+                        memoryRemaining: 382000000
+                        diskUsed: 0
+                      - address: worker-2.example.com:43120
+                        memoryUsed: 2097152
+                        memoryRemaining: 382000000
+                        diskUsed: 0
+                    partitions:
+                      - blockName: rdd_0_0
+                        storageLevel: Memory Deserialized 1x Replicated
+                        memoryUsed: 41943
+                        diskUsed: 0
+                        executors:
+                          - '1'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/logs:
+    get:
+      tags:
+        - Applications
+      summary: Download event logs for all attempts as a zip
+      operationId: getApplicationLogs
+      parameters:
+        - $ref: '#/components/parameters/appId'
+      responses:
+        '200':
+          description: Zip archive of event log files
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/{attemptId}/logs:
+    get:
+      tags:
+        - Applications
+      summary: Download event logs for a specific attempt as a zip
+      operationId: getAttemptLogs
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - name: attemptId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Zip archive of event log files
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/streaming/statistics:
+    get:
+      tags:
+        - Streaming
+      summary: Streaming context statistics
+      operationId: getStreamingStatistics
+      parameters:
+        - $ref: '#/components/parameters/appId'
+      responses:
+        '200':
+          description: Streaming statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamingStatistics'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    startTime: 2025-01-15T12:00:00.000GMT
+                    batchDuration: 1000
+                    numReceivers: 1
+                    numActiveReceivers: 1
+                    numInactiveReceivers: 0
+                    numTotalCompletedBatches: 500
+                    numRetainedCompletedBatches: 100
+                    numActiveBatches: 0
+                    numProcessedRecords: 250000
+                    numReceivedRecords: 250000
+                    avgInputRate: 500.0
+                    avgSchedulingDelay: 12.5
+                    avgProcessingTime: 450.0
+                    avgTotalDelay: 462.5
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/streaming/receivers:
+    get:
+      tags:
+        - Streaming
+      summary: List all streaming receivers
+      operationId: listStreamingReceivers
+      parameters:
+        - $ref: '#/components/parameters/appId'
+      responses:
+        '200':
+          description: Array of receivers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReceiverInfo'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - streamId: 0
+                      streamName: KafkaReceiver-0
+                      isActive: true
+                      executorId: '1'
+                      executorHost: worker-1.example.com
+                      lastErrorTime: ''
+                      lastErrorMessage: ''
+                      lastError: ''
+                      avgEventRate: 500.0
+                      eventRates:
+                        -   - 1736942400000
+                            - 520.0
+                        -   - 1736942401000
+                            - 480.0
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/streaming/receivers/{streamId}:
+    get:
+      tags:
+        - Streaming
+      summary: Details of a specific receiver
+      operationId: getStreamingReceiver
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - name: streamId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Receiver details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceiverInfo'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    streamId: 0
+                    streamName: KafkaReceiver-0
+                    isActive: true
+                    executorId: '1'
+                    executorHost: worker-1.example.com
+                    lastErrorTime: ''
+                    lastErrorMessage: ''
+                    lastError: ''
+                    avgEventRate: 500.0
+                    eventRates:
+                      -   - 1736942400000
+                          - 520.0
+                      -   - 1736942401000
+                          - 480.0
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/streaming/batches:
+    get:
+      tags:
+        - Streaming
+      summary: List all retained batches
+      operationId: listStreamingBatches
+      parameters:
+        - $ref: '#/components/parameters/appId'
+      responses:
+        '200':
+          description: Array of batches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BatchInfo'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - batchId: 499
+                      batchTime: 2025-01-15T12:08:19.000GMT
+                      status: COMPLETED
+                      batchDuration: 1000
+                      inputSize: 500
+                      schedulingDelay: 10
+                      processingTime: 430
+                      totalDelay: 440
+                      numActiveOutputOps: 0
+                      numCompletedOutputOps: 1
+                      numFailedOutputOps: 0
+                      numTotalOutputOps: 1
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/streaming/batches/{batchId}:
+    get:
+      tags:
+        - Streaming
+      summary: Details of a specific batch
+      operationId: getStreamingBatch
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - name: batchId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Batch details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchInfo'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    batchId: 499
+                    batchTime: 2025-01-15T12:08:19.000GMT
+                    status: COMPLETED
+                    batchDuration: 1000
+                    inputSize: 500
+                    schedulingDelay: 10
+                    processingTime: 430
+                    totalDelay: 440
+                    numActiveOutputOps: 0
+                    numCompletedOutputOps: 1
+                    numFailedOutputOps: 0
+                    numTotalOutputOps: 1
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/streaming/batches/{batchId}/operations:
+    get:
+      tags:
+        - Streaming
+      summary: List output operations for a batch
+      operationId: listBatchOperations
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - name: batchId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Array of output operations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OutputOperationInfo'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - outputOpId: 0
+                      name: foreachRDD at StreamingApp.scala:52
+                      description: foreachRDD at StreamingApp.scala:52
+                      startTime: 2025-01-15T12:08:19.010GMT
+                      endTime: 2025-01-15T12:08:19.440GMT
+                      duration: 430
+                      failureReason: ''
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/streaming/batches/{batchId}/operations/{outputOpId}:
+    get:
+      tags:
+        - Streaming
+      summary: Details of a specific output operation in a batch
+      operationId: getBatchOperation
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - name: batchId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: outputOpId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Output operation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutputOperationInfo'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    outputOpId: 0
+                    name: foreachRDD at StreamingApp.scala:52
+                    description: foreachRDD at StreamingApp.scala:52
+                    startTime: 2025-01-15T12:08:19.010GMT
+                    endTime: 2025-01-15T12:08:19.440GMT
+                    duration: 430
+                    failureReason: ''
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/sql:
+    get:
+      tags:
+        - SQL
+      summary: List SQL executions for an application
+      operationId: listSqlExecutions
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - name: details
+          in: query
+          description: 'Include Spark plan node details (default: true)'
+          schema:
+            type: boolean
+            default: true
+        - name: planDescription
+          in: query
+          description: 'Include physical plan description (default: true)'
+          schema:
+            type: boolean
+            default: true
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: length
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Array of SQL execution data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SqlExecutionData'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    - id: 0
+                      status: COMPLETED
+                      description: csv at NativeMethodAccessorImpl.java:0
+                      planDescription: "== Physical Plan ==\n*(1) Scan csv "
+                      submissionTime: 2025-01-15T12:01:00.000GMT
+                      duration: 2500
+                      runningJobIds: []
+                      successJobIds:
+                        - 0
+                        - 1
+                      failedJobIds: []
+                      nodes:
+                        - nodeId: 0
+                          nodeName: WholeStageCodegen (1)
+                          metrics: []
+                      edges:
+                        - fromId: 0
+                          toId: 1
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/sql/{executionId}:
+    get:
+      tags:
+        - SQL
+      summary: Details of a specific SQL execution
+      operationId: getSqlExecution
+      parameters:
+        - $ref: '#/components/parameters/appId'
+        - name: executionId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: details
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: planDescription
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: SQL execution details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SqlExecutionData'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    id: 0
+                    status: COMPLETED
+                    description: csv at NativeMethodAccessorImpl.java:0
+                    planDescription: "== Physical Plan ==\n*(1) Scan csv "
+                    submissionTime: 2025-01-15T12:01:00.000GMT
+                    duration: 2500
+                    runningJobIds: []
+                    successJobIds:
+                      - 0
+                      - 1
+                    failedJobIds: []
+                    nodes:
+                      - nodeId: 0
+                        nodeName: WholeStageCodegen (1)
+                        metrics: []
+                    edges:
+                      - fromId: 0
+                        toId: 1
+        '404':
+          description: Execution not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  status:
+                    type: integer
+              examples:
+                Default:
+                  summary: Resource not found
+                  value:
+                    error: Not found
+                    status: 404
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /applications/{appId}/environment:
+    get:
+      tags:
+        - Environment
+      summary: Environment details of the application
+      operationId: getEnvironment
+      parameters:
+        - $ref: '#/components/parameters/appId'
+      responses:
+        '200':
+          description: Environment information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentInfo'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    runtime:
+                      javaVersion: 17.0.9 (Eclipse Adoptium)
+                      javaHome: /usr/lib/jvm/temurin-17-jdk
+                      scalaVersion: 2.13.12
+                    sparkProperties:
+                      -   - spark.app.name
+                          - SparkPi
+                      -   - spark.master
+                          - spark://master:7077
+                      -   - spark.executor.memory
+                          - 4g
+                    hadoopProperties:
+                      -   - fs.defaultFS
+                          - hdfs://namenode:9000
+                    systemProperties:
+                      -   - java.version
+                          - 17.0.9
+                      -   - os.name
+                          - Linux
+                    metricsProperties:
+                      -   - '*.sink.console.class'
+                          - org.apache.spark.metrics.sink.ConsoleSink
+                    classpathEntries:
+                      -   - /opt/spark/jars/spark-core_2.13-4.0.1.jar
+                          - System Classpath
+                    resourceProfiles:
+                      - id: 0
+                        executorResources: {}
+                        taskResources: {}
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /version:
+    get:
+      tags:
+        - Version
+      summary: Get the current Spark version
+      operationId: getVersion
+      responses:
+        '200':
+          description: Spark version string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  spark:
+                    type: string
+                    example: 4.0.1
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    spark: 4.0.1
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /v1/submissions/create:
+    post:
+      tags:
+        - Submissions
+      summary: Submit a new Spark application
+      description: |
+        Submits an application to the standalone Spark cluster.
+        Requires `spark.master.rest.enabled=true` on the master.
+      operationId: createSubmission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubmissionRequest'
+            examples:
+              Default:
+                summary: Example submission request
+                value:
+                  action: CreateSubmissionRequest
+                  appResource: /opt/spark/examples/jars/spark-examples_2.13-4.0.1.jar
+                  clientSparkVersion: 4.0.0
+                  mainClass: org.apache.spark.examples.SparkPi
+                  appArgs:
+                    - '100'
+                  sparkProperties:
+                    spark.master: spark://master:7077
+                    spark.app.name: Spark REST API - SparkPi
+                    spark.submit.deployMode: cluster
+                    spark.executor.memory: 4g
+                    spark.driver.memory: 2g
+                    spark.driver.cores: '2'
+                    spark.driver.supervise: 'true'
+                    spark.eventLog.enabled: 'false'
+                  environmentVariables:
+                    SPARK_ENV_LOADED: '1'
+      responses:
+        '200':
+          description: Submission accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSubmissionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    action: CreateSubmissionResponse
+                    message: Driver successfully submitted as driver-20250115120000-0000
+                    serverSparkVersion: 4.0.0
+                    submissionId: driver-20250115120000-0000
+                    success: true
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /v1/submissions/status/{submissionId}:
+    get:
+      tags:
+        - Submissions
+      summary: Get the status of a submitted application
+      operationId: getSubmissionStatus
+      parameters:
+        - $ref: '#/components/parameters/submissionId'
+      responses:
+        '200':
+          description: Submission status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionStatusResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    action: SubmissionStatusResponse
+                    driverState: FINISHED
+                    serverSparkVersion: 4.0.0
+                    submissionId: driver-20250115120000-0000
+                    success: true
+                    workerHostPort: 192.168.1.5:38451
+                    workerId: worker-20250115120000-192.168.1.5-38451
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+  /v1/submissions/kill/{submissionId}:
+    post:
+      tags:
+        - Submissions
+      summary: Kill a running submission
+      operationId: killSubmission
+      parameters:
+        - $ref: '#/components/parameters/submissionId'
+      responses:
+        '200':
+          description: Kill acknowledged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KillSubmissionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    action: KillSubmissionResponse
+                    message: Kill request for driver-20250115120000-0000 submitted
+                    serverSparkVersion: 4.0.0
+                    submissionId: driver-20250115120000-0000
+                    success: true
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default";
+components:
+  parameters:
+    appId:
+      name: appId
+      in: path
+      required: true
+      description: |
+        Application ID. On YARN cluster mode this is `{base-app-id}/{attempt-id}`.
+      schema:
+        type: string
+    jobId:
+      name: jobId
+      in: path
+      required: true
+      schema:
+        type: integer
+    stageId:
+      name: stageId
+      in: path
+      required: true
+      schema:
+        type: integer
+    stageAttemptId:
+      name: stageAttemptId
+      in: path
+      required: true
+      schema:
+        type: integer
+    submissionId:
+      name: submissionId
+      in: path
+      required: true
+      description: Driver submission ID (e.g. driver-20231124153531-0000)
+      schema:
+        type: string
+  schemas:
+    ApplicationInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        attempts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationAttempt'
+    ApplicationAttempt:
+      type: object
+      properties:
+        attemptId:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          description: Duration in milliseconds
+        sparkUser:
+          type: string
+        completed:
+          type: boolean
+        appSparkVersion:
+          type: string
+        startTimeEpoch:
+          type: integer
+        endTimeEpoch:
+          type: integer
+        lastUpdatedEpoch:
+          type: integer
+    JobData:
+      type: object
+      properties:
+        jobId:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        submissionTime:
+          type: string
+          format: date-time
+        completionTime:
+          type: string
+          format: date-time
+        stageIds:
+          type: array
+          items:
+            type: integer
+        jobGroup:
+          type: string
+        status:
+          type: string
+          enum:
+            - RUNNING
+            - SUCCEEDED
+            - FAILED
+            - UNKNOWN
+        numTasks:
+          type: integer
+        numActiveTasks:
+          type: integer
+        numCompletedTasks:
+          type: integer
+        numSkippedTasks:
+          type: integer
+        numFailedTasks:
+          type: integer
+        numKilledTasks:
+          type: integer
+        numCompletedIndices:
+          type: integer
+        numActiveStages:
+          type: integer
+        numCompletedStages:
+          type: integer
+        numSkippedStages:
+          type: integer
+        numFailedStages:
+          type: integer
+        killedTasksSummary:
+          type: object
+          additionalProperties:
+            type: integer
+    StageData:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - COMPLETE
+            - PENDING
+            - FAILED
+            - SKIPPED
+        stageId:
+          type: integer
+        attemptId:
+          type: integer
+        numTasks:
+          type: integer
+        numActiveTasks:
+          type: integer
+        numCompleteTasks:
+          type: integer
+        numFailedTasks:
+          type: integer
+        numKilledTasks:
+          type: integer
+        numCompletedIndices:
+          type: integer
+        submissionTime:
+          type: string
+          format: date-time
+        firstTaskLaunchedTime:
+          type: string
+          format: date-time
+        completionTime:
+          type: string
+          format: date-time
+        executorDeserializeTime:
+          type: integer
+        executorDeserializeCpuTime:
+          type: integer
+        executorRunTime:
+          type: integer
+        executorCpuTime:
+          type: integer
+        resultSize:
+          type: integer
+        jvmGcTime:
+          type: integer
+        resultSerializationTime:
+          type: integer
+        memoryBytesSpilled:
+          type: integer
+        diskBytesSpilled:
+          type: integer
+        peakExecutionMemory:
+          type: integer
+        inputBytes:
+          type: integer
+        inputRecords:
+          type: integer
+        outputBytes:
+          type: integer
+        outputRecords:
+          type: integer
+        shuffleReadBytes:
+          type: integer
+        shuffleReadRecords:
+          type: integer
+        shuffleWriteBytes:
+          type: integer
+        shuffleWriteRecords:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        details:
+          type: string
+        schedulingPool:
+          type: string
+        rddIds:
+          type: array
+          items:
+            type: integer
+        tasks:
+          type: object
+          description: Map of task ID to TaskData (only when details=true)
+          additionalProperties:
+            $ref: '#/components/schemas/TaskData'
+    TaskData:
+      type: object
+      properties:
+        taskId:
+          type: integer
+        index:
+          type: integer
+        attempt:
+          type: integer
+        partitionId:
+          type: integer
+        launchTime:
+          type: string
+          format: date-time
+        resultFetchStart:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        executorId:
+          type: string
+        host:
+          type: string
+        status:
+          type: string
+        taskLocality:
+          type: string
+        speculative:
+          type: boolean
+        errorMessage:
+          type: string
+        taskMetrics:
+          $ref: '#/components/schemas/TaskMetrics'
+    TaskMetrics:
+      type: object
+      properties:
+        executorDeserializeTime:
+          type: integer
+        executorDeserializeCpuTime:
+          type: integer
+        executorRunTime:
+          type: integer
+        executorCpuTime:
+          type: integer
+        resultSize:
+          type: integer
+        jvmGcTime:
+          type: integer
+        resultSerializationTime:
+          type: integer
+        memoryBytesSpilled:
+          type: integer
+        diskBytesSpilled:
+          type: integer
+        peakExecutionMemory:
+          type: integer
+        inputMetrics:
+          type: object
+          properties:
+            bytesRead:
+              type: integer
+            recordsRead:
+              type: integer
+        outputMetrics:
+          type: object
+          properties:
+            bytesWritten:
+              type: integer
+            recordsWritten:
+              type: integer
+        shuffleReadMetrics:
+          type: object
+          properties:
+            remoteBlocksFetched:
+              type: integer
+            localBlocksFetched:
+              type: integer
+            fetchWaitTime:
+              type: integer
+            remoteBytesRead:
+              type: integer
+            remoteBytesReadToDisk:
+              type: integer
+            localBytesRead:
+              type: integer
+            recordsRead:
+              type: integer
+        shuffleWriteMetrics:
+          type: object
+          properties:
+            bytesWritten:
+              type: integer
+            writeTime:
+              type: integer
+            recordsWritten:
+              type: integer
+    TaskMetricsSummary:
+      type: object
+      description: Quantile-based summary of task metrics across a stage attempt
+      properties:
+        quantiles:
+          type: array
+          items:
+            type: number
+        executorDeserializeTime:
+          type: array
+          items:
+            type: number
+        executorDeserializeCpuTime:
+          type: array
+          items:
+            type: number
+        executorRunTime:
+          type: array
+          items:
+            type: number
+        executorCpuTime:
+          type: array
+          items:
+            type: number
+        resultSize:
+          type: array
+          items:
+            type: number
+        jvmGcTime:
+          type: array
+          items:
+            type: number
+        resultSerializationTime:
+          type: array
+          items:
+            type: number
+        memoryBytesSpilled:
+          type: array
+          items:
+            type: number
+        diskBytesSpilled:
+          type: array
+          items:
+            type: number
+        peakExecutionMemory:
+          type: array
+          items:
+            type: number
+        inputMetrics:
+          type: object
+          properties:
+            bytesRead:
+              type: array
+              items:
+                type: number
+            recordsRead:
+              type: array
+              items:
+                type: number
+        outputMetrics:
+          type: object
+          properties:
+            bytesWritten:
+              type: array
+              items:
+                type: number
+            recordsWritten:
+              type: array
+              items:
+                type: number
+        shuffleReadMetrics:
+          type: object
+          properties:
+            readBytes:
+              type: array
+              items:
+                type: number
+            readRecords:
+              type: array
+              items:
+                type: number
+            remoteBlocksFetched:
+              type: array
+              items:
+                type: number
+            localBlocksFetched:
+              type: array
+              items:
+                type: number
+            fetchWaitTime:
+              type: array
+              items:
+                type: number
+            remoteBytesRead:
+              type: array
+              items:
+                type: number
+            remoteBytesReadToDisk:
+              type: array
+              items:
+                type: number
+            totalBlocksFetched:
+              type: array
+              items:
+                type: number
+        shuffleWriteMetrics:
+          type: object
+          properties:
+            writeBytes:
+              type: array
+              items:
+                type: number
+            writeRecords:
+              type: array
+              items:
+                type: number
+            writeTime:
+              type: array
+              items:
+                type: number
+    ExecutorSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        hostPort:
+          type: string
+        isActive:
+          type: boolean
+        rddBlocks:
+          type: integer
+        memoryUsed:
+          type: integer
+        diskUsed:
+          type: integer
+        totalCores:
+          type: integer
+        maxTasks:
+          type: integer
+        activeTasks:
+          type: integer
+        failedTasks:
+          type: integer
+        completedTasks:
+          type: integer
+        totalTasks:
+          type: integer
+        totalDuration:
+          type: integer
+        totalGCTime:
+          type: integer
+        totalInputBytes:
+          type: integer
+        totalShuffleRead:
+          type: integer
+        totalShuffleWrite:
+          type: integer
+        isBlacklisted:
+          type: boolean
+        maxMemory:
+          type: integer
+        addTime:
+          type: string
+          format: date-time
+        removeTime:
+          type: string
+          format: date-time
+        removeReason:
+          type: string
+        executorLogs:
+          type: object
+          additionalProperties:
+            type: string
+        memoryMetrics:
+          type: object
+          properties:
+            usedOnHeapStorageMemory:
+              type: integer
+            usedOffHeapStorageMemory:
+              type: integer
+            totalOnHeapStorageMemory:
+              type: integer
+            totalOffHeapStorageMemory:
+              type: integer
+        peakMemoryMetrics:
+          type: object
+          description: Peak values of executor-level memory metrics
+          additionalProperties:
+            type: integer
+    RDDStorageInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        numPartitions:
+          type: integer
+        numCachedPartitions:
+          type: integer
+        storageLevel:
+          type: string
+        memoryUsed:
+          type: integer
+        diskUsed:
+          type: integer
+        dataDistribution:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              memoryUsed:
+                type: integer
+              memoryRemaining:
+                type: integer
+              diskUsed:
+                type: integer
+        partitions:
+          type: array
+          items:
+            type: object
+            properties:
+              blockName:
+                type: string
+              storageLevel:
+                type: string
+              memoryUsed:
+                type: integer
+              diskUsed:
+                type: integer
+              executors:
+                type: array
+                items:
+                  type: string
+    StreamingStatistics:
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        batchDuration:
+          type: integer
+        numReceivers:
+          type: integer
+        numActiveReceivers:
+          type: integer
+        numInactiveReceivers:
+          type: integer
+        numTotalCompletedBatches:
+          type: integer
+        numRetainedCompletedBatches:
+          type: integer
+        numActiveBatches:
+          type: integer
+        numProcessedRecords:
+          type: integer
+        numReceivedRecords:
+          type: integer
+        avgInputRate:
+          type: number
+        avgSchedulingDelay:
+          type: number
+        avgProcessingTime:
+          type: number
+        avgTotalDelay:
+          type: number
+    ReceiverInfo:
+      type: object
+      properties:
+        streamId:
+          type: integer
+        streamName:
+          type: string
+        isActive:
+          type: boolean
+        executorId:
+          type: string
+        executorHost:
+          type: string
+        lastErrorTime:
+          type: string
+        lastErrorMessage:
+          type: string
+        lastError:
+          type: string
+        avgEventRate:
+          type: number
+        eventRates:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+    BatchInfo:
+      type: object
+      properties:
+        batchId:
+          type: integer
+        batchTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+        batchDuration:
+          type: integer
+        inputSize:
+          type: integer
+        schedulingDelay:
+          type: integer
+        processingTime:
+          type: integer
+        totalDelay:
+          type: integer
+        numActiveOutputOps:
+          type: integer
+        numCompletedOutputOps:
+          type: integer
+        numFailedOutputOps:
+          type: integer
+        numTotalOutputOps:
+          type: integer
+    OutputOperationInfo:
+      type: object
+      properties:
+        outputOpId:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        failureReason:
+          type: string
+    SqlExecutionData:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+        description:
+          type: string
+        planDescription:
+          type: string
+        submissionTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        runningJobIds:
+          type: array
+          items:
+            type: integer
+        successJobIds:
+          type: array
+          items:
+            type: integer
+        failedJobIds:
+          type: array
+          items:
+            type: integer
+        nodes:
+          type: array
+          description: Spark plan nodes (included when details=true)
+          items:
+            type: object
+            additionalProperties: true
+        edges:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    EnvironmentInfo:
+      type: object
+      properties:
+        runtime:
+          type: object
+          properties:
+            javaVersion:
+              type: string
+            javaHome:
+              type: string
+            scalaVersion:
+              type: string
+        sparkProperties:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        hadoopProperties:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        systemProperties:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        metricsProperties:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        classpathEntries:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        resourceProfiles:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    CreateSubmissionRequest:
+      type: object
+      required:
+        - action
+        - appResource
+        - clientSparkVersion
+        - mainClass
+        - sparkProperties
+      properties:
+        action:
+          type: string
+          enum:
+            - CreateSubmissionRequest
+          description: Must be "CreateSubmissionRequest"
+        appResource:
+          type: string
+          description: Path or URI of the application JAR or Python file
+          example: /home/user/my-app.jar
+        clientSparkVersion:
+          type: string
+          description: Client-side Spark version
+          example: 4.0.0
+        mainClass:
+          type: string
+          description: Fully-qualified main class to run
+          example: org.apache.spark.examples.SparkPi
+        appArgs:
+          type: array
+          description: Command-line arguments passed to the application
+          items:
+            type: string
+          example:
+            - '100'
+        sparkProperties:
+          type: object
+          description: Spark configuration key-value pairs
+          additionalProperties:
+            type: string
+          example:
+            spark.master: spark://master:7077
+            spark.app.name: My Spark App
+            spark.submit.deployMode: cluster
+            spark.executor.memory: 4g
+            spark.driver.memory: 2g
+            spark.driver.cores: '2'
+            spark.driver.supervise: 'true'
+            spark.eventLog.enabled: 'false'
+        environmentVariables:
+          type: object
+          description: Environment variables to set for the driver process
+          additionalProperties:
+            type: string
+          example:
+            SPARK_ENV_LOADED: '1'
+    CreateSubmissionResponse:
+      type: object
+      properties:
+        action:
+          type: string
+          example: CreateSubmissionResponse
+        message:
+          type: string
+          example: Driver successfully submitted as driver-20231124153531-0000
+        serverSparkVersion:
+          type: string
+          example: 4.0.0
+        submissionId:
+          type: string
+          example: driver-20231124153531-0000
+        success:
+          type: boolean
+    SubmissionStatusResponse:
+      type: object
+      properties:
+        action:
+          type: string
+          example: SubmissionStatusResponse
+        driverState:
+          type: string
+          description: Current state of the driver
+          enum:
+            - SUBMITTED
+            - RUNNING
+            - FINISHED
+            - RELAUNCHING
+            - UNKNOWN
+            - KILLED
+            - FAILED
+            - ERROR
+        serverSparkVersion:
+          type: string
+        submissionId:
+          type: string
+        success:
+          type: boolean
+        workerHostPort:
+          type: string
+          example: 192.168.1.5:38451
+        workerId:
+          type: string
+          example: worker-20231124120000-192.168.1.5-38451
+    KillSubmissionResponse:
+      type: object
+      properties:
+        action:
+          type: string
+          example: KillSubmissionResponse
+        message:
+          type: string
+          example: Kill request for driver-20231124153531-0000 submitted
+        serverSparkVersion:
+          type: string
+        submissionId:
+          type: string
+        success:
+          type: boolean

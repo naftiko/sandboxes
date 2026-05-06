@@ -1,0 +1,223 @@
+openapi: 3.1.0
+info:
+  title: slack-rtm-api
+  version: 1.0.0
+  description: >
+    The Slack Real Time Messaging (RTM) API lets an app open a WebSocket
+    connection to Slack 
+
+    and receive a live stream of JSON events from a workspace—such as new
+    messages, edits, 
+
+    reactions, user presence and typing indicators, channel joins, and more—so
+    you can build 
+
+    low-latency, interactive bots and clients. Apps typically use the RTM stream
+    for listening 
+
+    and the Web API for performing actions like posting or updating messages.
+    You start by 
+
+    calling rtm.connect (or rtm.start, historically) to obtain a WebSocket URL,
+    then maintain 
+
+    the socket to process events as they happen. RTM is now considered legacy;
+    for new apps 
+
+    Slack recommends using the Events API with the Web API, or Socket Mode if
+    you can't expose 
+
+    a public HTTP endpoint.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-rtm-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Rtm
+    description: Real Time Messaging operations for WebSocket connections
+paths:
+  /rtm.connect:
+    get:
+      tags:
+        - Rtm
+      summary: Connect To Rtm
+      description: Starts a Real Time Messaging session and returns a WebSocket URL.
+      operationId: rtmConnect
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/rtm.connect
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - name: token
+          in: query
+          description: 'Authentication token. Requires scope: `rtm:stream`'
+          required: true
+          schema:
+            type: string
+        - name: batch_presence_aware
+          in: query
+          description: >
+            Batch presence deliveries via subscription. Enabling changes the
+            shape of 
+
+            `presence_change` events. See [batch
+            presence](/docs/presence-and-status#batching).
+          schema:
+            type: boolean
+        - name: presence_sub
+          in: query
+          description: |
+            Only deliver presence events when requested by subscription. See 
+            [presence subscriptions](/docs/presence-and-status#subscriptions).
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response with WebSocket URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RtmConnectSuccessResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/RtmConnectSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RtmConnectErrorResponse'
+              examples:
+                error:
+                  $ref: '#/components/examples/RtmConnectErrorExample'
+      security:
+        - slackAuth:
+            - rtm:stream
+components:
+  securitySchemes:
+    slackAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            rtm:stream: Access RTM stream
+  schemas:
+    DefsOkTrue:
+      type: boolean
+      enum:
+        - true
+      description: Indicates successful operation
+    DefsOkFalse:
+      type: boolean
+      enum:
+        - false
+      description: Indicates failed operation
+    SelfObject:
+      type: object
+      description: Information about the authenticated user
+      properties:
+        id:
+          type: string
+          description: User ID
+        name:
+          type: string
+          description: Username
+      additionalProperties: false
+    TeamObject:
+      type: object
+      description: Information about the workspace/team
+      properties:
+        id:
+          type: string
+          description: Team ID
+        name:
+          type: string
+          description: Team name
+        domain:
+          type: string
+          description: Team domain
+      additionalProperties: false
+    RtmConnectSuccessResponse:
+      type: object
+      description: Schema for successful response from rtm.connect method
+      required:
+        - ok
+        - self
+        - team
+        - url
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkTrue'
+        self:
+          $ref: '#/components/schemas/SelfObject'
+        team:
+          $ref: '#/components/schemas/TeamObject'
+        url:
+          type: string
+          format: uri
+          description: WebSocket URL for the RTM connection
+      additionalProperties: false
+    RtmConnectErrorResponse:
+      type: object
+      description: Schema for error response from rtm.connect method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkFalse'
+        error:
+          type: string
+          description: Error code
+          enum:
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+  examples:
+    RtmConnectSuccessExample:
+      summary: Successful RTM connection
+      value:
+        ok: true
+        self:
+          id: U4X318ZMZ
+          name: robotoverlord
+        team:
+          id: T2U81E2FP
+          name: SlackDemo
+          domain: slackdemo
+        url: wss://cerberus-xxxx.lb.slack-msgs.com/websocket/abc123
+    RtmConnectErrorExample:
+      summary: Authentication error
+      value:
+        ok: false
+        error: invalid_auth

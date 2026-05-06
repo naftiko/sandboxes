@@ -1,0 +1,18 @@
+name = "microcks"
+main = "src/index.ts"
+compatibility_date = "2025-04-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[containers]]
+class_name = "MicrocksContainer"
+image = "./Dockerfile"
+instance_type = "standard-1"
+max_instances = 1
+
+[[durable_objects.bindings]]
+name = "MICROCKS"
+class_name = "MicrocksContainer"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["MicrocksContainer"]

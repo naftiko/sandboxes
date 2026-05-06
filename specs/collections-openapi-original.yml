@@ -1,0 +1,2228 @@
+openapi: 3.1.0
+info:
+  title: webflow-collections-api
+  description: >
+    API for managing CMS collections in Webflow. Collections are database-like 
+
+    structures that store content for your Webflow site. This API provides 
+
+    comprehensive CRUD operations for collections, collection fields,
+    collection 
+
+    items, and inventory management for e-commerce SKUs.
+  version: 1.0.0
+servers:
+  - url: https://api.webflow.com/v2
+    description: Webflow API v2 Production Server
+  - url: http://localhost:8080/rest/webflow-collections-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Collections
+    description: Operations for managing CMS collections within a site
+  - name: Collection Fields
+    description: Operations for managing fields within a collection schema
+  - name: Collection Items
+    description: Operations for managing items within collections (staged content)
+  - name: Live Collection Items
+    description: Operations for managing published/live collection items
+  - name: Bulk Operations
+    description: Operations for creating multiple items at once
+  - name: Publishing
+    description: Operations for publishing staged content to live
+  - name: Inventory Management
+    description: Operations for managing SKU inventory quantities
+paths:
+  /sites/{site_id}/collections:
+    get:
+      operationId: listCollections
+      summary: List Collections
+      description: >
+        Retrieve a list of all CMS collections within a specified site.
+
+        Collections define the structure and schema for content stored in your
+        site.
+
+
+        Required scope | `cms:read`
+      tags:
+        - Collections
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "ListCollectionsSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:read
+      parameters:
+        - $ref: '#/components/parameters/SiteIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved the list of collections
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionListResponse'
+              examples:
+                ListCollectionsSuccessResponse:
+                  $ref: '#/components/examples/ListCollectionsSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: createCollection
+      summary: Create Collection
+      description: |
+        Create a new CMS collection within a specified site. The collection 
+        defines the schema for content items that will be stored within it.
+
+        Required scope | `cms:write`
+      tags:
+        - Collections
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "CreateCollectionSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/SiteIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCollectionRequest'
+            examples:
+              CreateCollectionRequest:
+                $ref: '#/components/examples/CreateCollectionRequest'
+      responses:
+        '200':
+          description: Successfully created the collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+              examples:
+                CreateCollectionSuccessResponse:
+                  $ref: '#/components/examples/CreateCollectionSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /collections/{collection_id}:
+    get:
+      operationId: getCollection
+      summary: Get Collection Details
+      description: |
+        Retrieve detailed information about a specific collection including 
+        its fields and schema definition.
+
+        Required scope | `cms:read`
+      tags:
+        - Collections
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "GetCollectionSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:read
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved the collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+              examples:
+                GetCollectionSuccessResponse:
+                  $ref: '#/components/examples/GetCollectionSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteCollection
+      summary: Delete Collection
+      description: >
+        Permanently delete a collection and all its items. This action cannot be
+        undone.
+
+
+        Required scope | `cms:write`
+      tags:
+        - Collections
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "DeleteCollectionSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+      responses:
+        '204':
+          description: Successfully deleted the collection. No content returned.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /collections/{collection_id}/fields:
+    post:
+      operationId: createField
+      summary: Create Collection Field
+      description: |
+        Add a new field to an existing collection's schema. Fields define the 
+        types of data that can be stored in collection items.
+
+        Required scope | `cms:write`
+      tags:
+        - Collection Fields
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "CreateFieldSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFieldRequest'
+            examples:
+              CreateFieldRequest:
+                $ref: '#/components/examples/CreateFieldRequest'
+      responses:
+        '200':
+          description: Successfully created the field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionField'
+              examples:
+                CreateFieldSuccessResponse:
+                  $ref: '#/components/examples/CreateFieldSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /collections/{collection_id}/fields/{field_id}:
+    patch:
+      operationId: updateField
+      summary: Update Collection Field
+      description: |
+        Update properties of an existing collection field.
+
+        Required scope | `cms:write`
+      tags:
+        - Collection Fields
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "UpdateFieldSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+        - $ref: '#/components/parameters/FieldIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFieldRequest'
+            examples:
+              UpdateFieldRequest:
+                $ref: '#/components/examples/UpdateFieldRequest'
+      responses:
+        '200':
+          description: Successfully updated the field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionField'
+              examples:
+                UpdateFieldSuccessResponse:
+                  $ref: '#/components/examples/UpdateFieldSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteField
+      summary: Delete Collection Field
+      description: |
+        Remove a field from a collection's schema. This will delete the field 
+        and all data stored in that field across all items.
+
+        Required scope | `cms:write`
+      tags:
+        - Collection Fields
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "DeleteFieldSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+        - $ref: '#/components/parameters/FieldIdPath'
+      responses:
+        '204':
+          description: Successfully deleted the field. No content returned.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /collections/{collection_id}/items:
+    get:
+      operationId: listCollectionItems
+      summary: List Collection Items
+      description: |
+        Retrieve a paginated list of items within a collection. Returns staged 
+        (unpublished) versions of items.
+
+        Required scope | `cms:read`
+      tags:
+        - Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "ListCollectionItemsSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:read
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Successfully retrieved the list of items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItemListResponse'
+              examples:
+                ListCollectionItemsSuccessResponse:
+                  $ref: '#/components/examples/ListCollectionItemsSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: createItem
+      summary: Create Collection Item
+      description: |
+        Create a new item within a collection. The item will be staged and 
+        not published until explicitly published.
+
+        Required scope | `cms:write`
+      tags:
+        - Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "CreateItemSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateItemRequest'
+            examples:
+              CreateItemRequest:
+                $ref: '#/components/examples/CreateItemRequest'
+      responses:
+        '200':
+          description: Successfully created the item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItem'
+              examples:
+                CreateItemSuccessResponse:
+                  $ref: '#/components/examples/CreateItemSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      operationId: updateItems
+      summary: Update Multiple Collection Items
+      description: |
+        Update multiple items within a collection in a single request. 
+        Updates are staged and not published until explicitly published.
+
+        Required scope | `cms:write`
+      tags:
+        - Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "UpdateItemsSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateItemsRequest'
+            examples:
+              UpdateItemsRequest:
+                $ref: '#/components/examples/UpdateItemsRequest'
+      responses:
+        '200':
+          description: Successfully updated the items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItemListResponse'
+              examples:
+                UpdateItemsSuccessResponse:
+                  $ref: '#/components/examples/UpdateItemsSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteItems
+      summary: Delete Multiple Collection Items
+      description: |
+        Delete multiple items from a collection in a single request.
+
+        Required scope | `cms:write`
+      tags:
+        - Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "DeleteItemsSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteItemsRequest'
+            examples:
+              DeleteItemsRequest:
+                $ref: '#/components/examples/DeleteItemsRequest'
+      responses:
+        '204':
+          description: Successfully deleted the items. No content returned.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /collections/{collection_id}/items/live:
+    get:
+      operationId: listCollectionItemsLive
+      summary: List Live Collection Items
+      description: |
+        Retrieve a paginated list of published (live) items within a collection.
+
+        Required scope | `cms:read`
+      tags:
+        - Live Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "ListCollectionItemsLiveSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:read
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Successfully retrieved the list of live items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItemListResponse'
+              examples:
+                ListCollectionItemsLiveSuccessResponse:
+                  $ref: '#/components/examples/ListCollectionItemsLiveSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: createItemLive
+      summary: Create Live Collection Item
+      description: >
+        Create a new item within a collection and immediately publish it to
+        live.
+
+
+        Required scope | `cms:write`
+      tags:
+        - Live Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "CreateItemLiveSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateItemRequest'
+            examples:
+              CreateItemLiveRequest:
+                $ref: '#/components/examples/CreateItemRequest'
+      responses:
+        '200':
+          description: Successfully created and published the item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItem'
+              examples:
+                CreateItemLiveSuccessResponse:
+                  $ref: '#/components/examples/CreateItemLiveSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      operationId: updateItemsLive
+      summary: Update Multiple Live Collection Items
+      description: |
+        Update multiple live items within a collection in a single request.
+        Changes are immediately published.
+
+        Required scope | `cms:write`
+      tags:
+        - Live Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "UpdateItemsLiveSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateItemsRequest'
+            examples:
+              UpdateItemsLiveRequest:
+                $ref: '#/components/examples/UpdateItemsRequest'
+      responses:
+        '200':
+          description: Successfully updated the live items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItemListResponse'
+              examples:
+                UpdateItemsLiveSuccessResponse:
+                  $ref: '#/components/examples/UpdateItemsLiveSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteItemsLive
+      summary: Delete Multiple Live Collection Items
+      description: |
+        Delete multiple live items from a collection in a single request.
+        Items are immediately removed from the published site.
+
+        Required scope | `cms:write`
+      tags:
+        - Live Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "DeleteItemsLiveSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteItemsRequest'
+            examples:
+              DeleteItemsLiveRequest:
+                $ref: '#/components/examples/DeleteItemsRequest'
+      responses:
+        '204':
+          description: Successfully deleted the live items. No content returned.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /collections/{collection_id}/items/bulk:
+    post:
+      operationId: createItemsBulk
+      summary: Create Multiple Collection Items
+      description: |
+        Create multiple items within a collection in a single bulk request.
+        Items are staged and not published until explicitly published.
+
+        Required scope | `cms:write`
+      tags:
+        - Bulk Operations
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "CreateItemsBulkSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateItemsBulkRequest'
+            examples:
+              CreateItemsBulkRequest:
+                $ref: '#/components/examples/CreateItemsBulkRequest'
+      responses:
+        '200':
+          description: Successfully created the items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItemListResponse'
+              examples:
+                CreateItemsBulkSuccessResponse:
+                  $ref: '#/components/examples/CreateItemsBulkSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /collections/{collection_id}/items/{item_id}:
+    get:
+      operationId: getItem
+      summary: Get Collection Item
+      description: |
+        Retrieve a specific item from a collection by its unique identifier.
+        Returns the staged (unpublished) version.
+
+        Required scope | `cms:read`
+      tags:
+        - Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "GetItemSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:read
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+        - $ref: '#/components/parameters/ItemIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved the item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItem'
+              examples:
+                GetItemSuccessResponse:
+                  $ref: '#/components/examples/GetItemSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      operationId: updateItem
+      summary: Update Collection Item
+      description: |
+        Update a specific item within a collection. Changes are staged 
+        and not published until explicitly published.
+
+        Required scope | `cms:write`
+      tags:
+        - Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "UpdateItemSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+        - $ref: '#/components/parameters/ItemIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateItemRequest'
+            examples:
+              UpdateItemRequest:
+                $ref: '#/components/examples/UpdateItemRequest'
+      responses:
+        '200':
+          description: Successfully updated the item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItem'
+              examples:
+                UpdateItemSuccessResponse:
+                  $ref: '#/components/examples/UpdateItemSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteItem
+      summary: Delete Collection Item
+      description: |
+        Delete a specific item from a collection.
+
+        Required scope | `cms:write`
+      tags:
+        - Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "DeleteItemSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+        - $ref: '#/components/parameters/ItemIdPath'
+      responses:
+        '204':
+          description: Successfully deleted the item. No content returned.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /collections/{collection_id}/items/{item_id}/live:
+    get:
+      operationId: getItemLive
+      summary: Get Live Collection Item
+      description: >
+        Retrieve the published (live) version of a specific item from a
+        collection.
+
+
+        Required scope | `cms:read`
+      tags:
+        - Live Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "GetItemLiveSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:read
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+        - $ref: '#/components/parameters/ItemIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved the live item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItem'
+              examples:
+                GetItemLiveSuccessResponse:
+                  $ref: '#/components/examples/GetItemLiveSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      operationId: updateItemLive
+      summary: Update Live Collection Item
+      description: |
+        Update a specific live item within a collection. Changes are 
+        immediately published to the live site.
+
+        Required scope | `cms:write`
+      tags:
+        - Live Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "UpdateItemLiveSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+        - $ref: '#/components/parameters/ItemIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateItemRequest'
+            examples:
+              UpdateItemLiveRequest:
+                $ref: '#/components/examples/UpdateItemRequest'
+      responses:
+        '200':
+          description: Successfully updated the live item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItem'
+              examples:
+                UpdateItemLiveSuccessResponse:
+                  $ref: '#/components/examples/UpdateItemLiveSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteItemLive
+      summary: Delete Live Collection Item
+      description: |
+        Delete a specific live item from a collection. The item is 
+        immediately removed from the published site.
+
+        Required scope | `cms:write`
+      tags:
+        - Live Collection Items
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "DeleteItemLiveSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+        - $ref: '#/components/parameters/ItemIdPath'
+      responses:
+        '204':
+          description: Successfully deleted the live item. No content returned.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /collections/{collection_id}/items/publish:
+    post:
+      operationId: publishItems
+      summary: Publish Collection Items
+      description: |
+        Publish staged collection items to make them live on the site.
+        Accepts a list of item IDs to publish.
+
+        Required scope | `cms:write`
+      tags:
+        - Publishing
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "PublishItemsSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - cms:write
+      parameters:
+        - $ref: '#/components/parameters/CollectionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishItemsRequest'
+            examples:
+              PublishItemsRequest:
+                $ref: '#/components/examples/PublishItemsRequest'
+      responses:
+        '200':
+          description: Successfully published the items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishItemsResponse'
+              examples:
+                PublishItemsSuccessResponse:
+                  $ref: '#/components/examples/PublishItemsSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /collections/{sku_collection_id}/items/{sku_id}/inventory:
+    get:
+      operationId: listInventory
+      summary: List Inventory
+      description: |
+        Retrieve inventory information for a specific SKU item.
+
+        Required scope | `ecommerce:read`
+      tags:
+        - Inventory Management
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "ListInventorySuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - ecommerce:read
+      parameters:
+        - $ref: '#/components/parameters/SkuCollectionIdPath'
+        - $ref: '#/components/parameters/SkuIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved the inventory
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+              examples:
+                ListInventorySuccessResponse:
+                  $ref: '#/components/examples/ListInventorySuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      operationId: updateInventory
+      summary: Update Inventory
+      description: |
+        Update inventory quantities for a specific SKU item.
+
+        Required scope | `ecommerce:write`
+      tags:
+        - Inventory Management
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "UpdateInventorySuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - ecommerce:write
+      parameters:
+        - $ref: '#/components/parameters/SkuCollectionIdPath'
+        - $ref: '#/components/parameters/SkuIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInventoryRequest'
+            examples:
+              UpdateInventoryRequest:
+                $ref: '#/components/examples/UpdateInventoryRequest'
+      responses:
+        '200':
+          description: Successfully updated the inventory
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+              examples:
+                UpdateInventorySuccessResponse:
+                  $ref: '#/components/examples/UpdateInventorySuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  parameters:
+    SiteIdPath:
+      name: site_id
+      in: path
+      description: Unique identifier for a Site
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 580e63e98c9a982ac9b8b741
+    CollectionIdPath:
+      name: collection_id
+      in: path
+      description: Unique identifier for a Collection
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 63692ab61fb2852f582ba8f5
+    FieldIdPath:
+      name: field_id
+      in: path
+      description: Unique identifier for a Collection Field
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 5e2a1b3c4d5e6f7890a1b2c3
+    ItemIdPath:
+      name: item_id
+      in: path
+      description: Unique identifier for a Collection Item
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 62b720ef280c7a7a3be8cabe
+    SkuCollectionIdPath:
+      name: sku_collection_id
+      in: path
+      description: Unique identifier for a SKU Collection
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 63692ab61fb285a8562ba8f4
+    SkuIdPath:
+      name: sku_id
+      in: path
+      description: Unique identifier for a SKU Item
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 580e64008c9a982ac9b8b754
+    OffsetQuery:
+      name: offset
+      in: query
+      description: Offset used for pagination
+      required: false
+      schema:
+        type: integer
+      example: 0
+    LimitQuery:
+      name: limit
+      in: query
+      description: Maximum number of records to return (max 100)
+      required: false
+      schema:
+        type: integer
+      example: 100
+  schemas:
+    Collection:
+      type: object
+      description: CMS Collection details
+      required:
+        - id
+        - displayName
+        - singularName
+        - slug
+        - createdOn
+        - lastUpdated
+      properties:
+        id:
+          type: string
+          format: objectid
+          description: Unique identifier for the Collection
+          example: 63692ab61fb2852f582ba8f5
+        displayName:
+          type: string
+          description: Display name of the Collection
+          example: Products
+        singularName:
+          type: string
+          description: Singular name for items in the Collection
+          example: Product
+        slug:
+          type: string
+          description: URL-friendly identifier for the Collection
+          example: product
+        createdOn:
+          type: string
+          format: date-time
+          description: Date the Collection was created
+          example: '2019-06-12T13:35:14.238Z'
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Date the Collection was last updated
+          example: '2022-11-17T15:08:50.480Z'
+        fields:
+          type: array
+          description: List of fields in the Collection schema
+          items:
+            $ref: '#/components/schemas/CollectionField'
+    CollectionField:
+      type: object
+      description: Field definition within a Collection
+      required:
+        - id
+        - isEditable
+        - isRequired
+        - type
+        - slug
+        - displayName
+      properties:
+        id:
+          type: string
+          format: objectid
+          description: Unique identifier for the Field
+          example: 5e2a1b3c4d5e6f7890a1b2c3
+        isEditable:
+          type: boolean
+          description: Whether the field can be edited
+          example: true
+        isRequired:
+          type: boolean
+          description: Whether the field is required
+          example: true
+        type:
+          type: string
+          description: Type of the field
+          enum:
+            - PlainText
+            - RichText
+            - Image
+            - MultiImage
+            - VideoLink
+            - Link
+            - Email
+            - Phone
+            - Number
+            - DateTime
+            - Switch
+            - Color
+            - Option
+            - File
+            - Reference
+            - MultiReference
+            - User
+            - MembershipPlan
+          example: PlainText
+        slug:
+          type: string
+          description: URL-friendly identifier for the field
+          example: name
+        displayName:
+          type: string
+          description: Display name of the field
+          example: Entry Title
+        helpText:
+          type: string
+          nullable: true
+          description: Help text for the field
+          example: Name of the entry.
+        validations:
+          type: object
+          nullable: true
+          description: Validation rules for the field
+          properties:
+            format:
+              type: string
+              description: Format validation
+            allowNegative:
+              type: boolean
+              description: Allow negative numbers
+            allowZero:
+              type: boolean
+              description: Allow zero value
+            minValue:
+              type: number
+              description: Minimum value
+            maxValue:
+              type: number
+              description: Maximum value
+            collectionId:
+              type: string
+              format: objectid
+              description: Referenced collection ID for Reference fields
+            options:
+              type: array
+              description: Available options for Option fields
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Option display name
+    CollectionItem:
+      type: object
+      description: Item within a Collection
+      required:
+        - id
+        - cmsLocaleId
+        - lastPublished
+        - lastUpdated
+        - createdOn
+        - isArchived
+        - isDraft
+        - fieldData
+      properties:
+        id:
+          type: string
+          format: objectid
+          description: Unique identifier for the Item
+          example: 62b720ef280c7a7a3be8cabe
+        cmsLocaleId:
+          type: string
+          format: objectid
+          description: Locale identifier for the Item
+          example: 653ad57de882f528b32e810e
+        lastPublished:
+          type: string
+          format: date-time
+          nullable: true
+          description: Date the Item was last published
+          example: '2023-03-17T18:05:35.672Z'
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Date the Item was last updated
+          example: '2023-03-17T18:05:35.672Z'
+        createdOn:
+          type: string
+          format: date-time
+          description: Date the Item was created
+          example: '2022-06-25T13:48:31.095Z'
+        isArchived:
+          type: boolean
+          description: Whether the Item is archived
+          example: false
+        isDraft:
+          type: boolean
+          description: Whether the Item is a draft
+          example: false
+        fieldData:
+          type: object
+          description: Field values for the Item
+          additionalProperties: true
+          example:
+            name: Pan Galactic Gargle Blaster Recipe
+            slug: pan-galactic-gargle-blaster-recipe
+    CollectionListResponse:
+      type: object
+      description: Response containing a list of Collections
+      required:
+        - collections
+      properties:
+        collections:
+          type: array
+          description: List of Collections
+          items:
+            $ref: '#/components/schemas/Collection'
+    CollectionItemListResponse:
+      type: object
+      description: Response containing a list of Collection Items with pagination
+      required:
+        - items
+        - pagination
+      properties:
+        items:
+          type: array
+          description: List of Collection Items
+          items:
+            $ref: '#/components/schemas/CollectionItem'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    CreateCollectionRequest:
+      type: object
+      description: Request payload for creating a Collection
+      required:
+        - displayName
+        - singularName
+      properties:
+        displayName:
+          type: string
+          description: Display name for the Collection
+          example: Blog Posts
+        singularName:
+          type: string
+          description: Singular name for items
+          example: Blog Post
+        slug:
+          type: string
+          description: URL-friendly identifier
+          example: blog-post
+    CreateFieldRequest:
+      type: object
+      description: Request payload for creating a Collection Field
+      required:
+        - type
+        - displayName
+      properties:
+        type:
+          type: string
+          description: Type of the field
+          enum:
+            - PlainText
+            - RichText
+            - Image
+            - MultiImage
+            - VideoLink
+            - Link
+            - Email
+            - Phone
+            - Number
+            - DateTime
+            - Switch
+            - Color
+            - Option
+            - File
+            - Reference
+            - MultiReference
+          example: PlainText
+        displayName:
+          type: string
+          description: Display name of the field
+          example: Author Name
+        slug:
+          type: string
+          description: URL-friendly identifier
+          example: author-name
+        isRequired:
+          type: boolean
+          description: Whether the field is required
+          example: false
+        helpText:
+          type: string
+          description: Help text for the field
+          example: Enter the author name
+    UpdateFieldRequest:
+      type: object
+      description: Request payload for updating a Collection Field
+      properties:
+        displayName:
+          type: string
+          description: Display name of the field
+          example: Updated Author Name
+        helpText:
+          type: string
+          description: Help text for the field
+          example: Updated help text
+    CreateItemRequest:
+      type: object
+      description: Request payload for creating a Collection Item
+      required:
+        - fieldData
+      properties:
+        fieldData:
+          type: object
+          description: Field values for the Item
+          additionalProperties: true
+          example:
+            name: My New Item
+            slug: my-new-item
+        cmsLocaleId:
+          type: string
+          format: objectid
+          description: Locale identifier
+          example: 653ad57de882f528b32e810e
+        isDraft:
+          type: boolean
+          description: Whether to create as draft
+          example: false
+        isArchived:
+          type: boolean
+          description: Whether to create as archived
+          example: false
+    UpdateItemRequest:
+      type: object
+      description: Request payload for updating a Collection Item
+      required:
+        - fieldData
+      properties:
+        fieldData:
+          type: object
+          description: Field values to update
+          additionalProperties: true
+          example:
+            name: Updated Item Name
+        cmsLocaleId:
+          type: string
+          format: objectid
+          description: Locale identifier
+          example: 653ad57de882f528b32e810e
+        isDraft:
+          type: boolean
+          description: Whether the Item is a draft
+          example: false
+        isArchived:
+          type: boolean
+          description: Whether the Item is archived
+          example: false
+    UpdateItemsRequest:
+      type: object
+      description: Request payload for updating multiple Collection Items
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          description: List of items to update
+          items:
+            type: object
+            required:
+              - id
+              - fieldData
+            properties:
+              id:
+                type: string
+                format: objectid
+                description: Item ID
+                example: 62b720ef280c7a7a3be8cabe
+              fieldData:
+                type: object
+                description: Field values to update
+                additionalProperties: true
+              cmsLocaleId:
+                type: string
+                format: objectid
+                description: Locale identifier
+              isDraft:
+                type: boolean
+                description: Whether the Item is a draft
+              isArchived:
+                type: boolean
+                description: Whether the Item is archived
+    DeleteItemsRequest:
+      type: object
+      description: Request payload for deleting multiple Collection Items
+      required:
+        - itemIds
+      properties:
+        itemIds:
+          type: array
+          description: List of item IDs to delete
+          items:
+            type: string
+            format: objectid
+          example:
+            - 62b720ef280c7a7a3be8cabe
+            - 62b720ef280c7a7a3be8cabf
+    CreateItemsBulkRequest:
+      type: object
+      description: Request payload for creating multiple Collection Items
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          description: List of items to create
+          items:
+            $ref: '#/components/schemas/CreateItemRequest'
+    PublishItemsRequest:
+      type: object
+      description: Request payload for publishing Collection Items
+      required:
+        - itemIds
+      properties:
+        itemIds:
+          type: array
+          description: List of item IDs to publish
+          items:
+            type: string
+            format: objectid
+          example:
+            - 62b720ef280c7a7a3be8cabe
+            - 62b720ef280c7a7a3be8cabf
+    PublishItemsResponse:
+      type: object
+      description: Response from publishing Collection Items
+      properties:
+        publishedItemIds:
+          type: array
+          description: List of successfully published item IDs
+          items:
+            type: string
+            format: objectid
+          example:
+            - 62b720ef280c7a7a3be8cabe
+            - 62b720ef280c7a7a3be8cabf
+        errors:
+          type: array
+          description: List of errors for items that failed to publish
+          items:
+            type: object
+            properties:
+              itemId:
+                type: string
+                format: objectid
+                description: Item ID that failed
+              error:
+                type: string
+                description: Error message
+    InventoryResponse:
+      type: object
+      description: Inventory information for a SKU
+      required:
+        - id
+        - quantity
+        - inventoryType
+      properties:
+        id:
+          type: string
+          format: objectid
+          description: Unique identifier for the inventory record
+          example: 580e64008c9a982ac9b8b754
+        quantity:
+          type: integer
+          description: Current inventory quantity
+          example: 100
+        inventoryType:
+          type: string
+          description: Type of inventory tracking
+          enum:
+            - infinite
+            - finite
+          example: finite
+    UpdateInventoryRequest:
+      type: object
+      description: Request payload for updating inventory
+      required:
+        - inventoryType
+      properties:
+        inventoryType:
+          type: string
+          description: Type of inventory tracking
+          enum:
+            - infinite
+            - finite
+          example: finite
+        updateQuantity:
+          type: integer
+          description: Quantity to add or subtract
+          example: 10
+        setQuantity:
+          type: integer
+          description: Set absolute quantity
+          example: 100
+    Pagination:
+      type: object
+      description: Pagination metadata
+      required:
+        - limit
+        - offset
+        - total
+      properties:
+        limit:
+          type: integer
+          description: The limit used for pagination
+          example: 100
+          readOnly: true
+        offset:
+          type: integer
+          description: The offset used for pagination
+          example: 0
+          readOnly: true
+        total:
+          type: integer
+          description: The total number of records
+          example: 50
+          readOnly: true
+    ErrorResponse:
+      type: object
+      description: Standard error response
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+          example: not_authorized
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          nullable: true
+          description: Link to more information
+          example: null
+        details:
+          type: array
+          description: Array of error details
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field that caused the error
+              message:
+                type: string
+                description: Error message for the field
+          example: []
+  responses:
+    BadRequest:
+      description: Request body was incorrectly formatted
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            BadRequestError:
+              $ref: '#/components/examples/BadRequestError'
+    Unauthorized:
+      description: >-
+        Provided access token is invalid or does not have access to requested
+        resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            UnauthorizedError:
+              $ref: '#/components/examples/UnauthorizedError'
+    NotFound:
+      description: Requested resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            NotFoundError:
+              $ref: '#/components/examples/NotFoundError'
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Remaining:
+          description: Number of available requests remaining in the current minute
+          schema:
+            type: number
+        X-RateLimit-Limit:
+          description: Current overall rate limit per minute
+          schema:
+            type: number
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            RateLimitError:
+              $ref: '#/components/examples/RateLimitError'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            InternalServerError:
+              $ref: '#/components/examples/InternalServerError'
+  examples:
+    ListCollectionsSuccessResponse:
+      summary: Successfully retrieved list of collections
+      value:
+        collections:
+          - id: 63692ab61fb2852f582ba8f5
+            displayName: Products
+            singularName: Product
+            slug: product
+            createdOn: '2019-06-12T13:35:14.238Z'
+            lastUpdated: '2022-11-17T15:08:50.480Z'
+          - id: 63692ab61fb2856e6a2ba8f6
+            displayName: Categories
+            singularName: Category
+            slug: category
+            createdOn: '2019-06-12T13:35:14.238Z'
+            lastUpdated: '2022-11-17T15:08:50.481Z'
+    CreateCollectionRequest:
+      summary: Request to create a collection
+      value:
+        displayName: Blog Posts
+        singularName: Blog Post
+        slug: blog-post
+    CreateCollectionSuccessResponse:
+      summary: Successfully created collection
+      value:
+        id: 63692ab61fb2852f582ba8f5
+        displayName: Blog Posts
+        singularName: Blog Post
+        slug: blog-post
+        createdOn: '2023-06-12T13:35:14.238Z'
+        lastUpdated: '2023-06-12T13:35:14.238Z'
+        fields: []
+    GetCollectionSuccessResponse:
+      summary: Successfully retrieved collection
+      value:
+        id: 63692ab61fb2852f582ba8f5
+        displayName: Products
+        singularName: Product
+        slug: product
+        createdOn: '2019-06-12T13:35:14.238Z'
+        lastUpdated: '2022-11-17T15:08:50.480Z'
+        fields:
+          - id: 5e2a1b3c4d5e6f7890a1b2c3
+            isEditable: true
+            isRequired: true
+            type: PlainText
+            slug: name
+            displayName: Product Name
+            helpText: Name of the product
+            validations: null
+    CreateFieldRequest:
+      summary: Request to create a field
+      value:
+        type: PlainText
+        displayName: Author Name
+        slug: author-name
+        isRequired: false
+        helpText: Enter the author name
+    CreateFieldSuccessResponse:
+      summary: Successfully created field
+      value:
+        id: 5e2a1b3c4d5e6f7890a1b2c3
+        isEditable: true
+        isRequired: false
+        type: PlainText
+        slug: author-name
+        displayName: Author Name
+        helpText: Enter the author name
+        validations: null
+    UpdateFieldRequest:
+      summary: Request to update a field
+      value:
+        displayName: Updated Author Name
+        helpText: Updated help text
+    UpdateFieldSuccessResponse:
+      summary: Successfully updated field
+      value:
+        id: 5e2a1b3c4d5e6f7890a1b2c3
+        isEditable: true
+        isRequired: false
+        type: PlainText
+        slug: author-name
+        displayName: Updated Author Name
+        helpText: Updated help text
+        validations: null
+    ListCollectionItemsSuccessResponse:
+      summary: Successfully retrieved list of items
+      value:
+        items:
+          - id: 62b720ef280c7a7a3be8cabe
+            cmsLocaleId: 653ad57de882f528b32e810e
+            lastPublished: '2023-03-17T18:05:35.672Z'
+            lastUpdated: '2023-03-17T18:05:35.672Z'
+            createdOn: '2022-06-25T13:48:31.095Z'
+            isArchived: false
+            isDraft: false
+            fieldData:
+              name: Pan Galactic Gargle Blaster Recipe
+              slug: pan-galactic-gargle-blaster-recipe
+        pagination:
+          total: 1
+          offset: 0
+          limit: 100
+    CreateItemRequest:
+      summary: Request to create an item
+      value:
+        fieldData:
+          name: My New Item
+          slug: my-new-item
+        isDraft: false
+        isArchived: false
+    CreateItemSuccessResponse:
+      summary: Successfully created item
+      value:
+        id: 62b720ef280c7a7a3be8cabe
+        cmsLocaleId: 653ad57de882f528b32e810e
+        lastPublished: null
+        lastUpdated: '2023-03-17T18:05:35.672Z'
+        createdOn: '2023-03-17T18:05:35.672Z'
+        isArchived: false
+        isDraft: false
+        fieldData:
+          name: My New Item
+          slug: my-new-item
+    UpdateItemsRequest:
+      summary: Request to update multiple items
+      value:
+        items:
+          - id: 62b720ef280c7a7a3be8cabe
+            fieldData:
+              name: Updated Item Name
+    UpdateItemsSuccessResponse:
+      summary: Successfully updated items
+      value:
+        items:
+          - id: 62b720ef280c7a7a3be8cabe
+            cmsLocaleId: 653ad57de882f528b32e810e
+            lastPublished: null
+            lastUpdated: '2023-03-17T18:10:35.672Z'
+            createdOn: '2022-06-25T13:48:31.095Z'
+            isArchived: false
+            isDraft: false
+            fieldData:
+              name: Updated Item Name
+              slug: my-new-item
+        pagination:
+          total: 1
+          offset: 0
+          limit: 100
+    DeleteItemsRequest:
+      summary: Request to delete multiple items
+      value:
+        itemIds:
+          - 62b720ef280c7a7a3be8cabe
+          - 62b720ef280c7a7a3be8cabf
+    ListCollectionItemsLiveSuccessResponse:
+      summary: Successfully retrieved list of live items
+      value:
+        items:
+          - id: 62b720ef280c7a7a3be8cabe
+            cmsLocaleId: 653ad57de882f528b32e810e
+            lastPublished: '2023-03-17T18:05:35.672Z'
+            lastUpdated: '2023-03-17T18:05:35.672Z'
+            createdOn: '2022-06-25T13:48:31.095Z'
+            isArchived: false
+            isDraft: false
+            fieldData:
+              name: Pan Galactic Gargle Blaster Recipe
+              slug: pan-galactic-gargle-blaster-recipe
+        pagination:
+          total: 1
+          offset: 0
+          limit: 100
+    CreateItemLiveSuccessResponse:
+      summary: Successfully created and published item
+      value:
+        id: 62b720ef280c7a7a3be8cabe
+        cmsLocaleId: 653ad57de882f528b32e810e
+        lastPublished: '2023-03-17T18:05:35.672Z'
+        lastUpdated: '2023-03-17T18:05:35.672Z'
+        createdOn: '2023-03-17T18:05:35.672Z'
+        isArchived: false
+        isDraft: false
+        fieldData:
+          name: My New Item
+          slug: my-new-item
+    UpdateItemsLiveSuccessResponse:
+      summary: Successfully updated live items
+      value:
+        items:
+          - id: 62b720ef280c7a7a3be8cabe
+            cmsLocaleId: 653ad57de882f528b32e810e
+            lastPublished: '2023-03-17T18:10:35.672Z'
+            lastUpdated: '2023-03-17T18:10:35.672Z'
+            createdOn: '2022-06-25T13:48:31.095Z'
+            isArchived: false
+            isDraft: false
+            fieldData:
+              name: Updated Item Name
+              slug: my-new-item
+        pagination:
+          total: 1
+          offset: 0
+          limit: 100
+    CreateItemsBulkRequest:
+      summary: Request to create multiple items in bulk
+      value:
+        items:
+          - fieldData:
+              name: Item One
+              slug: item-one
+            isDraft: false
+          - fieldData:
+              name: Item Two
+              slug: item-two
+            isDraft: false
+    CreateItemsBulkSuccessResponse:
+      summary: Successfully created multiple items
+      value:
+        items:
+          - id: 62b720ef280c7a7a3be8cabe
+            cmsLocaleId: 653ad57de882f528b32e810e
+            lastPublished: null
+            lastUpdated: '2023-03-17T18:05:35.672Z'
+            createdOn: '2023-03-17T18:05:35.672Z'
+            isArchived: false
+            isDraft: false
+            fieldData:
+              name: Item One
+              slug: item-one
+          - id: 62b720ef280c7a7a3be8cabf
+            cmsLocaleId: 653ad57de882f528b32e810e
+            lastPublished: null
+            lastUpdated: '2023-03-17T18:05:35.672Z'
+            createdOn: '2023-03-17T18:05:35.672Z'
+            isArchived: false
+            isDraft: false
+            fieldData:
+              name: Item Two
+              slug: item-two
+        pagination:
+          total: 2
+          offset: 0
+          limit: 100
+    GetItemSuccessResponse:
+      summary: Successfully retrieved item
+      value:
+        id: 62b720ef280c7a7a3be8cabe
+        cmsLocaleId: 653ad57de882f528b32e810e
+        lastPublished: '2023-03-17T18:05:35.672Z'
+        lastUpdated: '2023-03-17T18:05:35.672Z'
+        createdOn: '2022-06-25T13:48:31.095Z'
+        isArchived: false
+        isDraft: false
+        fieldData:
+          name: Pan Galactic Gargle Blaster Recipe
+          slug: pan-galactic-gargle-blaster-recipe
+    UpdateItemRequest:
+      summary: Request to update an item
+      value:
+        fieldData:
+          name: Updated Item Name
+    UpdateItemSuccessResponse:
+      summary: Successfully updated item
+      value:
+        id: 62b720ef280c7a7a3be8cabe
+        cmsLocaleId: 653ad57de882f528b32e810e
+        lastPublished: null
+        lastUpdated: '2023-03-17T18:10:35.672Z'
+        createdOn: '2022-06-25T13:48:31.095Z'
+        isArchived: false
+        isDraft: false
+        fieldData:
+          name: Updated Item Name
+          slug: pan-galactic-gargle-blaster-recipe
+    GetItemLiveSuccessResponse:
+      summary: Successfully retrieved live item
+      value:
+        id: 62b720ef280c7a7a3be8cabe
+        cmsLocaleId: 653ad57de882f528b32e810e
+        lastPublished: '2023-03-17T18:05:35.672Z'
+        lastUpdated: '2023-03-17T18:05:35.672Z'
+        createdOn: '2022-06-25T13:48:31.095Z'
+        isArchived: false
+        isDraft: false
+        fieldData:
+          name: Pan Galactic Gargle Blaster Recipe
+          slug: pan-galactic-gargle-blaster-recipe
+    UpdateItemLiveSuccessResponse:
+      summary: Successfully updated live item
+      value:
+        id: 62b720ef280c7a7a3be8cabe
+        cmsLocaleId: 653ad57de882f528b32e810e
+        lastPublished: '2023-03-17T18:10:35.672Z'
+        lastUpdated: '2023-03-17T18:10:35.672Z'
+        createdOn: '2022-06-25T13:48:31.095Z'
+        isArchived: false
+        isDraft: false
+        fieldData:
+          name: Updated Item Name
+          slug: pan-galactic-gargle-blaster-recipe
+    PublishItemsRequest:
+      summary: Request to publish items
+      value:
+        itemIds:
+          - 62b720ef280c7a7a3be8cabe
+          - 62b720ef280c7a7a3be8cabf
+    PublishItemsSuccessResponse:
+      summary: Successfully published items
+      value:
+        publishedItemIds:
+          - 62b720ef280c7a7a3be8cabe
+          - 62b720ef280c7a7a3be8cabf
+        errors: []
+    ListInventorySuccessResponse:
+      summary: Successfully retrieved inventory
+      value:
+        id: 580e64008c9a982ac9b8b754
+        quantity: 100
+        inventoryType: finite
+    UpdateInventoryRequest:
+      summary: Request to update inventory
+      value:
+        inventoryType: finite
+        setQuantity: 150
+    UpdateInventorySuccessResponse:
+      summary: Successfully updated inventory
+      value:
+        id: 580e64008c9a982ac9b8b754
+        quantity: 150
+        inventoryType: finite
+    BadRequestError:
+      summary: Bad request error
+      value:
+        code: bad_request
+        message: 'Bad Request: Request is malformed'
+        externalReference: null
+        details: []
+    UnauthorizedError:
+      summary: Unauthorized error
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    NotFoundError:
+      summary: Resource not found error
+      value:
+        code: resource_not_found
+        message: 'Requested resource not found: The collection cannot be found'
+        externalReference: null
+        details: []
+    RateLimitError:
+      summary: Rate limit exceeded error
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    InternalServerError:
+      summary: Internal server error
+      value:
+        code: internal_error
+        message: An Internal Error occurred
+        externalReference: null
+        details: []
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://webflow.com/oauth/authorize
+          tokenUrl: https://api.webflow.com/oauth/token
+          scopes:
+            authorized_user:read: Read details about the authorized user
+            cms:read: Read collections and items for a site
+            cms:write: Write to collections and items for a site
+            ecommerce:read: Read ecommerce data
+            ecommerce:write: Edit ecommerce data
+            sites:read: Read sites on the site
+            sites:write: Modify pages on the site

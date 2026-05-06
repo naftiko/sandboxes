@@ -1,0 +1,1093 @@
+openapi: 3.1.0
+info:
+  title: hubspot-blog-authors-api
+  description: >
+    The HubSpot Blog Authors API enables you to manage author information for
+    your 
+
+    blog posts. Create, update, retrieve, and delete blog author profiles,
+    manage 
+
+    multi-language author groups, and perform batch operations on multiple
+    authors 
+
+    at once.
+
+
+    ## Key Features
+
+    - CRUD operations for blog author profiles
+
+    - Batch operations for bulk author management
+
+    - Multi-language support with language variations
+
+    - Author profile customization with social links
+  version: 3.0.0
+  contact:
+    name: HubSpot Developer Support
+    url: https://developers.hubspot.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  x-hubspot-product-tier-requirements:
+    marketing: PROFESSIONAL
+    cms: STARTER
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot Production API Server
+  - url: http://localhost:8080/rest/hubspot-blog-authors-api/3.0.0
+    description: Sandbox
+tags:
+  - name: Blog Authors
+    description: Create, read, update, and delete individual blog author profiles
+  - name: Batch Operations
+    description: Perform bulk operations on multiple blog authors simultaneously
+  - name: Multi-Language Management
+    description: Manage multi-language author groups and language variations
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            content: Read from and write to content
+    PrivateApp:
+      type: apiKey
+      name: private-app
+      in: header
+  schemas:
+    BlogAuthor:
+      type: object
+      description: >-
+        Represents a blog author profile with biographical and social
+        information
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the blog author
+        name:
+          type: string
+          description: Full display name of the author
+        slug:
+          type: string
+          description: URL-friendly identifier for the author
+        email:
+          type: string
+          format: email
+          description: Author's email address
+        bio:
+          type: string
+          description: Author biography or description
+        website:
+          type: string
+          format: uri
+          description: Author's personal website URL
+        twitter:
+          type: string
+          description: Author's Twitter/X handle
+        facebook:
+          type: string
+          description: Author's Facebook profile URL
+        linkedin:
+          type: string
+          description: Author's LinkedIn profile URL
+        avatar:
+          type: string
+          format: uri
+          description: URL to the author's avatar image
+        language:
+          type: string
+          description: Language code for the author profile (e.g., en, es, fr)
+        translatedFromId:
+          type: string
+          description: ID of the original author this was translated from
+        created:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the author was created
+        updated:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the author was last updated
+        deletedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the author was archived
+      required:
+        - id
+        - name
+        - created
+        - updated
+    BlogAuthorInput:
+      type: object
+      description: Input data for creating or updating a blog author
+      properties:
+        name:
+          type: string
+          description: Full display name of the author
+        slug:
+          type: string
+          description: URL-friendly identifier for the author
+        email:
+          type: string
+          format: email
+          description: Author's email address
+        bio:
+          type: string
+          description: Author biography or description
+        website:
+          type: string
+          format: uri
+          description: Author's personal website URL
+        twitter:
+          type: string
+          description: Author's Twitter/X handle
+        facebook:
+          type: string
+          description: Author's Facebook profile URL
+        linkedin:
+          type: string
+          description: Author's LinkedIn profile URL
+        avatar:
+          type: string
+          format: uri
+          description: URL to the author's avatar image
+      required:
+        - name
+    BlogAuthorCollection:
+      type: object
+      description: Paginated collection of blog authors
+      properties:
+        total:
+          type: integer
+          description: Total number of authors matching the query
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlogAuthor'
+          description: Array of blog authors
+        paging:
+          $ref: '#/components/schemas/Paging'
+      required:
+        - total
+        - results
+    BatchInputItem:
+      type: object
+      description: Single item in a batch update operation
+      properties:
+        id:
+          type: string
+          description: ID of the author to update
+        properties:
+          $ref: '#/components/schemas/BlogAuthorInput'
+      required:
+        - id
+    BatchInput:
+      type: object
+      description: Input for batch update operations
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchInputItem'
+          description: Array of items to process
+      required:
+        - inputs
+    BatchReadInput:
+      type: object
+      description: Input for batch read operations
+      properties:
+        inputs:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: ID of the author to read
+            required:
+              - id
+          description: Array of author IDs to retrieve
+      required:
+        - inputs
+    BatchCreateInput:
+      type: object
+      description: Input for batch create operations
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlogAuthorInput'
+          description: Array of authors to create
+      required:
+        - inputs
+    BatchArchiveInput:
+      type: object
+      description: Input for batch archive operations
+      properties:
+        inputs:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: ID of the author to archive
+            required:
+              - id
+          description: Array of author IDs to archive
+      required:
+        - inputs
+    BatchResponse:
+      type: object
+      description: Response from batch operations
+      properties:
+        status:
+          type: string
+          enum:
+            - PENDING
+            - PROCESSING
+            - CANCELED
+            - COMPLETE
+          description: Current status of the batch operation
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlogAuthor'
+          description: Successfully processed authors
+        requestedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the batch was requested
+        startedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when processing started
+        completedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when processing completed
+        links:
+          type: object
+          additionalProperties:
+            type: string
+          description: Related links for the batch operation
+      required:
+        - status
+        - results
+        - startedAt
+        - completedAt
+    BatchResponseWithErrors:
+      allOf:
+        - $ref: '#/components/schemas/BatchResponse'
+        - type: object
+          properties:
+            numErrors:
+              type: integer
+              description: Number of errors encountered during processing
+            errors:
+              type: array
+              items:
+                $ref: '#/components/schemas/StandardError'
+              description: List of errors encountered
+    DetachFromLanguageGroupRequest:
+      type: object
+      description: Request to detach an author from a multi-language group
+      properties:
+        id:
+          type: string
+          description: ID of the author to detach
+      required:
+        - id
+    SetLanguagePrimaryRequest:
+      type: object
+      description: Request to set a new primary language for a multi-language group
+      properties:
+        id:
+          type: string
+          description: ID of the author to set as primary
+      required:
+        - id
+    AttachToLanguageGroupRequest:
+      type: object
+      description: Request to attach an author to a multi-language group
+      properties:
+        id:
+          type: string
+          description: ID of the author to attach
+        language:
+          type: string
+          description: Language code for the author (e.g., es, fr, de)
+        primaryId:
+          type: string
+          description: ID of the primary language author
+        primaryLanguage:
+          type: string
+          description: Language code of the primary author
+      required:
+        - id
+        - language
+        - primaryId
+    CreateLanguageVariationRequest:
+      type: object
+      description: Request to create a language variation of an author
+      properties:
+        id:
+          type: string
+          description: ID of the source author
+        language:
+          type: string
+          description: Language code for the new variation
+      required:
+        - id
+        - language
+    Paging:
+      type: object
+      description: Pagination information for navigating result sets
+      properties:
+        next:
+          $ref: '#/components/schemas/PagingNext'
+    PagingNext:
+      type: object
+      description: Pagination cursor for retrieving the next page of results
+      properties:
+        after:
+          type: string
+          description: Cursor token for the next page
+        link:
+          type: string
+          description: API link to the next page of results
+    StandardError:
+      type: object
+      description: Standard error in batch operations
+      properties:
+        status:
+          type: string
+          description: Error status code
+        id:
+          type: string
+          description: ID of the failed item
+        category:
+          type: string
+          description: Error category
+        message:
+          type: string
+          description: Human-readable error message
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+          description: List of detailed errors
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Additional error context
+        links:
+          type: object
+          additionalProperties:
+            type: string
+          description: Related links for error resolution
+      required:
+        - status
+        - category
+        - message
+    ErrorDetail:
+      type: object
+      description: Detailed information about a specific error
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Machine-readable error code
+        subCategory:
+          type: string
+          description: Specific error subcategory
+        in:
+          type: string
+          description: Location where the error occurred
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Additional context about the error
+      required:
+        - message
+    Error:
+      type: object
+      description: Standard error response returned when an API request fails
+      properties:
+        category:
+          type: string
+          description: High-level error category
+        correlationId:
+          type: string
+          format: uuid
+          description: Unique identifier for tracking and debugging
+        message:
+          type: string
+          description: Human-readable error message
+        subCategory:
+          type: string
+          description: Specific error subcategory
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Additional error context
+        links:
+          type: object
+          additionalProperties:
+            type: string
+          description: Related links for error resolution
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+          description: List of specific errors
+      required:
+        - category
+        - correlationId
+        - message
+  examples:
+    BlogAuthorExample:
+      summary: Complete blog author profile
+      value:
+        id: '12345678901'
+        name: Jane Smith
+        slug: jane-smith
+        email: jane.smith@example.com
+        bio: >-
+          Jane is a senior content strategist with 10 years of experience in
+          digital marketing.
+        website: https://janesmith.com
+        twitter: '@janesmith'
+        linkedin: https://linkedin.com/in/janesmith
+        avatar: https://example.com/avatars/jane-smith.jpg
+        language: en
+        created: '2024-01-15T10:30:00Z'
+        updated: '2024-01-20T14:45:00Z'
+    BlogAuthorInputExample:
+      summary: Blog author creation input
+      value:
+        name: Jane Smith
+        slug: jane-smith
+        email: jane.smith@example.com
+        bio: >-
+          Jane is a senior content strategist with 10 years of experience in
+          digital marketing.
+        website: https://janesmith.com
+        twitter: '@janesmith'
+    BlogAuthorCollectionExample:
+      summary: Paginated list of blog authors
+      value:
+        total: 25
+        results:
+          - id: '12345678901'
+            name: Jane Smith
+            slug: jane-smith
+            email: jane.smith@example.com
+            bio: Senior content strategist
+            language: en
+            created: '2024-01-15T10:30:00Z'
+            updated: '2024-01-20T14:45:00Z'
+          - id: '12345678902'
+            name: John Doe
+            slug: john-doe
+            email: john.doe@example.com
+            bio: Technical writer and developer advocate
+            language: en
+            created: '2024-01-10T09:00:00Z'
+            updated: '2024-01-18T11:30:00Z'
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+            link: /cms/v3/blogs/authors?after=NTI1Cg%3D%3D
+    BatchResponseExample:
+      summary: Successful batch operation response
+      value:
+        status: COMPLETE
+        results:
+          - id: '12345678901'
+            name: Jane Smith
+            slug: jane-smith
+            created: '2024-01-15T10:30:00Z'
+            updated: '2024-01-20T14:45:00Z'
+        requestedAt: '2024-01-20T14:44:00Z'
+        startedAt: '2024-01-20T14:44:01Z'
+        completedAt: '2024-01-20T14:45:00Z'
+    BatchReadInputExample:
+      summary: Batch read input
+      value:
+        inputs:
+          - id: '12345678901'
+          - id: '12345678902'
+    ErrorExample:
+      summary: Validation error response
+      value:
+        category: VALIDATION_ERROR
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: Invalid input (details will vary based on the error)
+        links:
+          knowledge-base: https://www.hubspot.com/products/service/knowledge-base
+  responses:
+    ErrorResponse:
+      description: An error occurred while processing the request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ValidationError:
+              $ref: '#/components/examples/ErrorExample'
+paths:
+  /cms/v3/blogs/authors:
+    get:
+      tags:
+        - Blog Authors
+      operationId: listBlogAuthors
+      summary: List All Blog Authors
+      description: |
+        Retrieve a paginated list of all blog authors in your HubSpot account. 
+        Use query parameters to filter, sort, and paginate the results.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of results per page (1-100)
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: Pagination cursor for the next page
+        - name: sort
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          description: Properties to sort by
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Whether to return archived authors
+        - name: property
+          in: query
+          schema:
+            type: string
+          description: Specific property to return
+      responses:
+        '200':
+          description: Successfully retrieved blog authors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogAuthorCollection'
+              examples:
+                Success:
+                  $ref: '#/components/examples/BlogAuthorCollectionExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+        - Blog Authors
+      operationId: createBlogAuthor
+      summary: Create a Blog Author
+      description: Create a new blog author profile in your HubSpot account.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      requestBody:
+        required: true
+        description: Blog author data to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlogAuthorInput'
+            examples:
+              CreateAuthor:
+                $ref: '#/components/examples/BlogAuthorInputExample'
+      responses:
+        '201':
+          description: Successfully created blog author
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogAuthor'
+              examples:
+                Success:
+                  $ref: '#/components/examples/BlogAuthorExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /cms/v3/blogs/authors/{objectId}:
+    get:
+      tags:
+        - Blog Authors
+      operationId: getBlogAuthorById
+      summary: Retrieve a Blog Author
+      description: Retrieve a specific blog author by their unique identifier.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      parameters:
+        - name: objectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the blog author
+          example: '12345678901'
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Whether to return archived authors
+        - name: property
+          in: query
+          schema:
+            type: string
+          description: Specific property to return
+      responses:
+        '200':
+          description: Successfully retrieved blog author
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogAuthor'
+              examples:
+                Success:
+                  $ref: '#/components/examples/BlogAuthorExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+    patch:
+      tags:
+        - Blog Authors
+      operationId: updateBlogAuthor
+      summary: Update a Blog Author
+      description: |
+        Update an existing blog author. Only the properties included in the 
+        request body will be updated; all other properties remain unchanged.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      parameters:
+        - name: objectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the blog author
+          example: '12345678901'
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Whether to update archived authors
+      requestBody:
+        required: true
+        description: Blog author properties to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlogAuthorInput'
+            examples:
+              UpdateAuthor:
+                $ref: '#/components/examples/BlogAuthorInputExample'
+      responses:
+        '200':
+          description: Successfully updated blog author
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogAuthor'
+              examples:
+                Success:
+                  $ref: '#/components/examples/BlogAuthorExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      tags:
+        - Blog Authors
+      operationId: archiveBlogAuthor
+      summary: Archive a Blog Author
+      description: Archive (soft delete) a blog author by their unique identifier.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      parameters:
+        - name: objectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the blog author
+          example: '12345678901'
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+          description: Whether to return archived authors
+      responses:
+        '204':
+          description: Successfully archived blog author
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /cms/v3/blogs/authors/batch/read:
+    post:
+      tags:
+        - Batch Operations
+      operationId: batchReadBlogAuthors
+      summary: Read Multiple Blog Authors
+      description: Retrieve multiple blog authors by their IDs in a single request.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      parameters:
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Whether to include archived authors
+      requestBody:
+        required: true
+        description: List of author IDs to retrieve
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchReadInput'
+            examples:
+              BatchRead:
+                $ref: '#/components/examples/BatchReadInputExample'
+      responses:
+        '200':
+          description: Successfully retrieved blog authors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/BatchResponseExample'
+        '207':
+          description: Partial success with some errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponseWithErrors'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /cms/v3/blogs/authors/batch/create:
+    post:
+      tags:
+        - Batch Operations
+      operationId: batchCreateBlogAuthors
+      summary: Create Multiple Blog Authors
+      description: Create multiple blog authors in a single request.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      requestBody:
+        required: true
+        description: List of blog authors to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateInput'
+            example:
+              inputs:
+                - name: Jane Smith
+                  slug: jane-smith
+                  email: jane@example.com
+                - name: John Doe
+                  slug: john-doe
+                  email: john@example.com
+      responses:
+        '201':
+          description: Successfully created blog authors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/BatchResponseExample'
+        '207':
+          description: Partial success with some errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponseWithErrors'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /cms/v3/blogs/authors/batch/update:
+    post:
+      tags:
+        - Batch Operations
+      operationId: batchUpdateBlogAuthors
+      summary: Update Multiple Blog Authors
+      description: Update multiple blog authors in a single request.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      parameters:
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Whether to update archived authors
+      requestBody:
+        required: true
+        description: List of blog authors to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchInput'
+            example:
+              inputs:
+                - id: '12345678901'
+                  properties:
+                    bio: Updated bio content
+                - id: '12345678902'
+                  properties:
+                    bio: Another updated bio
+      responses:
+        '200':
+          description: Successfully updated blog authors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/BatchResponseExample'
+        '207':
+          description: Partial success with some errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponseWithErrors'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /cms/v3/blogs/authors/batch/archive:
+    post:
+      tags:
+        - Batch Operations
+      operationId: batchArchiveBlogAuthors
+      summary: Archive Multiple Blog Authors
+      description: Archive multiple blog authors in a single request.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      requestBody:
+        required: true
+        description: List of author IDs to archive
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchArchiveInput'
+            example:
+              inputs:
+                - id: '12345678901'
+                - id: '12345678902'
+      responses:
+        '204':
+          description: Successfully archived blog authors
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /cms/v3/blogs/authors/multi-language/detach-from-lang-group:
+    post:
+      tags:
+        - Multi-Language Management
+      operationId: detachBlogAuthorFromLanguageGroup
+      summary: Detach Author from Language Group
+      description: Detach a blog author from their multi-language group.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      requestBody:
+        required: true
+        description: Author to detach from language group
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetachFromLanguageGroupRequest'
+            example:
+              id: '12345678901'
+      responses:
+        '200':
+          description: Successfully detached author from language group
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /cms/v3/blogs/authors/multi-language/set-new-lang-primary:
+    put:
+      tags:
+        - Multi-Language Management
+      operationId: setNewBlogAuthorLanguagePrimary
+      summary: Set New Primary Language
+      description: Set a blog author as the primary language of a multi-language group.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      requestBody:
+        required: true
+        description: Author to set as primary language
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetLanguagePrimaryRequest'
+            example:
+              id: '12345678901'
+      responses:
+        '204':
+          description: Successfully set new primary language
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /cms/v3/blogs/authors/multi-language/attach-to-lang-group:
+    post:
+      tags:
+        - Multi-Language Management
+      operationId: attachBlogAuthorToLanguageGroup
+      summary: Attach Author to Language Group
+      description: Attach a blog author to an existing multi-language group.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      requestBody:
+        required: true
+        description: Author and language group details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachToLanguageGroupRequest'
+            example:
+              id: '12345678902'
+              language: es
+              primaryId: '12345678901'
+              primaryLanguage: en
+      responses:
+        '200':
+          description: Successfully attached author to language group
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /cms/v3/blogs/authors/multi-language/create-language-variation:
+    post:
+      tags:
+        - Multi-Language Management
+      operationId: createBlogAuthorLanguageVariation
+      summary: Create Language Variation
+      description: Create a new language variation of an existing blog author.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - content
+        - PrivateApp: []
+      requestBody:
+        required: true
+        description: Source author and target language
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLanguageVariationRequest'
+            example:
+              id: '12345678901'
+              language: fr
+      responses:
+        '200':
+          description: Successfully created language variation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogAuthor'
+              examples:
+                Success:
+                  $ref: '#/components/examples/BlogAuthorExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'

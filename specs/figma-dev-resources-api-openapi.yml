@@ -1,0 +1,439 @@
+openapi: 3.1.0
+info:
+  title: figma-dev-resources-api
+  version: 0.21.0
+  description: |-
+    Figma allows designers to create and prototype their digital experiences -
+    together in real-time and in one place - helping them turn their ideas and
+    visions into products, faster. Figma's mission is to make design
+    accessible to everyone. The Figma API is one of the ways we aim to do that.
+  termsOfService: https://www.figma.com/developer-terms/
+  contact:
+    email: support@figma.com
+servers:
+  - url: https://api.figma.com
+    description: Figma Production API Server
+  - url: http://localhost:8080/rest/figma-dev-resources-api/0.21.0
+    description: Sandbox
+tags:
+  - name: Dev Resources
+    description: Operations for managing dev resources attached to design nodes
+paths:
+  /v1/dev_resources:
+    post:
+      tags:
+        - Dev Resources
+      summary: Create dev resources
+      security:
+        - PersonalAccessToken: []
+        - OAuth2:
+            - file_dev_resources:write
+      description: >-
+        Bulk create dev resources across multiple files. Dev resources that are
+        successfully created will show up in the links_created array in the
+        response.
+      operationId: postDevResources
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |        
+          return "PostDevResourcesSuccessExample"
+      requestBody:
+        $ref: '#/components/requestBodies/CreateDevResourcesRequestBody'
+      responses:
+        '200':
+          $ref: '#/components/responses/PostDevResourcesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+    put:
+      tags:
+        - Dev Resources
+      summary: Update dev resources
+      security:
+        - PersonalAccessToken: []
+        - OAuth2:
+            - file_dev_resources:write
+      description: >-
+        Bulk update dev resources across multiple files. Ids for dev resources
+        that are successfully updated will show up in the `links_updated` array
+        in the response.
+      operationId: putDevResources
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "PutDevResourcesSuccessExample"
+          }
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateDevResourcesRequestBody'
+      responses:
+        '200':
+          $ref: '#/components/responses/PutDevResourcesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+components:
+  securitySchemes:
+    PersonalAccessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: Figma Personal Access Token
+      description: Personal Access Token for authentication
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://www.figma.com/oauth
+          tokenUrl: https://api.figma.com/v1/oauth/token
+          scopes:
+            file_dev_resources:write: Write dev resources to files
+  requestBodies:
+    CreateDevResourcesRequestBody:
+      description: A list of dev resources that you want to create.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateDevResourcesRequest'
+          examples:
+            CreateDevResourcesExample:
+              $ref: '#/components/examples/CreateDevResourcesRequestExample'
+    UpdateDevResourcesRequestBody:
+      description: A list of dev resources that you want to update.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateDevResourcesRequest'
+          examples:
+            UpdateDevResourcesExample:
+              $ref: '#/components/examples/UpdateDevResourcesRequestExample'
+  responses:
+    PostDevResourcesResponse:
+      description: Response from the POST /v1/dev_resources endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PostDevResourcesResponseBody'
+          examples:
+            PostDevResourcesSuccessExample:
+              $ref: '#/components/examples/PostDevResourcesSuccessExample'
+    PutDevResourcesResponse:
+      description: Response from the PUT /v1/dev_resources endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PutDevResourcesResponseBody'
+          examples:
+            PutDevResourcesSuccessExample:
+              $ref: '#/components/examples/PutDevResourcesSuccessExample'
+    BadRequestErrorResponse:
+      description: >-
+        Bad request. Parameters are invalid or malformed. Please check the input
+        formats.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            BadRequestExample:
+              $ref: '#/components/examples/BadRequestExample'
+    UnauthorizedErrorResponse:
+      description: Token is missing or incorrect.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            UnauthorizedExample:
+              $ref: '#/components/examples/UnauthorizedExample'
+    ForbiddenErrorResponse:
+      description: >-
+        The request was valid, but the server is refusing action. The user might
+        not have the necessary permissions for a resource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            ForbiddenExample:
+              $ref: '#/components/examples/ForbiddenExample'
+    TooManyRequestsErrorResponse:
+      description: >-
+        API requests may be throttled or rate limited. Please wait a while
+        before attempting the request again.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            TooManyRequestsExample:
+              $ref: '#/components/examples/TooManyRequestsExample'
+    InternalServerErrorResponse:
+      description: An internal server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            InternalServerErrorExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
+  schemas:
+    CreateDevResourcesRequest:
+      type: object
+      properties:
+        devResources:
+          type: array
+          description: An array of dev resources to create.
+          items:
+            $ref: '#/components/schemas/CreateDevResourceItem'
+      required:
+        - devResources
+    CreateDevResourceItem:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the dev resource.
+        url:
+          type: string
+          description: The URL of the dev resource.
+        fileKey:
+          type: string
+          description: The file key where the dev resource belongs.
+        nodeId:
+          type: string
+          description: The target node to attach the dev resource to.
+      required:
+        - name
+        - url
+        - fileKey
+        - nodeId
+    UpdateDevResourcesRequest:
+      type: object
+      properties:
+        devResources:
+          type: array
+          description: An array of dev resources to update.
+          items:
+            $ref: '#/components/schemas/UpdateDevResourceItem'
+      required:
+        - devResources
+    UpdateDevResourceItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the dev resource
+        name:
+          type: string
+          description: The name of the dev resource.
+        url:
+          type: string
+          description: The URL of the dev resource.
+      required:
+        - id
+    PostDevResourcesResponseBody:
+      type: object
+      properties:
+        linksCreated:
+          type: array
+          description: An array of links created.
+          items:
+            $ref: '#/components/schemas/DevResource'
+        errors:
+          type: array
+          description: An array of errors.
+          items:
+            $ref: '#/components/schemas/DevResourceCreateError'
+      required:
+        - linksCreated
+    PutDevResourcesResponseBody:
+      type: object
+      properties:
+        linksUpdated:
+          type: array
+          description: An array of links updated.
+          items:
+            $ref: '#/components/schemas/DevResource'
+        errors:
+          type: array
+          description: An array of errors.
+          items:
+            $ref: '#/components/schemas/DevResourceUpdateError'
+      required:
+        - linksUpdated
+    DevResource:
+      type: object
+      description: A dev resource in a file
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the dev resource
+        name:
+          type: string
+          description: The name of the dev resource.
+        url:
+          type: string
+          description: The URL of the dev resource.
+        fileKey:
+          type: string
+          description: The file key where the dev resource belongs.
+        nodeId:
+          type: string
+          description: The target node to attach the dev resource to.
+      required:
+        - id
+        - name
+        - url
+        - fileKey
+        - nodeId
+    DevResourceCreateError:
+      type: object
+      properties:
+        fileKey:
+          type:
+            - string
+            - 'null'
+          description: The file key.
+        nodeId:
+          type:
+            - string
+            - 'null'
+          description: The node id.
+        error:
+          type: string
+          description: The error message.
+      required:
+        - error
+    DevResourceUpdateError:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The id of the dev resource.
+        error:
+          type: string
+          description: The error message.
+      required:
+        - error
+    ErrorResponsePayload:
+      type: object
+      description: A response indicating an error occurred.
+      properties:
+        error:
+          type: boolean
+          description: For erroneous requests, this value is always `true`.
+          enum:
+            - true
+        status:
+          type: number
+          description: Status code
+        message:
+          type: string
+          description: A string describing the error
+      required:
+        - error
+        - status
+        - message
+  examples:
+    CreateDevResourcesRequestExample:
+      summary: Create dev resources request
+      value:
+        devResources:
+          - name: Button Component Code
+            url: >-
+              https://github.com/myorg/design-system/blob/main/src/components/Button.tsx
+            fileKey: abc123xyz789
+            nodeId: '1:1'
+          - name: Button Storybook
+            url: https://storybook.myorg.com/?path=/story/button
+            fileKey: abc123xyz789
+            nodeId: '1:1'
+    UpdateDevResourcesRequestExample:
+      summary: Update dev resources request
+      value:
+        devResources:
+          - id: dev_res_123
+            name: Updated Button Component
+            url: >-
+              https://github.com/myorg/design-system/blob/main/src/components/Button/index.tsx
+          - id: dev_res_456
+            name: Button Documentation
+    PostDevResourcesSuccessExample:
+      summary: Successful create dev resources response
+      value:
+        linksCreated:
+          - id: dev_res_123
+            name: Button Component Code
+            url: >-
+              https://github.com/myorg/design-system/blob/main/src/components/Button.tsx
+            fileKey: abc123xyz789
+            nodeId: '1:1'
+          - id: dev_res_456
+            name: Button Storybook
+            url: https://storybook.myorg.com/?path=/story/button
+            fileKey: abc123xyz789
+            nodeId: '1:1'
+        errors: []
+    PutDevResourcesSuccessExample:
+      summary: Successful update dev resources response
+      value:
+        linksUpdated:
+          - id: dev_res_123
+            name: Updated Button Component
+            url: >-
+              https://github.com/myorg/design-system/blob/main/src/components/Button/index.tsx
+            fileKey: abc123xyz789
+            nodeId: '1:1'
+          - id: dev_res_456
+            name: Button Documentation
+            url: https://storybook.myorg.com/?path=/story/button
+            fileKey: abc123xyz789
+            nodeId: '1:1'
+        errors: []
+    BadRequestExample:
+      summary: Bad request error
+      value:
+        error: true
+        status: 400
+        message: 'Invalid parameter: url format is incorrect'
+    UnauthorizedExample:
+      summary: Unauthorized error
+      value:
+        error: true
+        status: 401
+        message: Token is missing or incorrect
+    ForbiddenExample:
+      summary: Forbidden error
+      value:
+        error: true
+        status: 403
+        message: You do not have permission to modify dev resources for this file
+    TooManyRequestsExample:
+      summary: Rate limit error
+      value:
+        error: true
+        status: 429
+        message: Rate limit exceeded. Please wait before making another request
+    InternalServerErrorExample:
+      summary: Internal server error
+      value:
+        error: true
+        status: 500
+        message: An internal server error occurred

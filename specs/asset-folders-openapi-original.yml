@@ -1,0 +1,563 @@
+openapi: 3.1.0
+info:
+  title: webflow-asset-folders-api
+  description: |
+    API for managing asset folders within Webflow sites. Asset folders provide 
+    organizational structure for digital assets, allowing you to group and 
+    categorize images, documents, and other files uploaded to your Webflow site.
+  version: 1.0.0
+servers:
+  - url: https://api.webflow.com/v2
+    description: Webflow API v2 Production Server
+  - url: http://localhost:8080/rest/webflow-asset-folders-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Asset Folders
+    description: Operations for managing asset folder organization within a site
+paths:
+  /sites/{site_id}/asset_folders:
+    get:
+      operationId: listAssetFolders
+      summary: List Asset Folders
+      description: |
+        Retrieve a paginated list of all asset folders within a specified site.
+        Asset folders help organize uploaded assets into logical groupings.
+
+        Required scope | `assets:read`
+      tags:
+        - Asset Folders
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "ListAssetFoldersSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - assets:read
+      parameters:
+        - $ref: '#/components/parameters/SiteIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved the list of asset folders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFolderListResponse'
+              examples:
+                ListAssetFoldersSuccessResponse:
+                  $ref: '#/components/examples/ListAssetFoldersSuccessResponse'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestError'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedError'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundError'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  $ref: '#/components/examples/InternalServerError'
+    post:
+      operationId: createAssetFolder
+      summary: Create Asset Folder
+      description: |
+        Create a new asset folder within a specified site. Asset folders can be 
+        nested by specifying a parent folder ID.
+
+        Required scope | `assets:write`
+      tags:
+        - Asset Folders
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "CreateAssetFolderSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - assets:write
+      parameters:
+        - $ref: '#/components/parameters/SiteIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAssetFolderRequest'
+            examples:
+              CreateAssetFolderRequest:
+                $ref: '#/components/examples/CreateAssetFolderRequest'
+      responses:
+        '200':
+          description: Successfully created the asset folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFolder'
+              examples:
+                CreateAssetFolderSuccessResponse:
+                  $ref: '#/components/examples/CreateAssetFolderSuccessResponse'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestError'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedError'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundError'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  $ref: '#/components/examples/InternalServerError'
+  /asset_folders/{asset_folder_id}:
+    get:
+      operationId: getAssetFolder
+      summary: Get Asset Folder
+      description: |
+        Retrieve details about a specific asset folder by its unique identifier.
+
+        Required scope | `assets:read`
+      tags:
+        - Asset Folders
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "GetAssetFolderSuccessResponse"
+          return result
+      security:
+        - OAuth2:
+            - assets:read
+      parameters:
+        - $ref: '#/components/parameters/AssetFolderIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved the asset folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFolder'
+              examples:
+                GetAssetFolderSuccessResponse:
+                  $ref: '#/components/examples/GetAssetFolderSuccessResponse'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestError'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedError'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundError'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  $ref: '#/components/examples/InternalServerError'
+components:
+  parameters:
+    SiteIdPath:
+      name: site_id
+      in: path
+      description: Unique identifier for a Site
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 580e63e98c9a982ac9b8b741
+    AssetFolderIdPath:
+      name: asset_folder_id
+      in: path
+      description: Unique identifier for an Asset Folder
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 6390c49774a71f0e3c1a08ee
+  schemas:
+    AssetFolder:
+      type: object
+      description: Asset Folder details
+      required:
+        - id
+        - displayName
+        - siteId
+        - createdOn
+        - lastUpdated
+      properties:
+        id:
+          type: string
+          format: objectid
+          description: Unique identifier for the Asset Folder
+          example: 6390c49774a71f0e3c1a08ee
+        displayName:
+          type: string
+          description: User visible name for the Asset Folder
+          example: emoji icons
+        parentFolder:
+          type: string
+          nullable: true
+          description: Pointer to parent Asset Folder (or null if root)
+          example: 6390c49774a71f99f21a08eb
+        assets:
+          type: array
+          description: Array of Asset instance IDs in the folder
+          items:
+            type: string
+            format: objectid
+            description: Unique identifier for the Asset
+            example: 63e5889e7fe4eafa7384cea4
+        siteId:
+          type: string
+          format: objectid
+          description: The unique ID of the site the Asset Folder belongs to
+          example: 6390c49674a71f84b51a08d8
+        createdOn:
+          type: string
+          format: date-time
+          description: Date that the Asset Folder was created on
+          example: '2018-10-14T21:55:49.063Z'
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Date that the Asset Folder was last updated on
+          example: '2022-12-07T16:51:37.571Z'
+    AssetFolderListResponse:
+      type: object
+      description: Response containing a list of Asset Folders with pagination
+      required:
+        - assetFolders
+        - pagination
+      properties:
+        assetFolders:
+          type: array
+          description: A list of Asset folders
+          items:
+            $ref: '#/components/schemas/AssetFolder'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    CreateAssetFolderRequest:
+      type: object
+      description: Request payload for creating an Asset Folder
+      required:
+        - displayName
+      properties:
+        displayName:
+          type: string
+          description: A human readable name for the Asset Folder
+          example: my asset folder
+        parentFolder:
+          type: string
+          nullable: true
+          description: An optional pointer to a parent Asset Folder (or null for root)
+          example: 6390c49774a71f99f21a08eb
+    Pagination:
+      type: object
+      description: Pagination metadata
+      required:
+        - limit
+        - offset
+        - total
+      properties:
+        limit:
+          type: integer
+          description: The limit used for pagination
+          example: 100
+          readOnly: true
+        offset:
+          type: integer
+          description: The offset used for pagination
+          example: 0
+          readOnly: true
+        total:
+          type: integer
+          description: The total number of records
+          example: 100
+          readOnly: true
+    ErrorResponse:
+      type: object
+      description: Standard error response
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+          example: not_authorized
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          nullable: true
+          description: Link to more information
+          example: null
+        details:
+          type: array
+          description: Array of error details
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field that caused the error
+              message:
+                type: string
+                description: Error message for the field
+          example: []
+  examples:
+    ListAssetFoldersSuccessResponse:
+      summary: Successful list of asset folders
+      value:
+        assetFolders:
+          - id: 6390c49774a71f0e3c1a08ee
+            displayName: emoji icons
+            parentFolder: null
+            assets:
+              - 63e5889e7fe4eafa7384cea4
+              - 659595234426a9fcbad57043
+            siteId: 6390c49674a71f84b51a08d8
+            createdOn: '2018-10-14T21:55:49.063Z'
+            lastUpdated: '2022-12-07T16:51:37.571Z'
+        pagination:
+          total: 1
+          offset: 0
+          limit: 100
+    CreateAssetFolderRequest:
+      summary: Request to create an asset folder
+      value:
+        displayName: my asset folder
+        parentFolder: 6390c49774a71f99f21a08eb
+    CreateAssetFolderSuccessResponse:
+      summary: Successfully created asset folder
+      value:
+        id: 6390c49774a71f0e3c1a08ee
+        displayName: my asset folder
+        parentFolder: 6390c49774a71f99f21a08eb
+        assets: []
+        siteId: 6390c49674a71f84b51a08d8
+        createdOn: '2018-10-14T21:55:49.063Z'
+        lastUpdated: '2022-12-07T16:51:37.571Z'
+    GetAssetFolderSuccessResponse:
+      summary: Successfully retrieved asset folder
+      value:
+        id: 6390c49774a71f0e3c1a08ee
+        displayName: emoji icons
+        parentFolder: 6390c49774a71f99f21a08eb
+        assets:
+          - 63e5889e7fe4eafa7384cea4
+          - 659595234426a9fcbad57043
+        siteId: 6390c49674a71f84b51a08d8
+        createdOn: '2018-10-14T21:55:49.063Z'
+        lastUpdated: '2022-12-07T16:51:37.571Z'
+    BadRequestError:
+      summary: Bad request error
+      value:
+        code: bad_request
+        message: 'Bad Request: Request is malformed'
+        externalReference: null
+        details: []
+    UnauthorizedError:
+      summary: Unauthorized error
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    NotFoundError:
+      summary: Resource not found error
+      value:
+        code: resource_not_found
+        message: 'Requested resource not found: The site cannot be found'
+        externalReference: null
+        details: []
+    RateLimitError:
+      summary: Rate limit exceeded error
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    InternalServerError:
+      summary: Internal server error
+      value:
+        code: internal_error
+        message: An Internal Error occurred
+        externalReference: null
+        details: []
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://webflow.com/oauth/authorize
+          tokenUrl: https://api.webflow.com/oauth/token
+          scopes:
+            authorized_user:read: Read details about the authorized user
+            assets:read: Read assets on the site
+            assets:write: Write assets on a site
+            cms:read: Read collections and items for a site
+            cms:write: Write to collections and items for a site
+            sites:read: Read sites on the site
+            sites:write: Modify pages on the site

@@ -1,0 +1,612 @@
+openapi: 3.1.0
+info:
+  title: zoom-groups-api
+  description: >
+    The Zoom Groups API enables management of user groups within a Zoom account.
+
+    This API provides endpoints to create, retrieve, update, and delete groups,
+    as well as manage
+
+    group membership. Groups help organize users for administrative purposes,
+    permissions management,
+
+    and streamlined meeting scheduling.
+  contact:
+    name: Zoom Developers
+    url: https://zoom.us/developer
+    email: developer@zoom.us
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+externalDocs:
+  description: Zoom REST API Documentation
+  url: https://zoom.github.io/api
+servers:
+  - url: https://api.zoom.us/v1
+    description: Zoom API Production Server
+  - url: http://localhost:8080/rest/zoom-groups-api/1.0.0
+    description: Sandbox
+security:
+  - ApiKey: []
+    ApiSecret: []
+tags:
+  - name: Groups
+    description: Operations for managing user groups
+  - name: Group Members
+    description: Operations for managing members within groups
+paths:
+  /group/create:
+    post:
+      tags:
+        - Groups
+      summary: Create a group
+      description: >
+        Creates a new user group on your Zoom account. The group name must be
+        unique
+
+        within the account. Groups can be used to organize users for
+        administrative
+
+        purposes and apply common settings.
+      operationId: createGroup
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "CreateGroupSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateGroupRequest'
+            examples:
+              CreateGroupRequestExample:
+                $ref: '#/components/examples/CreateGroupRequestExample'
+      responses:
+        '200':
+          description: Group created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupResponse'
+              examples:
+                CreateGroupSuccessExample:
+                  $ref: '#/components/examples/CreateGroupSuccessExample'
+  /group/delete:
+    post:
+      tags:
+        - Groups
+      summary: Delete a group
+      description: >
+        Deletes an existing user group from your Zoom account. This action
+        removes
+
+        the group and all its membership associations. The deleted group ID and
+        timestamp
+
+        are returned for confirmation.
+      operationId: deleteGroup
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "DeleteGroupSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GroupIdRequest'
+            examples:
+              DeleteGroupRequestExample:
+                $ref: '#/components/examples/GroupIdRequestExample'
+      responses:
+        '200':
+          description: Group deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteGroupResponse'
+              examples:
+                DeleteGroupSuccessExample:
+                  $ref: '#/components/examples/DeleteGroupSuccessExample'
+  /group/edit:
+    post:
+      tags:
+        - Groups
+      summary: Update a group
+      description: >
+        Updates the properties of an existing user group. You can modify the
+        group
+
+        name. Returns the updated group information.
+      operationId: updateGroup
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "UpdateGroupSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateGroupRequest'
+            examples:
+              UpdateGroupRequestExample:
+                $ref: '#/components/examples/UpdateGroupRequestExample'
+      responses:
+        '200':
+          description: Group updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupResponse'
+              examples:
+                UpdateGroupSuccessExample:
+                  $ref: '#/components/examples/UpdateGroupSuccessExample'
+  /group/get:
+    post:
+      tags:
+        - Groups
+      summary: Get group details
+      description: |
+        Retrieves detailed information about a specific user group by its ID.
+        Returns the group configuration and member count.
+      operationId: getGroup
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "GetGroupSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GroupIdRequest'
+            examples:
+              GetGroupRequestExample:
+                $ref: '#/components/examples/GroupIdRequestExample'
+      responses:
+        '200':
+          description: Group details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupResponse'
+              examples:
+                GetGroupSuccessExample:
+                  $ref: '#/components/examples/GetGroupSuccessExample'
+  /group/list:
+    post:
+      tags:
+        - Groups
+      summary: List all groups
+      description: |
+        Retrieves a list of all user groups within your Zoom account.
+        Returns basic information about each group including member counts.
+      operationId: listGroups
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "ListGroupsSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApiCredentialsRequest'
+            examples:
+              ListGroupsRequestExample:
+                $ref: '#/components/examples/ApiCredentialsRequestExample'
+      responses:
+        '200':
+          description: Groups list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupListResponse'
+              examples:
+                ListGroupsSuccessExample:
+                  $ref: '#/components/examples/ListGroupsSuccessExample'
+  /group/member/add:
+    post:
+      tags:
+        - Group Members
+      summary: Add members to a group
+      description: |
+        Adds one or more members to an existing user group. Multiple member
+        IDs can be specified as a comma-separated list. Returns confirmation
+        of the addition with a count of added members.
+      operationId: addGroupMembers
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "AddGroupMembersSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GroupMemberModifyRequest'
+            examples:
+              AddGroupMembersRequestExample:
+                $ref: '#/components/examples/GroupMemberModifyRequestExample'
+      responses:
+        '200':
+          description: Members added to group successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddMembersResponse'
+              examples:
+                AddGroupMembersSuccessExample:
+                  $ref: '#/components/examples/AddGroupMembersSuccessExample'
+  /group/member/delete:
+    post:
+      tags:
+        - Group Members
+      summary: Remove members from a group
+      description: |
+        Removes one or more members from an existing user group. Multiple member
+        IDs can be specified as a comma-separated list. Returns confirmation of
+        the deletion with a count of removed members.
+      operationId: deleteGroupMembers
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "DeleteGroupMembersSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GroupMemberModifyRequest'
+            examples:
+              DeleteGroupMembersRequestExample:
+                $ref: '#/components/examples/GroupMemberModifyRequestExample'
+      responses:
+        '200':
+          description: Members removed from group successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteMembersResponse'
+              examples:
+                DeleteGroupMembersSuccessExample:
+                  $ref: '#/components/examples/DeleteGroupMembersSuccessExample'
+  /group/member/list:
+    post:
+      tags:
+        - Group Members
+      summary: List group members
+      description: |
+        Retrieves a paginated list of all members in a specific user group.
+        Returns member details including name, email, and profile picture URL.
+      operationId: listGroupMembers
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "ListGroupMembersSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GroupMemberListRequest'
+            examples:
+              ListGroupMembersRequestExample:
+                $ref: '#/components/examples/ListGroupMembersRequestExample'
+      responses:
+        '200':
+          description: Group members retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberListResponse'
+              examples:
+                ListGroupMembersSuccessExample:
+                  $ref: '#/components/examples/ListGroupMembersSuccessExample'
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: api_key
+    ApiSecret:
+      type: apiKey
+      in: query
+      name: api_secret
+  schemas:
+    CreateGroupRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Group name, must be unique within the account.
+    UpdateGroupRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the group to update.
+        name:
+          type: string
+          description: Group name, must be unique within the account.
+    GroupIdRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the group.
+    ApiCredentialsRequest:
+      type: object
+      required:
+        - api_key
+        - api_secret
+      properties:
+        api_key:
+          type: string
+          description: Your Zoom API Key.
+        api_secret:
+          type: string
+          description: Your Zoom API Secret.
+    GroupMemberModifyRequest:
+      type: object
+      required:
+        - id
+        - member_ids
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the group.
+        member_ids:
+          type: string
+          description: Comma-separated list of member IDs to modify.
+    GroupMemberListRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the group.
+        page_size:
+          type: string
+          description: Number of records to return per API call. Defaults to 30.
+          default: '30'
+        page_number:
+          type: string
+          description: Page number of returned records. Defaults to 1.
+          default: '1'
+    GroupResponse:
+      type: object
+      properties:
+        group_id:
+          type: string
+          description: Unique identifier of the group.
+        account_id:
+          type: string
+          description: Account identifier the group belongs to.
+        name:
+          type: string
+          description: Name of the group.
+        total_members:
+          type: integer
+          description: Total number of members in the group.
+    DeleteGroupResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the deleted group.
+        deleted_at:
+          type: string
+          format: date-time
+          description: Timestamp when the group was deleted.
+        deleted_count:
+          type: integer
+          description: Number of groups deleted.
+    GroupListResponse:
+      type: object
+      properties:
+        total_records:
+          type: integer
+          description: Total number of groups.
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupListItem'
+    GroupListItem:
+      type: object
+      properties:
+        group_id:
+          type: string
+          description: Unique identifier of the group.
+        account_id:
+          type: string
+          description: Account identifier the group belongs to.
+        name:
+          type: string
+          description: Name of the group.
+        total_members:
+          type: integer
+          description: Total number of members in the group.
+    AddMembersResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the group.
+        add_at:
+          type: string
+          format: date-time
+          description: Timestamp when members were added.
+        add_count:
+          type: integer
+          description: Number of members added.
+    DeleteMembersResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the group.
+        deleted_at:
+          type: string
+          format: date-time
+          description: Timestamp when members were removed.
+        deleted_count:
+          type: integer
+          description: Number of members removed.
+    MemberListResponse:
+      type: object
+      properties:
+        page_count:
+          type: integer
+          description: Total number of pages.
+        page_number:
+          type: integer
+          description: Current page number.
+        page_size:
+          type: integer
+          description: Number of records per page.
+        total_records:
+          type: integer
+          description: Total number of member records.
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberInfo'
+    MemberInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the member.
+        email:
+          type: string
+          format: email
+          description: Email address of the member.
+        first_name:
+          type: string
+          description: First name of the member.
+        last_name:
+          type: string
+          description: Last name of the member.
+        pic_url:
+          type: string
+          format: uri
+          description: URL of the member's profile picture.
+  examples:
+    CreateGroupRequestExample:
+      summary: Create Group Request
+      value:
+        name: Engineering Department
+    CreateGroupSuccessExample:
+      summary: Create Group Success Response
+      value:
+        group_id: grp_abc123def456
+        account_id: acc_xyz789ghi012
+        name: Engineering Department
+        total_members: 0
+    GroupIdRequestExample:
+      summary: Group ID Request
+      value:
+        id: grp_abc123def456
+    DeleteGroupSuccessExample:
+      summary: Delete Group Success Response
+      value:
+        id: grp_abc123def456
+        deleted_at: '2024-01-15T08:41:58.000Z'
+        deleted_count: 1
+    UpdateGroupRequestExample:
+      summary: Update Group Request
+      value:
+        id: grp_abc123def456
+        name: Engineering Department Updated
+    UpdateGroupSuccessExample:
+      summary: Update Group Success Response
+      value:
+        group_id: grp_abc123def456
+        account_id: acc_xyz789ghi012
+        name: Engineering Department Updated
+        total_members: 15
+    GetGroupSuccessExample:
+      summary: Get Group Success Response
+      value:
+        group_id: grp_abc123def456
+        account_id: acc_xyz789ghi012
+        name: Engineering Department
+        total_members: 25
+    ApiCredentialsRequestExample:
+      summary: API Credentials Request
+      value:
+        api_key: your_api_key_here
+        api_secret: your_api_secret_here
+    ListGroupsSuccessExample:
+      summary: List Groups Success Response
+      value:
+        total_records: 2
+        groups:
+          - group_id: grp_abc123def456
+            account_id: acc_xyz789ghi012
+            name: Engineering Department
+            total_members: 25
+          - group_id: grp_mno345pqr678
+            account_id: acc_xyz789ghi012
+            name: Marketing Department
+            total_members: 18
+    GroupMemberModifyRequestExample:
+      summary: Group Member Modify Request
+      value:
+        id: grp_abc123def456
+        member_ids: usr_111222333,usr_444555666
+    AddGroupMembersSuccessExample:
+      summary: Add Group Members Success Response
+      value:
+        id: grp_abc123def456
+        add_at: '2024-01-15T08:57:38.000Z'
+        add_count: 2
+    DeleteGroupMembersSuccessExample:
+      summary: Delete Group Members Success Response
+      value:
+        id: grp_abc123def456
+        deleted_at: '2024-01-15T08:57:38.000Z'
+        deleted_count: 2
+    ListGroupMembersRequestExample:
+      summary: List Group Members Request
+      value:
+        id: grp_abc123def456
+        page_size: '30'
+        page_number: '1'
+    ListGroupMembersSuccessExample:
+      summary: List Group Members Success Response
+      value:
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 2
+        members:
+          - id: usr_111222333
+            email: john.doe@example.com
+            first_name: John
+            last_name: Doe
+            pic_url: https://zoom.us/p/user123/profile-pic-abc123
+          - id: usr_444555666
+            email: jane.smith@example.com
+            first_name: Jane
+            last_name: Smith
+            pic_url: https://zoom.us/p/user456/profile-pic-def456

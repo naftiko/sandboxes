@@ -1,0 +1,4434 @@
+openapi: 3.1.0
+info:
+  title: microsoft-teams-api
+  description: |
+    OpenAPI 3.1 specification covering Microsoft Teams use cases including teams and channel management, app and tab management, chat messaging, tagging, calls and meetings, workforce integration, and employee learning.
+  version: 1.0.0
+  contact:
+    name: Microsoft Graph API
+    url: https://learn.microsoft.com/en-us/graph/api/overview
+servers:
+
+  - url: http://localhost:8080/rest/microsoft-teams-api/1.0.0
+    description: Sandbox   
+  - url: https://graph.microsoft.com/v1.0
+    description: Production
+  - url: https://graph.microsoft.com/beta
+    description: Beta 
+
+security:
+- oauth2: []
+tags:
+- name: Teams
+  description: Microsoft Teams team resources and configuration
+- name: Channels
+  description: Team channel resources for communication and collaboration
+- name: Groups
+  description: Microsoft 365 groups backing Teams
+- name: Tabs
+  description: Channel tab resources for embedding apps and content
+- name: Apps
+  description: Teams app catalog resources
+- name: AppInstallations
+  description: Team and user app installation resources
+- name: Chats
+  description: One-on-one and group chat resources
+- name: ChatMessages
+  description: Chat and channel message resources
+- name: Tags
+  description: Teamwork tag resources for classifying users by attributes
+- name: Calls
+  description: Communication call resources for audio and video
+- name: CallIvr
+  description: Interactive voice response (IVR) bot call resources
+- name: CallRecords
+  description: Call record and session history resources
+- name: OnlineMeetings
+  description: Online meeting resources and scheduling
+- name: Presence
+  description: User presence and activity status resources
+- name: WorkforceIntegrations
+  description: Workforce integration resources for third-party systems
+- name: Schedules
+  description: Team schedule resources for shift management
+- name: Shifts
+  description: Employee shift and time card resources
+- name: TimeOff
+  description: Time off and time off reason resources
+- name: EmployeeLearning
+  description: Viva Learning provider and content resources
+paths:
+  /teams:
+    get:
+      tags:
+      - Teams
+      operationId: listTeams
+      summary: List all teams
+      description: Retrieve a list of teams the caller is a member of.
+      parameters:
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Skip'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Select'
+      responses:
+        '200':
+          description: A collection of teams.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    '@odata.count': 2
+                    value:
+                    - id: e1b3c5a7-9d2f-4b6e-8c1a-3f5d7e9b2a4c
+                      displayName: Engineering Team
+                      description: Main engineering team
+                      isArchived: false
+                      visibility: private
+                    - id: f2c4d6b8-0e3a-5c7f-9d2b-4a6e8c1f3d5a
+                      displayName: Marketing Team
+                      description: Marketing and communications
+                      isArchived: false
+                      visibility: public
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - Teams
+      operationId: createTeam
+      summary: Create a team
+      description: Create a new team.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        '202':
+          description: Accepted. The team is being provisioned asynchronously.
+          headers:
+            Location:
+              description: URL to poll for team creation status.
+              schema:
+                type: string
+                format: uri
+            Content-Location:
+              description: URL to the created team once provisioning completes.
+              schema:
+                type: string
+                format: uri
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}:
+    get:
+      tags:
+      - Teams
+      operationId: getTeam
+      summary: Get a team
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/Select'
+      - $ref: '#/components/parameters/Expand'
+      responses:
+        '200':
+          description: The requested team.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    id: e1b3c5a7-9d2f-4b6e-8c1a-3f5d7e9b2a4c
+                    displayName: Engineering Team
+                    description: Main engineering team for product development
+                    internalId: 19:engineering@thread.tacv2
+                    isArchived: false
+                    visibility: private
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    patch:
+      tags:
+      - Teams
+      operationId: updateTeam
+      summary: Update a team
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        '204':
+          description: Successfully updated.
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - Teams
+      operationId: deleteTeam
+      summary: Delete a team
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      responses:
+        '204':
+          description: Successfully deleted.
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /groups:
+    get:
+      tags:
+      - Groups
+      operationId: listGroups
+      summary: List groups
+      parameters:
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Skip'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Select'
+      responses:
+        '200':
+          description: A collection of groups.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                      displayName: Project Alpha Group
+                      mailEnabled: true
+                      mailNickname: projectalpha
+                      securityEnabled: false
+                      groupTypes:
+                      - Unified
+                      visibility: Private
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - Groups
+      operationId: createGroup
+      summary: Create a group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      responses:
+        '201':
+          description: The created group.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id001
+                    id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                    displayName: Project Alpha Group
+                    description: Microsoft 365 group for Project Alpha
+                    mailEnabled: true
+                    mailNickname: projectalpha
+                    securityEnabled: false
+                    groupTypes:
+                    - Unified
+                    visibility: Private
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /groups/{group-id}:
+    get:
+      tags:
+      - Groups
+      operationId: getGroup
+      summary: Get a group
+      parameters:
+      - $ref: '#/components/parameters/GroupId'
+      responses:
+        '200':
+          description: The requested group.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id001
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    patch:
+      tags:
+      - Groups
+      operationId: updateGroup
+      summary: Update a group
+      parameters:
+      - $ref: '#/components/parameters/GroupId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      responses:
+        '204':
+          description: Successfully updated.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - Groups
+      operationId: deleteGroup
+      summary: Delete a group
+      parameters:
+      - $ref: '#/components/parameters/GroupId'
+      responses:
+        '204':
+          description: Successfully deleted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/channels:
+    get:
+      tags:
+      - Channels
+      operationId: listChannels
+      summary: List channels in a team
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Select'
+      responses:
+        '200':
+          description: A collection of channels.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    '@odata.count': 2
+                    value:
+                    - id: 19:channel123@thread.tacv2
+                      displayName: General
+                      description: General discussion channel
+                      membershipType: standard
+                    - id: 19:channel456@thread.tacv2
+                      displayName: Development
+                      description: Dev team channel
+                      membershipType: private
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - Channels
+      operationId: createChannel
+      summary: Create a channel
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Channel'
+      responses:
+        '201':
+          description: The created channel.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id002
+                    id: 19:channel123@thread.tacv2
+                    displayName: General
+                    description: General discussion channel
+                    membershipType: standard
+                    createdDateTime: '2025-01-15T10:30:00Z'
+                    webUrl: https://teams.microsoft.com/l/channel/19%3Achannel123%40thread.tacv2/General
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/channels/{channel-id}:
+    get:
+      tags:
+      - Channels
+      operationId: getChannel
+      summary: Get a channel
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      responses:
+        '200':
+          description: The requested channel.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id002
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    patch:
+      tags:
+      - Channels
+      operationId: updateChannel
+      summary: Update a channel
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Channel'
+      responses:
+        '204':
+          description: Successfully updated.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - Channels
+      operationId: deleteChannel
+      summary: Delete a channel
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      responses:
+        '204':
+          description: Successfully deleted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/channels/{channel-id}/tabs:
+    get:
+      tags:
+      - Tabs
+      operationId: listTabs
+      summary: List tabs in a channel
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Expand'
+      responses:
+        '200':
+          description: A collection of tabs.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamsTabCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: tab-id-001
+                      displayName: Project Wiki
+                      webUrl: https://teams.microsoft.com/l/entity/com.microsoft.teamspace.tab.wiki
+                    - id: tab-id-002
+                      displayName: Task Board
+                      webUrl: https://teams.microsoft.com/l/entity/com.microsoft.teamspace.tab.planner
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - Tabs
+      operationId: createTab
+      summary: Add a tab to a channel
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamsTab'
+      responses:
+        '201':
+          description: The created tab.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamsTab'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id003
+                    id: tab-id-001
+                    displayName: Project Wiki
+                    webUrl: https://teams.microsoft.com/l/entity/com.microsoft.teamspace.tab.wiki
+                    configuration:
+                      entityId: wiki-001
+                      contentUrl: https://teams.microsoft.com/l/entity/com.microsoft.teamspace.tab.wiki/tab-id-001
+                      websiteUrl: https://wiki.example.com/project
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/channels/{channel-id}/tabs/{tab-id}:
+    get:
+      tags:
+      - Tabs
+      operationId: getTab
+      summary: Get a tab
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      - $ref: '#/components/parameters/TabId'
+      responses:
+        '200':
+          description: The requested tab.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamsTab'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id003
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    patch:
+      tags:
+      - Tabs
+      operationId: updateTab
+      summary: Update a tab
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      - $ref: '#/components/parameters/TabId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamsTab'
+      responses:
+        '204':
+          description: Successfully updated.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - Tabs
+      operationId: deleteTab
+      summary: Remove a tab from a channel
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      - $ref: '#/components/parameters/TabId'
+      responses:
+        '204':
+          description: Successfully deleted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /appCatalogs/teamsApps:
+    get:
+      tags:
+      - Apps
+      operationId: listApps
+      summary: List apps in the Teams app catalog
+      parameters:
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Select'
+      responses:
+        '200':
+          description: A collection of Teams apps.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamsAppCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: app-id-001
+                      externalId: com.example.myapp
+                      displayName: My Custom App
+                      distributionMethod: organization
+                    - id: app-id-002
+                      externalId: com.example.otherapp
+                      displayName: Another App
+                      distributionMethod: store
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - Apps
+      operationId: publishApp
+      summary: Publish an app to the Teams app catalog
+      requestBody:
+        required: true
+        content:
+          application/zip:
+            schema:
+              type: string
+              format: binary
+              description: The Teams app package (ZIP file).
+      responses:
+        '201':
+          description: The published app.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamsApp'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id004
+                    id: app-id-001
+                    externalId: com.example.myapp
+                    displayName: My Custom App
+                    distributionMethod: organization
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /appCatalogs/teamsApps/{app-id}:
+    get:
+      tags:
+      - Apps
+      operationId: getApp
+      summary: Get an app from the catalog
+      parameters:
+      - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: The requested app.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamsApp'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id004
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - Apps
+      operationId: deleteApp
+      summary: Remove an app from the catalog
+      parameters:
+      - $ref: '#/components/parameters/AppId'
+      responses:
+        '204':
+          description: Successfully deleted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/installedApps:
+    get:
+      tags:
+      - AppInstallations
+      operationId: listTeamInstalledApps
+      summary: List apps installed in a team
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/Expand'
+      responses:
+        '200':
+          description: A collection of installed apps.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamsAppInstallationCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: install-001
+                      teamsApp@odata.bind: https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/app-id-001
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - AppInstallations
+      operationId: installAppToTeam
+      summary: Install an app to a team
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamsAppInstallation'
+      responses:
+        '201':
+          description: App installed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamsAppInstallation'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    id: install-001
+                    teamsApp@odata.bind: https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/app-id-001
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/installedApps/{installation-id}:
+    delete:
+      tags:
+      - AppInstallations
+      operationId: uninstallAppFromTeam
+      summary: Uninstall an app from a team
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/InstallationId'
+      responses:
+        '204':
+          description: App uninstalled successfully.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /chats:
+    get:
+      tags:
+      - Chats
+      operationId: listChats
+      summary: List chats for the signed-in user
+      parameters:
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Expand'
+      - $ref: '#/components/parameters/OrderBy'
+      responses:
+        '200':
+          description: A collection of chats.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: 19:chat-abc123@thread.v2
+                      topic: Project Discussion
+                      chatType: group
+                      createdDateTime: '2025-01-15T09:00:00Z'
+                    - id: 19:chat-def456@thread.v2
+                      topic: null
+                      chatType: oneOnOne
+                      createdDateTime: '2025-01-10T08:00:00Z'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - Chats
+      operationId: createChat
+      summary: Create a new chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chat'
+      responses:
+        '201':
+          description: The created chat.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id005
+                    id: 19:chat-abc123@thread.v2
+                    topic: Project Discussion
+                    chatType: group
+                    createdDateTime: '2025-01-15T09:00:00Z'
+                    lastUpdatedDateTime: '2025-01-20T14:30:00Z'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /chats/{chat-id}:
+    get:
+      tags:
+      - Chats
+      operationId: getChat
+      summary: Get a chat
+      parameters:
+      - $ref: '#/components/parameters/ChatId'
+      responses:
+        '200':
+          description: The requested chat.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id005
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    patch:
+      tags:
+      - Chats
+      operationId: updateChat
+      summary: Update a chat
+      parameters:
+      - $ref: '#/components/parameters/ChatId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chat'
+      responses:
+        '200':
+          description: Successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id005
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /chats/{chat-id}/messages:
+    get:
+      tags:
+      - ChatMessages
+      operationId: listChatMessages
+      summary: List messages in a chat
+      parameters:
+      - $ref: '#/components/parameters/ChatId'
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/OrderBy'
+      responses:
+        '200':
+          description: A collection of chat messages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id006
+                    value:
+                    - id: msg-001
+                      messageType: message
+                      createdDateTime: '2025-01-20T14:30:00Z'
+                      body:
+                        contentType: text
+                        content: Hello team, let's sync up on the project status.
+                      from:
+                        user:
+                          id: user-001
+                          displayName: Jane Smith
+                      importance: normal
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - ChatMessages
+      operationId: sendChatMessage
+      summary: Send a message in a chat
+      parameters:
+      - $ref: '#/components/parameters/ChatId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessage'
+      responses:
+        '201':
+          description: The sent message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessage'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id007
+                    id: msg-001
+                    messageType: message
+                    createdDateTime: '2025-01-20T14:30:00Z'
+                    subject: null
+                    body:
+                      contentType: text
+                      content: Hello team, let's sync up on the project status.
+                    from:
+                      user:
+                        id: user-001
+                        displayName: Jane Smith
+                    importance: normal
+                    attachments: []
+                    mentions: []
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/channels/{channel-id}/messages:
+    get:
+      tags:
+      - ChatMessages
+      operationId: listChannelMessages
+      summary: List messages in a channel
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      - $ref: '#/components/parameters/Top'
+      responses:
+        '200':
+          description: A collection of channel messages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id006
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - ChatMessages
+      operationId: sendChannelMessage
+      summary: Send a message to a channel
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessage'
+      responses:
+        '201':
+          description: The sent message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessage'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id007
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/channels/{channel-id}/messages/{message-id}/replies:
+    get:
+      tags:
+      - ChatMessages
+      operationId: listMessageReplies
+      summary: List replies to a channel message
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      - $ref: '#/components/parameters/MessageId'
+      responses:
+        '200':
+          description: A collection of reply messages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id006
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - ChatMessages
+      operationId: replyToChannelMessage
+      summary: Reply to a channel message
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ChannelId'
+      - $ref: '#/components/parameters/MessageId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessage'
+      responses:
+        '201':
+          description: The reply message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessage'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id007
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/tags:
+    get:
+      tags:
+      - Tags
+      operationId: listTeamworkTags
+      summary: List tags in a team
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      responses:
+        '200':
+          description: A collection of tags.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamworkTagCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: tag-001
+                      displayName: Frontend Developers
+                      description: All frontend team members
+                      memberCount: 5
+                      tagType: standard
+                    - id: tag-002
+                      displayName: Backend Developers
+                      description: All backend team members
+                      memberCount: 8
+                      tagType: standard
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - Tags
+      operationId: createTeamworkTag
+      summary: Create a tag in a team
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamworkTag'
+      responses:
+        '201':
+          description: The created tag.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamworkTag'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id008
+                    id: tag-001
+                    displayName: Frontend Developers
+                    description: All frontend team members
+                    memberCount: 5
+                    tagType: standard
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/tags/{tag-id}:
+    get:
+      tags:
+      - Tags
+      operationId: getTeamworkTag
+      summary: Get a tag
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/TagId'
+      responses:
+        '200':
+          description: The requested tag.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamworkTag'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id008
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    patch:
+      tags:
+      - Tags
+      operationId: updateTeamworkTag
+      summary: Update a tag
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/TagId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamworkTag'
+      responses:
+        '200':
+          description: Successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamworkTag'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id008
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - Tags
+      operationId: deleteTeamworkTag
+      summary: Delete a tag
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/TagId'
+      responses:
+        '204':
+          description: Successfully deleted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/tags/{tag-id}/members:
+    get:
+      tags:
+      - Tags
+      operationId: listTeamworkTagMembers
+      summary: List members of a tag
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/TagId'
+      responses:
+        '200':
+          description: A collection of tag members.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamworkTagMemberCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: tagmember-001
+                      displayName: John Doe
+                      userId: user-001
+                    - id: tagmember-002
+                      displayName: Jane Smith
+                      userId: user-002
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - Tags
+      operationId: addTeamworkTagMember
+      summary: Add a member to a tag
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/TagId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamworkTagMember'
+      responses:
+        '201':
+          description: The added tag member.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamworkTagMember'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    id: tagmember-001
+                    displayName: John Doe
+                    userId: user-001
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /communications/calls:
+    post:
+      tags:
+      - Calls
+      operationId: createCall
+      summary: Create a call
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Call'
+      responses:
+        '201':
+          description: The created call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id009
+                    id: call-001
+                    state: established
+                    direction: outgoing
+                    callbackUri: https://bot.example.com/api/calls
+                    requestedModalities:
+                    - audio
+                    tenantId: tenant-001
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /communications/calls/{call-id}:
+    get:
+      tags:
+      - Calls
+      operationId: getCall
+      summary: Get a call
+      parameters:
+      - $ref: '#/components/parameters/CallId'
+      responses:
+        '200':
+          description: The requested call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id009
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - Calls
+      operationId: deleteCall
+      summary: Hang up or cancel a call
+      parameters:
+      - $ref: '#/components/parameters/CallId'
+      responses:
+        '204':
+          description: Call ended.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /communications/calls/{call-id}/answer:
+    post:
+      tags:
+      - Calls
+      operationId: answerCall
+      summary: Answer a call
+      parameters:
+      - $ref: '#/components/parameters/CallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callbackUri:
+                  type: string
+                  format: uri
+                  description: Callback URL for call state notifications.
+                acceptedModalities:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - audio
+                    - video
+                    - videoBasedScreenSharing
+                mediaConfig:
+                  $ref: '#/components/schemas/MediaConfig'
+      responses:
+        '202':
+          description: Accepted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /communications/calls/{call-id}/participants/invite:
+    post:
+      tags:
+      - Calls
+      operationId: inviteParticipants
+      summary: Invite participants to a call
+      parameters:
+      - $ref: '#/components/parameters/CallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                participants:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/InvitationParticipantInfo'
+                clientContext:
+                  type: string
+      responses:
+        '202':
+          description: Accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InviteParticipantsOperation'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    id: op-invite-001
+                    status: completed
+                    clientContext: ctx-001
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /communications/calls/{call-id}/playPrompt:
+    post:
+      tags:
+      - CallIvr
+      operationId: playPrompt
+      summary: Play a prompt in a call (IVR)
+      description: |
+        Play a media prompt to the participants. Used in IVR bot scenarios.
+      parameters:
+      - $ref: '#/components/parameters/CallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/MediaPrompt'
+                clientContext:
+                  type: string
+      responses:
+        '202':
+          description: Accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayPromptOperation'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    id: op-prompt-001
+                    status: completed
+                    clientContext: ctx-002
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /communications/calls/{call-id}/recordResponse:
+    post:
+      tags:
+      - CallIvr
+      operationId: recordResponse
+      summary: Record a response from call participant (IVR)
+      description: |
+        Record a short audio response from the caller. Useful in IVR scenarios for collecting DTMF tones or voice responses.
+      parameters:
+      - $ref: '#/components/parameters/CallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/MediaPrompt'
+                bargeInAllowed:
+                  type: boolean
+                initialSilenceTimeoutInSeconds:
+                  type: integer
+                maxSilenceTimeoutInSeconds:
+                  type: integer
+                maxRecordDurationInSeconds:
+                  type: integer
+                stopTones:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - '#'
+                    - '*'
+                    - '0'
+                    - '1'
+                    - '2'
+                    - '3'
+                    - '4'
+                    - '5'
+                    - '6'
+                    - '7'
+                    - '8'
+                    - '9'
+                clientContext:
+                  type: string
+      responses:
+        '202':
+          description: Accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordOperation'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    id: op-record-001
+                    status: completed
+                    recordingLocation: https://storage.example.com/recordings/rec-001.wav
+                    clientContext: ctx-003
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /communications/calls/{call-id}/transfer:
+    post:
+      tags:
+      - CallIvr
+      operationId: transferCall
+      summary: Transfer a call (IVR)
+      parameters:
+      - $ref: '#/components/parameters/CallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transferTarget:
+                  $ref: '#/components/schemas/InvitationParticipantInfo'
+                clientContext:
+                  type: string
+      responses:
+        '202':
+          description: Accepted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /communications/callRecords:
+    get:
+      tags:
+      - CallRecords
+      operationId: listCallRecords
+      summary: List call records
+      parameters:
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/OrderBy'
+      responses:
+        '200':
+          description: A collection of call records.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallRecordCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: callrecord-001
+                      version: 1
+                      type: peerToPeer
+                      modalities:
+                      - audio
+                      startDateTime: '2025-01-20T14:00:00Z'
+                      endDateTime: '2025-01-20T14:30:00Z'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /communications/callRecords/{callRecord-id}:
+    get:
+      tags:
+      - CallRecords
+      operationId: getCallRecord
+      summary: Get a call record
+      parameters:
+      - $ref: '#/components/parameters/CallRecordId'
+      - $ref: '#/components/parameters/Expand'
+      responses:
+        '200':
+          description: The requested call record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallRecord'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    id: callrecord-001
+                    version: 1
+                    type: peerToPeer
+                    modalities:
+                    - audio
+                    startDateTime: '2025-01-20T14:00:00Z'
+                    endDateTime: '2025-01-20T14:30:00Z'
+                    organizer:
+                      user:
+                        id: user-001
+                        displayName: Jane Smith
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /communications/callRecords/{callRecord-id}/sessions:
+    get:
+      tags:
+      - CallRecords
+      operationId: listCallRecordSessions
+      summary: List sessions in a call record
+      parameters:
+      - $ref: '#/components/parameters/CallRecordId'
+      - $ref: '#/components/parameters/Expand'
+      responses:
+        '200':
+          description: A collection of sessions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: session-001
+                      startDateTime: '2025-01-20T14:00:00Z'
+                      endDateTime: '2025-01-20T14:30:00Z'
+                      modalities:
+                      - audio
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /me/onlineMeetings:
+    get:
+      tags:
+      - OnlineMeetings
+      operationId: listOnlineMeetings
+      summary: List online meetings for the signed-in user
+      parameters:
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          description: A collection of online meetings.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnlineMeetingCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: meeting-001
+                      subject: Sprint Planning
+                      startDateTime: '2025-01-22T09:00:00Z'
+                      endDateTime: '2025-01-22T10:00:00Z'
+                      joinWebUrl: https://teams.microsoft.com/l/meetup-join/19%3Ameeting_abc123
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - OnlineMeetings
+      operationId: createOnlineMeeting
+      summary: Create an online meeting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnlineMeeting'
+      responses:
+        '201':
+          description: The created online meeting.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnlineMeeting'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id010
+                    id: meeting-001
+                    subject: Sprint Planning
+                    startDateTime: '2025-01-22T09:00:00Z'
+                    endDateTime: '2025-01-22T10:00:00Z'
+                    joinWebUrl: https://teams.microsoft.com/l/meetup-join/19%3Ameeting_abc123
+                    allowedPresenters: organization
+                    isEntryExitAnnounced: true
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /me/onlineMeetings/{meeting-id}:
+    get:
+      tags:
+      - OnlineMeetings
+      operationId: getOnlineMeeting
+      summary: Get an online meeting
+      parameters:
+      - $ref: '#/components/parameters/MeetingId'
+      responses:
+        '200':
+          description: The requested online meeting.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnlineMeeting'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id010
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    patch:
+      tags:
+      - OnlineMeetings
+      operationId: updateOnlineMeeting
+      summary: Update an online meeting
+      parameters:
+      - $ref: '#/components/parameters/MeetingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnlineMeeting'
+      responses:
+        '200':
+          description: Successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnlineMeeting'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id010
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - OnlineMeetings
+      operationId: deleteOnlineMeeting
+      summary: Delete an online meeting
+      parameters:
+      - $ref: '#/components/parameters/MeetingId'
+      responses:
+        '204':
+          description: Successfully deleted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /me/onlineMeetings/{meeting-id}/meetingAttendanceReport:
+    get:
+      tags:
+      - OnlineMeetings
+      operationId: getMeetingAttendanceReport
+      summary: Get the attendance report of an online meeting
+      parameters:
+      - $ref: '#/components/parameters/MeetingId'
+      responses:
+        '200':
+          description: The meeting attendance report.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingAttendanceReport'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    id: report-001
+                    totalParticipantCount: 12
+                    meetingStartDateTime: '2025-01-22T09:00:00Z'
+                    meetingEndDateTime: '2025-01-22T10:00:00Z'
+                    attendanceRecords:
+                    - emailAddress: jane@example.com
+                      totalAttendanceInSeconds: 3540
+                      role: Presenter
+                      identity:
+                        id: user-001
+                        displayName: Jane Smith
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /me/presence:
+    get:
+      tags:
+      - Presence
+      operationId: getMyPresence
+      summary: Get presence of the signed-in user
+      responses:
+        '200':
+          description: The user's presence information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Presence'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id011
+                    id: user-001
+                    availability: Available
+                    activity: Available
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /users/{user-id}/presence:
+    get:
+      tags:
+      - Presence
+      operationId: getUserPresence
+      summary: Get presence for a specific user
+      parameters:
+      - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: The user's presence information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Presence'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id011
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /communications/getPresencesByUserId:
+    post:
+      tags:
+      - Presence
+      operationId: getPresencesByUserId
+      summary: Get presence for multiple users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  description: Collection of user IDs.
+      responses:
+        '200':
+          description: A collection of presence information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Presence'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: user-001
+                      availability: Available
+                      activity: Available
+                    - id: user-002
+                      availability: Busy
+                      activity: InACall
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teamwork/workforceIntegrations:
+    get:
+      tags:
+      - WorkforceIntegrations
+      operationId: listWorkforceIntegrations
+      summary: List workforce integrations
+      responses:
+        '200':
+          description: A collection of workforce integrations.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkforceIntegrationCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: wfi-001
+                      displayName: Kronos Integration
+                      apiVersion: 1
+                      isActive: true
+                      url: https://kronos.example.com/api/v1/teams
+                      supportedEntities: shift,timeCard,timeOff
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - WorkforceIntegrations
+      operationId: createWorkforceIntegration
+      summary: Create a workforce integration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkforceIntegration'
+      responses:
+        '201':
+          description: The created workforce integration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkforceIntegration'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id012
+                    id: wfi-001
+                    displayName: Kronos Integration
+                    apiVersion: 1
+                    isActive: true
+                    url: https://kronos.example.com/api/v1/teams
+                    supportedEntities: shift,timeCard,timeOff
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teamwork/workforceIntegrations/{workforceIntegration-id}:
+    get:
+      tags:
+      - WorkforceIntegrations
+      operationId: getWorkforceIntegration
+      summary: Get a workforce integration
+      parameters:
+      - $ref: '#/components/parameters/WorkforceIntegrationId'
+      responses:
+        '200':
+          description: The requested workforce integration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkforceIntegration'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id012
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    patch:
+      tags:
+      - WorkforceIntegrations
+      operationId: updateWorkforceIntegration
+      summary: Update a workforce integration
+      parameters:
+      - $ref: '#/components/parameters/WorkforceIntegrationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkforceIntegration'
+      responses:
+        '200':
+          description: Successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkforceIntegration'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id012
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - WorkforceIntegrations
+      operationId: deleteWorkforceIntegration
+      summary: Delete a workforce integration
+      parameters:
+      - $ref: '#/components/parameters/WorkforceIntegrationId'
+      responses:
+        '204':
+          description: Successfully deleted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/schedule:
+    get:
+      tags:
+      - Schedules
+      operationId: getSchedule
+      summary: Get the schedule for a team
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      responses:
+        '200':
+          description: The team schedule.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id013
+                    id: schedule-001
+                    enabled: true
+                    timeZone: America/New_York
+                    provisionStatus: completed
+                    timeClockEnabled: true
+                    openShiftsEnabled: true
+                    swapShiftsRequestsEnabled: true
+                    offerShiftRequestsEnabled: true
+                    timeOffRequestsEnabled: true
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    put:
+      tags:
+      - Schedules
+      operationId: createOrReplaceSchedule
+      summary: Create or replace a schedule for a team
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+      responses:
+        '200':
+          description: The created or replaced schedule.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id013
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/schedule/shifts:
+    get:
+      tags:
+      - Shifts
+      operationId: listShifts
+      summary: List shifts in a schedule
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          description: A collection of shifts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: shift-001
+                      userId: user-001
+                      sharedShift:
+                        displayName: Morning Shift
+                        startDateTime: '2025-01-22T08:00:00Z'
+                        endDateTime: '2025-01-22T16:00:00Z'
+                        theme: blue
+                    - id: shift-002
+                      userId: user-002
+                      sharedShift:
+                        displayName: Evening Shift
+                        startDateTime: '2025-01-22T16:00:00Z'
+                        endDateTime: '2025-01-23T00:00:00Z'
+                        theme: purple
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - Shifts
+      operationId: createShift
+      summary: Create a shift
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Shift'
+      responses:
+        '201':
+          description: The created shift.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id014
+                    id: shift-001
+                    userId: user-001
+                    schedulingGroupId: group-001
+                    createdDateTime: '2025-01-15T08:00:00Z'
+                    lastModifiedDateTime: '2025-01-15T08:00:00Z'
+                    sharedShift:
+                      displayName: Morning Shift
+                      startDateTime: '2025-01-22T08:00:00Z'
+                      endDateTime: '2025-01-22T16:00:00Z'
+                      theme: blue
+                      notes: Regular morning shift
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/schedule/shifts/{shift-id}:
+    get:
+      tags:
+      - Shifts
+      operationId: getShift
+      summary: Get a shift
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ShiftId'
+      responses:
+        '200':
+          description: The requested shift.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id014
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    put:
+      tags:
+      - Shifts
+      operationId: replaceShift
+      summary: Replace a shift
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ShiftId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Shift'
+      responses:
+        '200':
+          description: The replaced shift.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id014
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - Shifts
+      operationId: deleteShift
+      summary: Delete a shift
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/ShiftId'
+      responses:
+        '204':
+          description: Successfully deleted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/schedule/timesOff:
+    get:
+      tags:
+      - TimeOff
+      operationId: listTimesOff
+      summary: List time off entries
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          description: A collection of time off entries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeOffCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: timeoff-001
+                      userId: user-001
+                      sharedTimeOff:
+                        timeOffReasonId: reason-001
+                        startDateTime: '2025-02-01T00:00:00Z'
+                        endDateTime: '2025-02-03T00:00:00Z'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - TimeOff
+      operationId: createTimeOff
+      summary: Create a time off entry
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeOff'
+      responses:
+        '201':
+          description: The created time off entry.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeOff'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id015
+                    id: timeoff-001
+                    userId: user-001
+                    createdDateTime: '2025-01-10T10:00:00Z'
+                    lastModifiedDateTime: '2025-01-10T10:00:00Z'
+                    sharedTimeOff:
+                      timeOffReasonId: reason-001
+                      startDateTime: '2025-02-01T00:00:00Z'
+                      endDateTime: '2025-02-03T00:00:00Z'
+                      theme: pink
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/schedule/timesOff/{timeOff-id}:
+    get:
+      tags:
+      - TimeOff
+      operationId: getTimeOff
+      summary: Get a time off entry
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/TimeOffId'
+      responses:
+        '200':
+          description: The requested time off entry.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeOff'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id015
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    put:
+      tags:
+      - TimeOff
+      operationId: replaceTimeOff
+      summary: Replace a time off entry
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/TimeOffId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeOff'
+      responses:
+        '200':
+          description: The replaced time off entry.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeOff'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id015
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - TimeOff
+      operationId: deleteTimeOff
+      summary: Delete a time off entry
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/TimeOffId'
+      responses:
+        '204':
+          description: Successfully deleted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/schedule/timeOffReasons:
+    get:
+      tags:
+      - TimeOff
+      operationId: listTimeOffReasons
+      summary: List time off reasons
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      responses:
+        '200':
+          description: A collection of time off reasons.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeOffReasonCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: reason-001
+                      displayName: Vacation
+                      iconType: plane
+                      isActive: true
+                    - id: reason-002
+                      displayName: Sick Leave
+                      iconType: firstAid
+                      isActive: true
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - TimeOff
+      operationId: createTimeOffReason
+      summary: Create a time off reason
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeOffReason'
+      responses:
+        '201':
+          description: The created time off reason.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeOffReason'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    id: reason-001
+                    displayName: Vacation
+                    iconType: plane
+                    isActive: true
+                    createdDateTime: '2025-01-01T00:00:00Z'
+                    lastModifiedDateTime: '2025-01-01T00:00:00Z'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/schedule/timeCards:
+    get:
+      tags:
+      - Shifts
+      operationId: listTimeCards
+      summary: List time cards
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          description: A collection of time cards.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeCardCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: timecard-001
+                      userId: user-001
+                      state: clockedIn
+                      clockInEvent:
+                        dateTime: '2025-01-22T08:00:00Z'
+                        atApprovedLocation: true
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/schedule/timeCards/{timeCard-id}:
+    get:
+      tags:
+      - Shifts
+      operationId: getTimeCard
+      summary: Get a time card
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/TimeCardId'
+      responses:
+        '200':
+          description: The requested time card.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeCard'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id016
+                    id: timecard-001
+                    userId: user-001
+                    state: clockedIn
+                    clockInEvent:
+                      dateTime: '2025-01-22T08:00:00Z'
+                      atApprovedLocation: true
+                    createdDateTime: '2025-01-22T08:00:00Z'
+                    lastModifiedDateTime: '2025-01-22T08:00:00Z'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/schedule/timeCards/{timeCard-id}/clockIn:
+    post:
+      tags:
+      - Shifts
+      operationId: clockIn
+      summary: Clock in a time card
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/TimeCardId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                atApprovedLocation:
+                  type: boolean
+                notes:
+                  $ref: '#/components/schemas/ItemBody'
+      responses:
+        '200':
+          description: Clocked in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeCard'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id016
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /teams/{team-id}/schedule/timeCards/{timeCard-id}/clockOut:
+    post:
+      tags:
+      - Shifts
+      operationId: clockOut
+      summary: Clock out a time card
+      parameters:
+      - $ref: '#/components/parameters/TeamId'
+      - $ref: '#/components/parameters/TimeCardId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                atApprovedLocation:
+                  type: boolean
+                notes:
+                  $ref: '#/components/schemas/ItemBody'
+      responses:
+        '200':
+          description: Clocked out.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeCard'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id016
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /employeeExperience/learningProviders:
+    get:
+      tags:
+      - EmployeeLearning
+      operationId: listLearningProviders
+      summary: List learning providers
+      parameters:
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          description: A collection of learning providers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningProviderCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: provider-001
+                      displayName: LinkedIn Learning
+                      loginWebUrl: https://www.linkedin.com/learning
+                      isCourseActivitySyncEnabled: true
+                    - id: provider-002
+                      displayName: Coursera
+                      loginWebUrl: https://www.coursera.org
+                      isCourseActivitySyncEnabled: false
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - EmployeeLearning
+      operationId: createLearningProvider
+      summary: Register a learning provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearningProvider'
+      responses:
+        '201':
+          description: The registered learning provider.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningProvider'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id017
+                    id: provider-001
+                    displayName: LinkedIn Learning
+                    loginWebUrl: https://www.linkedin.com/learning
+                    isCourseActivitySyncEnabled: true
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /employeeExperience/learningProviders/{learningProvider-id}:
+    get:
+      tags:
+      - EmployeeLearning
+      operationId: getLearningProvider
+      summary: Get a learning provider
+      parameters:
+      - $ref: '#/components/parameters/LearningProviderId'
+      responses:
+        '200':
+          description: The requested learning provider.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningProvider'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id017
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    patch:
+      tags:
+      - EmployeeLearning
+      operationId: updateLearningProvider
+      summary: Update a learning provider
+      parameters:
+      - $ref: '#/components/parameters/LearningProviderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearningProvider'
+      responses:
+        '200':
+          description: Successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningProvider'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id017
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - EmployeeLearning
+      operationId: deleteLearningProvider
+      summary: Delete a learning provider
+      parameters:
+      - $ref: '#/components/parameters/LearningProviderId'
+      responses:
+        '204':
+          description: Successfully deleted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /employeeExperience/learningProviders/{learningProvider-id}/learningContents:
+    get:
+      tags:
+      - EmployeeLearning
+      operationId: listLearningContents
+      summary: List learning content from a provider
+      parameters:
+      - $ref: '#/components/parameters/LearningProviderId'
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          description: A collection of learning content items.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningContentCollectionResponse'
+              examples:
+                Default:
+                  summary: Successful response
+                  value:
+                    value:
+                    - id: content-001
+                      externalId: course-python-101
+                      title: Introduction to Python
+                      description: Learn the basics of Python programming
+                      level: Beginner
+                      isActive: true
+                    - id: content-002
+                      externalId: course-cloud-201
+                      title: Cloud Architecture Fundamentals
+                      description: Design scalable cloud solutions
+                      level: Intermediate
+                      isActive: true
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    post:
+      tags:
+      - EmployeeLearning
+      operationId: createLearningContent
+      summary: Create learning content for a provider
+      parameters:
+      - $ref: '#/components/parameters/LearningProviderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearningContent'
+      responses:
+        '201':
+          description: The created learning content.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningContent'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: &id018
+                    id: content-001
+                    externalId: course-python-101
+                    title: Introduction to Python
+                    description: Learn the basics of Python programming
+                    contentWebUrl: https://learning.example.com/courses/python-101
+                    languageTag: en-US
+                    duration: PT2H30M
+                    format: video
+                    level: Beginner
+                    isActive: true
+                    isSearchable: true
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+  /employeeExperience/learningProviders/{learningProvider-id}/learningContents/{learningContent-id}:
+    get:
+      tags:
+      - EmployeeLearning
+      operationId: getLearningContent
+      summary: Get a learning content item
+      parameters:
+      - $ref: '#/components/parameters/LearningProviderId'
+      - $ref: '#/components/parameters/LearningContentId'
+      responses:
+        '200':
+          description: The requested learning content.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningContent'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id018
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    patch:
+      tags:
+      - EmployeeLearning
+      operationId: updateLearningContent
+      summary: Update learning content
+      parameters:
+      - $ref: '#/components/parameters/LearningProviderId'
+      - $ref: '#/components/parameters/LearningContentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearningContent'
+      responses:
+        '200':
+          description: Successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningContent'
+              examples:
+                Default:
+                  summary: Successful response
+                  value: *id018
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+    delete:
+      tags:
+      - EmployeeLearning
+      operationId: deleteLearningContent
+      summary: Delete learning content
+      parameters:
+      - $ref: '#/components/parameters/LearningProviderId'
+      - $ref: '#/components/parameters/LearningContentId'
+      responses:
+        '204':
+          description: Successfully deleted.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def rules = "Default"
+          return rules
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: OAuth 2.0 authorization with Microsoft identity platform.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+          tokenUrl: https://login.microsoftonline.com/common/oauth2/v2.0/token
+          scopes:
+            Team.ReadBasic.All: Read basic team info
+            Team.Create: Create teams
+            Channel.ReadBasic.All: Read channel names and descriptions
+            Channel.Create: Create channels
+            Group.Read.All: Read all groups
+            Group.ReadWrite.All: Read and write all groups
+            TeamsTab.ReadWrite.All: Read and write tabs
+            TeamsAppInstallation.ReadWriteForTeam: Manage app installations for teams
+            AppCatalog.ReadWrite.All: Read and write to the Teams app catalog
+            Chat.ReadWrite: Read and write chats
+            ChatMessage.Send: Send chat messages
+            TeamworkTag.ReadWrite: Read and write tags
+            Calls.Initiate.All: Initiate calls
+            Calls.AccessMedia.All: Access media streams in calls
+            CallRecords.Read.All: Read call records
+            OnlineMeetings.ReadWrite: Read and write online meetings
+            Presence.Read.All: Read presence of all users
+            Schedule.ReadWrite.All: Read and write schedules
+            WorkforceIntegration.ReadWrite.All: Read and write workforce integrations
+            LearningContent.ReadWrite.All: Read and write learning content
+  parameters:
+    TeamId:
+      name: team-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the team.
+    GroupId:
+      name: group-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the group.
+    ChannelId:
+      name: channel-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the channel.
+    TabId:
+      name: tab-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the tab.
+    AppId:
+      name: app-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the Teams app.
+    InstallationId:
+      name: installation-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the app installation.
+    ChatId:
+      name: chat-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the chat.
+    MessageId:
+      name: message-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the message.
+    TagId:
+      name: tag-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the tag.
+    CallId:
+      name: call-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the call.
+    CallRecordId:
+      name: callRecord-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the call record.
+    MeetingId:
+      name: meeting-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the online meeting.
+    UserId:
+      name: user-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the user.
+    WorkforceIntegrationId:
+      name: workforceIntegration-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the workforce integration.
+    ShiftId:
+      name: shift-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the shift.
+    TimeOffId:
+      name: timeOff-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the time off entry.
+    TimeCardId:
+      name: timeCard-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the time card.
+    LearningProviderId:
+      name: learningProvider-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the learning provider.
+    LearningContentId:
+      name: learningContent-id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Unique identifier of the learning content.
+    Top:
+      name: $top
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+      description: Number of items to return.
+    Skip:
+      name: $skip
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+      description: Number of items to skip.
+    Filter:
+      name: $filter
+      in: query
+      schema:
+        type: string
+      description: OData filter expression.
+    Select:
+      name: $select
+      in: query
+      schema:
+        type: string
+      description: Comma-separated list of properties to include.
+    Expand:
+      name: $expand
+      in: query
+      schema:
+        type: string
+      description: Comma-separated list of relationships to expand.
+    OrderBy:
+      name: $orderby
+      in: query
+      schema:
+        type: string
+      description: OData orderBy expression.
+  responses:
+    BadRequest:
+      description: Bad request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ODataError'
+          examples:
+            BadRequest:
+              summary: Successful response
+              value: &id019
+                error:
+                  code: BadRequest
+                  message: The request is malformed or incorrect.
+                  innerError:
+                    date: '2025-01-20T14:30:00'
+                    request-id: req-abc-123
+                    client-request-id: client-abc-123
+    Unauthorized:
+      description: Unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ODataError'
+          examples:
+            Unauthorized:
+              summary: Successful response
+              value: *id019
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ODataError'
+          examples:
+            NotFound:
+              summary: Successful response
+              value: *id019
+  schemas:
+    ODataError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            innerError:
+              type: object
+              additionalProperties: true
+    ItemBody:
+      type: object
+      properties:
+        contentType:
+          type: string
+          enum:
+          - text
+          - html
+        content:
+          type: string
+    IdentitySet:
+      type: object
+      properties:
+        application:
+          $ref: '#/components/schemas/Identity'
+        device:
+          $ref: '#/components/schemas/Identity'
+        user:
+          $ref: '#/components/schemas/Identity'
+    Identity:
+      type: object
+      properties:
+        id:
+          type: string
+        displayName:
+          type: string
+    Team:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        description:
+          type: string
+        internalId:
+          type: string
+          readOnly: true
+        isArchived:
+          type: boolean
+        visibility:
+          type: string
+          enum:
+          - private
+          - public
+        memberSettings:
+          type: object
+          properties:
+            allowCreateUpdateChannels:
+              type: boolean
+            allowDeleteChannels:
+              type: boolean
+            allowAddRemoveApps:
+              type: boolean
+            allowCreateUpdateRemoveTabs:
+              type: boolean
+            allowCreateUpdateRemoveConnectors:
+              type: boolean
+        messagingSettings:
+          type: object
+          properties:
+            allowUserEditMessages:
+              type: boolean
+            allowUserDeleteMessages:
+              type: boolean
+            allowOwnerDeleteMessages:
+              type: boolean
+            allowTeamMentions:
+              type: boolean
+            allowChannelMentions:
+              type: boolean
+        funSettings:
+          type: object
+          properties:
+            allowGiphy:
+              type: boolean
+            giphyContentRating:
+              type: string
+              enum:
+              - strict
+              - moderate
+            allowStickersAndMemes:
+              type: boolean
+            allowCustomMemes:
+              type: boolean
+        template@odata.bind:
+          type: string
+          description: |
+            The template to use when creating a team, e.g. https://graph.microsoft.com/v1.0/teamsTemplates('standard')
+    TeamCollectionResponse:
+      type: object
+      properties:
+        '@odata.count':
+          type: integer
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Team'
+    Group:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        description:
+          type: string
+        mailEnabled:
+          type: boolean
+        mailNickname:
+          type: string
+        securityEnabled:
+          type: boolean
+        groupTypes:
+          type: array
+          items:
+            type: string
+        visibility:
+          type: string
+          enum:
+          - Private
+          - Public
+          - HiddenMembership
+    GroupCollectionResponse:
+      type: object
+      properties:
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+    Channel:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        description:
+          type: string
+        membershipType:
+          type: string
+          enum:
+          - standard
+          - private
+          - shared
+        email:
+          type: string
+          format: email
+          readOnly: true
+        webUrl:
+          type: string
+          format: uri
+          readOnly: true
+        createdDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+    ChannelCollectionResponse:
+      type: object
+      properties:
+        '@odata.count':
+          type: integer
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Channel'
+    TeamsTab:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        webUrl:
+          type: string
+          format: uri
+          readOnly: true
+        configuration:
+          type: object
+          properties:
+            entityId:
+              type: string
+            contentUrl:
+              type: string
+              format: uri
+            removeUrl:
+              type: string
+              format: uri
+            websiteUrl:
+              type: string
+              format: uri
+        teamsApp@odata.bind:
+          type: string
+          description: |
+            The app linked to this tab, e.g. https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/{id}
+    TeamsTabCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamsTab'
+    TeamsApp:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        externalId:
+          type: string
+        displayName:
+          type: string
+        distributionMethod:
+          type: string
+          enum:
+          - store
+          - organization
+          - sideloaded
+    TeamsAppCollectionResponse:
+      type: object
+      properties:
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamsApp'
+    TeamsAppInstallation:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        teamsApp@odata.bind:
+          type: string
+          description: |
+            The app to install, e.g. https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/{id}
+    TeamsAppInstallationCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamsAppInstallation'
+    Chat:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        topic:
+          type: string
+        chatType:
+          type: string
+          enum:
+          - oneOnOne
+          - group
+          - meeting
+        createdDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdatedDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConversationMember'
+    ConversationMember:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        user@odata.bind:
+          type: string
+    ChatCollectionResponse:
+      type: object
+      properties:
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Chat'
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        messageType:
+          type: string
+          enum:
+          - message
+          - chatEvent
+          - typing
+          - unknownFutureValue
+          readOnly: true
+        createdDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        subject:
+          type: string
+        body:
+          $ref: '#/components/schemas/ItemBody'
+        from:
+          $ref: '#/components/schemas/IdentitySet'
+          readOnly: true
+        importance:
+          type: string
+          enum:
+          - normal
+          - high
+          - urgent
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessageAttachment'
+        mentions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessageMention'
+    ChatMessageAttachment:
+      type: object
+      properties:
+        id:
+          type: string
+        contentType:
+          type: string
+        contentUrl:
+          type: string
+          format: uri
+        content:
+          type: string
+        name:
+          type: string
+    ChatMessageMention:
+      type: object
+      properties:
+        id:
+          type: integer
+        mentionText:
+          type: string
+        mentioned:
+          $ref: '#/components/schemas/IdentitySet'
+    ChatMessageCollectionResponse:
+      type: object
+      properties:
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+    TeamworkTag:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        description:
+          type: string
+        memberCount:
+          type: integer
+          readOnly: true
+        tagType:
+          type: string
+          enum:
+          - standard
+          readOnly: true
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamworkTagMember'
+    TeamworkTagMember:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+          readOnly: true
+        userId:
+          type: string
+    TeamworkTagCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamworkTag'
+    TeamworkTagMemberCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamworkTagMember'
+    Call:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        state:
+          type: string
+          enum:
+          - incoming
+          - establishing
+          - established
+          - hold
+          - transferring
+          - transferAccepted
+          - redirecting
+          - terminating
+          - terminated
+          readOnly: true
+        direction:
+          type: string
+          enum:
+          - incoming
+          - outgoing
+          readOnly: true
+        callbackUri:
+          type: string
+          format: uri
+        source:
+          $ref: '#/components/schemas/ParticipantInfo'
+        targets:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvitationParticipantInfo'
+        requestedModalities:
+          type: array
+          items:
+            type: string
+            enum:
+            - audio
+            - video
+            - videoBasedScreenSharing
+        mediaConfig:
+          $ref: '#/components/schemas/MediaConfig'
+        tenantId:
+          type: string
+          readOnly: true
+        chatInfo:
+          type: object
+          properties:
+            threadId:
+              type: string
+            messageId:
+              type: string
+        meetingInfo:
+          type: object
+          properties:
+            organizerId:
+              type: string
+            tenantId:
+              type: string
+    ParticipantInfo:
+      type: object
+      properties:
+        identity:
+          $ref: '#/components/schemas/IdentitySet'
+    InvitationParticipantInfo:
+      type: object
+      properties:
+        identity:
+          $ref: '#/components/schemas/IdentitySet'
+        replacesCallId:
+          type: string
+    MediaConfig:
+      type: object
+      description: Media configuration for calls. Use serviceHostedMediaConfig or appHostedMediaConfig.
+      properties:
+        '@odata.type':
+          type: string
+          enum:
+          - '#microsoft.graph.serviceHostedMediaConfig'
+          - '#microsoft.graph.appHostedMediaConfig'
+    MediaPrompt:
+      type: object
+      properties:
+        '@odata.type':
+          type: string
+          enum:
+          - '#microsoft.graph.mediaPrompt'
+        mediaInfo:
+          type: object
+          properties:
+            uri:
+              type: string
+              format: uri
+            resourceId:
+              type: string
+    PlayPromptOperation:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - notStarted
+          - running
+          - completed
+          - failed
+        clientContext:
+          type: string
+    RecordOperation:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - notStarted
+          - running
+          - completed
+          - failed
+        recordingLocation:
+          type: string
+          format: uri
+        recordingAccessToken:
+          type: string
+        clientContext:
+          type: string
+    InviteParticipantsOperation:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - notStarted
+          - running
+          - completed
+          - failed
+        clientContext:
+          type: string
+    CallRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        version:
+          type: integer
+        type:
+          type: string
+          enum:
+          - unknown
+          - groupCall
+          - peerToPeer
+        modalities:
+          type: array
+          items:
+            type: string
+            enum:
+            - audio
+            - video
+            - videoBasedScreenSharing
+            - data
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+        startDateTime:
+          type: string
+          format: date-time
+        endDateTime:
+          type: string
+          format: date-time
+        organizer:
+          $ref: '#/components/schemas/IdentitySet'
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentitySet'
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Session'
+    Session:
+      type: object
+      properties:
+        id:
+          type: string
+        caller:
+          $ref: '#/components/schemas/ParticipantEndpoint'
+        callee:
+          $ref: '#/components/schemas/ParticipantEndpoint'
+        startDateTime:
+          type: string
+          format: date-time
+        endDateTime:
+          type: string
+          format: date-time
+        modalities:
+          type: array
+          items:
+            type: string
+    ParticipantEndpoint:
+      type: object
+      properties:
+        identity:
+          $ref: '#/components/schemas/IdentitySet'
+        userAgent:
+          type: object
+          properties:
+            headerValue:
+              type: string
+    CallRecordCollectionResponse:
+      type: object
+      properties:
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/CallRecord'
+    SessionCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Session'
+    OnlineMeeting:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        subject:
+          type: string
+        startDateTime:
+          type: string
+          format: date-time
+        endDateTime:
+          type: string
+          format: date-time
+        joinWebUrl:
+          type: string
+          format: uri
+          readOnly: true
+        joinUrl:
+          type: string
+          format: uri
+          readOnly: true
+        videoTeleconferenceId:
+          type: string
+          readOnly: true
+        externalId:
+          type: string
+        isEntryExitAnnounced:
+          type: boolean
+        allowedPresenters:
+          type: string
+          enum:
+          - everyone
+          - organization
+          - roleIsPresenter
+          - organizer
+        lobbyBypassSettings:
+          type: object
+          properties:
+            scope:
+              type: string
+              enum:
+              - organizer
+              - organization
+              - organizationAndFederated
+              - everyone
+            isDialInBypassEnabled:
+              type: boolean
+        participants:
+          type: object
+          properties:
+            organizer:
+              $ref: '#/components/schemas/MeetingParticipantInfo'
+            attendees:
+              type: array
+              items:
+                $ref: '#/components/schemas/MeetingParticipantInfo'
+    MeetingParticipantInfo:
+      type: object
+      properties:
+        identity:
+          $ref: '#/components/schemas/IdentitySet'
+        role:
+          type: string
+          enum:
+          - attendee
+          - presenter
+          - producer
+        upn:
+          type: string
+    MeetingAttendanceReport:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        totalParticipantCount:
+          type: integer
+        meetingStartDateTime:
+          type: string
+          format: date-time
+        meetingEndDateTime:
+          type: string
+          format: date-time
+        attendanceRecords:
+          type: array
+          items:
+            type: object
+            properties:
+              emailAddress:
+                type: string
+              totalAttendanceInSeconds:
+                type: integer
+              role:
+                type: string
+              identity:
+                $ref: '#/components/schemas/Identity'
+              attendanceIntervals:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    joinDateTime:
+                      type: string
+                      format: date-time
+                    leaveDateTime:
+                      type: string
+                      format: date-time
+                    durationInSeconds:
+                      type: integer
+    OnlineMeetingCollectionResponse:
+      type: object
+      properties:
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/OnlineMeeting'
+    Presence:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        availability:
+          type: string
+          enum:
+          - Available
+          - AvailableIdle
+          - Away
+          - BeRightBack
+          - Busy
+          - BusyIdle
+          - DoNotDisturb
+          - Offline
+          - PresenceUnknown
+        activity:
+          type: string
+          enum:
+          - Available
+          - Away
+          - BeRightBack
+          - Busy
+          - DoNotDisturb
+          - InACall
+          - InAConferenceCall
+          - Inactive
+          - InAMeeting
+          - Offline
+          - OffWork
+          - OutOfOffice
+          - PresenceUnknown
+          - Presenting
+          - UrgentInterruptionsOnly
+    WorkforceIntegration:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        apiVersion:
+          type: integer
+        isActive:
+          type: boolean
+        encryption:
+          type: object
+          properties:
+            protocol:
+              type: string
+              enum:
+              - sharedSecret
+            secret:
+              type: string
+        url:
+          type: string
+          format: uri
+        supportedEntities:
+          type: string
+          description: |
+            Comma-separated list of supported entities (e.g. shift, swapRequest, openShiftChangeRequest, offerShiftRequest, timeCard, timeOffReason, timeOff, timeOffRequest).
+    WorkforceIntegrationCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkforceIntegration'
+    Schedule:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+        timeZone:
+          type: string
+        provisionStatus:
+          type: string
+          enum:
+          - notStarted
+          - running
+          - completed
+          - failed
+          readOnly: true
+        provisionStatusCode:
+          type: string
+          readOnly: true
+        workforceIntegrationIds:
+          type: array
+          items:
+            type: string
+        timeClockEnabled:
+          type: boolean
+        openShiftsEnabled:
+          type: boolean
+        swapShiftsRequestsEnabled:
+          type: boolean
+        offerShiftRequestsEnabled:
+          type: boolean
+        timeOffRequestsEnabled:
+          type: boolean
+    Shift:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        userId:
+          type: string
+        schedulingGroupId:
+          type: string
+        sharedShift:
+          $ref: '#/components/schemas/ShiftItem'
+        draftShift:
+          $ref: '#/components/schemas/ShiftItem'
+        createdDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedBy:
+          $ref: '#/components/schemas/IdentitySet'
+          readOnly: true
+    ShiftItem:
+      type: object
+      properties:
+        displayName:
+          type: string
+        notes:
+          type: string
+        startDateTime:
+          type: string
+          format: date-time
+        endDateTime:
+          type: string
+          format: date-time
+        theme:
+          type: string
+          enum:
+          - white
+          - blue
+          - green
+          - purple
+          - pink
+          - yellow
+          - gray
+          - darkBlue
+          - darkGreen
+          - darkPurple
+          - darkPink
+          - darkYellow
+        activities:
+          type: array
+          items:
+            type: object
+            properties:
+              isPaid:
+                type: boolean
+              startDateTime:
+                type: string
+                format: date-time
+              endDateTime:
+                type: string
+                format: date-time
+              code:
+                type: string
+              displayName:
+                type: string
+    ShiftCollectionResponse:
+      type: object
+      properties:
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Shift'
+    TimeOff:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        userId:
+          type: string
+        sharedTimeOff:
+          $ref: '#/components/schemas/TimeOffItem'
+        draftTimeOff:
+          $ref: '#/components/schemas/TimeOffItem'
+        createdDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedBy:
+          $ref: '#/components/schemas/IdentitySet'
+          readOnly: true
+    TimeOffItem:
+      type: object
+      properties:
+        timeOffReasonId:
+          type: string
+        startDateTime:
+          type: string
+          format: date-time
+        endDateTime:
+          type: string
+          format: date-time
+        theme:
+          type: string
+    TimeOffReason:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        iconType:
+          type: string
+          enum:
+          - none
+          - car
+          - calendar
+          - running
+          - plane
+          - firstAid
+          - doctor
+          - notWorking
+          - clock
+          - juryDuty
+          - globe
+          - cup
+          - phone
+          - weather
+          - umbrella
+          - piggyBank
+          - dog
+          - cake
+          - trafficCone
+          - pin
+          - sunny
+        isActive:
+          type: boolean
+        createdDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedBy:
+          $ref: '#/components/schemas/IdentitySet'
+          readOnly: true
+    TimeOffCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeOff'
+    TimeOffReasonCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeOffReason'
+    TimeCard:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        userId:
+          type: string
+        state:
+          type: string
+          enum:
+          - clockedIn
+          - onBreak
+          - clockedOut
+          - unknownFutureValue
+          readOnly: true
+        clockInEvent:
+          $ref: '#/components/schemas/TimeCardEvent'
+        clockOutEvent:
+          $ref: '#/components/schemas/TimeCardEvent'
+        breaks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeCardBreak'
+        notes:
+          $ref: '#/components/schemas/ItemBody'
+        originalEntry:
+          type: object
+          properties:
+            clockInEvent:
+              $ref: '#/components/schemas/TimeCardEvent'
+            clockOutEvent:
+              $ref: '#/components/schemas/TimeCardEvent'
+            breaks:
+              type: array
+              items:
+                $ref: '#/components/schemas/TimeCardBreak'
+        createdDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+    TimeCardEvent:
+      type: object
+      properties:
+        dateTime:
+          type: string
+          format: date-time
+        atApprovedLocation:
+          type: boolean
+        notes:
+          $ref: '#/components/schemas/ItemBody'
+    TimeCardBreak:
+      type: object
+      properties:
+        breakId:
+          type: string
+        start:
+          $ref: '#/components/schemas/TimeCardEvent'
+        end:
+          $ref: '#/components/schemas/TimeCardEvent'
+        notes:
+          $ref: '#/components/schemas/ItemBody'
+    TimeCardCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeCard'
+    LearningProvider:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        loginWebUrl:
+          type: string
+          format: uri
+        longLogoWebUrlForDarkTheme:
+          type: string
+          format: uri
+        longLogoWebUrlForLightTheme:
+          type: string
+          format: uri
+        squareLogoWebUrlForDarkTheme:
+          type: string
+          format: uri
+        squareLogoWebUrlForLightTheme:
+          type: string
+          format: uri
+        isCourseActivitySyncEnabled:
+          type: boolean
+    LearningContent:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        externalId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        contentWebUrl:
+          type: string
+          format: uri
+        thumbnailWebUrl:
+          type: string
+          format: uri
+        languageTag:
+          type: string
+        numberOfPages:
+          type: integer
+        duration:
+          type: string
+          description: ISO 8601 duration (e.g. PT1H30M).
+        format:
+          type: string
+        level:
+          type: string
+          enum:
+          - Beginner
+          - Intermediate
+          - Advanced
+        createdDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        contributors:
+          type: array
+          items:
+            type: string
+        additionalTags:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        isPremium:
+          type: boolean
+        isSearchable:
+          type: boolean
+    LearningProviderCollectionResponse:
+      type: object
+      properties:
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/LearningProvider'
+    LearningContentCollectionResponse:
+      type: object
+      properties:
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/LearningContent'

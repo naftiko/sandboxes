@@ -1,0 +1,824 @@
+openapi: 3.1.0
+info:
+  title: slack-user-groups-api
+  version: 1.0.0
+  description: >-
+    Slack's User Groups API lets apps programmatically create and manage user
+    groups (mentionable aliases like @eng or @oncall) in a workspace. It
+    supports creating, renaming, and updating groups and their handles and
+    descriptions; setting default channels; enabling or disabling groups;
+    listing groups; and adding or removing members in bulk. User groups make it
+    easy to notify the right people with a single mention and to auto-add
+    members to specific channels via default channel settings. Teams use the API
+    to automate org changes, sync groups from an identity provider, manage
+    on-call rotations, and streamline onboarding/offboarding. It's exposed via
+    Use Groups.* and Use Groups.users.* Web API methods and typically requires
+    the Use Groups:read and Use Groups:write scopes, with appropriate admin
+    permissions and a paid Slack plan.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://slack.com/api
+    description: Slack Web API
+  - url: http://localhost:8080/rest/slack-user-groups-api/1.0.0
+    description: Sandbox
+tags:
+  - name: User Groups
+    description: Operations for managing user groups
+  - name: User Group Members
+    description: Operations for managing user group membership
+paths:
+  /Use Groups.create:
+    post:
+      tags:
+        - User Groups
+      summary: Create User Group
+      description: Create a User Group
+      operationId: createUserGroup
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/Use Groups.create
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateUserGroupRequest'
+            examples:
+              CreateUserGroupExample:
+                $ref: '#/components/examples/CreateUserGroupRequestExample'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserGroupRequest'
+            examples:
+              CreateUserGroupExample:
+                $ref: '#/components/examples/CreateUserGroupRequestExample'
+      responses:
+        '200':
+          description: Typical success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Use GroupsuccessResponse'
+              examples:
+                SuccessExample:
+                  $ref: '#/components/examples/Use GroupsuccessResponseExample'
+        default:
+          description: Typical error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGroupErrorResponse'
+              examples:
+                ErrorExample:
+                  $ref: '#/components/examples/UserGroupErrorResponseExample'
+      security:
+        - SlackAuth:
+            - Use Groups:write
+  /Use Groups.disable:
+    post:
+      tags:
+        - User Groups
+      summary: Disable User Group
+      description: Disable an existing User Group
+      operationId: disableUserGroup
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/Use Groups.disable
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DisableEnableUserGroupRequest'
+            examples:
+              DisableUserGroupExample:
+                $ref: '#/components/examples/DisableEnableUserGroupRequestExample'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisableEnableUserGroupRequest'
+            examples:
+              DisableUserGroupExample:
+                $ref: '#/components/examples/DisableEnableUserGroupRequestExample'
+      responses:
+        '200':
+          description: Typical success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Use GroupsuccessResponse'
+              examples:
+                SuccessExample:
+                  $ref: >-
+                    #/components/examples/UserGroupDisabledSuccessResponseExample
+        default:
+          description: Typical error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGroupErrorResponse'
+              examples:
+                ErrorExample:
+                  $ref: '#/components/examples/UserGroupErrorResponseExample'
+      security:
+        - SlackAuth:
+            - Use Groups:write
+  /Use Groups.enable:
+    post:
+      tags:
+        - User Groups
+      summary: Enable User Group
+      description: Enable a User Group
+      operationId: enableUserGroup
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/Use Groups.enable
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DisableEnableUserGroupRequest'
+            examples:
+              EnableUserGroupExample:
+                $ref: '#/components/examples/DisableEnableUserGroupRequestExample'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisableEnableUserGroupRequest'
+            examples:
+              EnableUserGroupExample:
+                $ref: '#/components/examples/DisableEnableUserGroupRequestExample'
+      responses:
+        '200':
+          description: Typical success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Use GroupsuccessResponse'
+              examples:
+                SuccessExample:
+                  $ref: '#/components/examples/Use GroupsuccessResponseExample'
+        default:
+          description: Typical error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGroupErrorResponse'
+              examples:
+                ErrorExample:
+                  $ref: '#/components/examples/UserGroupErrorResponseExample'
+      security:
+        - SlackAuth:
+            - Use Groups:write
+  /Use Groups.list:
+    get:
+      tags:
+        - User Groups
+      summary: List User Groups
+      description: List all User Groups for a team
+      operationId: listUse Groups
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/Use Groups.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+        - name: include_users
+          in: query
+          description: Include the list of users for each User Group.
+          schema:
+            type: boolean
+        - name: include_count
+          in: query
+          description: Include the number of users in each User Group.
+          schema:
+            type: boolean
+        - name: include_disabled
+          in: query
+          description: Include disabled User Groups.
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Typical success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUse GroupsSuccessResponse'
+              examples:
+                SuccessExample:
+                  $ref: '#/components/examples/ListUse GroupsSuccessResponseExample'
+        default:
+          description: Typical error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGroupErrorResponse'
+              examples:
+                ErrorExample:
+                  $ref: '#/components/examples/UserGroupErrorResponseExample'
+      security:
+        - SlackAuth:
+            - Use Groups:read
+  /Use Groups.update:
+    post:
+      tags:
+        - User Groups
+      summary: Update User Group
+      description: Update an existing User Group
+      operationId: updateUserGroup
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/Use Groups.update
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateUserGroupRequest'
+            examples:
+              UpdateUserGroupExample:
+                $ref: '#/components/examples/UpdateUserGroupRequestExample'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserGroupRequest'
+            examples:
+              UpdateUserGroupExample:
+                $ref: '#/components/examples/UpdateUserGroupRequestExample'
+      responses:
+        '200':
+          description: Typical success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Use GroupsuccessResponse'
+              examples:
+                SuccessExample:
+                  $ref: '#/components/examples/Use GroupsuccessResponseExample'
+        default:
+          description: Typical error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGroupErrorResponse'
+              examples:
+                ErrorExample:
+                  $ref: '#/components/examples/UserGroupErrorResponseExample'
+      security:
+        - SlackAuth:
+            - Use Groups:write
+  /Use Groups.users.list:
+    get:
+      tags:
+        - User Group Members
+      summary: List User Group Members
+      description: List all users in a User Group
+      operationId: listUserGroupMembers
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/Use Groups.users.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+        - name: usergroup
+          in: query
+          description: The encoded ID of the User Group to list members for.
+          required: true
+          schema:
+            type: string
+        - name: include_disabled
+          in: query
+          description: Allow results that involve disabled User Groups.
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Standard success response when used with a user token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserGroupMembersSuccessResponse'
+              examples:
+                SuccessExample:
+                  $ref: >-
+                    #/components/examples/ListUserGroupMembersSuccessResponseExample
+        default:
+          description: Standard failure response when used with an invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGroupErrorResponse'
+              examples:
+                ErrorExample:
+                  $ref: '#/components/examples/UserGroupErrorResponseExample'
+      security:
+        - SlackAuth:
+            - Use Groups:read
+  /Use Groups.users.update:
+    post:
+      tags:
+        - User Group Members
+      summary: Update User Group Members
+      description: Update the list of users for a User Group
+      operationId: updateUserGroupMembers
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/Use Groups.users.update
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateUserGroupMembersRequest'
+            examples:
+              UpdateUserGroupMembersExample:
+                $ref: '#/components/examples/UpdateUserGroupMembersRequestExample'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserGroupMembersRequest'
+            examples:
+              UpdateUserGroupMembersExample:
+                $ref: '#/components/examples/UpdateUserGroupMembersRequestExample'
+      responses:
+        '200':
+          description: Typical success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Use GroupsuccessResponse'
+              examples:
+                SuccessExample:
+                  $ref: '#/components/examples/Use GroupsuccessResponseExample'
+        default:
+          description: Typical error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGroupErrorResponse'
+              examples:
+                ErrorExample:
+                  $ref: '#/components/examples/UserGroupErrorResponseExample'
+      security:
+        - SlackAuth:
+            - Use Groups:write
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            Use Groups:read: Read user groups
+            Use Groups:write: Write user groups
+  parameters:
+    TokenHeader:
+      name: token
+      in: header
+      description: 'Authentication token. Requires scope: `Use Groups:write`'
+      required: true
+      schema:
+        type: string
+    TokenQuery:
+      name: token
+      in: query
+      description: 'Authentication token. Requires scope: `Use Groups:read`'
+      required: true
+      schema:
+        type: string
+  schemas:
+    OkTrue:
+      type: boolean
+      const: true
+      description: Indicates successful response
+    OkFalse:
+      type: boolean
+      const: false
+      description: Indicates error response
+    UserId:
+      type: string
+      pattern: ^[UW][A-Z0-9]+$
+      description: A user ID
+    UserGroupId:
+      type: string
+      pattern: ^S[A-Z0-9]+$
+      description: A user group ID
+    TeamId:
+      type: string
+      pattern: ^T[A-Z0-9]+$
+      description: A team ID
+    UserGroupPrefs:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            type: string
+        groups:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    UserGroup:
+      type: object
+      required:
+        - id
+        - team_id
+        - is_usergroup
+        - name
+        - handle
+        - date_create
+        - date_update
+        - date_delete
+        - created_by
+        - updated_by
+      properties:
+        id:
+          $ref: '#/components/schemas/UserGroupId'
+        team_id:
+          $ref: '#/components/schemas/TeamId'
+        is_usergroup:
+          type: boolean
+        is_external:
+          type: boolean
+        name:
+          type: string
+        description:
+          type: string
+        handle:
+          type: string
+        date_create:
+          type: integer
+        date_update:
+          type: integer
+        date_delete:
+          type: integer
+        auto_type:
+          type:
+            - string
+            - 'null'
+        created_by:
+          type: string
+        updated_by:
+          type: string
+        deleted_by:
+          type:
+            - string
+            - 'null'
+        prefs:
+          $ref: '#/components/schemas/UserGroupPrefs'
+        user_count:
+          type:
+            - integer
+            - string
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserId'
+      additionalProperties: false
+    CreateUserGroupRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: A name for the User Group. Must be unique among User Groups.
+        handle:
+          type: string
+          description: >-
+            A mention handle. Must be unique among channels, users and User
+            Groups.
+        description:
+          type: string
+          description: A short description of the User Group.
+        channels:
+          type: string
+          description: >-
+            A comma separated string of encoded channel IDs for which the User
+            Group uses as a default.
+        include_count:
+          type: boolean
+          description: Include the number of users in each User Group.
+    DisableEnableUserGroupRequest:
+      type: object
+      required:
+        - usergroup
+      properties:
+        usergroup:
+          type: string
+          description: The encoded ID of the User Group to disable or enable.
+        include_count:
+          type: boolean
+          description: Include the number of users in the User Group.
+    UpdateUserGroupRequest:
+      type: object
+      required:
+        - usergroup
+      properties:
+        usergroup:
+          type: string
+          description: The encoded ID of the User Group to update.
+        name:
+          type: string
+          description: A name for the User Group. Must be unique among User Groups.
+        handle:
+          type: string
+          description: >-
+            A mention handle. Must be unique among channels, users and User
+            Groups.
+        description:
+          type: string
+          description: A short description of the User Group.
+        channels:
+          type: string
+          description: >-
+            A comma separated string of encoded channel IDs for which the User
+            Group uses as a default.
+        include_count:
+          type: boolean
+          description: Include the number of users in the User Group.
+    UpdateUserGroupMembersRequest:
+      type: object
+      required:
+        - usergroup
+        - users
+      properties:
+        usergroup:
+          type: string
+          description: The encoded ID of the User Group to update.
+        users:
+          type: string
+          description: >-
+            A comma separated string of encoded user IDs that represent the
+            entire list of users for the User Group.
+        include_count:
+          type: boolean
+          description: Include the number of users in the User Group.
+    Use GroupsuccessResponse:
+      type: object
+      required:
+        - ok
+        - usergroup
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        usergroup:
+          $ref: '#/components/schemas/UserGroup'
+      additionalProperties: false
+    ListUse GroupsSuccessResponse:
+      type: object
+      required:
+        - ok
+        - Use Groups
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        Use Groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserGroup'
+      additionalProperties: false
+    ListUserGroupMembersSuccessResponse:
+      type: object
+      required:
+        - ok
+        - users
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserId'
+      additionalProperties: false
+    UserGroupErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          enum:
+            - permission_denied
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - user_is_restricted
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+            - missing_charset
+            - superfluous_charset
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+  examples:
+    CreateUserGroupRequestExample:
+      summary: Create a marketing team user group
+      value:
+        name: Marketing Team
+        handle: marketing-team
+        description: Marketing gurus, PR experts and product advocates.
+        channels: C012AB3CD,C061EG9T2
+        include_count: true
+    DisableEnableUserGroupRequestExample:
+      summary: Disable or enable a user group
+      value:
+        usergroup: S0616NG6M
+        include_count: true
+    UpdateUserGroupRequestExample:
+      summary: Update user group details
+      value:
+        usergroup: S0616NG6M
+        name: Marketing Team Updated
+        handle: marketing-team
+        description: Updated description for marketing team.
+        include_count: true
+    UpdateUserGroupMembersRequestExample:
+      summary: Update user group members
+      value:
+        usergroup: S0616NG6M
+        users: U060R4BJ4,U060RNRCZ
+        include_count: true
+    Use GroupsuccessResponseExample:
+      summary: Successful user group response
+      value:
+        ok: true
+        usergroup:
+          id: S0616NG6M
+          team_id: T060R4BHN
+          is_usergroup: true
+          is_external: false
+          name: Marketing Team
+          description: Marketing gurus, PR experts and product advocates.
+          handle: marketing-team
+          date_create: 1447096577
+          date_update: 1447102109
+          date_delete: 0
+          auto_type: null
+          created_by: U060R4BJ4
+          updated_by: U060R4BJ4
+          deleted_by: null
+          prefs:
+            channels: []
+            groups: []
+          user_count: 2
+          users:
+            - U060R4BJ4
+            - U060RNRCZ
+    UserGroupDisabledSuccessResponseExample:
+      summary: Successful disabled user group response
+      value:
+        ok: true
+        usergroup:
+          id: S0616NG6M
+          team_id: T060R4BHN
+          is_usergroup: true
+          is_external: false
+          name: Marketing Team
+          description: Marketing gurus, PR experts and product advocates.
+          handle: marketing-team
+          date_create: 1447096577
+          date_update: 1447102109
+          date_delete: 1447102200
+          auto_type: null
+          created_by: U060R4BJ4
+          updated_by: U060R4BJ4
+          deleted_by: U060R4BJ4
+          prefs:
+            channels: []
+            groups: []
+          user_count: 2
+          users:
+            - U060R4BJ4
+            - U060RNRCZ
+    ListUse GroupsSuccessResponseExample:
+      summary: Successful list of user groups
+      value:
+        ok: true
+        Use Groups:
+          - id: S0614TZR7
+            team_id: T060RNRCH
+            is_usergroup: true
+            is_external: false
+            name: Team Admins
+            description: A group of all Administrators on your team.
+            handle: admins
+            date_create: 1446598059
+            date_update: 1446670362
+            date_delete: 0
+            auto_type: admin
+            created_by: USLACKBOT
+            updated_by: U060RNRCZ
+            deleted_by: null
+            prefs:
+              channels: []
+              groups: []
+            user_count: 2
+          - id: S06158AV7
+            team_id: T060RNRCH
+            is_usergroup: true
+            is_external: false
+            name: Team Owners
+            description: A group of all Owners on your team.
+            handle: owners
+            date_create: 1446678371
+            date_update: 1446678371
+            date_delete: 0
+            auto_type: owner
+            created_by: USLACKBOT
+            updated_by: USLACKBOT
+            deleted_by: null
+            prefs:
+              channels: []
+              groups: []
+            user_count: 1
+          - id: S0615G0KT
+            team_id: T060RNRCH
+            is_usergroup: true
+            is_external: false
+            name: Marketing Team
+            description: Marketing gurus, PR experts and product advocates.
+            handle: marketing-team
+            date_create: 1446746793
+            date_update: 1446747767
+            date_delete: 0
+            auto_type: null
+            created_by: U060RNRCZ
+            updated_by: U060RNRCZ
+            deleted_by: null
+            prefs:
+              channels: []
+              groups: []
+            user_count: 3
+    ListUserGroupMembersSuccessResponseExample:
+      summary: Successful list of user group members
+      value:
+        ok: true
+        users:
+          - U060R4BJ4
+          - W123A4BC5
+    UserGroupErrorResponseExample:
+      summary: Error response
+      value:
+        ok: false
+        error: invalid_auth

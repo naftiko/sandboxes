@@ -1,0 +1,279 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  title: Manage Microcks
+  description: Manages API mock services, imports OpenAPI specifications, and controls deployments on a Microcks instance. Enables AI-assisted mock server management for the Naftiko sandbox environment.
+
+capability:
+  consumes:
+    - namespace: microcks
+      type: http
+      baseUri: "{{MICROCKS_BASE_URL}}"
+      authentication:
+        type: bearer
+        token: "{{MICROCKS_ACCESS_TOKEN}}"
+      resources:
+        - name: services
+          path: "/api/services"
+          operations:
+            - name: list-services
+              method: GET
+              inputParameters:
+                - name: page
+                  in: query
+                  type: integer
+                  required: false
+                - name: size
+                  in: query
+                  type: integer
+                  required: false
+                - name: filter
+                  in: query
+                  type: string
+                  required: false
+        - name: service
+          path: "/api/services/{id}"
+          operations:
+            - name: get-service
+              method: GET
+              inputParameters:
+                - name: id
+                  in: path
+                  type: string
+                  required: true
+            - name: delete-service
+              method: DELETE
+              inputParameters:
+                - name: id
+                  in: path
+                  type: string
+                  required: true
+        - name: upload
+          path: "/api/artifact/upload"
+          operations:
+            - name: import-artifact
+              method: POST
+              inputParameters:
+                - name: mainArtifact
+                  in: query
+                  type: boolean
+                  required: false
+              body:
+                file: "{{file}}"
+        - name: jobs
+          path: "/api/jobs"
+          operations:
+            - name: list-jobs
+              method: GET
+              inputParameters:
+                - name: page
+                  in: query
+                  type: integer
+                  required: false
+                - name: size
+                  in: query
+                  type: integer
+                  required: false
+        - name: job
+          path: "/api/jobs/{id}"
+          operations:
+            - name: get-job
+              method: GET
+              inputParameters:
+                - name: id
+                  in: path
+                  type: string
+                  required: true
+            - name: activate-job
+              method: PUT
+              inputParameters:
+                - name: id
+                  in: path
+                  type: string
+                  required: true
+            - name: delete-job
+              method: DELETE
+              inputParameters:
+                - name: id
+                  in: path
+                  type: string
+                  required: true
+        - name: tests
+          path: "/api/tests"
+          operations:
+            - name: create-test
+              method: POST
+              inputParameters: []
+              body:
+                serviceId: "{{serviceId}}"
+                testEndpoint: "{{testEndpoint}}"
+                runnerType: "{{runnerType}}"
+
+  exposes:
+    - type: mcp
+      address: "0.0.0.0"
+      port: 3010
+      namespace: manage-microcks
+      description: "Microcks mock server management tools for services, imports, jobs, and conformance testing"
+      tools:
+        - name: list-mock-services
+          description: "List all API mock services deployed in Microcks"
+          hints:
+            readOnly: true
+          inputParameters:
+            - name: page
+              type: integer
+              required: false
+            - name: size
+              type: integer
+              required: false
+            - name: filter
+              type: string
+              required: false
+              description: "Filter by service name"
+          call: microcks.list-services
+          with:
+            page: "{{page}}"
+            size: "{{size}}"
+            filter: "{{filter}}"
+          outputParameters:
+            - type: array
+              mapping: "$."
+              items:
+                type: object
+
+        - name: get-mock-service
+          description: "Retrieve details of a specific Microcks mock service by ID"
+          hints:
+            readOnly: true
+          inputParameters:
+            - name: id
+              type: string
+              required: true
+              description: "The Microcks service ID"
+          call: microcks.get-service
+          with:
+            id: "{{id}}"
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: import-openapi-spec
+          description: "Import an OpenAPI specification file into Microcks to create or update a mock service"
+          hints:
+            readOnly: false
+            destructive: false
+            idempotent: false
+          inputParameters:
+            - name: file
+              type: string
+              required: true
+              description: "The OpenAPI specification content (YAML or JSON)"
+            - name: mainArtifact
+              type: boolean
+              required: false
+              description: "Whether this is the main artifact (true) or a secondary one"
+          call: microcks.import-artifact
+          with:
+            file: "{{file}}"
+            mainArtifact: "{{mainArtifact}}"
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: delete-mock-service
+          description: "Delete a mock service from Microcks"
+          hints:
+            readOnly: false
+            destructive: true
+            idempotent: true
+          inputParameters:
+            - name: id
+              type: string
+              required: true
+              description: "The Microcks service ID"
+          call: microcks.delete-service
+          with:
+            id: "{{id}}"
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: list-import-jobs
+          description: "List scheduled import jobs in Microcks"
+          hints:
+            readOnly: true
+          inputParameters:
+            - name: page
+              type: integer
+              required: false
+            - name: size
+              type: integer
+              required: false
+          call: microcks.list-jobs
+          with:
+            page: "{{page}}"
+            size: "{{size}}"
+          outputParameters:
+            - type: array
+              mapping: "$."
+              items:
+                type: object
+
+        - name: run-conformance-test
+          description: "Trigger a conformance test against a deployed API endpoint using Microcks"
+          hints:
+            readOnly: false
+            destructive: false
+            idempotent: false
+          inputParameters:
+            - name: serviceId
+              type: string
+              required: true
+              description: "The Microcks service ID to test against"
+            - name: testEndpoint
+              type: string
+              required: true
+              description: "The live API endpoint URL to test"
+            - name: runnerType
+              type: string
+              required: true
+              description: "Test runner: HTTP, SOAP_HTTP, SOAP_UI, POSTMAN, OPEN_API_SCHEMA, ASYNC_API_SCHEMA"
+          call: microcks.create-test
+          with:
+            serviceId: "{{serviceId}}"
+            testEndpoint: "{{testEndpoint}}"
+            runnerType: "{{runnerType}}"
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+    - type: rest
+      port: 8090
+      namespace: manage-microcks-rest
+      resources:
+        - path: "/microcks/services"
+          name: "microcks-services"
+          label: "List Microcks Services"
+          description: "List all mock services in Microcks"
+          operations:
+            - method: GET
+              call: microcks.list-services
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: "/microcks/services/{id}"
+          name: "microcks-service"
+          label: "Microcks Service"
+          description: "Get or delete a specific Microcks service"
+          operations:
+            - method: GET
+              call: microcks.get-service
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: DELETE
+              call: microcks.delete-service
+              outputParameters:
+                - type: object
+                  mapping: "$."

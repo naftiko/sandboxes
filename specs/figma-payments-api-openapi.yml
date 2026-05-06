@@ -1,0 +1,341 @@
+openapi: 3.1.0
+info:
+  title: figma-payments-api
+  version: 0.21.0
+  description: |-
+    Figma allows designers to create and prototype their digital experiences -
+    together in real-time and in one place - helping them turn their ideas and
+    visions into products, faster. Figma's mission is to make design
+    accessible to everyone. The Figma API is one of the ways we aim to do
+    that.
+  termsOfService: https://www.figma.com/developer-terms/
+  contact:
+    email: support@figma.com
+servers:
+  - url: https://api.figma.com
+    description: Figma Production API Server
+  - url: http://localhost:8080/rest/figma-payments-api/0.21.0
+    description: Sandbox
+tags:
+  - name: Payments
+    description: >-
+      Operations for querying user payment information on plugins, widgets, and
+      Community files
+paths:
+  /v1/payments:
+    get:
+      tags:
+        - Payments
+      summary: Get payments
+      security:
+        - PersonalAccessToken: []
+      description: >-
+        There are two methods to query for a user's payment information on a
+        plugin, widget, or Community file. The first method, using plugin
+        payment tokens, is typically used when making queries from a plugin's or
+        widget's code. The second method, providing a user ID and resource ID,
+        is typically used when making queries from anywhere else.
+
+        Note that you can only query for resources that you own. In most cases,
+        this means that you can only query resources that you originally
+        created.
+      operationId: getPayments
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |        
+          return "GetPaymentsSuccessExample"
+      parameters:
+        - $ref: '#/components/parameters/PluginPaymentTokenQuery'
+        - $ref: '#/components/parameters/UserIdQuery'
+        - $ref: '#/components/parameters/CommunityFileIdQuery'
+        - $ref: '#/components/parameters/PluginIdQuery'
+        - $ref: '#/components/parameters/WidgetIdQuery'
+      responses:
+        '200':
+          $ref: '#/components/responses/GetPaymentsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+components:
+  securitySchemes:
+    PersonalAccessToken:
+      type: http
+      scheme: bearer
+      description: Personal access token for authentication
+  parameters:
+    PluginPaymentTokenQuery:
+      name: plugin_payment_token
+      in: query
+      description: >-
+        Short-lived token returned from "getPluginPaymentTokenAsync" in the
+        plugin payments API and used to authenticate to this endpoint. Read more
+        about generating this token through "Calling the Payments REST API from
+        a plugin or widget" below.
+      schema:
+        type: string
+      example: ppt_abc123xyz789
+    UserIdQuery:
+      name: user_id
+      in: query
+      description: >-
+        The ID of the user to query payment information about. You can get the
+        user ID by having the user OAuth2 to the Figma REST API.
+      schema:
+        type: number
+      example: 1234567890
+    CommunityFileIdQuery:
+      name: community_file_id
+      in: query
+      description: >-
+        The ID of the Community file to query a user's payment information on.
+        You can get the Community file ID from the file's Community page (look
+        for the number after "file/" in the URL). Provide exactly one of
+        "community_file_id", "plugin_id", or "widget_id".
+      schema:
+        type: number
+      example: 9876543210
+    PluginIdQuery:
+      name: plugin_id
+      in: query
+      description: >-
+        The ID of the plugin to query a user's payment information on. You can
+        get the plugin ID from the plugin's manifest, or from the plugin's
+        Community page (look for the number after "plugin/" in the URL). Provide
+        exactly one of "community_file_id", "plugin_id", or "widget_id".
+      schema:
+        type: number
+      example: 1122334455
+    WidgetIdQuery:
+      name: widget_id
+      in: query
+      description: >-
+        The ID of the widget to query a user's payment information on. You can
+        get the widget ID from the widget's manifest, or from the widget's
+        Community page (look for the number after "widget/" in the URL). Provide
+        exactly one of "community_file_id", "plugin_id", or "widget_id".
+      schema:
+        type: number
+      example: 5544332211
+  schemas:
+    PaymentStatus:
+      type: string
+      description: The payment status of the user for the resource.
+      enum:
+        - UNPAID
+        - PAID
+        - NOT_SUPPORTED
+      example: PAID
+    PaymentInformation:
+      type: object
+      description: >-
+        An object describing a user's payment information for a plugin, widget,
+        or Community file.
+      properties:
+        user_id:
+          type: string
+          description: >-
+            The ID of the user whose payment information was queried. Can be
+            used to verify the validity of a response.
+        resource_id:
+          type: string
+          description: >-
+            The ID of the plugin, widget, or Community file that was queried.
+            Can be used to verify the validity of a response.
+        resource_type:
+          type: string
+          description: The type of the resource.
+          enum:
+            - PLUGIN
+            - WIDGET
+            - COMMUNITY_FILE
+        payment_status:
+          $ref: '#/components/schemas/PaymentStatus'
+        date_of_purchase:
+          type: string
+          format: date-time
+          description: >-
+            The UTC ISO 8601 timestamp indicating when the user purchased the
+            resource. No value is given if the user has never purchased the
+            resource.
+      required:
+        - user_id
+        - resource_id
+        - resource_type
+        - payment_status
+      example:
+        user_id: '1234567890'
+        resource_id: '1122334455'
+        resource_type: PLUGIN
+        payment_status: PAID
+        date_of_purchase: '2024-06-15T14:30:00Z'
+    GetPaymentsResponseBody:
+      type: object
+      description: Successful response containing payment information.
+      properties:
+        status:
+          type: number
+          enum:
+            - 200
+          description: The response status code.
+        error:
+          type: boolean
+          enum:
+            - false
+          description: For successful requests, this value is always `false`.
+        meta:
+          $ref: '#/components/schemas/PaymentInformation'
+      required:
+        - status
+        - error
+        - meta
+      example:
+        status: 200
+        error: false
+        meta:
+          user_id: '1234567890'
+          resource_id: '1122334455'
+          resource_type: PLUGIN
+          payment_status: PAID
+          date_of_purchase: '2024-06-15T14:30:00Z'
+    ErrorResponsePayload:
+      type: object
+      description: A response indicating an error occurred.
+      properties:
+        error:
+          type: boolean
+          description: For erroneous requests, this value is always `true`.
+          enum:
+            - true
+        status:
+          type: number
+          description: Status code
+        message:
+          type: string
+          description: A string describing the error
+      required:
+        - error
+        - status
+        - message
+    UnauthorizedError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponsePayload'
+        - type: object
+          properties:
+            status:
+              type: number
+              description: Status code
+              enum:
+                - 401
+          required:
+            - status
+      example:
+        error: true
+        status: 401
+        message: Token is missing or incorrect
+    TooManyRequestsError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponsePayload'
+        - type: object
+          properties:
+            status:
+              type: number
+              description: Status code
+              enum:
+                - 429
+          required:
+            - status
+      example:
+        error: true
+        status: 429
+        message: Rate limit exceeded. Please wait before retrying.
+    InternalServerError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponsePayload'
+        - type: object
+          properties:
+            status:
+              type: number
+              description: Status code
+              enum:
+                - 500
+          required:
+            - status
+      example:
+        error: true
+        status: 500
+        message: Internal server error
+  responses:
+    GetPaymentsResponse:
+      description: Response from the GET /v1/payments endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GetPaymentsResponseBody'
+          examples:
+            GetPaymentsSuccessExample:
+              summary: Successful payment information response
+              value:
+                status: 200
+                error: false
+                meta:
+                  user_id: '1234567890'
+                  resource_id: '1122334455'
+                  resource_type: PLUGIN
+                  payment_status: PAID
+                  date_of_purchase: '2024-06-15T14:30:00Z'
+    UnauthorizedErrorResponse:
+      description: Token is missing or incorrect.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+          examples:
+            UnauthorizedExample:
+              summary: Unauthorized error
+              value:
+                error: true
+                status: 401
+                message: Token is missing or incorrect
+    TooManyRequestsErrorResponse:
+      description: >-
+        In some cases API requests may be throttled or rate limited. Please wait
+        a while before attempting the request again (typically a minute).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TooManyRequestsError'
+          examples:
+            TooManyRequestsExample:
+              summary: Rate limit exceeded error
+              value:
+                error: true
+                status: 429
+                message: Rate limit exceeded. Please wait before retrying.
+    InternalServerErrorResponse:
+      description: An internal server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+          examples:
+            InternalServerErrorExample:
+              summary: Internal server error
+              value:
+                error: true
+                status: 500
+                message: Internal server error
+  examples:
+    GetPaymentsSuccessExample:
+      summary: Successful payment information response
+      value:
+        status: 200
+        error: false
+        meta:
+          user_id: '1234567890'
+          resource_id: '1122334455'
+          resource_type: PLUGIN
+          payment_status: PAID
+          date_of_purchase: '2024-06-15T14:30:00Z'

@@ -1,0 +1,863 @@
+openapi: 3.1.0
+info:
+  title: hubspot-cms-source-code-api
+  description: >
+    The HubSpot CMS Source Code API provides programmatic access to files in the
+    CMS Developer File System.
+
+    Use these endpoints to manage HTML templates, CSS stylesheets, JavaScript
+    files, modules, and other
+
+    CMS assets that power your HubSpot website. The API supports both draft and
+    published environments,
+
+    enabling a robust content development workflow.
+  version: 3.0.0
+  contact:
+    name: HubSpot Developer Support
+    url: https://developers.hubspot.com
+  x-hubspot-product-tier-requirements:
+    marketing: FREE
+    cms: FREE
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot Production API Server
+  - url: http://localhost:8080/rest/hubspot-cms-source-code-api/3.0.0
+    description: Sandbox
+tags:
+  - name: File Content
+    description: >-
+      Operations for downloading, creating, updating, and deleting source code
+      files
+  - name: File Metadata
+    description: Operations for retrieving file and folder metadata
+  - name: File Validation
+    description: Operations for validating source code files
+  - name: File Extraction
+    description: Operations for extracting zip archives in the developer file system
+paths:
+  /cms/v3/source-code/{environment}/content/{path}:
+    get:
+      tags:
+        - File Content
+      summary: Download a source code file
+      description: >
+        Downloads the byte contents of a file at the specified path in the
+        specified environment.
+
+        Use 'draft' for unpublished changes or 'published' for live content.
+      operationId: downloadSourceCodeFile
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "FileContentSuccessExample"
+          return result
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentPath'
+        - $ref: '#/components/parameters/FilePathPath'
+      responses:
+        '200':
+          description: Successfully downloaded file content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+              examples:
+                FileContentSuccessExample:
+                  $ref: '#/components/examples/FileContentSuccessExample'
+            text/html:
+              schema:
+                type: string
+              examples:
+                HtmlFileContentExample:
+                  $ref: '#/components/examples/HtmlFileContentExample'
+            text/css:
+              schema:
+                type: string
+              examples:
+                CssFileContentExample:
+                  $ref: '#/components/examples/CssFileContentExample'
+            application/javascript:
+              schema:
+                type: string
+              examples:
+                JsFileContentExample:
+                  $ref: '#/components/examples/JsFileContentExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - privateApps:
+            - content
+        - oauth2:
+            - content
+      x-hubspot-rate-limit-exemptions:
+        - ten-secondly
+    put:
+      tags:
+        - File Content
+      summary: Create or update a source code file
+      description: >
+        Creates a new file or updates an existing file at the specified path in
+        the specified environment.
+
+        This upsert operation accepts multipart/form-data content type with the
+        file as the payload.
+      operationId: upsertSourceCodeFile
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "AssetFileMetadataSuccessExample"
+          return result
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentPath'
+        - $ref: '#/components/parameters/FilePathPath'
+      requestBody:
+        description: The file content to upload
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUploadRequest'
+            examples:
+              FileUploadExample:
+                $ref: '#/components/examples/FileUploadExample'
+      responses:
+        '200':
+          description: Successfully created or updated file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFileMetadata'
+              examples:
+                AssetFileMetadataSuccessExample:
+                  $ref: '#/components/examples/AssetFileMetadataSuccessExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - privateApps:
+            - content
+        - oauth2:
+            - content
+      x-hubspot-rate-limit-exemptions:
+        - ten-secondly
+    post:
+      tags:
+        - File Content
+      summary: Create a new source code file
+      description: >
+        Creates a new file at the specified path in the specified environment.
+
+        Returns an error if a file already exists at the path. For upsert
+        behavior, use PUT instead.
+      operationId: createSourceCodeFile
+      deprecated: true
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "AssetFileMetadataSuccessExample"
+          return result
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentPath'
+        - $ref: '#/components/parameters/FilePathPath'
+      requestBody:
+        description: The file content to upload
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUploadRequest'
+            examples:
+              FileUploadExample:
+                $ref: '#/components/examples/FileUploadExample'
+      responses:
+        '200':
+          description: Successfully created file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFileMetadata'
+              examples:
+                AssetFileMetadataSuccessExample:
+                  $ref: '#/components/examples/AssetFileMetadataSuccessExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - privateApps:
+            - content
+        - oauth2:
+            - content
+      x-hubspot-rate-limit-exemptions:
+        - ten-secondly
+    delete:
+      tags:
+        - File Content
+      summary: Delete a source code file
+      description: >
+        Permanently deletes a file at the specified path in the specified
+        environment.
+
+        This action cannot be undone.
+      operationId: deleteSourceCodeFile
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "NoContentExample"
+          return result
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentPath'
+        - $ref: '#/components/parameters/FilePathPath'
+      responses:
+        '204':
+          description: File successfully deleted
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - privateApps:
+            - content
+        - oauth2:
+            - content
+      x-hubspot-rate-limit-exemptions:
+        - ten-secondly
+  /cms/v3/source-code/{environment}/metadata/{path}:
+    get:
+      tags:
+        - File Metadata
+      summary: Retrieve file or folder metadata
+      description: >
+        Retrieves metadata for a file or folder at the specified path in the
+        specified environment.
+
+        For folders, includes a list of child files and subfolders.
+      operationId: getSourceCodeMetadata
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "AssetFileMetadataSuccessExample"
+          return result
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentPath'
+        - $ref: '#/components/parameters/FilePathPath'
+        - $ref: '#/components/parameters/PropertiesQuery'
+      responses:
+        '200':
+          description: Successfully retrieved metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFileMetadata'
+              examples:
+                AssetFileMetadataSuccessExample:
+                  $ref: '#/components/examples/AssetFileMetadataSuccessExample'
+                FolderMetadataSuccessExample:
+                  $ref: '#/components/examples/FolderMetadataSuccessExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - privateApps:
+            - content
+        - oauth2:
+            - content
+      x-hubspot-rate-limit-exemptions:
+        - ten-secondly
+  /cms/v3/source-code/{environment}/validate/{path}:
+    post:
+      tags:
+        - File Validation
+      summary: Validate a source code file
+      description: >
+        Validates the source code file at the specified path for syntax errors, 
+
+        HubL compatibility, and other issues. Returns validation results without
+        modifying the file.
+      operationId: validateSourceCodeFile
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "ValidationSuccessExample"
+          return result
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentPath'
+        - $ref: '#/components/parameters/FilePathPath'
+      requestBody:
+        description: Optional file content to validate instead of the existing file
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUploadRequest'
+            examples:
+              FileUploadExample:
+                $ref: '#/components/examples/FileUploadExample'
+      responses:
+        '200':
+          description: Validation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+              examples:
+                ValidationSuccessExample:
+                  $ref: '#/components/examples/ValidationSuccessExample'
+                ValidationErrorsExample:
+                  $ref: '#/components/examples/ValidationErrorsExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - privateApps:
+            - content
+        - oauth2:
+            - content
+  /cms/v3/source-code/extract/async:
+    post:
+      tags:
+        - File Extraction
+      summary: Extract a zip archive
+      description: >
+        Initiates asynchronous extraction of a zip file in the developer file
+        system.
+
+        Returns a task ID that can be used to check extraction status via the
+        status endpoint.
+      operationId: extractZipFileAsync
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "TaskLocatorSuccessExample"
+          return result
+      requestBody:
+        description: The path to the zip file to extract
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileExtractRequest'
+            examples:
+              FileExtractRequestExample:
+                $ref: '#/components/examples/FileExtractRequestExample'
+      responses:
+        '202':
+          description: Extraction task accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskLocator'
+              examples:
+                TaskLocatorSuccessExample:
+                  $ref: '#/components/examples/TaskLocatorSuccessExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - privateApps:
+            - content
+        - oauth2:
+            - content
+  /cms/v3/source-code/extract/async/tasks/{taskId}/status:
+    get:
+      tags:
+        - File Extraction
+      summary: Get extraction task status
+      description: >
+        Retrieves the current status of an asynchronous zip file extraction
+        task.
+
+        Poll this endpoint to determine when extraction is complete.
+      operationId: getExtractionTaskStatus
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def result = "ActionResponseSuccessExample"
+          return result
+      parameters:
+        - $ref: '#/components/parameters/TaskIdPath'
+      responses:
+        '200':
+          description: Successfully retrieved task status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+              examples:
+                ActionResponseSuccessExample:
+                  $ref: '#/components/examples/ActionResponseSuccessExample'
+                ActionResponseProcessingExample:
+                  $ref: '#/components/examples/ActionResponseProcessingExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - privateApps:
+            - content
+        - oauth2:
+            - content
+components:
+  parameters:
+    EnvironmentPath:
+      name: environment
+      in: path
+      required: true
+      description: The target environment for the operation (draft or published)
+      schema:
+        type: string
+        enum:
+          - draft
+          - published
+      example: draft
+    FilePathPath:
+      name: path
+      in: path
+      required: true
+      description: The file system path to the file or folder
+      schema:
+        type: string
+        pattern: .+
+      example: templates/blog/post.html
+    TaskIdPath:
+      name: taskId
+      in: path
+      required: true
+      description: The unique identifier of the extraction task
+      schema:
+        type: integer
+        format: int32
+      example: 12345
+    PropertiesQuery:
+      name: properties
+      in: query
+      required: false
+      description: Specific properties to include in the response
+      schema:
+        type: string
+      example: name,folder
+  schemas:
+    AssetFileMetadata:
+      type: object
+      description: Metadata for a file or folder in the CMS Developer File System
+      required:
+        - id
+        - name
+        - folder
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          description: The full path of the file in the CMS Developer File System
+          example: templates/blog/post.html
+        name:
+          type: string
+          description: The name of the file or folder
+          example: post.html
+        folder:
+          type: boolean
+          description: Whether this path represents a folder (true) or file (false)
+          example: false
+        children:
+          type: array
+          description: List of child files and folders (only present for folders)
+          items:
+            type: string
+          example:
+            - header.html
+            - footer.html
+            - sidebar.html
+        hash:
+          type: string
+          description: Content hash for change detection
+          example: a1b2c3d4e5f6
+        createdAt:
+          type: integer
+          format: int64
+          description: Unix timestamp when the file was created
+          example: 1705312200000
+        updatedAt:
+          type: integer
+          format: int64
+          description: Unix timestamp when the file was last updated
+          example: 1705398600000
+        archivedAt:
+          type: integer
+          format: int64
+          description: Unix timestamp when the file was archived (if applicable)
+          example: 0
+    FileUploadRequest:
+      type: object
+      description: Request body for file upload operations
+      required:
+        - file
+      properties:
+        file:
+          type: string
+          format: binary
+          description: The file content to upload
+    FileExtractRequest:
+      type: object
+      description: Request body for zip file extraction
+      required:
+        - path
+      properties:
+        path:
+          type: string
+          description: Path to the zip file in the developer file system
+          example: uploads/theme-update.zip
+    TaskLocator:
+      type: object
+      description: Locator for an asynchronous task
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the task
+          example: '12345'
+        links:
+          type: object
+          description: Related links for the task
+          additionalProperties:
+            type: string
+          example:
+            status: /cms/v3/source-code/extract/async/tasks/12345/status
+    ActionResponse:
+      type: object
+      description: Response for asynchronous action status
+      required:
+        - status
+        - startedAt
+        - completedAt
+      properties:
+        status:
+          type: string
+          description: Current status of the action
+          enum:
+            - PENDING
+            - PROCESSING
+            - CANCELED
+            - COMPLETE
+          example: COMPLETE
+        requestedAt:
+          type: string
+          format: date-time
+          description: When the action was requested
+          example: '2024-01-15T10:30:00Z'
+        startedAt:
+          type: string
+          format: date-time
+          description: When the action started processing
+          example: '2024-01-15T10:30:01Z'
+        completedAt:
+          type: string
+          format: date-time
+          description: When the action completed
+          example: '2024-01-15T10:30:15Z'
+        links:
+          type: object
+          description: Related links
+          additionalProperties:
+            type: string
+    ValidationResult:
+      type: object
+      description: Result of file validation
+      required:
+        - valid
+      properties:
+        valid:
+          type: boolean
+          description: Whether the file passed validation
+          example: true
+        errors:
+          type: array
+          description: List of validation errors (if any)
+          items:
+            $ref: '#/components/schemas/ValidationError'
+        warnings:
+          type: array
+          description: List of validation warnings (if any)
+          items:
+            $ref: '#/components/schemas/ValidationWarning'
+    ValidationError:
+      type: object
+      description: A validation error
+      required:
+        - message
+        - line
+      properties:
+        message:
+          type: string
+          description: Error description
+          example: 'Syntax error: unexpected end of template'
+        line:
+          type: integer
+          description: Line number where the error occurred
+          example: 42
+        column:
+          type: integer
+          description: Column number where the error occurred
+          example: 15
+        category:
+          type: string
+          description: Error category
+          example: HUBL_SYNTAX
+    ValidationWarning:
+      type: object
+      description: A validation warning
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Warning description
+          example: Deprecated function 'blog_recent_posts' used
+        line:
+          type: integer
+          description: Line number where the warning occurred
+          example: 28
+        suggestion:
+          type: string
+          description: Suggested fix
+          example: Use 'blog_posts' function instead
+    Error:
+      type: object
+      description: Standard error response
+      required:
+        - category
+        - correlationId
+        - message
+      properties:
+        category:
+          type: string
+          description: Error category
+          example: VALIDATION_ERROR
+        correlationId:
+          type: string
+          format: uuid
+          description: Unique identifier for error tracking
+          example: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid input (details will vary based on the error)
+        subCategory:
+          type: string
+          description: Specific error subcategory
+        context:
+          type: object
+          description: Additional error context
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            missingScopes:
+              - scope1
+              - scope2
+            invalidPropertyName:
+              - propertyValue
+        links:
+          type: object
+          description: Links to relevant documentation
+          additionalProperties:
+            type: string
+          example:
+            knowledge-base: https://www.hubspot.com/products/service/knowledge-base
+        errors:
+          type: array
+          description: Detailed error information
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    ErrorDetail:
+      type: object
+      description: Detailed error information
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: Required property 'path' is missing
+        code:
+          type: string
+          description: Error code
+          example: MISSING_REQUIRED_PROPERTY
+        subCategory:
+          type: string
+          description: Error subcategory
+        in:
+          type: string
+          description: Location of the error
+          example: body
+        context:
+          type: object
+          description: Additional context
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            missingScopes:
+              - scope1
+              - scope2
+  responses:
+    ErrorResponse:
+      description: An error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ValidationErrorExample:
+              $ref: '#/components/examples/ValidationErrorResponseExample'
+            NotFoundErrorExample:
+              $ref: '#/components/examples/NotFoundErrorExample'
+  examples:
+    AssetFileMetadataSuccessExample:
+      summary: Successful file metadata response
+      description: Example metadata for a template file
+      value:
+        id: templates/blog/post.html
+        name: post.html
+        folder: false
+        hash: a1b2c3d4e5f6
+        createdAt: 1705312200000
+        updatedAt: 1705398600000
+    FolderMetadataSuccessExample:
+      summary: Successful folder metadata response
+      description: Example metadata for a folder with children
+      value:
+        id: templates/blog
+        name: blog
+        folder: true
+        children:
+          - post.html
+          - listing.html
+          - author.html
+        createdAt: 1705312200000
+        updatedAt: 1705398600000
+    FileContentSuccessExample:
+      summary: Binary file content
+      description: Example binary file download response
+      value: <binary content>
+    HtmlFileContentExample:
+      summary: HTML template content
+      description: Example HTML template file content
+      value: |
+        {% extends "templates/layouts/base.html" %}
+        {% block content %}
+        <article class="blog-post">
+          <h1>{{ content.title }}</h1>
+          <div class="post-body">
+            {{ content.post_body }}
+          </div>
+        </article>
+        {% endblock %}
+    CssFileContentExample:
+      summary: CSS file content
+      description: Example CSS stylesheet content
+      value: |
+        .blog-post {
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 2rem;
+        }
+        .blog-post h1 {
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
+        }
+    JsFileContentExample:
+      summary: JavaScript file content
+      description: Example JavaScript file content
+      value: |
+        document.addEventListener('DOMContentLoaded', function() {
+          const posts = document.querySelectorAll('.blog-post');
+          posts.forEach(post => {
+            post.classList.add('loaded');
+          });
+        });
+    FileUploadExample:
+      summary: File upload request
+      description: Example multipart form data for file upload
+      value:
+        file: <binary file content>
+    FileExtractRequestExample:
+      summary: Zip extraction request
+      description: Example request to extract a zip file
+      value:
+        path: uploads/theme-update.zip
+    TaskLocatorSuccessExample:
+      summary: Successful task locator response
+      description: Example response when extraction task is accepted
+      value:
+        id: '12345'
+        links:
+          status: /cms/v3/source-code/extract/async/tasks/12345/status
+    ActionResponseSuccessExample:
+      summary: Completed action response
+      description: Example response for a completed extraction task
+      value:
+        status: COMPLETE
+        requestedAt: '2024-01-15T10:30:00Z'
+        startedAt: '2024-01-15T10:30:01Z'
+        completedAt: '2024-01-15T10:30:15Z'
+    ActionResponseProcessingExample:
+      summary: Processing action response
+      description: Example response for an in-progress extraction task
+      value:
+        status: PROCESSING
+        requestedAt: '2024-01-15T10:30:00Z'
+        startedAt: '2024-01-15T10:30:01Z'
+        completedAt: null
+    ValidationSuccessExample:
+      summary: Successful validation response
+      description: Example response when file passes validation
+      value:
+        valid: true
+        errors: []
+        warnings: []
+    ValidationErrorsExample:
+      summary: Validation with errors response
+      description: Example response when file has validation errors
+      value:
+        valid: false
+        errors:
+          - message: 'Syntax error: unexpected end of template'
+            line: 42
+            column: 15
+            category: HUBL_SYNTAX
+        warnings:
+          - message: Deprecated function 'blog_recent_posts' used
+            line: 28
+            suggestion: Use 'blog_posts' function instead
+    ValidationErrorResponseExample:
+      summary: Validation error response
+      description: Example error response for invalid input
+      value:
+        category: VALIDATION_ERROR
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: Invalid input (details will vary based on the error)
+        context:
+          missingScopes:
+            - scope1
+            - scope2
+        links:
+          knowledge-base: https://www.hubspot.com/products/service/knowledge-base
+    NotFoundErrorExample:
+      summary: Not found error response
+      description: Example error response when file is not found
+      value:
+        category: OBJECT_NOT_FOUND
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: 'File not found at path: templates/missing.html'
+        links:
+          knowledge-base: https://www.hubspot.com/products/service/knowledge-base
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            content: Read from and write to Content
+    privateApps:
+      type: apiKey
+      name: private-app
+      in: header
+      description: Private app access token

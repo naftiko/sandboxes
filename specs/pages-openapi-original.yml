@@ -1,0 +1,1536 @@
+openapi: 3.1.0
+info:
+  title: webflow-pages-api
+  description: >
+    API for managing pages in Webflow. This API allows you to retrieve page
+    metadata, 
+
+    update page settings, manage page content (DOM), and handle custom code
+    scripts 
+
+    for your Webflow site pages.
+  version: 1.0.0
+servers:
+  - url: https://api.webflow.com/v2
+    description: Webflow API v2
+  - url: http://localhost:8080/rest/webflow-pages-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Site Pages
+    description: Operations for listing pages within a site
+  - name: Page Metadata
+    description: Operations for retrieving and updating page metadata and settings
+  - name: Page Content
+    description: Operations for retrieving and updating page DOM content
+  - name: Page Custom Code
+    description: Operations for managing custom code scripts on pages
+paths:
+  /sites/{site_id}/pages:
+    get:
+      operationId: listSitePages
+      summary: List Site Pages
+      description: |
+        Retrieve a paginated list of all pages for a specific site.
+
+        Required scope: `pages:read`
+      tags:
+        - Site Pages
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListSitePagesSuccess"
+      security:
+        - OAuth2:
+            - pages:read
+      parameters:
+        - $ref: '#/components/parameters/SiteId'
+        - $ref: '#/components/parameters/LocaleId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Pages retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageList'
+              examples:
+                ListSitePagesSuccess:
+                  $ref: '#/components/examples/PageListExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+  /pages/{page_id}:
+    get:
+      operationId: getPageMetadata
+      summary: Get Page Metadata
+      description: >
+        Retrieve metadata information for a single page including SEO and Open
+        Graph settings.
+
+
+        Required scope: `pages:read`
+      tags:
+        - Page Metadata
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GetPageMetadataSuccess"
+      security:
+        - OAuth2:
+            - pages:read
+      parameters:
+        - $ref: '#/components/parameters/PageId'
+        - $ref: '#/components/parameters/LocaleId'
+      responses:
+        '200':
+          description: Page metadata retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+              examples:
+                GetPageMetadataSuccess:
+                  $ref: '#/components/examples/PageExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+    put:
+      operationId: updatePageMetadata
+      summary: Update Page Metadata
+      description: >
+        Update page-level metadata including title, slug, SEO and Open Graph
+        fields.
+
+
+        Required scope: `pages:write`
+      tags:
+        - Page Metadata
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "UpdatePageMetadataSuccess"
+      security:
+        - OAuth2:
+            - pages:write
+      parameters:
+        - $ref: '#/components/parameters/PageId'
+        - $ref: '#/components/parameters/LocaleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageUpdateRequest'
+            examples:
+              UpdatePageMetadataRequest:
+                $ref: '#/components/examples/PageUpdateRequestExample'
+      responses:
+        '200':
+          description: Page metadata updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+              examples:
+                UpdatePageMetadataSuccess:
+                  $ref: '#/components/examples/PageUpdatedExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+  /pages/{page_id}/dom:
+    get:
+      operationId: getPageContent
+      summary: Get Page Content
+      description: |
+        Retrieve text and component instance content from a static page's DOM.
+
+        Required scope: `pages:read`
+      tags:
+        - Page Content
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GetPageContentSuccess"
+      security:
+        - OAuth2:
+            - pages:read
+      parameters:
+        - $ref: '#/components/parameters/PageId'
+        - $ref: '#/components/parameters/LocaleId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Page content retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageDom'
+              examples:
+                GetPageContentSuccess:
+                  $ref: '#/components/examples/PageDomExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+    post:
+      operationId: updatePageContent
+      summary: Update Page Content
+      description: >
+        Update content on a static page in secondary locales. Supports updating
+        up to 1000 nodes in a single request.
+
+
+        This endpoint is specifically for localized pages. The specified
+        localeId must be a valid secondary locale for the site.
+
+
+        Required scope: `pages:write`
+      tags:
+        - Page Content
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "UpdatePageContentSuccess"
+      security:
+        - OAuth2:
+            - pages:write
+      parameters:
+        - $ref: '#/components/parameters/PageId'
+        - name: localeId
+          in: query
+          required: true
+          description: The locale identifier for the secondary locale to update
+          schema:
+            type: string
+          example: 65427cf400e02b306eaa04a0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageContentUpdateRequest'
+            examples:
+              UpdatePageContentRequest:
+                $ref: '#/components/examples/PageContentUpdateRequestExample'
+      responses:
+        '200':
+          description: Page content updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageDom'
+              examples:
+                UpdatePageContentSuccess:
+                  $ref: '#/components/examples/PageDomUpdatedExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+  /pages/{page_id}/custom_code:
+    get:
+      operationId: getPageCustomCode
+      summary: Get Page Custom Code
+      description: |
+        Retrieve all custom code scripts applied to a specific page.
+
+        Required scope: `custom_code:read`
+      tags:
+        - Page Custom Code
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GetPageCustomCodeSuccess"
+      security:
+        - OAuth2:
+            - custom_code:read
+      parameters:
+        - $ref: '#/components/parameters/PageId'
+      responses:
+        '200':
+          description: Custom code retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomCodeResponse'
+              examples:
+                GetPageCustomCodeSuccess:
+                  $ref: '#/components/examples/CustomCodeResponseExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+    put:
+      operationId: upsertPageCustomCode
+      summary: Add Or Update Page Custom Code
+      description: >
+        Apply or update registered scripts on a page. Include all scripts your
+        app needs on the page in each request.
+
+        To remove individual scripts, call this endpoint without the script in
+        the request body.
+
+
+        Scripts must first be registered to a site via the Register Script
+        endpoints before being applied to a page.
+
+
+        Required scope: `custom_code:write`
+      tags:
+        - Page Custom Code
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "UpsertPageCustomCodeSuccess"
+      security:
+        - OAuth2:
+            - custom_code:write
+      parameters:
+        - $ref: '#/components/parameters/PageId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomCodeRequest'
+            examples:
+              UpsertPageCustomCodeRequest:
+                $ref: '#/components/examples/CustomCodeRequestExample'
+      responses:
+        '200':
+          description: Custom code updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomCodeResponse'
+              examples:
+                UpsertPageCustomCodeSuccess:
+                  $ref: '#/components/examples/CustomCodeResponseExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+    delete:
+      operationId: deletePageCustomCode
+      summary: Delete Page Custom Code
+      description: >
+        Remove all custom code scripts from a page that were applied by the app.
+        This will not remove scripts from the site's registered scripts.
+
+
+        To remove individual scripts, use the Add/Update Custom Code endpoint
+        without the script in the request body.
+
+
+        Required scope: `custom_code:write`
+      tags:
+        - Page Custom Code
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "DeletePageCustomCodeSuccess"
+      security:
+        - OAuth2:
+            - custom_code:write
+      parameters:
+        - $ref: '#/components/parameters/PageId'
+      responses:
+        '204':
+          description: Custom code deleted successfully
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+components:
+  parameters:
+    SiteId:
+      name: site_id
+      in: path
+      description: Unique identifier for a site
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 580e63e98c9a982ac9b8b741
+    PageId:
+      name: page_id
+      in: path
+      description: Unique identifier for a page
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 63c720f9347c2139b248e552
+    LocaleId:
+      name: localeId
+      in: query
+      description: Unique identifier for a specific locale
+      required: false
+      schema:
+        type: string
+      example: 65427cf400e02b306eaa04a0
+    Limit:
+      name: limit
+      in: query
+      description: Maximum number of records to be returned (max limit is 100)
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 100
+      example: 100
+    Offset:
+      name: offset
+      in: query
+      description: Offset used for pagination if the results have more than limit records
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      example: 0
+  schemas:
+    Page:
+      type: object
+      description: A Webflow page with metadata and settings
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: objectid
+          description: Unique identifier for the page
+        siteId:
+          type: string
+          format: objectid
+          description: Unique identifier for the site
+          readOnly: true
+        title:
+          type: string
+          description: Title of the page
+        slug:
+          type: string
+          description: URL slug of the page (derived from title)
+        parentId:
+          type: string
+          format: objectid
+          nullable: true
+          description: Identifier of the parent folder
+          readOnly: true
+        collectionId:
+          type: string
+          format: objectid
+          nullable: true
+          description: >-
+            Unique identifier for a linked collection (null if not part of a
+            collection)
+          readOnly: true
+        createdOn:
+          type: string
+          format: date-time
+          description: Date when the page was created
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Date when the page was last updated
+          readOnly: true
+        archived:
+          type: boolean
+          description: Whether the page has been archived
+          default: false
+          readOnly: true
+        draft:
+          type: boolean
+          description: Whether the page is a draft
+          default: false
+          readOnly: true
+        canBranch:
+          type: boolean
+          description: Indicates whether the page supports page branching
+          default: false
+          readOnly: true
+        isBranch:
+          type: boolean
+          description: Indicates whether the page is a branch of another page
+          default: false
+          readOnly: true
+        branchId:
+          type: string
+          format: objectid
+          nullable: true
+          description: If the page is a branch, the ID of the branch
+        seo:
+          $ref: '#/components/schemas/SeoSettings'
+        openGraph:
+          $ref: '#/components/schemas/OpenGraphSettings'
+        localeId:
+          type: string
+          format: objectid
+          nullable: true
+          description: Unique ID of the page locale
+          readOnly: true
+        publishedPath:
+          type: string
+          description: Relative path of the published page URL
+          readOnly: true
+    PageList:
+      type: object
+      description: A paginated list of pages
+      required:
+        - pages
+        - pagination
+      properties:
+        pages:
+          type: array
+          description: Array of page objects
+          items:
+            $ref: '#/components/schemas/Page'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    PageUpdateRequest:
+      type: object
+      description: Request body for updating page metadata
+      properties:
+        title:
+          type: string
+          description: Title for the page
+        slug:
+          type: string
+          description: URL slug for the page
+        seo:
+          $ref: '#/components/schemas/SeoSettings'
+        openGraph:
+          $ref: '#/components/schemas/OpenGraphSettingsUpdate'
+    PageDom:
+      type: object
+      description: The DOM structure of a page with content nodes
+      properties:
+        pageId:
+          type: string
+          description: Page identifier
+        branchId:
+          type: string
+          format: objectid
+          nullable: true
+          description: The unique identifier of a specific page branch
+        nodes:
+          type: array
+          description: Array of DOM content nodes
+          items:
+            $ref: '#/components/schemas/DomNode'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Date when the page was last updated
+    DomNode:
+      type: object
+      description: A content node within the page DOM
+      properties:
+        id:
+          type: string
+          description: Node UUID
+        type:
+          type: string
+          description: The type of the node
+          enum:
+            - text
+            - image
+            - select
+            - text-input
+            - submit
+            - component-instance
+        text:
+          $ref: '#/components/schemas/TextContent'
+        image:
+          $ref: '#/components/schemas/ImageContent'
+        choices:
+          type: array
+          description: Choices for select nodes
+          items:
+            $ref: '#/components/schemas/SelectChoice'
+        placeholder:
+          type: string
+          description: Placeholder text for input nodes
+        value:
+          type: string
+          description: Value for submit/search buttons
+        waitingText:
+          type: string
+          description: Text shown while form is submitting
+        componentId:
+          type: string
+          description: ID of the component for component instances
+        propertyOverrides:
+          type: array
+          description: Property overrides for component instances
+          items:
+            $ref: '#/components/schemas/PropertyOverride'
+        attributes:
+          type: object
+          description: Custom attributes of the node
+          additionalProperties:
+            type: string
+    TextContent:
+      type: object
+      description: Text content of a DOM node
+      properties:
+        html:
+          type: string
+          nullable: true
+          description: HTML content of the text node
+        text:
+          type: string
+          nullable: true
+          description: Raw text content of the text node
+    ImageContent:
+      type: object
+      description: Image content of a DOM node
+      properties:
+        alt:
+          type: string
+          nullable: true
+          description: Alternative text for the image
+        assetId:
+          type: string
+          description: Asset identifier for the image
+    SelectChoice:
+      type: object
+      description: A choice option for select elements
+      required:
+        - value
+        - text
+      properties:
+        value:
+          type: string
+          description: The value when the choice is selected
+        text:
+          type: string
+          description: The display text for the choice
+    PropertyOverride:
+      type: object
+      description: A property override for component instances
+      properties:
+        propertyId:
+          type: string
+          description: The ID of the property
+        type:
+          type: string
+          description: The type of the property
+        label:
+          type: string
+          description: The label of the property
+        text:
+          $ref: '#/components/schemas/TextContent'
+    PageContentUpdateRequest:
+      type: object
+      description: Request body for updating page content
+      required:
+        - nodes
+      properties:
+        nodes:
+          type: array
+          description: List of DOM nodes with new content to update
+          minItems: 1
+          maxItems: 1000
+          items:
+            $ref: '#/components/schemas/NodeUpdateRequest'
+    NodeUpdateRequest:
+      type: object
+      description: A node update request
+      required:
+        - nodeId
+      properties:
+        nodeId:
+          type: string
+          description: Node UUID to update
+        text:
+          type: string
+          description: HTML content of the node including HTML tag
+        propertyOverrides:
+          type: array
+          description: Property overrides for component instances
+          items:
+            type: object
+            required:
+              - propertyId
+              - text
+            properties:
+              propertyId:
+                type: string
+                description: The ID of the property
+              text:
+                type: string
+                description: The new value for the property
+        choices:
+          type: array
+          description: Choices for select nodes
+          items:
+            $ref: '#/components/schemas/SelectChoice'
+        placeholder:
+          type: string
+          description: Placeholder text for input nodes
+        value:
+          type: string
+          description: Value for submit/search buttons
+        waitingText:
+          type: string
+          description: Text shown while form is submitting
+    SeoSettings:
+      type: object
+      description: SEO-related fields for the page
+      properties:
+        title:
+          type: string
+          description: The page title shown in search engine results
+        description:
+          type: string
+          description: The page description shown in search engine results
+    OpenGraphSettings:
+      type: object
+      description: Open Graph fields for the page
+      properties:
+        title:
+          type: string
+          description: The title supplied to Open Graph annotations
+        titleCopied:
+          type: boolean
+          description: Indicates the Open Graph title was copied from the SEO title
+          readOnly: true
+          default: true
+        description:
+          type: string
+          description: The description supplied to Open Graph annotations
+        descriptionCopied:
+          type: boolean
+          description: >-
+            Indicates the Open Graph description was copied from the SEO
+            description
+          readOnly: true
+          default: true
+    OpenGraphSettingsUpdate:
+      type: object
+      description: Open Graph fields for updating a page
+      properties:
+        title:
+          type: string
+          description: The title supplied to Open Graph annotations
+        titleCopied:
+          type: boolean
+          description: Whether to copy the Open Graph title from the SEO title
+        description:
+          type: string
+          description: The description supplied to Open Graph annotations
+        descriptionCopied:
+          type: boolean
+          description: Whether to copy the Open Graph description from the SEO description
+    CustomCodeResponse:
+      type: object
+      description: Custom code scripts applied to a page
+      properties:
+        scripts:
+          type: array
+          description: List of scripts applied to the page
+          items:
+            $ref: '#/components/schemas/Script'
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Date when the scripts were last updated
+          readOnly: true
+        createdOn:
+          type: string
+          format: date-time
+          description: Date when the scripts were created
+          readOnly: true
+    CustomCodeRequest:
+      type: object
+      description: Request body for updating custom code scripts
+      properties:
+        scripts:
+          type: array
+          description: List of scripts to apply to the page
+          items:
+            $ref: '#/components/schemas/ScriptRequest'
+    Script:
+      type: object
+      description: A custom code script
+      required:
+        - id
+        - version
+        - location
+      properties:
+        id:
+          type: string
+          description: ID of the registered custom code script
+        location:
+          type: string
+          description: Location of the script in the published site
+          enum:
+            - header
+            - footer
+          default: header
+        version:
+          type: string
+          description: Semantic version string for the script (e.g., 1.0.0)
+        attributes:
+          type: object
+          description: Key/value pairs to apply as attributes to the script
+          additionalProperties:
+            type: string
+    ScriptRequest:
+      type: object
+      description: A script to apply to a page
+      required:
+        - id
+        - version
+        - location
+      properties:
+        id:
+          type: string
+          description: ID of the registered custom code script
+        location:
+          type: string
+          description: Location of the script in the published site
+          enum:
+            - header
+            - footer
+          default: header
+        version:
+          type: string
+          description: Semantic version string for the script (e.g., 1.0.0)
+        attributes:
+          type: object
+          description: Key/value pairs to apply as attributes to the script
+          additionalProperties:
+            type: string
+    Pagination:
+      type: object
+      description: Pagination information for list responses
+      required:
+        - limit
+        - offset
+        - total
+      properties:
+        limit:
+          type: integer
+          description: The limit used for pagination
+        offset:
+          type: integer
+          description: The offset used for pagination
+        total:
+          type: integer
+          description: The total number of records
+    Error:
+      type: object
+      description: Error response object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code identifier
+          enum:
+            - bad_request
+            - not_authorized
+            - forbidden
+            - resource_not_found
+            - too_many_requests
+            - internal_error
+            - validation_error
+        message:
+          type: string
+          description: Human-readable error message
+        externalReference:
+          type: string
+          nullable: true
+          description: Link to more information about the error
+        details:
+          type: array
+          description: Array of detailed error information
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field that caused the error
+              message:
+                type: string
+                description: Error message for the field
+  examples:
+    PageExample:
+      summary: Example page
+      value:
+        id: 6596da6045e56dee495bcbba
+        siteId: 6258612d1ee792848f805dcf
+        parentId: null
+        collectionId: null
+        title: Guide to the Galaxy
+        slug: guide-to-the-galaxy
+        createdOn: '2024-03-11T10:42:00.000Z'
+        lastUpdated: '2024-03-11T10:42:42.000Z'
+        archived: false
+        draft: false
+        canBranch: false
+        isBranch: true
+        branchId: 68026fa68ef6dc744c75b833
+        seo:
+          title: The Ultimate Hitchhiker's Guide to the Galaxy
+          description: >-
+            Everything you need to know about the galaxy, from avoiding Vogon
+            poetry to the importance of towels.
+        openGraph:
+          title: Explore the Cosmos with The Ultimate Guide
+          titleCopied: false
+          description: >-
+            Dive deep into the mysteries of the universe with your guide to
+            everything galactic.
+          descriptionCopied: false
+        localeId: 653fd9af6a07fc9cfd7a5e57
+        publishedPath: /en-us/guide-to-the-galaxy
+    PageListExample:
+      summary: Example list of pages
+      value:
+        pages:
+          - id: 6596da6045e56dee495bcbba
+            siteId: 6258612d1ee792848f805dcf
+            parentId: null
+            collectionId: null
+            title: Guide to the Galaxy
+            slug: guide-to-the-galaxy
+            createdOn: '2024-03-11T10:42:00.000Z'
+            lastUpdated: '2024-03-11T10:42:42.000Z'
+            archived: false
+            draft: false
+            canBranch: false
+            isBranch: true
+            branchId: 68026fa68ef6dc744c75b833
+            seo:
+              title: The Ultimate Hitchhiker's Guide to the Galaxy
+              description: Everything you need to know about the galaxy.
+            openGraph:
+              title: Explore the Cosmos
+              titleCopied: false
+              description: Dive deep into the mysteries of the universe.
+              descriptionCopied: false
+            localeId: 653fd9af6a07fc9cfd7a5e57
+            publishedPath: /en-us/guide-to-the-galaxy
+          - id: 6596da6045e56dee495bcbad
+            siteId: 6258612d1ee792848f805dcf
+            parentId: null
+            collectionId: null
+            title: Towel Day Celebrations
+            slug: towel-day
+            createdOn: '2024-05-25T09:00:00.000Z'
+            lastUpdated: '2024-05-25T09:42:00.000Z'
+            archived: false
+            draft: false
+            canBranch: true
+            isBranch: false
+            branchId: null
+            seo:
+              title: Celebrate Towel Day
+              description: A guide to celebrating Towel Day.
+            openGraph:
+              title: Towel Day - Don't Panic
+              titleCopied: false
+              description: Join the galaxy in celebrating Towel Day.
+              descriptionCopied: false
+            localeId: 653fd9af6a07fc9cfd7a5e57
+            publishedPath: /en-us/towel-day
+        pagination:
+          limit: 20
+          offset: 0
+          total: 2
+    PageUpdatedExample:
+      summary: Example updated page
+      value:
+        id: 6596da6045e56dee495bcbba
+        siteId: 6258612d1ee792848f805dcf
+        parentId: null
+        collectionId: null
+        title: Guide to the Galaxy - Updated
+        slug: guide-to-the-galaxy
+        createdOn: '2024-03-11T10:42:00.000Z'
+        lastUpdated: '2024-03-12T14:30:00.000Z'
+        archived: false
+        draft: false
+        canBranch: false
+        isBranch: true
+        branchId: 68026fa68ef6dc744c75b833
+        seo:
+          title: The Ultimate Hitchhiker's Guide to the Galaxy
+          description: Everything you need to know about the galaxy.
+        openGraph:
+          title: Explore the Cosmos
+          titleCopied: false
+          description: Dive deep into the mysteries of the universe.
+          descriptionCopied: false
+        localeId: 653fd9af6a07fc9cfd7a5e57
+        publishedPath: /en-us/guide-to-the-galaxy
+    PageUpdateRequestExample:
+      summary: Example page update request
+      value:
+        title: Guide to the Galaxy - Updated
+        slug: guide-to-the-galaxy
+        seo:
+          title: The Ultimate Hitchhiker's Guide to the Galaxy
+          description: Everything you need to know about the galaxy.
+        openGraph:
+          title: Explore the Cosmos
+          titleCopied: false
+          description: Dive deep into the mysteries of the universe.
+          descriptionCopied: false
+    PageDomExample:
+      summary: Example page DOM content
+      value:
+        pageId: 658205daa3e8206a523b5ad4
+        nodes:
+          - id: a245c12d-995b-55ee-5ec7-aa36a6cad623
+            type: text
+            text:
+              html: <h1>The Hitchhiker's Guide to the Galaxy</h1>
+              text: The Hitchhiker's Guide to the Galaxy
+            attributes: {}
+          - id: a245c12d-995b-55ee-5ec7-aa36a6cad627
+            type: text
+            text:
+              html: >-
+                <div><h3>Don't Panic!</h3><p>Always know where your towel
+                is.</p></div>
+              text: null
+            attributes:
+              number: forty two
+          - id: a245c12d-995b-55ee-5ec7-aa36a6cad629
+            type: image
+            image:
+              alt: Marvin, the Paranoid Android
+              assetId: 659595234426a9fcbad57043
+            attributes: {}
+        pagination:
+          limit: 4
+          offset: 0
+          total: 3
+        lastUpdated: '2024-01-15T19:42:38.929Z'
+    PageDomUpdatedExample:
+      summary: Example updated page DOM content
+      value:
+        pageId: 658205daa3e8206a523b5ad4
+        nodes:
+          - id: a245c12d-995b-55ee-5ec7-aa36a6cad623
+            type: text
+            text:
+              html: <h1>The Updated Guide to the Galaxy</h1>
+              text: The Updated Guide to the Galaxy
+            attributes: {}
+        pagination:
+          limit: 4
+          offset: 0
+          total: 1
+        lastUpdated: '2024-01-16T10:15:00.000Z'
+    PageContentUpdateRequestExample:
+      summary: Example page content update request
+      value:
+        nodes:
+          - nodeId: a245c12d-995b-55ee-5ec7-aa36a6cad623
+            text: <h1>The Updated Guide to the Galaxy</h1>
+          - nodeId: a245c12d-995b-55ee-5ec7-aa36a6cad627
+            text: <div><h3>Don't Panic!</h3><p>Updated content here.</p></div>
+    CustomCodeResponseExample:
+      summary: Example custom code response
+      value:
+        scripts:
+          - id: cms_slider
+            location: header
+            version: 1.0.0
+            attributes:
+              my-attribute: some-value
+          - id: alert
+            location: header
+            version: 0.0.1
+            attributes: {}
+        lastUpdated: '2022-10-26T00:28:54.191Z'
+        createdOn: '2022-10-26T00:28:54.191Z'
+    CustomCodeRequestExample:
+      summary: Example custom code request
+      value:
+        scripts:
+          - id: cms_slider
+            location: header
+            version: 1.0.0
+            attributes:
+              my-attribute: some-value
+          - id: alert
+            location: header
+            version: 0.0.1
+    BadRequestErrorExample:
+      summary: Bad request error
+      value:
+        code: bad_request
+        message: 'Bad Request: Request is malformed'
+        externalReference: null
+        details: []
+    UnauthorizedErrorExample:
+      summary: Unauthorized error
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    NotFoundErrorExample:
+      summary: Not found error
+      value:
+        code: resource_not_found
+        message: Resource not found
+        externalReference: null
+        details: []
+    RateLimitErrorExample:
+      summary: Rate limit error
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    InternalErrorExample:
+      summary: Internal server error
+      value:
+        code: internal_error
+        message: An internal error occurred
+        externalReference: null
+        details: []
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://webflow.com/oauth/authorize
+          tokenUrl: https://api.webflow.com/oauth/token
+          scopes:
+            pages:read: Read pages on the site
+            pages:write: Write to pages on the site
+            custom_code:read: Read custom code on the site
+            custom_code:write: Modify custom code on the site

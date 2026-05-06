@@ -1,0 +1,323 @@
+openapi: 3.1.0
+info:
+  title: openai-audio-api
+  description: >
+    The OpenAI Audio API provides endpoints for converting audio to text
+    (transcription and translation) 
+
+    and text to audio (speech synthesis). Use the Whisper model for
+    transcription and translation, 
+
+    and the TTS models for generating natural-sounding speech from text.
+  version: 2.0.0
+  termsOfService: https://openai.com/policies/terms-of-use
+  contact:
+    name: OpenAI Support
+    url: https://help.openai.com/
+  license:
+    name: MIT
+    url: https://github.com/openai/openai-openapi/blob/master/LICENSE
+servers:
+  - url: https://api.openai.com/v1
+    description: OpenAI API Production Server
+  - url: http://localhost:8080/rest/openai-audio-api/2.0.0
+    description: Sandbox
+tags:
+  - name: Text To Speech
+    description: >-
+      Generate natural-sounding audio from text input using various voices and
+      models.
+  - name: Speech To Text
+    description: >-
+      Convert audio files to text through transcription or translation to
+      English.
+paths:
+  /audio/speech:
+    post:
+      operationId: createSpeech
+      tags:
+        - Text To Speech
+      summary: Generate speech from text
+      description: >-
+        Generates audio from the input text using the specified model and voice.
+        Returns the audio file content in the requested format.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSpeechRequest'
+            examples:
+              CreateSpeechRequestExample:
+                $ref: '#/components/examples/CreateSpeechRequestExample'
+      responses:
+        '200':
+          description: The generated audio file content
+          headers:
+            Transfer-Encoding:
+              schema:
+                type: string
+              description: chunked
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+  /audio/transcriptions:
+    post:
+      operationId: createTranscription
+      tags:
+        - Speech To Text
+      summary: Transcribe audio to text
+      description: >-
+        Transcribes audio into the input language. Supports multiple audio
+        formats including mp3, mp4, mpeg, mpga, m4a, wav, and webm.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateTranscriptionRequest'
+            examples:
+              CreateTranscriptionRequestExample:
+                $ref: '#/components/examples/CreateTranscriptionRequestExample'
+      responses:
+        '200':
+          description: The transcribed text
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTranscriptionResponse'
+              examples:
+                CreateTranscriptionResponseExample:
+                  $ref: '#/components/examples/CreateTranscriptionResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "CreateTranscriptionResponseExample"
+  /audio/translations:
+    post:
+      operationId: createTranslation
+      tags:
+        - Speech To Text
+      summary: Translate audio to English text
+      description: >-
+        Translates audio into English text. The input audio can be in any
+        supported language and will be translated to English.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateTranslationRequest'
+            examples:
+              CreateTranslationRequestExample:
+                $ref: '#/components/examples/CreateTranslationRequestExample'
+      responses:
+        '200':
+          description: The translated English text
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTranslationResponse'
+              examples:
+                CreateTranslationResponseExample:
+                  $ref: '#/components/examples/CreateTranslationResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "CreateTranslationResponseExample"
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+  schemas:
+    CreateSpeechRequest:
+      type: object
+      description: Request body for generating speech from text.
+      additionalProperties: false
+      properties:
+        model:
+          type: string
+          description: >-
+            One of the available TTS models. Use tts-1 for standard quality or
+            tts-1-hd for higher quality.
+          enum:
+            - tts-1
+            - tts-1-hd
+        input:
+          type: string
+          maxLength: 4096
+          description: >-
+            The text to generate audio for. The maximum length is 4096
+            characters.
+        voice:
+          type: string
+          description: The voice to use when generating the audio.
+          enum:
+            - alloy
+            - echo
+            - fable
+            - onyx
+            - nova
+            - shimmer
+        response_format:
+          type: string
+          default: mp3
+          description: The format of the generated audio.
+          enum:
+            - mp3
+            - opus
+            - aac
+            - flac
+        speed:
+          type: number
+          default: 1
+          minimum: 0.25
+          maximum: 4
+          description: The speed of the generated audio. Select a value from 0.25 to 4.0.
+      required:
+        - model
+        - input
+        - voice
+    CreateTranscriptionRequest:
+      type: object
+      description: Request body for transcribing audio to text.
+      additionalProperties: false
+      properties:
+        file:
+          type: string
+          format: binary
+          description: >-
+            The audio file to transcribe, in one of these formats mp3, mp4,
+            mpeg, mpga, m4a, wav, or webm.
+        model:
+          type: string
+          description: ID of the model to use. Only whisper-1 is currently available.
+          enum:
+            - whisper-1
+        language:
+          type: string
+          description: >-
+            The language of the input audio. Supplying the input language in
+            ISO-639-1 format will improve accuracy and latency.
+        prompt:
+          type: string
+          description: >-
+            An optional text to guide the model's style or continue a previous
+            audio segment.
+        response_format:
+          type: string
+          default: json
+          description: The format of the transcript output.
+          enum:
+            - json
+            - text
+            - srt
+            - verbose_json
+            - vtt
+        temperature:
+          type: number
+          default: 0
+          minimum: 0
+          maximum: 1
+          description: The sampling temperature, between 0 and 1.
+      required:
+        - file
+        - model
+    CreateTranscriptionResponse:
+      type: object
+      description: Response containing the transcribed text.
+      properties:
+        text:
+          type: string
+          description: The transcribed text.
+      required:
+        - text
+    CreateTranslationRequest:
+      type: object
+      description: Request body for translating audio to English text.
+      additionalProperties: false
+      properties:
+        file:
+          type: string
+          format: binary
+          description: >-
+            The audio file to translate, in one of these formats mp3, mp4, mpeg,
+            mpga, m4a, wav, or webm.
+        model:
+          type: string
+          description: ID of the model to use. Only whisper-1 is currently available.
+          enum:
+            - whisper-1
+        prompt:
+          type: string
+          description: >-
+            An optional text to guide the model's style or continue a previous
+            audio segment.
+        response_format:
+          type: string
+          default: json
+          description: The format of the transcript output.
+          enum:
+            - json
+            - text
+            - srt
+            - verbose_json
+            - vtt
+        temperature:
+          type: number
+          default: 0
+          minimum: 0
+          maximum: 1
+          description: The sampling temperature, between 0 and 1.
+      required:
+        - file
+        - model
+    CreateTranslationResponse:
+      type: object
+      description: Response containing the translated English text.
+      properties:
+        text:
+          type: string
+          description: The translated English text.
+      required:
+        - text
+  examples:
+    CreateSpeechRequestExample:
+      summary: Example speech generation request
+      value:
+        model: tts-1
+        input: The quick brown fox jumped over the lazy dog.
+        voice: alloy
+    CreateTranscriptionRequestExample:
+      summary: Example transcription request
+      value:
+        file: '@/path/to/file/audio.mp3'
+        model: whisper-1
+    CreateTranscriptionResponseExample:
+      summary: Example transcription response
+      value:
+        text: >-
+          Imagine the wildest idea that you've ever had, and you're curious
+          about how it might scale to something that's a 100, a 1,000 times
+          bigger. This is a place where you can get to do that.
+    CreateTranslationRequestExample:
+      summary: Example translation request
+      value:
+        file: '@/path/to/file/german.m4a'
+        model: whisper-1
+    CreateTranslationResponseExample:
+      summary: Example translation response
+      value:
+        text: >-
+          Hello, my name is Wolfgang and I come from Germany. Where are you
+          heading today?
+security:
+  - ApiKeyAuth: []

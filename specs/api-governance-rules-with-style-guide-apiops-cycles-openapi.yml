@@ -1,0 +1,2017 @@
+openapi: 3.1.0
+info:
+  title: API Governance Platform
+  version: 1.0.0
+  description: |
+    # Unified API Governance Platform
+    
+    A comprehensive platform that combines APIOps Cycles design canvases with API design 
+    guidelines and governance rules. This API enables teams to plan, design, validate, 
+    and govern APIs throughout their entire lifecycle.
+    
+    ## Core Capabilities
+    
+    ### 1. Design Canvases (APIOps Cycles)
+    Structured templates for planning and designing APIs:
+    - **Business Canvases**: Customer Journey, Business Model, Value Proposition, Business Impact
+    - **Technical Canvases**: REST, GraphQL, Event, Interaction, Domain
+    - **Operational Canvases**: Capacity, Locations
+    
+    ### 2. Design Guidelines
+    Best practices and standards for API design:
+    - URL structure and naming conventions
+    - HTTP methods and status codes
+    - Error handling and data types
+    - Security and versioning
+    
+    ### 3. Governance Rules
+    Automated validation rules (Spectral-compatible):
+    - Linting rules for OpenAPI specifications
+    - Compliance checking against organizational standards
+    - Breaking change detection
+    
+    ### 4. Projects (Unified Workflow)
+    Tie canvases, specifications, and validations together:
+    - Create projects that contain canvases and API specs
+    - Validate specs against guidelines
+    - Track governance compliance over time
+    
+    ## Workflow
+    
+    ```
+    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+    │  1. PLAN        │    │  2. DESIGN      │    │  3. VALIDATE    │
+    │  (Canvases)     │───▶│  (Guidelines)   │───▶│  (Rules)        │
+    │                 │    │                 │    │                 │
+    │  Business Model │    │  REST Canvas    │    │  Spectral       │
+    │  Value Prop     │    │  OpenAPI Spec   │    │  Compliance     │
+    │  Customer Jrny  │    │  Domain Model   │    │  Breaking Chgs  │
+    └─────────────────┘    └─────────────────┘    └─────────────────┘
+    ```
+  contact:
+    name: API Governance Platform
+    email: support@api-governance.io
+    url: https://api-governance.io
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://api.governance-platform.io/v1
+    description: Production
+  - url: https://sandbox.governance-platform.io/v1
+    description: Sandbox
+
+tags:
+  # Project Management
+  - name: Projects
+    description: API projects that tie canvases, specs, and validations together
+  
+  # Canvases - Business
+  - name: Business Canvases
+    description: Business planning canvases (Customer Journey, Business Model, Value Proposition, Business Impact)
+  
+  # Canvases - Technical
+  - name: Technical Canvases
+    description: Technical design canvases (REST, GraphQL, Event, Interaction, Domain)
+  
+  # Canvases - Operational
+  - name: Operational Canvases
+    description: Operational planning canvases (Capacity, Locations)
+  
+  # Guidelines
+  - name: Guidelines
+    description: API design guidelines and best practices
+  
+  # Rules & Validation
+  - name: Rules
+    description: Governance rules and Spectral validations
+  
+  # Standards
+  - name: Standards
+    description: Technical standards reference (RFCs, ISO, etc.)
+  
+  # Validation
+  - name: Validation
+    description: Validate OpenAPI specs against guidelines and rules
+
+security:
+  - bearerAuth: []
+  - apiKeyAuth: []
+
+paths:
+  # ============================================================================
+  # PROJECTS - Unified workflow management
+  # ============================================================================
+  /projects:
+    get:
+      operationId: listProjects
+      summary: List all projects
+      description: Returns all API projects for the authenticated organization
+      tags:
+        - Projects
+      parameters:
+        - name: status
+          in: query
+          description: Filter by project status
+          schema:
+            type: string
+            enum: [draft, in-review, approved, deprecated]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    
+    post:
+      operationId: createProject
+      summary: Create a new API project
+      description: |
+        Creates a new API project that serves as a container for canvases, 
+        specifications, and validation results.
+      tags:
+        - Projects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreate'
+            example:
+              name: "Payment Processing API"
+              description: "API for processing customer payments"
+              guidelineProfile: "enterprise-strict"
+              team:
+                - userId: "user_123"
+                  role: "owner"
+                - userId: "user_456"
+                  role: "contributor"
+      responses:
+        '201':
+          description: Project created
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URL of the created project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /projects/{projectId}:
+    parameters:
+      - $ref: '#/components/parameters/projectId'
+    
+    get:
+      operationId: getProject
+      summary: Get project details
+      description: Returns complete project including canvases, specs, and validation status
+      tags:
+        - Projects
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    
+    patch:
+      operationId: updateProject
+      summary: Update project
+      tags:
+        - Projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdate'
+      responses:
+        '200':
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+    
+    delete:
+      operationId: deleteProject
+      summary: Delete project
+      tags:
+        - Projects
+      responses:
+        '204':
+          description: Project deleted
+
+  /projects/{projectId}/canvases:
+    parameters:
+      - $ref: '#/components/parameters/projectId'
+    
+    get:
+      operationId: listProjectCanvases
+      summary: List all canvases in a project
+      tags:
+        - Projects
+      responses:
+        '200':
+          description: List of canvases
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasList'
+    
+    post:
+      operationId: createProjectCanvas
+      summary: Add a canvas to the project
+      description: |
+        Creates a new canvas within the project. The canvas type determines 
+        which template is used and which guidelines are relevant.
+      tags:
+        - Projects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CanvasCreate'
+            example:
+              canvasType: "restCanvas"
+              name: "Payments REST Design"
+              data:
+                apiResources: "/payments, /refunds, /customers"
+      responses:
+        '201':
+          description: Canvas created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Canvas'
+
+  /projects/{projectId}/canvases/{canvasId}:
+    parameters:
+      - $ref: '#/components/parameters/projectId'
+      - $ref: '#/components/parameters/canvasId'
+    
+    get:
+      operationId: getProjectCanvas
+      summary: Get a specific canvas
+      tags:
+        - Projects
+      responses:
+        '200':
+          description: Canvas details with relevant guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasWithGuidelines'
+    
+    patch:
+      operationId: updateProjectCanvas
+      summary: Update canvas content
+      tags:
+        - Projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CanvasUpdate'
+      responses:
+        '200':
+          description: Canvas updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Canvas'
+
+  /projects/{projectId}/specifications:
+    parameters:
+      - $ref: '#/components/parameters/projectId'
+    
+    get:
+      operationId: listProjectSpecifications
+      summary: List OpenAPI specifications in the project
+      tags:
+        - Projects
+      responses:
+        '200':
+          description: List of specifications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecificationList'
+    
+    post:
+      operationId: uploadSpecification
+      summary: Upload an OpenAPI specification
+      description: Upload an OpenAPI spec for validation against project guidelines
+      tags:
+        - Projects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpecificationUpload'
+          application/x-yaml:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '201':
+          description: Specification uploaded and queued for validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Specification'
+
+  /projects/{projectId}/validate:
+    parameters:
+      - $ref: '#/components/parameters/projectId'
+    
+    post:
+      operationId: validateProject
+      summary: Validate project against guidelines
+      description: |
+        Runs comprehensive validation of the project's OpenAPI specifications 
+        against the configured guideline profile and returns detailed results.
+      tags:
+        - Validation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                specificationId:
+                  type: string
+                  description: Specific spec to validate (optional, validates all if omitted)
+                rulesets:
+                  type: array
+                  items:
+                    type: string
+                  description: Specific rulesets to apply (optional)
+      responses:
+        '200':
+          description: Validation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationReport'
+              example:
+                projectId: "proj_abc123"
+                specificationId: "spec_xyz789"
+                validatedAt: "2024-01-15T10:30:00Z"
+                summary:
+                  totalRules: 45
+                  passed: 38
+                  failed: 5
+                  warnings: 2
+                  score: 84.4
+                results:
+                  - ruleId: "url-lowercase"
+                    severity: "error"
+                    message: "URL paths must use lowercase letters"
+                    path: "$.paths./Users"
+                    suggestion: "Change '/Users' to '/users'"
+                  - ruleId: "get-no-request-body"
+                    severity: "error"
+                    message: "GET operations must not have a request body"
+                    path: "$.paths./orders.get.requestBody"
+
+  /projects/{projectId}/compliance:
+    parameters:
+      - $ref: '#/components/parameters/projectId'
+    
+    get:
+      operationId: getProjectCompliance
+      summary: Get compliance dashboard for project
+      description: Returns compliance metrics and trends over time
+      tags:
+        - Validation
+      responses:
+        '200':
+          description: Compliance dashboard
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceDashboard'
+
+  # ============================================================================
+  # CANVAS TEMPLATES - Get blank templates and examples
+  # ============================================================================
+  /canvases:
+    get:
+      operationId: listCanvasTypes
+      summary: List all canvas types
+      description: Returns all available canvas types with their descriptions and relevant guidelines
+      tags:
+        - Business Canvases
+        - Technical Canvases
+        - Operational Canvases
+      responses:
+        '200':
+          description: List of canvas types
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTypeList'
+              example:
+                value:
+                  - id: "customerJourneyCanvas"
+                    name: "Customer Journey Canvas"
+                    category: "business"
+                    description: "Map customer journeys that APIs support"
+                    relatedGuidelines:
+                      - "/guidelines/design-principles"
+                      - "/guidelines/error-handling"
+                  - id: "restCanvas"
+                    name: "REST Canvas"
+                    category: "technical"
+                    description: "Design RESTful APIs"
+                    relatedGuidelines:
+                      - "/guidelines/url-structure"
+                      - "/guidelines/http-methods"
+                      - "/guidelines/http-status-codes"
+                      - "/guidelines/naming-conventions"
+
+  /canvases/business/customer-journey:
+    get:
+      operationId: getCustomerJourneyTemplate
+      summary: Get Customer Journey canvas template
+      description: Returns the blank template with field descriptions and an example
+      tags:
+        - Business Canvases
+      responses:
+        '200':
+          description: Canvas template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTemplate'
+
+  /canvases/business/api-business-model:
+    get:
+      operationId: getAPIBusinessModelTemplate
+      summary: Get API Business Model canvas template
+      tags:
+        - Business Canvases
+      responses:
+        '200':
+          description: Canvas template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTemplate'
+
+  /canvases/business/api-value-proposition:
+    get:
+      operationId: getAPIValuePropositionTemplate
+      summary: Get API Value Proposition canvas template
+      tags:
+        - Business Canvases
+      responses:
+        '200':
+          description: Canvas template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTemplate'
+
+  /canvases/business/business-impact:
+    get:
+      operationId: getBusinessImpactTemplate
+      summary: Get Business Impact canvas template
+      tags:
+        - Business Canvases
+      responses:
+        '200':
+          description: Canvas template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTemplate'
+
+  /canvases/technical/rest:
+    get:
+      operationId: getRESTCanvasTemplate
+      summary: Get REST canvas template
+      description: |
+        Returns the REST API design canvas template with links to relevant 
+        design guidelines (URL structure, HTTP methods, status codes, etc.)
+      tags:
+        - Technical Canvases
+      responses:
+        '200':
+          description: Canvas template with guideline links
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTemplate'
+              example:
+                canvasType: "restCanvas"
+                name: "REST API Design Canvas"
+                description: "Design RESTful APIs following best practices"
+                fields:
+                  - name: "apiResources"
+                    description: "Key resources exposed by the API"
+                    guidelineRef: "/guidelines/url-structure/resource-naming"
+                  - name: "apiVerbs"
+                    description: "HTTP verbs for each resource"
+                    guidelineRef: "/guidelines/http-methods"
+                relatedGuidelines:
+                  - href: "/guidelines/url-structure"
+                    title: "URL Structure Guidelines"
+                  - href: "/guidelines/http-methods"
+                    title: "HTTP Methods Guidelines"
+                  - href: "/guidelines/http-status-codes"
+                    title: "HTTP Status Codes"
+                relatedRules:
+                  - href: "/rules/url-lowercase"
+                    title: "URL Lowercase Rule"
+                  - href: "/rules/get-no-request-body"
+                    title: "GET No Request Body"
+
+  /canvases/technical/graphql:
+    get:
+      operationId: getGraphQLCanvasTemplate
+      summary: Get GraphQL canvas template
+      tags:
+        - Technical Canvases
+      responses:
+        '200':
+          description: Canvas template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTemplate'
+
+  /canvases/technical/event:
+    get:
+      operationId: getEventCanvasTemplate
+      summary: Get Event canvas template
+      tags:
+        - Technical Canvases
+      responses:
+        '200':
+          description: Canvas template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTemplate'
+
+  /canvases/technical/interaction:
+    get:
+      operationId: getInteractionCanvasTemplate
+      summary: Get Interaction canvas template
+      tags:
+        - Technical Canvases
+      responses:
+        '200':
+          description: Canvas template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTemplate'
+
+  /canvases/technical/domain:
+    get:
+      operationId: getDomainCanvasTemplate
+      summary: Get Domain canvas template
+      tags:
+        - Technical Canvases
+      responses:
+        '200':
+          description: Canvas template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTemplate'
+
+  /canvases/operational/capacity:
+    get:
+      operationId: getCapacityCanvasTemplate
+      summary: Get Capacity canvas template
+      tags:
+        - Operational Canvases
+      responses:
+        '200':
+          description: Canvas template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTemplate'
+
+  /canvases/operational/locations:
+    get:
+      operationId: getLocationsCanvasTemplate
+      summary: Get Locations canvas template
+      tags:
+        - Operational Canvases
+      responses:
+        '200':
+          description: Canvas template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasTemplate'
+
+  # ============================================================================
+  # GUIDELINES - Design guidance and best practices
+  # ============================================================================
+  /guidelines:
+    get:
+      operationId: listGuidelines
+      summary: List all guideline sections
+      description: Returns all guideline sections with filtering options
+      tags:
+        - Guidelines
+      parameters:
+        - name: severity
+          in: query
+          description: Filter rules by severity
+          schema:
+            type: string
+            enum: [error, warn, info, hint]
+        - name: requirement
+          in: query
+          description: Filter by requirement level
+          schema:
+            type: string
+            enum: [MUST, MUST NOT, SHOULD, SHOULD NOT, MAY]
+        - name: canvasType
+          in: query
+          description: Filter guidelines relevant to a specific canvas type
+          schema:
+            type: string
+            enum:
+              - customerJourneyCanvas
+              - apiBusinessModelCanvas
+              - restCanvas
+              - graphqlCanvas
+              - eventCanvas
+              - domainCanvas
+      responses:
+        '200':
+          description: List of guideline sections
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineList'
+
+  /guidelines/search:
+    get:
+      operationId: searchGuidelines
+      summary: Search guidelines
+      description: Full-text search across all guidelines
+      tags:
+        - Guidelines
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+            minLength: 2
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSearchResults'
+
+  /guidelines/design-principles:
+    get:
+      operationId: getDesignPrinciples
+      summary: Get design principles
+      tags:
+        - Guidelines
+      responses:
+        '200':
+          description: Design principles guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+
+  /guidelines/url-structure:
+    get:
+      operationId: getUrlStructure
+      summary: Get URL structure guidelines
+      tags:
+        - Guidelines
+      responses:
+        '200':
+          description: URL structure guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+
+  /guidelines/naming-conventions:
+    get:
+      operationId: getNamingConventions
+      summary: Get naming conventions
+      tags:
+        - Guidelines
+      responses:
+        '200':
+          description: Naming conventions guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+
+  /guidelines/http-methods:
+    get:
+      operationId: getHttpMethods
+      summary: Get HTTP methods guidelines
+      tags:
+        - Guidelines
+      responses:
+        '200':
+          description: HTTP methods guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+
+  /guidelines/http-status-codes:
+    get:
+      operationId: getHttpStatusCodes
+      summary: Get HTTP status codes guidelines
+      tags:
+        - Guidelines
+      responses:
+        '200':
+          description: HTTP status codes guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+
+  /guidelines/data-types:
+    get:
+      operationId: getDataTypes
+      summary: Get data types guidelines
+      tags:
+        - Guidelines
+      responses:
+        '200':
+          description: Data types guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+
+  /guidelines/error-handling:
+    get:
+      operationId: getErrorHandling
+      summary: Get error handling guidelines
+      tags:
+        - Guidelines
+      responses:
+        '200':
+          description: Error handling guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+
+  /guidelines/collections:
+    get:
+      operationId: getCollections
+      summary: Get collections and pagination guidelines
+      tags:
+        - Guidelines
+      responses:
+        '200':
+          description: Collections guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+
+  /guidelines/security:
+    get:
+      operationId: getSecurity
+      summary: Get security guidelines
+      tags:
+        - Guidelines
+      responses:
+        '200':
+          description: Security guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+
+  /guidelines/versioning:
+    get:
+      operationId: getVersioning
+      summary: Get versioning guidelines
+      tags:
+        - Guidelines
+      responses:
+        '200':
+          description: Versioning guidelines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuidelineSection'
+
+  # ============================================================================
+  # RULES - Spectral rules and validation logic
+  # ============================================================================
+  /rules:
+    get:
+      operationId: listRules
+      summary: List all governance rules
+      description: Returns all Spectral-compatible rules with filtering
+      tags:
+        - Rules
+      parameters:
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [error, warn, info, hint]
+        - name: requirement
+          in: query
+          schema:
+            type: string
+            enum: [MUST, MUST NOT, SHOULD, SHOULD NOT, MAY]
+        - name: guidelineSection
+          in: query
+          description: Filter by parent guideline section
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of rules
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleList'
+
+  /rules/{ruleId}:
+    parameters:
+      - name: ruleId
+        in: path
+        required: true
+        schema:
+          type: string
+    
+    get:
+      operationId: getRule
+      summary: Get rule details
+      description: Returns complete rule definition including Spectral configuration
+      tags:
+        - Rules
+      responses:
+        '200':
+          description: Rule details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rule'
+              example:
+                id: "url-lowercase"
+                name: "URL Lowercase"
+                description: "URL paths must use lowercase letters only"
+                requirement: "MUST"
+                severity: "error"
+                guidelineSection: "url-structure"
+                guidelineRef: "/guidelines/url-structure/rules"
+                spectral:
+                  given: "$.paths[*]~"
+                  then:
+                    function: "pattern"
+                    functionOptions:
+                      match: "^[a-z0-9/-{}]+$"
+                examples:
+                  valid:
+                    - "/v1/users"
+                    - "/v1/order-items"
+                  invalid:
+                    - "/v1/Users"
+                    - "/v1/OrderItems"
+
+  /rules/profiles:
+    get:
+      operationId: listRuleProfiles
+      summary: List rule profiles
+      description: |
+        Returns predefined rule profiles (collections of rules for different 
+        governance levels like "minimal", "standard", "strict", "enterprise")
+      tags:
+        - Rules
+      responses:
+        '200':
+          description: List of rule profiles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleProfileList'
+              example:
+                value:
+                  - id: "minimal"
+                    name: "Minimal"
+                    description: "Essential rules only - security and breaking changes"
+                    ruleCount: 12
+                  - id: "standard"
+                    name: "Standard"
+                    description: "Recommended for most APIs"
+                    ruleCount: 35
+                  - id: "strict"
+                    name: "Strict"
+                    description: "Comprehensive governance for production APIs"
+                    ruleCount: 52
+                  - id: "enterprise"
+                    name: "Enterprise"
+                    description: "Full compliance with all organizational standards"
+                    ruleCount: 78
+
+  /rules/profiles/{profileId}:
+    parameters:
+      - name: profileId
+        in: path
+        required: true
+        schema:
+          type: string
+    
+    get:
+      operationId: getRuleProfile
+      summary: Get rule profile details
+      description: Returns all rules in a profile with their configurations
+      tags:
+        - Rules
+      responses:
+        '200':
+          description: Profile details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleProfile'
+
+  /rules/spectral-export:
+    get:
+      operationId: exportSpectralRuleset
+      summary: Export as Spectral ruleset
+      description: |
+        Exports selected rules as a Spectral-compatible YAML ruleset file 
+        that can be used with the Spectral CLI or integrated into CI/CD.
+      tags:
+        - Rules
+      parameters:
+        - name: profile
+          in: query
+          description: Profile to export
+          schema:
+            type: string
+        - name: rules
+          in: query
+          description: Comma-separated list of rule IDs to include
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Spectral ruleset
+          content:
+            application/x-yaml:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: object
+
+  # ============================================================================
+  # STANDARDS - Reference documentation
+  # ============================================================================
+  /standards:
+    get:
+      operationId: listStandards
+      summary: List all standards categories
+      tags:
+        - Standards
+      responses:
+        '200':
+          description: Standards index
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsIndex'
+
+  /standards/{categoryId}:
+    parameters:
+      - name: categoryId
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+            - rfc
+            - iso
+            - openapi-json-schema
+            - hypermedia
+            - security
+            - versioning
+            - naming-conventions
+            - http-status-codes
+            - content-types
+            - pagination
+    
+    get:
+      operationId: getStandardsCategory
+      summary: Get standards by category
+      tags:
+        - Standards
+      responses:
+        '200':
+          description: Standards in category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsSection'
+
+  # ============================================================================
+  # VALIDATION - Standalone validation endpoint
+  # ============================================================================
+  /validate:
+    post:
+      operationId: validateSpecification
+      summary: Validate an OpenAPI specification
+      description: |
+        Validates an OpenAPI specification against selected rules without 
+        creating a project. Useful for quick checks and CI/CD integration.
+      tags:
+        - Validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - specification
+              properties:
+                specification:
+                  oneOf:
+                    - type: string
+                      description: OpenAPI spec as YAML or JSON string
+                    - type: object
+                      description: OpenAPI spec as JSON object
+                profile:
+                  type: string
+                  description: Rule profile to use
+                  default: "standard"
+                rules:
+                  type: array
+                  items:
+                    type: string
+                  description: Specific rules to apply (overrides profile)
+          application/x-yaml:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Validation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationReport'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /validate/breaking-changes:
+    post:
+      operationId: detectBreakingChanges
+      summary: Detect breaking changes between spec versions
+      description: |
+        Compares two versions of an OpenAPI specification and identifies 
+        breaking changes that would affect existing API consumers.
+      tags:
+        - Validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - oldSpec
+                - newSpec
+              properties:
+                oldSpec:
+                  type: object
+                  description: Previous version of the specification
+                newSpec:
+                  type: object
+                  description: New version of the specification
+      responses:
+        '200':
+          description: Breaking change analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BreakingChangeReport'
+              example:
+                hasBreakingChanges: true
+                summary:
+                  breaking: 3
+                  nonBreaking: 12
+                  deprecations: 2
+                breakingChanges:
+                  - type: "endpoint-removed"
+                    path: "/v1/legacy-orders"
+                    severity: "major"
+                    description: "Endpoint was removed"
+                  - type: "field-removed"
+                    path: "$.components.schemas.Order.properties.legacyId"
+                    severity: "major"
+                    description: "Required field 'legacyId' was removed"
+                  - type: "type-changed"
+                    path: "$.components.schemas.Order.properties.amount"
+                    severity: "major"
+                    description: "Type changed from 'string' to 'number'"
+                nonBreakingChanges:
+                  - type: "endpoint-added"
+                    path: "/v1/new-feature"
+                  - type: "optional-field-added"
+                    path: "$.components.schemas.Order.properties.metadata"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OAuth 2.0 Bearer token
+    
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for programmatic access
+
+  parameters:
+    projectId:
+      name: projectId
+      in: path
+      required: true
+      description: Unique project identifier
+      schema:
+        type: string
+        pattern: '^proj_[a-zA-Z0-9]+$'
+    
+    canvasId:
+      name: canvasId
+      in: path
+      required: true
+      description: Unique canvas identifier
+      schema:
+        type: string
+        pattern: '^canvas_[a-zA-Z0-9]+$'
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+
+  schemas:
+    # ========== Project Schemas ==========
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "proj_abc123"
+        name:
+          type: string
+          example: "Payment Processing API"
+        description:
+          type: string
+        status:
+          type: string
+          enum: [draft, in-review, approved, deprecated]
+        guidelineProfile:
+          type: string
+          description: Rule profile applied to this project
+        team:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMember'
+        canvases:
+          type: array
+          items:
+            $ref: '#/components/schemas/CanvasSummary'
+        specifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpecificationSummary'
+        compliance:
+          $ref: '#/components/schemas/ComplianceSummary'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+    
+    ProjectCreate:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        guidelineProfile:
+          type: string
+          default: "standard"
+        team:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMember'
+    
+    ProjectUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [draft, in-review, approved, deprecated]
+        guidelineProfile:
+          type: string
+    
+    ProjectList:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+        totalCount:
+          type: integer
+        nextCursor:
+          type: string
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+    
+    TeamMember:
+      type: object
+      properties:
+        userId:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [owner, contributor, viewer]
+
+    # ========== Canvas Schemas ==========
+    Canvas:
+      type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        canvasType:
+          type: string
+          enum:
+            - customerJourneyCanvas
+            - apiBusinessModelCanvas
+            - apiValuePropositionCanvas
+            - businessImpactCanvas
+            - capacityCanvas
+            - eventCanvas
+            - graphqlCanvas
+            - interactionCanvas
+            - locationsCanvas
+            - restCanvas
+            - domainCanvas
+        name:
+          type: string
+        data:
+          type: object
+          description: Canvas-specific fields
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+    
+    CanvasWithGuidelines:
+      allOf:
+        - $ref: '#/components/schemas/Canvas'
+        - type: object
+          properties:
+            relatedGuidelines:
+              type: array
+              items:
+                $ref: '#/components/schemas/GuidelineLink'
+            relatedRules:
+              type: array
+              items:
+                $ref: '#/components/schemas/RuleLink'
+    
+    CanvasCreate:
+      type: object
+      required:
+        - canvasType
+        - name
+      properties:
+        canvasType:
+          type: string
+        name:
+          type: string
+        data:
+          type: object
+    
+    CanvasUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        data:
+          type: object
+    
+    CanvasSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        canvasType:
+          type: string
+        name:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        href:
+          type: string
+          format: uri
+    
+    CanvasList:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Canvas'
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+    
+    CanvasTemplate:
+      type: object
+      properties:
+        canvasType:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [business, technical, operational]
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              guidelineRef:
+                type: string
+                format: uri
+        relatedGuidelines:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuidelineLink'
+        relatedRules:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleLink'
+        example:
+          type: object
+          description: Example completed canvas
+    
+    CanvasTypeList:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              category:
+                type: string
+              description:
+                type: string
+              relatedGuidelines:
+                type: array
+                items:
+                  type: string
+                  format: uri
+
+    # ========== Specification Schemas ==========
+    Specification:
+      type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+        format:
+          type: string
+          enum: [openapi-3.0, openapi-3.1]
+        content:
+          type: object
+        validationStatus:
+          type: string
+          enum: [pending, passed, failed, warnings]
+        lastValidatedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+    
+    SpecificationUpload:
+      type: object
+      required:
+        - content
+      properties:
+        name:
+          type: string
+        content:
+          oneOf:
+            - type: string
+            - type: object
+    
+    SpecificationSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+        validationStatus:
+          type: string
+        href:
+          type: string
+          format: uri
+    
+    SpecificationList:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpecificationSummary'
+
+    # ========== Guideline Schemas ==========
+    GuidelineSection:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        content:
+          type: string
+        subsections:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              href:
+                type: string
+                format: uri
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleSummary'
+        relatedCanvasTypes:
+          type: array
+          items:
+            type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+    
+    GuidelineLink:
+      type: object
+      properties:
+        href:
+          type: string
+          format: uri
+        title:
+          type: string
+    
+    GuidelineList:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              href:
+                type: string
+                format: uri
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+    
+    GuidelineSearchResults:
+      type: object
+      properties:
+        query:
+          type: string
+        totalResults:
+          type: integer
+        value:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              section:
+                type: string
+              excerpt:
+                type: string
+              relevance:
+                type: number
+              href:
+                type: string
+                format: uri
+
+    # ========== Rule Schemas ==========
+    Rule:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        requirement:
+          type: string
+          enum: [MUST, MUST NOT, SHOULD, SHOULD NOT, MAY]
+        severity:
+          type: string
+          enum: [error, warn, info, hint]
+        guidelineSection:
+          type: string
+        guidelineRef:
+          type: string
+          format: uri
+        spectral:
+          type: object
+          description: Spectral rule configuration
+          properties:
+            given:
+              type: string
+            then:
+              oneOf:
+                - type: object
+                - type: array
+        examples:
+          type: object
+          properties:
+            valid:
+              type: array
+              items:
+                type: string
+            invalid:
+              type: array
+              items:
+                type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+    
+    RuleSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        requirement:
+          type: string
+        severity:
+          type: string
+        href:
+          type: string
+          format: uri
+    
+    RuleLink:
+      type: object
+      properties:
+        href:
+          type: string
+          format: uri
+        title:
+          type: string
+        severity:
+          type: string
+    
+    RuleList:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleSummary'
+        totalCount:
+          type: integer
+        nextCursor:
+          type: string
+    
+    RuleProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rule'
+    
+    RuleProfileList:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              ruleCount:
+                type: integer
+
+    # ========== Validation Schemas ==========
+    ValidationReport:
+      type: object
+      properties:
+        projectId:
+          type: string
+        specificationId:
+          type: string
+        validatedAt:
+          type: string
+          format: date-time
+        profile:
+          type: string
+        summary:
+          type: object
+          properties:
+            totalRules:
+              type: integer
+            passed:
+              type: integer
+            failed:
+              type: integer
+            warnings:
+              type: integer
+            score:
+              type: number
+              description: Compliance score (0-100)
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationResult'
+    
+    ValidationResult:
+      type: object
+      properties:
+        ruleId:
+          type: string
+        ruleName:
+          type: string
+        severity:
+          type: string
+          enum: [error, warn, info, hint]
+        message:
+          type: string
+        path:
+          type: string
+          description: JSONPath to the violation
+        line:
+          type: integer
+        column:
+          type: integer
+        suggestion:
+          type: string
+        guidelineRef:
+          type: string
+          format: uri
+    
+    BreakingChangeReport:
+      type: object
+      properties:
+        hasBreakingChanges:
+          type: boolean
+        summary:
+          type: object
+          properties:
+            breaking:
+              type: integer
+            nonBreaking:
+              type: integer
+            deprecations:
+              type: integer
+        breakingChanges:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              path:
+                type: string
+              severity:
+                type: string
+              description:
+                type: string
+        nonBreakingChanges:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              path:
+                type: string
+    
+    ComplianceSummary:
+      type: object
+      properties:
+        score:
+          type: number
+        status:
+          type: string
+          enum: [compliant, non-compliant, needs-review]
+        lastChecked:
+          type: string
+          format: date-time
+        issues:
+          type: object
+          properties:
+            errors:
+              type: integer
+            warnings:
+              type: integer
+    
+    ComplianceDashboard:
+      type: object
+      properties:
+        projectId:
+          type: string
+        currentScore:
+          type: number
+        trend:
+          type: string
+          enum: [improving, stable, declining]
+        history:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              score:
+                type: number
+        topIssues:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationResult'
+
+    # ========== Standards Schemas ==========
+    StandardsIndex:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+              standardCount:
+                type: integer
+              href:
+                type: string
+                format: uri
+        totalStandards:
+          type: integer
+    
+    StandardsSection:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        standards:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+              url:
+                type: string
+                format: uri
+              usedFor:
+                type: array
+                items:
+                  type: string
+        links:
+          $ref: '#/components/schemas/ResourceLinks'
+
+    # ========== Common Schemas ==========
+    ResourceLinks:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+        parent:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+    
+    PaginationLinks:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+        next:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+        prev:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+    
+    ProblemDetail:
+      type: object
+      description: RFC 7807 Problem Details
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string

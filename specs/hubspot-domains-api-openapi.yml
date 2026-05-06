@@ -1,0 +1,535 @@
+openapi: 3.1.0
+info:
+  title: hubspot-cms-domains-api
+  description: >
+    The HubSpot CMS Domains API allows you to retrieve information about domains
+    connected to a HubSpot CMS site.
+
+
+    Use this API to:
+
+    - List all domains connected to your HubSpot account
+
+    - Get detailed information about a specific domain by ID
+
+    - Filter domains by creation or update dates
+
+    - Check domain configuration status including SSL and DNS settings
+
+
+    Domains can be used for blog posts, site pages, landing pages, emails, and
+    knowledge base articles.
+  version: 3.0.0
+  contact:
+    name: HubSpot Developer Support
+    url: https://developers.hubspot.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot Production API Server
+  - url: http://localhost:8080/rest/hubspot-cms-domains-api/3.0.0
+    description: Sandbox
+tags:
+  - name: Domain Management
+    description: Operations for managing and retrieving domain information
+paths:
+  /cms/v3/domains/:
+    get:
+      tags:
+        - Domain Management
+      summary: List all domains
+      description: >
+        Returns all existing domains that have been created and connected to the
+        HubSpot account.
+
+        Results can be filtered by creation or update date and paginated using
+        cursor-based pagination.
+      operationId: listDomains
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListDomainsSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/CreatedAtParam'
+        - $ref: '#/components/parameters/CreatedAfterParam'
+        - $ref: '#/components/parameters/CreatedBeforeParam'
+        - $ref: '#/components/parameters/UpdatedAtParam'
+        - $ref: '#/components/parameters/UpdatedAfterParam'
+        - $ref: '#/components/parameters/UpdatedBeforeParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/AfterParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/ArchivedParam'
+      responses:
+        '200':
+          description: Successfully retrieved the list of domains
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainCollectionResponse'
+              examples:
+                ListDomainsSuccessResponse:
+                  $ref: '#/components/examples/ListDomainsSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - cms.domains.read
+        - OAuth2:
+            - cms.domains.write
+        - PrivateApp:
+            - cms.domains.read
+        - PrivateApp:
+            - cms.domains.write
+  /cms/v3/domains/{domainId}:
+    get:
+      tags:
+        - Domain Management
+      summary: Get a domain by ID
+      description: >
+        Returns detailed information about a single domain identified by its
+        unique ID.
+
+        The response includes configuration status, SSL settings, and usage
+        information.
+      operationId: getDomainById
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GetDomainSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/DomainIdParam'
+      responses:
+        '200':
+          description: Successfully retrieved the domain
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+              examples:
+                GetDomainSuccessResponse:
+                  $ref: '#/components/examples/GetDomainSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - cms.domains.read
+        - OAuth2:
+            - cms.domains.write
+        - PrivateApp:
+            - cms.domains.read
+        - PrivateApp:
+            - cms.domains.write
+components:
+  schemas:
+    Domain:
+      type: object
+      description: Represents a domain connected to a HubSpot CMS site
+      required:
+        - id
+        - domain
+        - isResolving
+        - isUsedForBlogPost
+        - isUsedForSitePage
+        - isUsedForLandingPage
+        - isUsedForEmail
+        - isUsedForKnowledge
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the domain
+          example: '3210329704'
+        domain:
+          type: string
+          description: The actual domain or sub-domain (e.g., www.hubspot.com)
+          example: 99558489.hubspot.com
+        createdAt:
+          type: string
+          format: date-time
+          description: When the domain was created
+          example: '2017-07-11T13:00:52.928Z'
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the domain was last updated
+          example: '2019-10-08T16:54:57.165Z'
+        isResolving:
+          type: boolean
+          description: >-
+            Whether the DNS for this domain is optimally configured for use with
+            HubSpot
+          example: true
+        isManuallyMarkedAsResolving:
+          type: boolean
+          description: Whether the domain has been manually marked as resolving
+          example: false
+        isSslEnabled:
+          type: boolean
+          description: Whether SSL is enabled for this domain
+          example: true
+        isSslOnly:
+          type: boolean
+          description: Whether the domain only accepts HTTPS connections
+          example: false
+        isPrimaryBlogPost:
+          type: boolean
+          description: Whether this is the primary domain for blog posts
+          example: true
+        isPrimarySitePage:
+          type: boolean
+          description: Whether this is the primary domain for site pages
+          example: false
+        isPrimaryLandingPage:
+          type: boolean
+          description: Whether this is the primary domain for landing pages
+          example: false
+        isPrimaryEmail:
+          type: boolean
+          description: Whether this is the primary domain for email web pages
+          example: false
+        isPrimaryKnowledge:
+          type: boolean
+          description: Whether this is the primary domain for knowledge base
+          example: false
+        isUsedForBlogPost:
+          type: boolean
+          description: Whether the domain is used for CMS blog posts
+          example: true
+        isUsedForSitePage:
+          type: boolean
+          description: Whether the domain is used for CMS site pages
+          example: false
+        isUsedForLandingPage:
+          type: boolean
+          description: Whether the domain is used for CMS landing pages
+          example: false
+        isUsedForEmail:
+          type: boolean
+          description: Whether the domain is used for CMS email web pages
+          example: false
+        isUsedForKnowledge:
+          type: boolean
+          description: Whether the domain is used for CMS knowledge pages
+          example: false
+        expectedCname:
+          type: string
+          description: The expected CNAME record for this domain
+          example: 99558489.group39.sites.hubspot.net
+        redirectTo:
+          type: string
+          description: The domain to redirect to, if any
+          example: ''
+        secondaryToDomain:
+          type: string
+          description: The primary domain this domain is secondary to
+    DomainCollectionResponse:
+      type: object
+      description: A paginated collection of domains
+      required:
+        - total
+        - results
+      properties:
+        total:
+          type: integer
+          format: int32
+          description: The total number of domains
+          example: 2
+        results:
+          type: array
+          description: The list of domains
+          items:
+            $ref: '#/components/schemas/Domain'
+        paging:
+          $ref: '#/components/schemas/ForwardPaging'
+    ForwardPaging:
+      type: object
+      description: Pagination information for forward navigation
+      properties:
+        next:
+          $ref: '#/components/schemas/NextPage'
+    NextPage:
+      type: object
+      description: Information about the next page of results
+      required:
+        - after
+      properties:
+        after:
+          type: string
+          description: The cursor token for the next page
+          example: NTI1Cg%3D%3D
+        link:
+          type: string
+          description: A direct link to the next page
+          example: '?after=NTI1Cg%3D%3D'
+    Error:
+      type: object
+      description: Represents an error response from the API
+      required:
+        - category
+        - correlationId
+        - message
+      properties:
+        category:
+          type: string
+          description: The error category
+          example: VALIDATION_ERROR
+        correlationId:
+          type: string
+          format: uuid
+          description: A unique identifier for the request, useful for debugging
+          example: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message:
+          type: string
+          description: A human-readable message describing the error
+          example: Invalid input (details will vary based on the error)
+        subCategory:
+          type: string
+          description: A more specific category for the error
+        context:
+          type: object
+          description: Additional context about the error
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            missingScopes:
+              - scope1
+              - scope2
+        links:
+          type: object
+          description: Links to documentation or remediation steps
+          additionalProperties:
+            type: string
+          example:
+            knowledge-base: https://www.hubspot.com/products/service/knowledge-base
+        errors:
+          type: array
+          description: A list of specific error details
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    ErrorDetail:
+      type: object
+      description: Detailed information about a specific error
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: A human-readable message describing the specific error
+        code:
+          type: string
+          description: An error code for this specific error
+        in:
+          type: string
+          description: The field or parameter where the error occurred
+        subCategory:
+          type: string
+          description: A specific subcategory for this error
+        context:
+          type: object
+          description: Additional context for this error
+          additionalProperties:
+            type: array
+            items:
+              type: string
+  parameters:
+    DomainIdParam:
+      name: domainId
+      in: path
+      description: The unique identifier of the domain
+      required: true
+      schema:
+        type: string
+      example: '3210329704'
+    CreatedAtParam:
+      name: createdAt
+      in: query
+      description: Only return domains created at this exact date and time
+      required: false
+      schema:
+        type: string
+        format: date-time
+    CreatedAfterParam:
+      name: createdAfter
+      in: query
+      description: Only return domains created after this date and time
+      required: false
+      schema:
+        type: string
+        format: date-time
+    CreatedBeforeParam:
+      name: createdBefore
+      in: query
+      description: Only return domains created before this date and time
+      required: false
+      schema:
+        type: string
+        format: date-time
+    UpdatedAtParam:
+      name: updatedAt
+      in: query
+      description: Only return domains updated at this exact date and time
+      required: false
+      schema:
+        type: string
+        format: date-time
+    UpdatedAfterParam:
+      name: updatedAfter
+      in: query
+      description: Only return domains updated after this date and time
+      required: false
+      schema:
+        type: string
+        format: date-time
+    UpdatedBeforeParam:
+      name: updatedBefore
+      in: query
+      description: Only return domains updated before this date and time
+      required: false
+      schema:
+        type: string
+        format: date-time
+    SortParam:
+      name: sort
+      in: query
+      description: Properties to sort by, with optional direction prefix (- for descending)
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    AfterParam:
+      name: after
+      in: query
+      description: The paging cursor token from a previous response for pagination
+      required: false
+      schema:
+        type: string
+    LimitParam:
+      name: limit
+      in: query
+      description: Maximum number of results per page (default 10, max 100)
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+        default: 10
+    ArchivedParam:
+      name: archived
+      in: query
+      description: Whether to return only archived domains
+      required: false
+      schema:
+        type: boolean
+        default: false
+  examples:
+    ListDomainsSuccessResponse:
+      summary: Successful response with multiple domains
+      value:
+        total: 2
+        results:
+          - id: '1234'
+            domain: 234.hs-sites.com
+            createdAt: '2017-07-24T17:24:09.141Z'
+            updatedAt: '2017-07-25T18:20:00.000Z'
+            isResolving: true
+            isManuallyMarkedAsResolving: false
+            isSslEnabled: true
+            isSslOnly: false
+            isPrimaryBlogPost: true
+            isPrimarySitePage: false
+            isPrimaryLandingPage: false
+            isPrimaryEmail: false
+            isPrimaryKnowledge: false
+            isUsedForBlogPost: true
+            isUsedForSitePage: false
+            isUsedForLandingPage: false
+            isUsedForEmail: false
+            isUsedForKnowledge: false
+            expectedCname: 234.group34.sites.hubspot.net
+            redirectTo: ''
+          - id: '4321'
+            domain: test.demo.com
+            createdAt: '2017-07-11T13:00:52.928Z'
+            updatedAt: '2019-10-08T16:54:57.165Z'
+            isResolving: true
+            isManuallyMarkedAsResolving: false
+            isSslEnabled: true
+            isSslOnly: false
+            isPrimaryBlogPost: true
+            isPrimarySitePage: false
+            isPrimaryLandingPage: false
+            isPrimaryEmail: false
+            isPrimaryKnowledge: false
+            isUsedForBlogPost: true
+            isUsedForSitePage: false
+            isUsedForLandingPage: false
+            isUsedForEmail: false
+            isUsedForKnowledge: false
+            expectedCname: 234.group34.sites.hubspot.net
+            redirectTo: ''
+    GetDomainSuccessResponse:
+      summary: Successful response for a single domain
+      value:
+        id: '3210329704'
+        domain: 99558489.hubspot.com
+        createdAt: '2017-07-11T13:00:52.928Z'
+        updatedAt: '2019-10-08T16:54:57.165Z'
+        isResolving: true
+        isManuallyMarkedAsResolving: false
+        isSslEnabled: true
+        isSslOnly: false
+        isPrimaryBlogPost: true
+        isPrimarySitePage: false
+        isPrimaryLandingPage: false
+        isPrimaryEmail: false
+        isPrimaryKnowledge: false
+        isUsedForBlogPost: true
+        isUsedForSitePage: false
+        isUsedForLandingPage: false
+        isUsedForEmail: false
+        isUsedForKnowledge: false
+        expectedCname: 99558489.group39.sites.hubspot.net
+        redirectTo: ''
+    ErrorResponse:
+      summary: Example error response
+      value:
+        category: VALIDATION_ERROR
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: Invalid input (details will vary based on the error)
+        links:
+          knowledge-base: https://www.hubspot.com/products/service/knowledge-base
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            cms.domains.read: Read domains
+            cms.domains.write: Create or update domains
+    PrivateApp:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: Private app access token (Bearer token)

@@ -1,0 +1,320 @@
+openapi: 3.1.0
+info:
+  title: openai-completions-api
+  description: >
+    The OpenAI Completions API provides legacy text completion capabilities.
+    Given a prompt, the model 
+
+    will return one or more predicted completions along with the probabilities
+    of alternative tokens 
+
+    at each position. Note: Most developers should use the Chat Completions API
+    for newer models and better results.
+  version: 2.0.0
+  termsOfService: https://openai.com/policies/terms-of-use
+  contact:
+    name: OpenAI Support
+    url: https://help.openai.com/
+  license:
+    name: MIT
+    url: https://github.com/openai/openai-openapi/blob/master/LICENSE
+servers:
+  - url: https://api.openai.com/v1
+    description: OpenAI API Production Server
+  - url: http://localhost:8080/rest/openai-completions-api/2.0.0
+    description: Sandbox
+tags:
+  - name: Text Completions
+    description: Generate text completions from a prompt using legacy completion models.
+paths:
+  /completions:
+    post:
+      operationId: createCompletion
+      tags:
+        - Text Completions
+      summary: Create a text completion
+      description: >-
+        Creates a completion for the provided prompt and parameters. This is a
+        legacy endpoint; consider using the Chat Completions API for better
+        results with newer models.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompletionRequest'
+            examples:
+              BasicCompletionRequestExample:
+                $ref: '#/components/examples/BasicCompletionRequestExample'
+      responses:
+        '200':
+          description: A completion response object containing the generated text
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCompletionResponse'
+              examples:
+                BasicCompletionResponseExample:
+                  $ref: '#/components/examples/BasicCompletionResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "BasicCompletionResponseExample"
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+  schemas:
+    CreateCompletionRequest:
+      type: object
+      description: Request body for creating a text completion.
+      properties:
+        model:
+          type: string
+          description: ID of the model to use.
+        prompt:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+            - type: array
+              items:
+                type: integer
+            - type: array
+              items:
+                type: array
+                items:
+                  type: integer
+          nullable: true
+          default: <|endoftext|>
+          description: The prompt(s) to generate completions for.
+        best_of:
+          type: integer
+          default: 1
+          minimum: 0
+          maximum: 20
+          description: Generates best_of completions server-side and returns the best one.
+        echo:
+          type: boolean
+          default: false
+          description: Echo back the prompt in addition to the completion.
+        frequency_penalty:
+          type: number
+          default: 0
+          minimum: -2
+          maximum: 2
+          description: >-
+            Number between -2.0 and 2.0. Positive values penalize new tokens
+            based on their existing frequency.
+        logit_bias:
+          type: object
+          nullable: true
+          description: >-
+            Modify the likelihood of specified tokens appearing in the
+            completion.
+          additionalProperties:
+            type: integer
+        logprobs:
+          type: integer
+          nullable: true
+          minimum: 0
+          maximum: 5
+          description: Include the log probabilities on the logprobs most likely tokens.
+        max_tokens:
+          type: integer
+          nullable: true
+          default: 16
+          description: The maximum number of tokens to generate in the completion.
+        'n':
+          type: integer
+          default: 1
+          minimum: 1
+          maximum: 128
+          description: How many completions to generate for each prompt.
+        presence_penalty:
+          type: number
+          default: 0
+          minimum: -2
+          maximum: 2
+          description: >-
+            Number between -2.0 and 2.0. Positive values penalize new tokens
+            based on whether they appear in the text so far.
+        seed:
+          type: integer
+          nullable: true
+          description: >-
+            If specified, the system will make a best effort to sample
+            deterministically.
+        stop:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 4
+          nullable: true
+          description: Up to 4 sequences where the API will stop generating further tokens.
+        stream:
+          type: boolean
+          default: false
+          description: Whether to stream back partial progress.
+        suffix:
+          type: string
+          nullable: true
+          description: The suffix that comes after a completion of inserted text.
+        temperature:
+          type: number
+          default: 1
+          minimum: 0
+          maximum: 2
+          description: What sampling temperature to use, between 0 and 2.
+        top_p:
+          type: number
+          default: 1
+          minimum: 0
+          maximum: 1
+          description: >-
+            An alternative to sampling with temperature, called nucleus
+            sampling.
+        user:
+          type: string
+          description: A unique identifier representing your end-user.
+      required:
+        - model
+    CreateCompletionResponse:
+      type: object
+      description: Represents a completion response from the API.
+      properties:
+        id:
+          type: string
+          description: A unique identifier for the completion.
+        choices:
+          type: array
+          description: >-
+            The list of completion choices the model generated for the input
+            prompt.
+          items:
+            $ref: '#/components/schemas/CompletionChoice'
+        created:
+          type: integer
+          description: The Unix timestamp (in seconds) of when the completion was created.
+        model:
+          type: string
+          description: The model used for completion.
+        system_fingerprint:
+          type: string
+          description: >-
+            This fingerprint represents the backend configuration that the model
+            runs with.
+        object:
+          type: string
+          description: The object type, which is always text_completion.
+          enum:
+            - text_completion
+        usage:
+          $ref: '#/components/schemas/CompletionUsage'
+      required:
+        - id
+        - object
+        - created
+        - model
+        - choices
+    CompletionChoice:
+      type: object
+      description: A completion choice generated by the model.
+      properties:
+        finish_reason:
+          type: string
+          description: The reason the model stopped generating tokens.
+          enum:
+            - stop
+            - length
+            - content_filter
+        index:
+          type: integer
+          description: The index of the choice in the list of choices.
+        logprobs:
+          type: object
+          nullable: true
+          description: Log probability information for the choice.
+          properties:
+            text_offset:
+              type: array
+              description: The offset of each token in the text.
+              items:
+                type: integer
+            token_logprobs:
+              type: array
+              description: The log probabilities of each token.
+              items:
+                type: number
+            tokens:
+              type: array
+              description: The tokens generated.
+              items:
+                type: string
+            top_logprobs:
+              type: array
+              description: The top log probabilities for each token position.
+              items:
+                type: object
+                additionalProperties:
+                  type: number
+        text:
+          type: string
+          description: The generated text completion.
+      required:
+        - finish_reason
+        - index
+        - logprobs
+        - text
+    CompletionUsage:
+      type: object
+      description: Usage statistics for the completion request.
+      properties:
+        completion_tokens:
+          type: integer
+          description: Number of tokens in the generated completion.
+        prompt_tokens:
+          type: integer
+          description: Number of tokens in the prompt.
+        total_tokens:
+          type: integer
+          description: Total number of tokens used in the request (prompt + completion).
+      required:
+        - prompt_tokens
+        - completion_tokens
+        - total_tokens
+  examples:
+    BasicCompletionRequestExample:
+      summary: Basic text completion request
+      value:
+        model: gpt-3.5-turbo-instruct
+        prompt: Say this is a test
+        max_tokens: 7
+        temperature: 0
+    BasicCompletionResponseExample:
+      summary: Basic text completion response
+      value:
+        id: cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7
+        object: text_completion
+        created: 1589478378
+        model: gpt-3.5-turbo-instruct
+        system_fingerprint: fp_44709d6fcb
+        choices:
+          - text: |-
+
+
+              This is indeed a test
+            index: 0
+            logprobs: null
+            finish_reason: length
+        usage:
+          prompt_tokens: 5
+          completion_tokens: 7
+          total_tokens: 12
+security:
+  - ApiKeyAuth: []

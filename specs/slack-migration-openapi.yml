@@ -1,0 +1,334 @@
+openapi: 3.1.0
+info:
+  title: slack-migration-api
+  version: 1.0.0
+  description: >-
+    Slack's Migration API is a Web API used during Enterprise Grid migrations to
+    translate legacy, workspace-scoped identifiers into their new, canonical IDs
+    so apps keep working after a workspace moves or merges. By calling its
+    migration.exchange method, developers and admins can map old user and
+    channel IDs to the new values that Slack assigns in an Enterprise Grid org,
+    allowing databases, webhooks, event subscriptions, and app configurations to
+    be updated without losing references. It complements Admin and SCIM APIs in
+    a migration runbook, but it doesn't move content or provision accounts—it
+    strictly provides ID remapping to preserve continuity.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-migration-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Migration
+    description: Operations for migrating workspace identifiers to Enterprise Grid
+paths:
+  /migration.exchange:
+    get:
+      operationId: getMigrationExchange
+      summary: Exchange User IDs For Migration
+      description: >-
+        For Enterprise Grid workspaces, map local user IDs to global user IDs.
+        This endpoint allows conversion between workspace-specific U IDs and
+        organization-wide W IDs.
+      tags:
+        - Migration
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/migration.exchange
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenParameter'
+        - $ref: '#/components/parameters/UsersParameter'
+        - $ref: '#/components/parameters/TeamIdParameter'
+        - $ref: '#/components/parameters/ToOldParameter'
+      responses:
+        '200':
+          description: >-
+            Typical success response when mappings exist for the specified user
+            IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MigrationExchangeSuccessResponse'
+              examples:
+                SuccessfulMappingExample:
+                  $ref: '#/components/examples/MigrationExchangeSuccessExample'
+        '400':
+          description: Bad request due to invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MigrationExchangeErrorResponse'
+              examples:
+                TooManyUsersExample:
+                  $ref: '#/components/examples/TooManyUsersErrorExample'
+        '401':
+          description: Authentication error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MigrationExchangeErrorResponse'
+              examples:
+                NotAuthedExample:
+                  $ref: '#/components/examples/NotAuthedErrorExample'
+        '403':
+          description: Permission denied or not an Enterprise team
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MigrationExchangeErrorResponse'
+              examples:
+                NotEnterpriseTeamExample:
+                  $ref: '#/components/examples/NotEnterpriseTeamErrorExample'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MigrationExchangeErrorResponse'
+              examples:
+                FatalErrorExample:
+                  $ref: '#/components/examples/FatalErrorExample'
+      security:
+        - SlackAuth:
+            - tokens.basic
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      description: Slack OAuth 2.0 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            tokens.basic: Basic token scope required for migration operations
+  parameters:
+    TokenParameter:
+      name: token
+      in: query
+      description: 'Authentication token. Requires scope: `tokens.basic`'
+      required: true
+      schema:
+        $ref: '#/components/schemas/AuthToken'
+      example: example-123456789012-1234567890123-key
+    UsersParameter:
+      name: users
+      in: query
+      description: A comma-separated list of user IDs, up to 400 per request
+      required: true
+      schema:
+        $ref: '#/components/schemas/UserIdList'
+      example: U06UBSUN5,U06UBSVB3,U06UBSVDX
+    TeamIdParameter:
+      name: team_id
+      in: query
+      description: Specify team_id starts with `T` in case of Org Token
+      required: false
+      schema:
+        $ref: '#/components/schemas/TeamId'
+      example: T1KR7PE1W
+    ToOldParameter:
+      name: to_old
+      in: query
+      description: >-
+        Specify `true` to convert `W` global user IDs to workspace-specific `U`
+        IDs. Defaults to `false`.
+      required: false
+      schema:
+        type: boolean
+        default: false
+      example: false
+  schemas:
+    AuthToken:
+      type: string
+      description: Slack authentication token
+      pattern: ^xox[pboa]-[0-9a-zA-Z-]+$
+      example: example-123456789012-1234567890123-key
+    UserIdList:
+      type: string
+      description: Comma-separated list of Slack user IDs (U or W prefixed)
+      pattern: ^[UW][A-Z0-9]+(,[UW][A-Z0-9]+)*$
+      example: U06UBSUN5,U06UBSVB3,U06UBSVDX
+    TeamId:
+      type: string
+      description: Slack team/workspace identifier
+      pattern: ^T[A-Z0-9]+$
+      example: T1KR7PE1W
+    EnterpriseId:
+      type: string
+      description: The Enterprise Grid organization ID
+      pattern: ^E[A-Z0-9]+$
+      example: E1KQTNXE1
+    UserId:
+      type: string
+      description: A Slack user ID (workspace-scoped U or global W)
+      pattern: ^[UW][A-Z0-9]+$
+      example: U06UBSUN5
+    GlobalUserId:
+      type: string
+      description: A global Slack user ID (W-prefixed)
+      pattern: ^W[A-Z0-9]+$
+      example: W06M56XJM
+    UserIdMap:
+      type: object
+      description: A mapping of provided user IDs to their corresponding mapped IDs
+      additionalProperties:
+        $ref: '#/components/schemas/GlobalUserId'
+      example:
+        U06UBSUN5: W06M56XJM
+        U06UBSVB3: W06PUUDLY
+        U06UBSVDX: W06PUUDMW
+    InvalidUserIdList:
+      type: array
+      description: A list of user IDs that cannot be mapped or found
+      items:
+        $ref: '#/components/schemas/UserId'
+      example:
+        - U21ABZZXX
+    OkTrue:
+      type: boolean
+      description: Indicates successful operation
+      const: true
+      example: true
+    OkFalse:
+      type: boolean
+      description: Indicates failed operation
+      const: false
+      example: false
+    ErrorCode:
+      type: string
+      description: Error code indicating the type of failure
+      enum:
+        - not_enterprise_team
+        - too_many_users
+        - not_authed
+        - invalid_auth
+        - account_inactive
+        - token_revoked
+        - no_permission
+        - org_login_required
+        - invalid_arg_name
+        - invalid_array_arg
+        - invalid_charset
+        - invalid_form_data
+        - invalid_post_type
+        - missing_post_type
+        - team_added_to_org
+        - invalid_json
+        - json_not_object
+        - request_timeout
+        - upgrade_required
+        - fatal_error
+      example: not_enterprise_team
+    MigrationExchangeSuccessResponse:
+      type: object
+      description: Schema for successful response from migration.exchange method
+      required:
+        - ok
+        - enterprise_id
+        - team_id
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        enterprise_id:
+          $ref: '#/components/schemas/EnterpriseId'
+        team_id:
+          $ref: '#/components/schemas/TeamId'
+        user_id_map:
+          $ref: '#/components/schemas/UserIdMap'
+        invalid_user_ids:
+          $ref: '#/components/schemas/InvalidUserIdList'
+      additionalProperties: false
+      example:
+        ok: true
+        enterprise_id: E1KQTNXE1
+        team_id: T1KR7PE1W
+        user_id_map:
+          U06UBSUN5: W06M56XJM
+          U06UBSVB3: W06PUUDLY
+          U06UBSVDX: W06PUUDMW
+          U06UEB62U: W06PTT6GH
+          W06UAZ65Q: W06UAZ65Q
+        invalid_user_ids:
+          - U21ABZZXX
+    MigrationExchangeErrorResponse:
+      type: object
+      description: Schema for error response from migration.exchange method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          $ref: '#/components/schemas/ErrorCode'
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+      example:
+        ok: false
+        error: not_enterprise_team
+  examples:
+    MigrationExchangeSuccessExample:
+      summary: Successful user ID mapping response
+      description: >-
+        Example response when user IDs are successfully mapped from
+        workspace-scoped to global IDs
+      value:
+        ok: true
+        enterprise_id: E1KQTNXE1
+        team_id: T1KR7PE1W
+        user_id_map:
+          U06UBSUN5: W06M56XJM
+          U06UBSVB3: W06PUUDLY
+          U06UBSVDX: W06PUUDMW
+          U06UEB62U: W06PTT6GH
+          W06UAZ65Q: W06UAZ65Q
+        invalid_user_ids:
+          - U21ABZZXX
+    NotEnterpriseTeamErrorExample:
+      summary: Not an Enterprise Grid team error
+      description: Error when the workspace is not part of an Enterprise Grid organization
+      value:
+        ok: false
+        error: not_enterprise_team
+    TooManyUsersErrorExample:
+      summary: Too many users in request error
+      description: Error when more than 400 user IDs are provided in a single request
+      value:
+        ok: false
+        error: too_many_users
+    NotAuthedErrorExample:
+      summary: Authentication failure error
+      description: Error when the provided token is missing or invalid
+      value:
+        ok: false
+        error: not_authed
+    InvalidAuthErrorExample:
+      summary: Invalid authentication error
+      description: Error when authentication credentials are invalid
+      value:
+        ok: false
+        error: invalid_auth
+    NoPermissionErrorExample:
+      summary: Permission denied error
+      description: Error when the token lacks required permissions
+      value:
+        ok: false
+        error: no_permission
+    FatalErrorExample:
+      summary: Fatal server error
+      description: Unexpected server-side error
+      value:
+        ok: false
+        error: fatal_error

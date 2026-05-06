@@ -1,0 +1,561 @@
+openapi: 3.1.0
+info:
+  title: zoom-cloud-recording-api
+  description: >
+    API for managing cloud recordings on Zoom. This API provides functionality
+    to list, retrieve, and delete 
+
+    cloud recordings stored on Zoom servers and Meeting Connector devices. Cloud
+    recordings allow users to 
+
+    record meetings and webinars to the Zoom cloud, making them accessible for
+    playback and download.
+  contact:
+    name: Zoom Developers
+    url: https://zoom.us/developer
+    email: developer@zoom.us
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+externalDocs:
+  description: Zoom REST API Documentation
+  url: https://zoom.github.io/api
+servers:
+  - url: https://api.zoom.us/v1
+    description: Zoom API Production Server
+  - url: http://localhost:8080/rest/zoom-cloud-recording-api/1.0.0
+    description: Sandbox
+security:
+  - ApiKey: []
+  - ApiSecret: []
+tags:
+  - name: Cloud Recordings
+    description: Operations for managing cloud recordings stored on Zoom servers
+  - name: Meeting Connector Recordings
+    description: Operations for managing recordings on Meeting Connector devices
+paths:
+  /mc/recording/list:
+    post:
+      tags:
+        - Meeting Connector Recordings
+      summary: List Meeting Connector Recordings
+      description: >
+        Retrieves a paginated list of all cloud recording meetings stored on a
+        Meeting Connector device. 
+
+        Results can be filtered by host, meeting number, and date range.
+      operationId: listMeetingConnectorRecordings
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecordingListRequest'
+            examples:
+              ListMeetingConnectorRecordingsRequestExample:
+                $ref: >-
+                  #/components/examples/ListMeetingConnectorRecordingsRequestExample
+      responses:
+        '200':
+          description: Successfully retrieved the list of Meeting Connector recordings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordingListResponse'
+              examples:
+                ListMeetingConnectorRecordingsSuccessExample:
+                  $ref: >-
+                    #/components/examples/ListMeetingConnectorRecordingsSuccessExample
+  /recording/delete:
+    post:
+      tags:
+        - Cloud Recordings
+      summary: Delete Cloud Recording
+      description: >
+        Deletes a recorded meeting from either Zoom cloud or on-premise
+        storage. 
+
+        Can delete all files for a meeting or a specific file if file_id is
+        provided.
+      operationId: deleteCloudRecording
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecordingDeleteRequest'
+            examples:
+              DeleteCloudRecordingRequestExample:
+                $ref: '#/components/examples/DeleteCloudRecordingRequestExample'
+      responses:
+        '200':
+          description: Successfully deleted the cloud recording
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordingDeleteResponse'
+              examples:
+                DeleteCloudRecordingSuccessExample:
+                  $ref: '#/components/examples/DeleteCloudRecordingSuccessExample'
+  /recording/get:
+    post:
+      tags:
+        - Cloud Recordings
+      summary: Get Cloud Recording Details
+      description: >
+        Retrieves detailed information about a specific recorded meeting from
+        either Zoom cloud 
+
+        or on-premise storage, including all associated recording files.
+      operationId: getCloudRecording
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecordingGetRequest'
+            examples:
+              GetCloudRecordingRequestExample:
+                $ref: '#/components/examples/GetCloudRecordingRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved the cloud recording details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordingDetails'
+              examples:
+                GetCloudRecordingSuccessExample:
+                  $ref: '#/components/examples/GetCloudRecordingSuccessExample'
+  /recording/list:
+    post:
+      tags:
+        - Cloud Recordings
+      summary: List Cloud Recordings
+      description: >
+        Retrieves a paginated list of all cloud recording meetings stored on
+        Zoom. 
+
+        Results can be filtered by host, meeting number, and date range.
+      operationId: listCloudRecordings
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecordingListRequest'
+            examples:
+              ListCloudRecordingsRequestExample:
+                $ref: '#/components/examples/ListCloudRecordingsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved the list of cloud recordings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordingListResponse'
+              examples:
+                ListCloudRecordingsSuccessExample:
+                  $ref: '#/components/examples/ListCloudRecordingsSuccessExample'
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      name: api_key
+      in: query
+      description: Zoom API Key for authentication
+    ApiSecret:
+      type: apiKey
+      name: api_secret
+      in: query
+      description: Zoom API Secret for authentication
+  schemas:
+    RecordingListRequest:
+      type: object
+      required:
+        - host_id
+      properties:
+        host_id:
+          type: string
+          description: Meeting host user ID. Can be any user under this account.
+          example: abc123xyz
+        meeting_number:
+          type: string
+          description: The meeting number to filter recordings.
+          example: '123456789'
+        from:
+          type: string
+          description: >
+            The meeting start time after this date, in format MM/dd/yyyy hh:mm
+            a. 
+
+            For example: 11/05/2014 09:05 pm. Uses the host's time zone, or GMT
+            if not set.
+          example: 11/05/2014 09:05 pm
+        to:
+          type: string
+          description: >-
+            The meeting start time before this date, in format MM/dd/yyyy hh:mm
+            a.
+          example: 12/05/2014 09:05 pm
+        page_size:
+          type: string
+          description: >-
+            The number of records returned within a single API call. Defaults to
+            30. Maximum of 300 meetings.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Current page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    RecordingDeleteRequest:
+      type: object
+      required:
+        - meeting_id
+      properties:
+        meeting_id:
+          type: string
+          description: |
+            The meeting ID. Can be in formats like ucc69C82Q5mTNyCRWE29Aw== or 
+            B9C73AF4-2F36-4399-9337-2091584DBD03.
+          example: ucc69C82Q5mTNyCRWE29Aw==
+        file_id:
+          type: string
+          description: |
+            The file ID. If provided, only this specific file will be deleted. 
+            If not provided, all files of the meeting will be deleted.
+          example: file123xyz
+    RecordingGetRequest:
+      type: object
+      required:
+        - meeting_id
+      properties:
+        meeting_id:
+          type: string
+          description: The meeting ID for which to retrieve recording details.
+          example: ucc69C82Q5mTNyCRWE29Aw==
+    RecordingDeleteResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the deleted recording.
+          example: unique_id
+        deleted_at:
+          type: string
+          format: date-time
+          description: The timestamp when the recording was deleted.
+          example: '2012-11-25T12:00:00.000Z'
+    RecordingDetails:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: The unique identifier for the meeting instance.
+          example: unique_id
+        meeting_number:
+          type: string
+          description: The meeting number.
+          example: '123456789'
+        host_id:
+          type: string
+          description: The unique identifier of the meeting host.
+          example: unique_id
+        account_id:
+          type: string
+          description: The unique identifier of the account.
+          example: unique_id
+        topic:
+          type: string
+          description: The meeting topic.
+          example: Meeting Topic
+        start_time:
+          type: string
+          format: date-time
+          description: The start time of the meeting in ISO 8601 format.
+          example: '2015-04-13T01:06:04.000Z'
+        timezone:
+          type: string
+          description: The timezone of the meeting.
+          example: UTC
+        duration:
+          type: integer
+          description: The duration of the meeting in minutes.
+          example: 1
+        total_size:
+          type: integer
+          format: int64
+          description: The total size of all recording files in bytes.
+          example: 686496
+        recording_count:
+          type: integer
+          description: The number of recording files.
+          example: 3
+        recording_files:
+          type: array
+          description: List of recording files for this meeting.
+          items:
+            $ref: '#/components/schemas/RecordingFile'
+    RecordingFile:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the recording file.
+          example: unique_id
+        meeting_id:
+          type: string
+          description: The meeting ID associated with this recording file.
+          example: unique_id
+        recording_start:
+          type: string
+          format: date-time
+          description: The start time of the recording in ISO 8601 format.
+          example: '2015-04-13T01:06:36.000Z'
+        recording_end:
+          type: string
+          format: date-time
+          description: The end time of the recording in ISO 8601 format.
+          example: '2015-04-13T01:06:47.000Z'
+        file_type:
+          type: string
+          description: The type of recording file (MP4, M4A, etc.).
+          enum:
+            - MP4
+            - M4A
+            - CHAT
+            - TRANSCRIPT
+          example: MP4
+        file_size:
+          type: integer
+          format: int64
+          description: The size of the recording file in bytes.
+          example: 438482
+        status:
+          type: string
+          description: The status of the recording file.
+          enum:
+            - completed
+            - processing
+          example: completed
+        play_url:
+          type: string
+          format: uri
+          description: The URL to play the recording.
+          example: >-
+            https://brand.zoom.us/recording/play/HzMyuI23bqxlJLVJLrww3L9ZuFeZEvYtG0vQ6pHhp6Twr6GPjX4Qks_CJak7jrU2
+        download_url:
+          type: string
+          format: uri
+          description: The URL to download the recording.
+          example: >-
+            https://brand.zoom.us/recording/download/HzMyuI23bqxlJLVJLrww3L9ZuFeZEvYtG0vQ6pHhp6Twr6GPjX4Qks_CJak7jrU2
+    RecordingListResponse:
+      type: object
+      properties:
+        page_count:
+          type: integer
+          description: The total number of pages available.
+          example: 1
+        page_number:
+          type: integer
+          description: The current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: The number of records per page.
+          example: 15
+        total_records:
+          type: integer
+          description: The total number of recordings.
+          example: 1
+        meetings:
+          type: array
+          description: List of recorded meetings.
+          items:
+            $ref: '#/components/schemas/RecordedMeeting'
+    RecordedMeeting:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: The unique identifier for the meeting instance.
+          example: unique_id
+        meeting_number:
+          type: string
+          description: The meeting number.
+          example: '123456789'
+        host_id:
+          type: string
+          description: The unique identifier of the meeting host.
+          example: unique_id
+        account_id:
+          type: string
+          description: The unique identifier of the account.
+          example: unique_id
+        topic:
+          type: string
+          description: The meeting topic.
+          example: Meeting Topic
+        start_time:
+          type: string
+          format: date-time
+          description: The start time of the meeting in ISO 8601 format.
+          example: '2014-11-06T04:10:10.000Z'
+        timezone:
+          type: string
+          description: The timezone of the meeting.
+          example: America/Los_Angeles
+        duration:
+          type: integer
+          description: The duration of the meeting in minutes.
+          example: 999
+        total_size:
+          type: integer
+          format: int64
+          description: The total size of all recording files in bytes.
+          example: 4324324324
+        recording_count:
+          type: integer
+          description: The number of recording files.
+          example: 1
+        recording_files:
+          type: array
+          description: List of recording files for this meeting.
+          items:
+            $ref: '#/components/schemas/RecordingFile'
+  examples:
+    ListMeetingConnectorRecordingsRequestExample:
+      summary: List Meeting Connector recordings request
+      value:
+        host_id: abc123xyz
+        meeting_number: '123456789'
+        from: 11/05/2014 09:05 pm
+        to: 12/05/2014 09:05 pm
+        page_size: '30'
+        page_number: '1'
+    ListMeetingConnectorRecordingsSuccessExample:
+      summary: Successful response with Meeting Connector recordings
+      value:
+        page_count: 1
+        page_number: 1
+        page_size: 15
+        total_records: 1
+        meetings:
+          - uuid: unique_id
+            meeting_number: '123456789'
+            host_id: unique_id
+            account_id: unique_id
+            topic: Meeting Topic
+            start_time: '2014-11-06T04:10:10.000Z'
+            timezone: America/Los_Angeles
+            duration: 999
+            total_size: 4324324324
+            recording_count: 1
+            recording_files:
+              - id: unique_id
+                meeting_id: unique_id
+                recording_start: '2014-11-06T04:14:10.000Z'
+                recording_end: '2014-11-06T04:24:10.000Z'
+                file_type: M4A
+                file_size: 432432
+                play_url: >-
+                  https://brand.zoom.us/recording/play/HzMyuI23bqxlJLVJLrww3L9ZuFeZEvYtG0vQ6pHhp6Twr6GPjX4Qks_CJak7jrU2
+                download_url: >-
+                  https://brand.zoom.us/recording/download/HzMyuI23bqxlJLVJLrww3L9ZuFeZEvYtG0vQ6pHhp6Twr6GPjX4Qks_CJak7jrU2
+    DeleteCloudRecordingRequestExample:
+      summary: Delete cloud recording request
+      value:
+        meeting_id: ucc69C82Q5mTNyCRWE29Aw==
+        file_id: file123xyz
+    DeleteCloudRecordingSuccessExample:
+      summary: Successful deletion response
+      value:
+        id: unique_id
+        deleted_at: '2012-11-25T12:00:00.000Z'
+    GetCloudRecordingRequestExample:
+      summary: Get cloud recording request
+      value:
+        meeting_id: ucc69C82Q5mTNyCRWE29Aw==
+    GetCloudRecordingSuccessExample:
+      summary: Successful response with recording details
+      value:
+        uuid: unique_id
+        meeting_number: '123456789'
+        host_id: unique_id
+        account_id: unique_id
+        topic: Meeting Topic
+        start_time: '2015-04-13T01:06:04.000Z'
+        timezone: UTC
+        duration: 1
+        total_size: 686496
+        recording_count: 3
+        recording_files:
+          - id: unique_id
+            meeting_id: unique_id
+            recording_start: '2015-04-13T01:06:36.000Z'
+            recording_end: '2015-04-13T01:06:47.000Z'
+            file_type: MP4
+            file_size: 438482
+            play_url: >-
+              https://brand.zoom.us/recording/play/HzMyuI23bqxlJLVJLrww3L9ZuFeZEvYtG0vQ6pHhp6Twr6GPjX4Qks_CJak7jrU2
+            download_url: >-
+              https://brand.zoom.us/recording/download/HzMyuI23bqxlJLVJLrww3L9ZuFeZEvYtG0vQ6pHhp6Twr6GPjX4Qks_CJak7jrU2
+    ListCloudRecordingsRequestExample:
+      summary: List cloud recordings request
+      value:
+        host_id: abc123xyz
+        meeting_number: '123456789'
+        from: 11/05/2014 09:05 pm
+        to: 12/05/2014 09:05 pm
+        page_size: '30'
+        page_number: '1'
+    ListCloudRecordingsSuccessExample:
+      summary: Successful response with cloud recordings
+      value:
+        page_count: 1
+        page_number: 1
+        page_size: 15
+        total_records: 1
+        meetings:
+          - uuid: unique_id
+            meeting_number: '123456789'
+            host_id: unique_id
+            account_id: unique_id
+            topic: Meeting Topic
+            start_time: '2014-11-06T04:10:10.000Z'
+            timezone: America/Los_Angeles
+            duration: 999
+            total_size: 4324324324
+            recording_count: 1
+            recording_files:
+              - id: unique_id
+                meeting_id: unique_id
+                recording_start: '2014-11-06T04:14:10.000Z'
+                recording_end: '2014-11-06T04:24:10.000Z'
+                file_type: M4A
+                file_size: 432432
+                status: completed
+                play_url: >-
+                  https://brand.zoom.us/recording/play/HzMyuI23bqxlJLVJLrww3L9ZuFeZEvYtG0vQ6pHhp6Twr6GPjX4Qks_CJak7jrU2
+                download_url: >-
+                  https://brand.zoom.us/recording/download/HzMyuI23bqxlJLVJLrww3L9ZuFeZEvYtG0vQ6pHhp6Twr6GPjX4Qks_CJak7jrU2

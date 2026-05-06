@@ -1,0 +1,796 @@
+openapi: 3.1.0
+info:
+  title: figma-files-api
+  version: 0.21.0
+  description: |-
+    Figma allows designers to create and prototype their digital experiences -
+    together in real-time and in one place - helping them turn their ideas and
+    visions into products, faster. Figma's mission is to make design
+    accessible to everyone. The Figma API is one of the ways we aim to do that.
+  termsOfService: https://www.figma.com/developer-terms/
+  contact:
+    email: support@figma.com
+servers:
+  - url: https://api.figma.com
+    description: Figma Production API Server
+  - url: http://localhost:8080/rest/figma-files-api/0.21.0
+    description: Sandbox
+tags:
+  - name: Files
+    description: Operations for managing Figma files and their resources
+  - name: Dev Resources
+    description: Operations for managing dev resources attached to file nodes
+paths:
+  /v1/files/{file_key}/dev_resources/{dev_resource_id}:
+    delete:
+      tags:
+        - Files
+        - Dev Resources
+      summary: Delete dev resource
+      security:
+        - PersonalAccessToken: []
+        - OAuth2:
+            - file_dev_resources:write
+      description: Delete a dev resource from a file
+      operationId: deleteDevResource
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |        
+          return "DeleteDevResourceSuccessExample"
+      parameters:
+        - $ref: '#/components/parameters/FileKeyPathParam'
+        - $ref: '#/components/parameters/DevResourceIdPathParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/DeleteDevResourceResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+components:
+  securitySchemes:
+    PersonalAccessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: Figma Personal Access Token
+      description: Personal Access Token for authentication
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://www.figma.com/oauth
+          tokenUrl: https://api.figma.com/v1/oauth/token
+          scopes:
+            file_dev_resources:write: Write dev resources to files
+            files:read: Read files
+  parameters:
+    FileKeyPathParam:
+      name: file_key
+      in: path
+      description: >-
+        The file to delete the dev resource from. This must be a main file key,
+        not a branch key.
+      required: true
+      schema:
+        type: string
+      example: abc123xyz789
+    DevResourceIdPathParam:
+      name: dev_resource_id
+      in: path
+      description: The id of the dev resource to delete.
+      required: true
+      schema:
+        type: string
+      example: dev_res_123456
+  responses:
+    DeleteDevResourceResponse:
+      description: >-
+        Response from the DELETE
+        /v1/files/{file_key}/dev_resources/{dev_resource_id} endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DeleteDevResourceResponseBody'
+          examples:
+            DeleteDevResourceSuccessExample:
+              $ref: '#/components/examples/DeleteDevResourceSuccessExample'
+    GetFileResponse:
+      description: Response from the GET /v1/files/{file_key} endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GetFileResponseBody'
+          examples:
+            GetFileSuccessExample:
+              $ref: '#/components/examples/GetFileSuccessExample'
+    GetDevResourcesResponse:
+      description: Response from the GET /v1/files/{file_key}/dev_resources endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GetDevResourcesResponseBody'
+          examples:
+            GetDevResourcesSuccessExample:
+              $ref: '#/components/examples/GetDevResourcesSuccessExample'
+    UnauthorizedErrorResponse:
+      description: Token is missing or incorrect.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            UnauthorizedExample:
+              $ref: '#/components/examples/UnauthorizedExample'
+    ForbiddenErrorResponse:
+      description: >-
+        The request was valid, but the server is refusing action. The user might
+        not have the necessary permissions for a resource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            ForbiddenExample:
+              $ref: '#/components/examples/ForbiddenExample'
+    NotFoundErrorResponse:
+      description: The requested file or resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            NotFoundExample:
+              $ref: '#/components/examples/NotFoundExample'
+    TooManyRequestsErrorResponse:
+      description: >-
+        API requests may be throttled or rate limited. Please wait a while
+        before attempting the request again.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            TooManyRequestsExample:
+              $ref: '#/components/examples/TooManyRequestsExample'
+    InternalServerErrorResponse:
+      description: An internal server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+          examples:
+            InternalServerErrorExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
+  schemas:
+    DeleteDevResourceResponseBody:
+      type: object
+      description: Response body for successful dev resource deletion.
+      properties:
+        status:
+          type: number
+          description: The status of the request.
+          enum:
+            - 200
+        error:
+          type: boolean
+          description: For successful requests, this value is always `false`.
+          enum:
+            - false
+      required:
+        - status
+        - error
+    GetFileResponseBody:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the file as it appears in the editor.
+        role:
+          type: string
+          enum:
+            - owner
+            - editor
+            - viewer
+          description: The role of the user making the API request in relation to the file.
+        lastModified:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 time at which the file was last modified.
+        editorType:
+          type: string
+          enum:
+            - figma
+            - figjam
+          description: The type of editor associated with this file.
+        thumbnailUrl:
+          type: string
+          description: A URL to a thumbnail image of the file.
+        version:
+          type: string
+          description: The version number of the file.
+        document:
+          $ref: '#/components/schemas/DocumentNode'
+        components:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Component'
+          description: A mapping from component IDs to component metadata.
+        componentSets:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ComponentSet'
+          description: A mapping from component set IDs to component set metadata.
+        schemaVersion:
+          type: number
+          description: The version of the file schema that this file uses.
+          default: 0
+        styles:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Style'
+          description: A mapping from style IDs to style metadata.
+        mainFileKey:
+          type: string
+          description: The key of the main file for this file.
+        branches:
+          type: array
+          description: A list of branches for this file.
+          items:
+            $ref: '#/components/schemas/Branch'
+      required:
+        - name
+        - role
+        - lastModified
+        - editorType
+        - version
+        - document
+        - components
+        - componentSets
+        - schemaVersion
+        - styles
+    GetDevResourcesResponseBody:
+      type: object
+      properties:
+        devResources:
+          type: array
+          description: An array of dev resources.
+          items:
+            $ref: '#/components/schemas/DevResource'
+      required:
+        - devResources
+    DocumentNode:
+      type: object
+      description: The root node of the document.
+      properties:
+        id:
+          type: string
+          description: A string uniquely identifying this node within the document.
+        name:
+          type: string
+          description: The name given to the node by the user in the tool.
+        type:
+          type: string
+          enum:
+            - DOCUMENT
+          description: The type of the node.
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/CanvasNode'
+          description: An array of canvases attached to the document.
+      required:
+        - id
+        - name
+        - type
+        - children
+    CanvasNode:
+      type: object
+      description: A canvas (page) in the document.
+      properties:
+        id:
+          type: string
+          description: A string uniquely identifying this node within the document.
+        name:
+          type: string
+          description: The name given to the node by the user in the tool.
+        type:
+          type: string
+          enum:
+            - CANVAS
+          description: The type of the node.
+        backgroundColor:
+          $ref: '#/components/schemas/Color'
+        children:
+          type: array
+          items:
+            type: object
+          description: An array of top level layers on the canvas.
+      required:
+        - id
+        - name
+        - type
+    Color:
+      type: object
+      description: An RGBA color.
+      properties:
+        r:
+          type: number
+          description: Red channel value, between 0 and 1.
+        g:
+          type: number
+          description: Green channel value, between 0 and 1.
+        b:
+          type: number
+          description: Blue channel value, between 0 and 1.
+        a:
+          type: number
+          description: Alpha channel value, between 0 and 1.
+      required:
+        - r
+        - g
+        - b
+        - a
+    Component:
+      type: object
+      description: A description of a main component.
+      properties:
+        key:
+          type: string
+          description: The key of the component.
+        name:
+          type: string
+          description: Name of the component.
+        description:
+          type: string
+          description: The description of the component as entered in the editor.
+        componentSetId:
+          type: string
+          description: The ID of the component set if the component belongs to one.
+        documentationLinks:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentationLink'
+          description: An array of documentation links attached to this component.
+        remote:
+          type: boolean
+          description: Whether this component is a remote component.
+      required:
+        - key
+        - name
+        - description
+        - documentationLinks
+        - remote
+    ComponentSet:
+      type: object
+      description: A description of a component set.
+      properties:
+        key:
+          type: string
+          description: The key of the component set.
+        name:
+          type: string
+          description: Name of the component set.
+        description:
+          type: string
+          description: The description of the component set as entered in the editor.
+        documentationLinks:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentationLink'
+          description: An array of documentation links attached to this component set.
+        remote:
+          type: boolean
+          description: Whether this component set is a remote component set.
+      required:
+        - key
+        - name
+        - description
+    Style:
+      type: object
+      description: A set of properties that can be applied to nodes.
+      properties:
+        key:
+          type: string
+          description: The key of the style.
+        name:
+          type: string
+          description: Name of the style.
+        description:
+          type: string
+          description: Description of the style.
+        remote:
+          type: boolean
+          description: Whether this style is a remote style.
+        styleType:
+          $ref: '#/components/schemas/StyleType'
+      required:
+        - key
+        - name
+        - description
+        - remote
+        - styleType
+    StyleType:
+      type: string
+      description: The type of style.
+      enum:
+        - FILL
+        - TEXT
+        - EFFECT
+        - GRID
+    DocumentationLink:
+      type: object
+      description: A link to documentation.
+      properties:
+        uri:
+          type: string
+          description: The URI of the documentation link.
+      required:
+        - uri
+    Branch:
+      type: object
+      description: Information about a branch of the file.
+      properties:
+        key:
+          type: string
+          description: The key of the branch.
+        name:
+          type: string
+          description: The name of the branch.
+        thumbnailUrl:
+          type: string
+          description: A URL to a thumbnail image of the branch.
+        lastModified:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 time at which the branch was last modified.
+      required:
+        - key
+        - name
+        - thumbnailUrl
+        - lastModified
+    DevResource:
+      type: object
+      description: A dev resource in a file.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the dev resource.
+        name:
+          type: string
+          description: The name of the dev resource.
+        url:
+          type: string
+          description: The URL of the dev resource.
+        fileKey:
+          type: string
+          description: The file key where the dev resource belongs.
+        nodeId:
+          type: string
+          description: The target node to attach the dev resource to.
+      required:
+        - id
+        - name
+        - url
+        - fileKey
+        - nodeId
+    User:
+      type: object
+      description: A description of a user.
+      properties:
+        id:
+          type: string
+          description: Unique stable id of the user.
+        handle:
+          type: string
+          description: Name of the user.
+        imgUrl:
+          type: string
+          description: URL link to the user's profile image.
+      required:
+        - id
+        - handle
+        - imgUrl
+    Version:
+      type: object
+      description: A version of a file.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for version.
+        createdAt:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 time at which the version was created.
+        label:
+          type:
+            - string
+            - 'null'
+          description: The label given to the version in the editor.
+        description:
+          type:
+            - string
+            - 'null'
+          description: The description of the version as entered in the editor.
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - id
+        - createdAt
+        - label
+        - description
+        - user
+    Comment:
+      type: object
+      description: A comment or reply left by a user.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for comment.
+        fileKey:
+          type: string
+          description: The file in which the comment lives.
+        parentId:
+          type: string
+          description: If present, the id of the comment to which this is the reply.
+        user:
+          $ref: '#/components/schemas/User'
+        createdAt:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 time at which the comment was left.
+        resolvedAt:
+          type:
+            - string
+            - 'null'
+          format: date-time
+          description: If set, the UTC ISO 8601 time the comment was resolved.
+        message:
+          type: string
+          description: The content of the comment.
+        orderId:
+          type:
+            - string
+            - 'null'
+          description: The number displayed with the comment in the UI.
+        reactions:
+          type: array
+          description: An array of reactions to the comment.
+          items:
+            $ref: '#/components/schemas/Reaction'
+      required:
+        - id
+        - fileKey
+        - user
+        - createdAt
+        - message
+        - reactions
+        - orderId
+    Reaction:
+      type: object
+      description: A reaction left by a user.
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        emoji:
+          type: string
+          description: The emoji used for the reaction.
+        createdAt:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 time at which the reaction was left.
+      required:
+        - user
+        - emoji
+        - createdAt
+    PublishedComponent:
+      type: object
+      description: An arrangement of published UI elements.
+      properties:
+        key:
+          type: string
+          description: The unique identifier for the component.
+        fileKey:
+          type: string
+          description: The unique identifier of the Figma file that contains the component.
+        nodeId:
+          type: string
+          description: The unique identifier of the component node within the Figma file.
+        thumbnailUrl:
+          type: string
+          description: A URL to a thumbnail image of the component.
+        name:
+          type: string
+          description: The name of the component.
+        description:
+          type: string
+          description: The description of the component as entered by the publisher.
+        createdAt:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 time when the component was created.
+        updatedAt:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 time when the component was last updated.
+        user:
+          $ref: '#/components/schemas/User'
+        containingFrame:
+          $ref: '#/components/schemas/FrameInfo'
+      required:
+        - key
+        - fileKey
+        - nodeId
+        - name
+        - description
+        - createdAt
+        - updatedAt
+        - user
+    PublishedComponentSet:
+      type: object
+      description: A node containing a set of variants of a component.
+      properties:
+        key:
+          type: string
+          description: The unique identifier for the component set.
+        fileKey:
+          type: string
+          description: >-
+            The unique identifier of the Figma file that contains the component
+            set.
+        nodeId:
+          type: string
+          description: >-
+            The unique identifier of the component set node within the Figma
+            file.
+        thumbnailUrl:
+          type: string
+          description: A URL to a thumbnail image of the component set.
+        name:
+          type: string
+          description: The name of the component set.
+        description:
+          type: string
+          description: The description of the component set as entered by the publisher.
+        createdAt:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 time when the component set was created.
+        updatedAt:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 time when the component set was last updated.
+        user:
+          $ref: '#/components/schemas/User'
+        containingFrame:
+          $ref: '#/components/schemas/FrameInfo'
+      required:
+        - key
+        - fileKey
+        - nodeId
+        - name
+        - description
+        - createdAt
+        - updatedAt
+        - user
+    FrameInfo:
+      type: object
+      description: Information about the containing frame.
+      properties:
+        nodeId:
+          type: string
+          description: The ID of the containing frame.
+        name:
+          type: string
+          description: The name of the containing frame.
+        backgroundColor:
+          type: string
+          description: The background color of the containing frame.
+        pageId:
+          type: string
+          description: The ID of the page containing the frame.
+        pageName:
+          type: string
+          description: The name of the page containing the frame.
+    ErrorResponsePayload:
+      type: object
+      description: A response indicating an error occurred.
+      properties:
+        error:
+          type: boolean
+          description: For erroneous requests, this value is always `true`.
+          enum:
+            - true
+        status:
+          type: number
+          description: Status code
+        message:
+          type: string
+          description: A string describing the error
+      required:
+        - error
+        - status
+        - message
+  examples:
+    DeleteDevResourceSuccessExample:
+      summary: Successful dev resource deletion
+      value:
+        status: 200
+        error: false
+    GetFileSuccessExample:
+      summary: Successful file retrieval
+      value:
+        name: My Design File
+        role: editor
+        lastModified: '2024-01-20T14:45:00Z'
+        editorType: figma
+        thumbnailUrl: https://figma-alpha-api.s3.us-west-2.amazonaws.com/thumbnails/abc123
+        version: '123456789'
+        document:
+          id: '0:0'
+          name: Document
+          type: DOCUMENT
+          children:
+            - id: '0:1'
+              name: Page 1
+              type: CANVAS
+              backgroundColor:
+                r: 1
+                g: 1
+                b: 1
+                a: 1
+              children: []
+        components: {}
+        componentSets: {}
+        schemaVersion: 0
+        styles: {}
+    GetDevResourcesSuccessExample:
+      summary: Successful dev resources retrieval
+      value:
+        devResources:
+          - id: dev_res_123
+            name: Button Component Code
+            url: >-
+              https://github.com/myorg/design-system/blob/main/src/components/Button.tsx
+            fileKey: abc123xyz789
+            nodeId: '1:1'
+          - id: dev_res_456
+            name: Button Storybook
+            url: https://storybook.myorg.com/?path=/story/button
+            fileKey: abc123xyz789
+            nodeId: '1:1'
+    UnauthorizedExample:
+      summary: Unauthorized error
+      value:
+        error: true
+        status: 401
+        message: Token is missing or incorrect
+    ForbiddenExample:
+      summary: Forbidden error
+      value:
+        error: true
+        status: 403
+        message: You do not have permission to access this file
+    NotFoundExample:
+      summary: Not found error
+      value:
+        error: true
+        status: 404
+        message: File or dev resource not found
+    TooManyRequestsExample:
+      summary: Rate limit error
+      value:
+        error: true
+        status: 429
+        message: Rate limit exceeded. Please wait before making another request
+    InternalServerErrorExample:
+      summary: Internal server error
+      value:
+        error: true
+        status: 500
+        message: An internal server error occurred

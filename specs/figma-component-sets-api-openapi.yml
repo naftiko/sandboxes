@@ -1,0 +1,324 @@
+openapi: 3.1.0
+info:
+  title: figma-component-sets-api
+  version: 0.21.0
+  description: |-
+    Figma allows designers to create and prototype their digital experiences -
+    together in real-time and in one place - helping them turn their ideas and
+    visions into products, faster. Figma's mission is to make design
+    accessible to everyone. The Figma API is one of the ways we aim to do that.
+  termsOfService: https://www.figma.com/developer-terms/
+  contact:
+    email: support@figma.com
+servers:
+  - url: https://api.figma.com
+    description: Figma Production API Server
+  - url: http://localhost:8080/rest/figma-component-sets-api/0.21.0
+    description: Sandbox
+tags:
+  - name: Component Sets
+    description: Operations related to retrieving component set metadata
+paths:
+  /v1/component_sets/{key}:
+    get:
+      tags:
+        - Component Sets
+      summary: Get component set
+      security:
+        - PersonalAccessToken: []
+        - OAuth2:
+            - files:read
+      description: Get metadata on a component set by key.
+      operationId: getComponentSet
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |        
+          return "GetComponentSetSuccessExample"
+      parameters:
+        - $ref: '#/components/parameters/ComponentSetKeyPathParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/GetComponentSetResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestErrorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+components:
+  securitySchemes:
+    PersonalAccessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: Figma Personal Access Token
+      description: Personal Access Token for authentication
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://www.figma.com/oauth
+          tokenUrl: https://api.figma.com/v1/oauth/token
+          scopes:
+            files:read: Read files
+  parameters:
+    ComponentSetKeyPathParam:
+      name: key
+      in: path
+      description: The unique identifier of the component set.
+      required: true
+      schema:
+        type: string
+      example: abc123def456
+  responses:
+    GetComponentSetResponse:
+      description: Response from the GET /v1/component_sets/{key} endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GetComponentSetResponseBody'
+          examples:
+            GetComponentSetSuccessExample:
+              $ref: '#/components/examples/GetComponentSetSuccessExample'
+    BadRequestErrorResponse:
+      description: >-
+        Bad request. Parameters are invalid or malformed. Please check the input
+        formats.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayloadWithErr'
+          examples:
+            BadRequestExample:
+              $ref: '#/components/examples/BadRequestExample'
+    ForbiddenErrorResponse:
+      description: >-
+        The request was valid, but the server is refusing action. The user might
+        not have the necessary permissions for a resource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayloadWithErr'
+          examples:
+            ForbiddenExample:
+              $ref: '#/components/examples/ForbiddenExample'
+    NotFoundErrorResponse:
+      description: The requested file or resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayloadWithError'
+          examples:
+            NotFoundExample:
+              $ref: '#/components/examples/NotFoundExample'
+    TooManyRequestsErrorResponse:
+      description: >-
+        API requests may be throttled or rate limited. Please wait a while
+        before attempting the request again.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayloadWithErr'
+          examples:
+            TooManyRequestsExample:
+              $ref: '#/components/examples/TooManyRequestsExample'
+    InternalServerErrorResponse:
+      description: An internal server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayloadWithErr'
+          examples:
+            InternalServerErrorExample:
+              $ref: '#/components/examples/InternalServerErrorExample'
+  schemas:
+    GetComponentSetResponseBody:
+      type: object
+      properties:
+        status:
+          type: number
+          description: The status of the request.
+          enum:
+            - 200
+        error:
+          type: boolean
+          description: For successful requests, this value is always `false`.
+          enum:
+            - false
+        meta:
+          $ref: '#/components/schemas/PublishedComponentSet'
+      required:
+        - status
+        - error
+        - meta
+    PublishedComponentSet:
+      type: object
+      description: A node containing a set of variants of a component.
+      properties:
+        key:
+          type: string
+          description: The unique identifier for the component set.
+        fileKey:
+          type: string
+          description: >-
+            The unique identifier of the Figma file that contains the component
+            set.
+        nodeId:
+          type: string
+          description: >-
+            The unique identifier of the component set node within the Figma
+            file.
+        thumbnailUrl:
+          type: string
+          description: A URL to a thumbnail image of the component set.
+        name:
+          type: string
+          description: The name of the component set.
+        description:
+          type: string
+          description: The description of the component set as entered by the publisher.
+        createdAt:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 time when the component set was created.
+        updatedAt:
+          type: string
+          format: date-time
+          description: The UTC ISO 8601 time when the component set was last updated.
+        user:
+          $ref: '#/components/schemas/User'
+        containingFrame:
+          $ref: '#/components/schemas/FrameInfo'
+      required:
+        - key
+        - fileKey
+        - nodeId
+        - name
+        - description
+        - createdAt
+        - updatedAt
+        - user
+    User:
+      type: object
+      description: A description of a user.
+      properties:
+        id:
+          type: string
+          description: Unique stable id of the user.
+        handle:
+          type: string
+          description: Name of the user.
+        imgUrl:
+          type: string
+          description: URL link to the user's profile image.
+      required:
+        - id
+        - handle
+        - imgUrl
+    FrameInfo:
+      type: object
+      description: Information about the containing frame.
+      properties:
+        nodeId:
+          type: string
+          description: The ID of the containing frame.
+        name:
+          type: string
+          description: The name of the containing frame.
+        backgroundColor:
+          type: string
+          description: The background color of the containing frame.
+        pageId:
+          type: string
+          description: The ID of the page containing the frame.
+        pageName:
+          type: string
+          description: The name of the page containing the frame.
+    ErrorResponsePayloadWithErr:
+      type: object
+      description: A response indicating an error occurred.
+      properties:
+        status:
+          type: number
+          description: Status code
+        err:
+          type: string
+          description: A string describing the error
+      required:
+        - status
+        - err
+    ErrorResponsePayloadWithError:
+      type: object
+      description: A response indicating an error occurred.
+      properties:
+        error:
+          type: boolean
+          description: For erroneous requests, this value is always `true`.
+          enum:
+            - true
+        status:
+          type: number
+          description: Status code
+        message:
+          type: string
+          description: A string describing the error
+      required:
+        - error
+        - status
+        - message
+  examples:
+    GetComponentSetSuccessExample:
+      summary: Successful component set response
+      value:
+        status: 200
+        error: false
+        meta:
+          key: abc123def456
+          fileKey: xyz789abc123
+          nodeId: '1:1'
+          thumbnailUrl: https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/abc123
+          name: Button Component Set
+          description: >-
+            A set of button variants including primary, secondary, and tertiary
+            styles.
+          createdAt: '2024-01-15T10:30:00Z'
+          updatedAt: '2024-01-20T14:45:00Z'
+          user:
+            id: '1234567890'
+            handle: Jane Designer
+            imgUrl: https://s3-alpha.figma.com/profile/1234567890
+          containingFrame:
+            nodeId: '0:1'
+            name: Components
+            backgroundColor: '#FFFFFF'
+            pageId: '0:0'
+            pageName: Design System
+    BadRequestExample:
+      summary: Bad request error
+      value:
+        status: 400
+        err: 'Invalid parameter: key format is incorrect'
+    ForbiddenExample:
+      summary: Forbidden error
+      value:
+        status: 403
+        err: You do not have permission to access this component set
+    NotFoundExample:
+      summary: Not found error
+      value:
+        error: true
+        status: 404
+        message: Component set not found
+    TooManyRequestsExample:
+      summary: Rate limit error
+      value:
+        status: 429
+        err: Rate limit exceeded. Please wait before making another request
+    InternalServerErrorExample:
+      summary: Internal server error
+      value:
+        status: 500
+        err: An internal server error occurred

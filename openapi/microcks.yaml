@@ -1,0 +1,309 @@
+openapi: "3.0.3"
+info:
+  title: Microcks API
+  description: Manages API mock services, imports OpenAPI specifications, and controls import jobs and conformance tests on a Microcks instance.
+  version: "1.0.0"
+  contact:
+    name: Microcks
+    url: https://microcks.io/documentation/references/apis/open-api
+servers:
+  - url: "{baseUrl}"
+    description: Microcks instance
+    variables:
+      baseUrl:
+        default: http://localhost:8080
+        description: The base URL of the Microcks instance
+security:
+  - bearerAuth: []
+tags:
+  - name: Services
+    description: Microcks mock service management
+  - name: Artifacts
+    description: OpenAPI and AsyncAPI artifact imports
+  - name: Jobs
+    description: Scheduled import job management
+  - name: Tests
+    description: API conformance test execution
+paths:
+  /api/services:
+    get:
+      operationId: list-services
+      tags:
+        - Services
+      summary: List services
+      description: Returns the list of services managed by Microcks.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+          description: Page number for pagination (0-indexed)
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Number of results per page
+        - name: filter
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter services by name
+      responses:
+        "200":
+          description: List of services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+  /api/services/{id}:
+    get:
+      operationId: get-service
+      tags:
+        - Services
+      summary: Get service
+      description: Returns a specific service managed by Microcks.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The service ID
+      responses:
+        "200":
+          description: Service details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "404":
+          description: Not found
+    delete:
+      operationId: delete-service
+      tags:
+        - Services
+      summary: Delete service
+      description: Deletes a service and all its associated resources.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Service deleted
+  /api/artifact/upload:
+    post:
+      operationId: import-artifact
+      tags:
+        - Artifacts
+      summary: Import artifact
+      description: Upload and import an OpenAPI, AsyncAPI, or Postman collection artifact to create or update a mock service.
+      parameters:
+        - name: mainArtifact
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Whether this is the primary artifact (true) or a secondary one
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The artifact file (OpenAPI YAML/JSON, AsyncAPI, etc.)
+      responses:
+        "201":
+          description: Artifact imported successfully
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/jobs:
+    get:
+      operationId: list-jobs
+      tags:
+        - Jobs
+      summary: List import jobs
+      description: Returns the list of scheduled import jobs.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of import jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ImportJob"
+  /api/jobs/{id}:
+    get:
+      operationId: get-job
+      tags:
+        - Jobs
+      summary: Get import job
+      description: Returns a specific import job.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Import job details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportJob"
+    put:
+      operationId: activate-job
+      tags:
+        - Jobs
+      summary: Activate import job
+      description: Activates a scheduled import job.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job activated
+    delete:
+      operationId: delete-job
+      tags:
+        - Jobs
+      summary: Delete import job
+      description: Deletes an import job.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job deleted
+  /api/tests:
+    post:
+      operationId: create-test
+      tags:
+        - Tests
+      summary: Create conformance test
+      description: Launches a new conformance test run against a live API endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TestRequest"
+      responses:
+        "201":
+          description: Test created and running
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TestResult"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Microcks access token
+  schemas:
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+        type:
+          type: string
+          enum: [REST, SOAP_HTTP, GRPC, EVENT, GRAPHQL, GENERIC_REST, GENERIC_EVENT]
+        operations:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              method:
+                type: string
+    ImportJob:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        repositoryUrl:
+          type: string
+        active:
+          type: boolean
+        lastImportDate:
+          type: string
+          format: date-time
+    TestRequest:
+      type: object
+      required:
+        - serviceId
+        - testEndpoint
+        - runnerType
+      properties:
+        serviceId:
+          type: string
+          description: The Microcks service ID to test
+        testEndpoint:
+          type: string
+          description: The live API endpoint URL
+        runnerType:
+          type: string
+          enum: [HTTP, SOAP_HTTP, SOAP_UI, POSTMAN, OPEN_API_SCHEMA, ASYNC_API_SCHEMA]
+        timeout:
+          type: integer
+          description: Test timeout in milliseconds
+    TestResult:
+      type: object
+      properties:
+        id:
+          type: string
+        version:
+          type: integer
+        testNumber:
+          type: integer
+        testDate:
+          type: string
+          format: date-time
+        testedEndpoint:
+          type: string
+        serviceId:
+          type: string
+        success:
+          type: boolean

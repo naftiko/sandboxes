@@ -1,0 +1,1975 @@
+openapi: 3.1.0
+info:
+  title: slack-files-api
+  description: >-
+    Slack's Files API lets apps programmatically upload, share, and manage files
+    in Slack.  Apps can upload binaries (images, docs, code snippets) or
+    register links to external files,  then attach them to channels, DMs, or
+    threads with optional captions. The API supports  retrieving file metadata
+    and content, listing and filtering files, generating or revoking  public
+    share links, and deleting files, with access controlled by app scopes and
+    channel  membership. For large uploads, a two-step flow provides an upload
+    URL before finalizing  the file, and related Events API notifications (for
+    example, file_created and file_shared)  let apps react to changes. Common
+    uses include import/export pipelines, compliance and  archiving tools, and
+    integrations with cloud storage.
+  version: 1.0.0
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-files-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Files
+    description: Operations for managing files (upload, delete, info, list)
+  - name: File Comments
+    description: Operations for managing file comments
+  - name: File Sharing
+    description: Operations for sharing files publicly
+  - name: Remote Files
+    description: Operations for managing remote/external files
+paths:
+  /files.comments.delete:
+    post:
+      tags:
+        - File Comments
+      summary: Delete a file comment
+      description: Deletes an existing comment on a file.
+      operationId: filesCommentsDelete
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.comments.delete
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilesCommentsDeleteRequest'
+            examples:
+              FilesCommentsDeleteRequestExample:
+                $ref: '#/components/examples/FilesCommentsDeleteRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FilesCommentsDeleteRequest'
+            examples:
+              FilesCommentsDeleteRequestExample:
+                $ref: '#/components/examples/FilesCommentsDeleteRequestExample'
+      responses:
+        '200':
+          description: Successful response when comment is deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesCommentsDeleteErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/FilesCommentsDeleteErrorResponseExample
+      security:
+        - SlackAuth:
+            - files:write:user
+  /files.delete:
+    post:
+      tags:
+        - Files
+      summary: Delete a file
+      description: Deletes a file.
+      operationId: filesDelete
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.delete
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilesDeleteRequest'
+            examples:
+              FilesDeleteRequestExample:
+                $ref: '#/components/examples/FilesDeleteRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FilesDeleteRequest'
+            examples:
+              FilesDeleteRequestExample:
+                $ref: '#/components/examples/FilesDeleteRequestExample'
+      responses:
+        '200':
+          description: Successful response when file is deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesDeleteErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/FilesDeleteErrorResponseExample'
+      security:
+        - SlackAuth:
+            - files:write:user
+  /files.info:
+    get:
+      tags:
+        - Files
+      summary: Get file info
+      description: Gets information about a file.
+      operationId: filesInfo
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.info
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/FileId'
+        - $ref: '#/components/parameters/Count'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Successful response with file information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesInfoResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/FilesInfoSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesInfoErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/FilesInfoErrorResponseExample'
+      security:
+        - SlackAuth:
+            - files:read
+  /files.list:
+    get:
+      tags:
+        - Files
+      summary: List files
+      description: >-
+        List files for a team, in a channel, or from a user with applied
+        filters.
+      operationId: filesList
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.list
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/ChannelId'
+        - $ref: '#/components/parameters/TimestampFrom'
+        - $ref: '#/components/parameters/TimestampTo'
+        - $ref: '#/components/parameters/FileTypes'
+        - $ref: '#/components/parameters/Count'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/ShowFilesHiddenByLimit'
+      responses:
+        '200':
+          description: Successful response with list of files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesListResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/FilesListSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesListErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/FilesListErrorResponseExample'
+      security:
+        - SlackAuth:
+            - files:read
+  /files.upload:
+    post:
+      tags:
+        - Files
+      summary: Upload a file
+      description: Uploads or creates a file.
+      operationId: filesUpload
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.upload
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FilesUploadRequest'
+            examples:
+              FilesUploadRequestExample:
+                $ref: '#/components/examples/FilesUploadRequestExample'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FilesUploadRequest'
+            examples:
+              FilesUploadRequestExample:
+                $ref: '#/components/examples/FilesUploadRequestExample'
+      responses:
+        '200':
+          description: Successful response with uploaded file information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesUploadResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/FilesUploadSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesUploadErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/FilesUploadErrorResponseExample'
+      security:
+        - SlackAuth:
+            - files:write:user
+  /files.revokePublicURL:
+    post:
+      tags:
+        - File Sharing
+      summary: Revoke public URL
+      description: Revokes public/external sharing access for a file.
+      operationId: filesRevokePublicUrl
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.revokePublicURL
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilesRevokePublicUrlRequest'
+            examples:
+              FilesRevokePublicUrlRequestExample:
+                $ref: '#/components/examples/FilesRevokePublicUrlRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FilesRevokePublicUrlRequest'
+            examples:
+              FilesRevokePublicUrlRequestExample:
+                $ref: '#/components/examples/FilesRevokePublicUrlRequestExample'
+      responses:
+        '200':
+          description: Successful response with updated file information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRevokePublicUrlResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/FilesRevokePublicUrlSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRevokePublicUrlErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/FilesRevokePublicUrlErrorResponseExample
+      security:
+        - SlackAuth:
+            - files:write:user
+  /files.sharedPublicURL:
+    post:
+      tags:
+        - File Sharing
+      summary: Share file publicly
+      description: Enables a file for public/external sharing.
+      operationId: filesSharedPublicUrl
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.sharedPublicURL
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilesSharedPublicUrlRequest'
+            examples:
+              FilesSharedPublicUrlRequestExample:
+                $ref: '#/components/examples/FilesSharedPublicUrlRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FilesSharedPublicUrlRequest'
+            examples:
+              FilesSharedPublicUrlRequestExample:
+                $ref: '#/components/examples/FilesSharedPublicUrlRequestExample'
+      responses:
+        '200':
+          description: Successful response with updated file information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesSharedPublicUrlResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/FilesSharedPublicUrlSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesSharedPublicUrlErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/FilesSharedPublicUrlErrorResponseExample
+      security:
+        - SlackAuth:
+            - files:write:user
+  /files.remote.add:
+    post:
+      tags:
+        - Remote Files
+      summary: Add a remote file
+      description: Adds a file from a remote service.
+      operationId: filesRemoteAdd
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.remote.add
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FilesRemoteAddRequest'
+            examples:
+              FilesRemoteAddRequestExample:
+                $ref: '#/components/examples/FilesRemoteAddRequestExample'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FilesRemoteAddRequest'
+            examples:
+              FilesRemoteAddRequestExample:
+                $ref: '#/components/examples/FilesRemoteAddRequestExample'
+      responses:
+        '200':
+          description: Successful response with remote file information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRemoteAddResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/FilesRemoteAddSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRemoteErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/FilesRemoteErrorResponseExample'
+      security:
+        - SlackAuth:
+            - remote_files:write
+  /files.remote.info:
+    get:
+      tags:
+        - Remote Files
+      summary: Get remote file info
+      description: Retrieve information about a remote file added to Slack.
+      operationId: filesRemoteInfo
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.remote.info
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/FileId'
+        - $ref: '#/components/parameters/ExternalId'
+      responses:
+        '200':
+          description: Successful response with remote file information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRemoteInfoResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/FilesRemoteInfoSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRemoteErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/FilesRemoteErrorResponseExample'
+      security:
+        - SlackAuth:
+            - remote_files:read
+  /files.remote.list:
+    get:
+      tags:
+        - Remote Files
+      summary: List remote files
+      description: Retrieve a list of remote files added to Slack.
+      operationId: filesRemoteList
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.remote.list
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/ChannelId'
+        - $ref: '#/components/parameters/TimestampFrom'
+        - $ref: '#/components/parameters/TimestampTo'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Successful response with list of remote files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRemoteListResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/FilesRemoteListSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRemoteErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/FilesRemoteErrorResponseExample'
+      security:
+        - SlackAuth:
+            - remote_files:read
+  /files.remote.remove:
+    post:
+      tags:
+        - Remote Files
+      summary: Remove a remote file
+      description: Remove a remote file.
+      operationId: filesRemoteRemove
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.remote.remove
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FilesRemoteRemoveRequest'
+            examples:
+              FilesRemoteRemoveRequestExample:
+                $ref: '#/components/examples/FilesRemoteRemoveRequestExample'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilesRemoteRemoveRequest'
+            examples:
+              FilesRemoteRemoveRequestExample:
+                $ref: '#/components/examples/FilesRemoteRemoveRequestExample'
+      responses:
+        '200':
+          description: Successful response when remote file is removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRemoteErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/FilesRemoteErrorResponseExample'
+      security:
+        - SlackAuth:
+            - remote_files:write
+  /files.remote.share:
+    get:
+      tags:
+        - Remote Files
+      summary: Share a remote file
+      description: Share a remote file into a channel.
+      operationId: filesRemoteShare
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.remote.share
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/FileId'
+        - $ref: '#/components/parameters/ExternalId'
+        - $ref: '#/components/parameters/Channels'
+      responses:
+        '200':
+          description: Successful response when remote file is shared
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRemoteShareResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/FilesRemoteShareSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRemoteErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/FilesRemoteErrorResponseExample'
+      security:
+        - SlackAuth:
+            - remote_files:share
+  /files.remote.update:
+    post:
+      tags:
+        - Remote Files
+      summary: Update a remote file
+      description: Updates an existing remote file.
+      operationId: filesRemoteUpdate
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/files.remote.update
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FilesRemoteUpdateRequest'
+            examples:
+              FilesRemoteUpdateRequestExample:
+                $ref: '#/components/examples/FilesRemoteUpdateRequestExample'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FilesRemoteUpdateRequest'
+            examples:
+              FilesRemoteUpdateRequestExample:
+                $ref: '#/components/examples/FilesRemoteUpdateRequestExample'
+      responses:
+        '200':
+          description: Successful response with updated remote file information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRemoteUpdateResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/FilesRemoteUpdateSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesRemoteErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/FilesRemoteErrorResponseExample'
+      security:
+        - SlackAuth:
+            - remote_files:write
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      description: Slack OAuth2 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            files:read: Read files uploaded to Slack
+            files:write:user: Upload and modify files as the user
+            remote_files:read: Read remote files added to Slack
+            remote_files:write: Add and modify remote files
+            remote_files:share: Share remote files to channels
+  parameters:
+    AuthTokenHeader:
+      name: token
+      in: header
+      description: 'Authentication token. Requires scope: `files:write:user`'
+      required: false
+      schema:
+        type: string
+      example: example-key1234567890-abcdefghijklmnop
+    AuthTokenQuery:
+      name: token
+      in: query
+      description: Authentication token
+      required: false
+      schema:
+        type: string
+      example: example-key1234567890-abcdefghijklmnop
+    FileId:
+      name: file
+      in: query
+      description: Specify a file by providing its ID
+      required: false
+      schema:
+        type: string
+      example: F0S43PZDF
+    ExternalId:
+      name: external_id
+      in: query
+      description: Creator defined GUID for the file
+      required: false
+      schema:
+        type: string
+      example: ext-file-12345
+    UserId:
+      name: user
+      in: query
+      description: Filter files created by a single user
+      required: false
+      schema:
+        type: string
+      example: U061F7AUR
+    ChannelId:
+      name: channel
+      in: query
+      description: Filter files appearing in a specific channel, indicated by its ID
+      required: false
+      schema:
+        type: string
+      example: C0T8SE4AU
+    Channels:
+      name: channels
+      in: query
+      description: Comma-separated list of channel IDs where the file will be shared
+      required: false
+      schema:
+        type: string
+      example: C0T8SE4AU,C1H9RESGL
+    TimestampFrom:
+      name: ts_from
+      in: query
+      description: Filter files created after this timestamp (inclusive)
+      required: false
+      schema:
+        type: number
+      example: 1531763254
+    TimestampTo:
+      name: ts_to
+      in: query
+      description: Filter files created before this timestamp (inclusive)
+      required: false
+      schema:
+        type: number
+      example: 1531763342
+    FileTypes:
+      name: types
+      in: query
+      description: Filter files by type (spaces, snippets, images, gdocs, zips, pdfs, all)
+      required: false
+      schema:
+        type: string
+      example: images,pdfs
+    Count:
+      name: count
+      in: query
+      description: Number of items to return per page
+      required: false
+      schema:
+        type: string
+      example: '100'
+    Page:
+      name: page
+      in: query
+      description: Page number of results to return
+      required: false
+      schema:
+        type: string
+      example: '1'
+    Limit:
+      name: limit
+      in: query
+      description: The maximum number of items to return
+      required: false
+      schema:
+        type: integer
+      example: 100
+    Cursor:
+      name: cursor
+      in: query
+      description: Parameter for pagination
+      required: false
+      schema:
+        type: string
+      example: dGVhbTpDMUg5UkVTR0w=
+    ShowFilesHiddenByLimit:
+      name: show_files_hidden_by_limit
+      in: query
+      description: Show truncated file info for files hidden due to being too old
+      required: false
+      schema:
+        type: boolean
+      example: false
+  schemas:
+    OkTrue:
+      type: boolean
+      const: true
+      description: Indicates a successful operation
+    OkFalse:
+      type: boolean
+      const: false
+      description: Indicates a failed operation
+    FileId:
+      type: string
+      description: A Slack file ID
+      pattern: ^F[A-Z0-9]{8,}$
+      example: F0S43PZDF
+    UserId:
+      type: string
+      description: A Slack user ID
+      pattern: ^[UW][A-Z0-9]{8,}$
+      example: U061F7AUR
+    ChannelId:
+      type: string
+      description: A Slack channel ID
+      pattern: ^[CDG][A-Z0-9]{8,}$
+      example: C0T8SE4AU
+    UnixTimestamp:
+      type: integer
+      format: int64
+      description: Unix timestamp in seconds
+      example: 1531763342
+    FileShareInfo:
+      type: object
+      description: File share information
+      properties:
+        ChannelName:
+          type: string
+          description: Name of the channel
+          example: file-under
+        TeamId:
+          type: string
+          description: Team ID
+          example: T061EG9R6
+        Ts:
+          type: string
+          description: Timestamp of the share
+          example: '1531763348.000001'
+        ThreadTs:
+          type: string
+          description: Thread timestamp if shared in a thread
+          example: '1531763273.000015'
+        ReplyCount:
+          type: integer
+          description: Number of replies
+          example: 1
+        ReplyUsers:
+          type: array
+          description: Users who replied
+          items:
+            type: string
+          example:
+            - U061F7AUR
+        ReplyUsersCount:
+          type: integer
+          description: Count of reply users
+          example: 1
+        LatestReply:
+          type: string
+          description: Timestamp of latest reply
+          example: '1531763348.000001'
+    FileObject:
+      type: object
+      description: A Slack file object
+      properties:
+        Id:
+          $ref: '#/components/schemas/FileId'
+        Name:
+          type: string
+          description: Filename
+          example: tedair.gif
+        Title:
+          type: string
+          description: File title
+          example: tedair.gif
+        Mimetype:
+          type: string
+          description: MIME type of the file
+          example: image/gif
+        Filetype:
+          type: string
+          description: File type identifier
+          example: gif
+        PrettyType:
+          type: string
+          description: Human-readable file type
+          example: GIF
+        User:
+          $ref: '#/components/schemas/UserId'
+        Username:
+          type: string
+          description: Username of the uploader
+          example: ''
+        Mode:
+          type: string
+          description: File mode (hosted, external, snippet, post)
+          enum:
+            - hosted
+            - external
+            - snippet
+            - post
+          example: hosted
+        Editable:
+          type: boolean
+          description: Whether the file is editable
+          example: false
+        IsExternal:
+          type: boolean
+          description: Whether the file is external
+          example: false
+        IsPublic:
+          type: boolean
+          description: Whether the file is public
+          example: true
+        IsStarred:
+          type: boolean
+          description: Whether the file is starred by the user
+          example: false
+        PublicUrlShared:
+          type: boolean
+          description: Whether the public URL is shared
+          example: false
+        DisplayAsBot:
+          type: boolean
+          description: Whether to display as bot
+          example: false
+        ExternalType:
+          type: string
+          description: External service type
+          example: ''
+        Size:
+          type: integer
+          description: File size in bytes
+          example: 137531
+        Created:
+          $ref: '#/components/schemas/UnixTimestamp'
+        Timestamp:
+          $ref: '#/components/schemas/UnixTimestamp'
+        UrlPrivate:
+          type: string
+          format: uri
+          description: Private URL for the file
+          example: https://files.slack.com/files-pri/T061EG9R6-F0S43PZDF/tedair.gif
+        UrlPrivateDownload:
+          type: string
+          format: uri
+          description: Private download URL
+          example: >-
+            https://files.slack.com/files-pri/T061EG9R6-F0S43PZDF/download/tedair.gif
+        Permalink:
+          type: string
+          format: uri
+          description: Permalink to the file
+          example: https://myteam.slack.com/files/U061F7AUR/F0S43PZDF/tedair.gif
+        PermalinkPublic:
+          type: string
+          format: uri
+          description: Public permalink
+          example: https://slack-files.com/T061EG9R6-F0S43PZDF-abc123
+        OriginalH:
+          type: integer
+          description: Original height (for images)
+          example: 226
+        OriginalW:
+          type: integer
+          description: Original width (for images)
+          example: 176
+        Thumb64:
+          type: string
+          format: uri
+          description: 64px thumbnail URL
+        Thumb80:
+          type: string
+          format: uri
+          description: 80px thumbnail URL
+        Thumb160:
+          type: string
+          format: uri
+          description: 160px thumbnail URL
+        Thumb360:
+          type: string
+          format: uri
+          description: 360px thumbnail URL
+        Thumb360W:
+          type: integer
+          description: 360px thumbnail width
+          example: 176
+        Thumb360H:
+          type: integer
+          description: 360px thumbnail height
+          example: 226
+        Thumb480:
+          type: string
+          format: uri
+          description: 480px thumbnail URL
+        Thumb480W:
+          type: integer
+          description: 480px thumbnail width
+        Thumb480H:
+          type: integer
+          description: 480px thumbnail height
+        ImageExifRotation:
+          type: integer
+          description: EXIF rotation value
+          example: 1
+        HasRichPreview:
+          type: boolean
+          description: Whether the file has a rich preview
+          example: false
+        CommentsCount:
+          type: integer
+          description: Number of comments on the file
+          example: 0
+        Channels:
+          type: array
+          description: Channels where the file is shared
+          items:
+            type: string
+          example:
+            - C0T8SE4AU
+        Groups:
+          type: array
+          description: Private channels where the file is shared
+          items:
+            type: string
+          example: []
+        Ims:
+          type: array
+          description: Direct messages where the file is shared
+          items:
+            type: string
+          example: []
+    RemoteFileObject:
+      type: object
+      description: A remote file object
+      properties:
+        Id:
+          $ref: '#/components/schemas/FileId'
+        ExternalId:
+          type: string
+          description: Creator defined GUID for the file
+          example: ext-file-12345
+        Title:
+          type: string
+          description: Title of the file
+          example: Project Documentation
+        ExternalUrl:
+          type: string
+          format: uri
+          description: URL of the remote file
+          example: https://example.com/docs/project.pdf
+        Filetype:
+          type: string
+          description: File type identifier
+          example: pdf
+        Mimetype:
+          type: string
+          description: MIME type of the file
+          example: application/pdf
+        Created:
+          $ref: '#/components/schemas/UnixTimestamp'
+        Timestamp:
+          $ref: '#/components/schemas/UnixTimestamp'
+    FileComment:
+      type: object
+      description: A comment on a file
+      properties:
+        Id:
+          type: string
+          description: Comment ID
+          example: Fc12345678
+        User:
+          $ref: '#/components/schemas/UserId'
+        Comment:
+          type: string
+          description: Comment text
+          example: Great file!
+        Created:
+          $ref: '#/components/schemas/UnixTimestamp'
+    PagingObject:
+      type: object
+      description: Paging information
+      properties:
+        Count:
+          type: integer
+          description: Number of items per page
+          example: 100
+        Total:
+          type: integer
+          description: Total number of items
+          example: 2
+        Page:
+          type: integer
+          description: Current page number
+          example: 1
+        Pages:
+          type: integer
+          description: Total number of pages
+          example: 1
+    ResponseMetadata:
+      type: object
+      description: Response metadata for pagination
+      properties:
+        NextCursor:
+          type: string
+          description: Cursor for the next page of results
+          example: dGVhbTpDMUg5UkVTR0w=
+    FilesCommentsDeleteRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          description: File to delete a comment from
+          example: F0S43PZDF
+        id:
+          type: string
+          description: The comment to delete
+          example: Fc12345678
+    FilesDeleteRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          description: ID of file to delete
+          example: F0S43PZDF
+    FilesUploadRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: 'Authentication token. Requires scope: `files:write:user`'
+          example: example-key1234567890-abcdefghijklmnop
+        file:
+          type: string
+          description: File contents via multipart/form-data
+        content:
+          type: string
+          description: File contents via a POST variable
+          example: Hello World
+        filetype:
+          type: string
+          description: A file type identifier
+          example: text
+        filename:
+          type: string
+          description: Filename of file
+          example: hello.txt
+        title:
+          type: string
+          description: Title of file
+          example: Hello World File
+        initial_comment:
+          type: string
+          description: The message text introducing the file in specified channels
+          example: Check out this file!
+        channels:
+          type: string
+          description: >-
+            Comma-separated list of channel names or IDs where the file will be
+            shared
+          example: C0T8SE4AU,C1H9RESGL
+        thread_ts:
+          type: number
+          description: Provide another message's ts value to upload this file as a reply
+          example: 1531763273.000015
+    FilesRevokePublicUrlRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          description: File to revoke
+          example: F0S43PZDF
+    FilesSharedPublicUrlRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          description: File to share
+          example: F0S43PZDF
+    FilesRemoteAddRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: 'Authentication token. Requires scope: `remote_files:write`'
+          example: example-key1234567890-abcdefghijklmnop
+        external_id:
+          type: string
+          description: Creator defined GUID for the file
+          example: ext-file-12345
+        title:
+          type: string
+          description: Title of the file being shared
+          example: Project Documentation
+        filetype:
+          type: string
+          description: Type of file
+          example: pdf
+        external_url:
+          type: string
+          description: URL of the remote file
+          example: https://example.com/docs/project.pdf
+        preview_image:
+          type: string
+          description: Preview of the document via multipart/form-data
+        indexable_file_contents:
+          type: string
+          description: A text file containing textual search terms
+    FilesRemoteRemoveRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: 'Authentication token. Requires scope: `remote_files:write`'
+          example: example-key1234567890-abcdefghijklmnop
+        file:
+          type: string
+          description: Specify a file by providing its ID
+          example: F0S43PZDF
+        external_id:
+          type: string
+          description: Creator defined GUID for the file
+          example: ext-file-12345
+    FilesRemoteUpdateRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: 'Authentication token. Requires scope: `remote_files:write`'
+          example: example-key1234567890-abcdefghijklmnop
+        file:
+          type: string
+          description: Specify a file by providing its ID
+          example: F0S43PZDF
+        external_id:
+          type: string
+          description: Creator defined GUID for the file
+          example: ext-file-12345
+        title:
+          type: string
+          description: Title of the file being shared
+          example: Updated Project Documentation
+        filetype:
+          type: string
+          description: Type of file
+          example: pdf
+        external_url:
+          type: string
+          description: URL of the remote file
+          example: https://example.com/docs/project-v2.pdf
+        preview_image:
+          type: string
+          description: Preview of the document via multipart/form-data
+        indexable_file_contents:
+          type: string
+          description: File containing contents for improved searchability
+    SuccessResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+      additionalProperties: false
+    FilesInfoResponse:
+      type: object
+      required:
+        - ok
+        - file
+        - comments
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        file:
+          $ref: '#/components/schemas/FileObject'
+        comments:
+          type: array
+          description: Comments on the file
+          items:
+            $ref: '#/components/schemas/FileComment'
+        editor:
+          $ref: '#/components/schemas/UserId'
+        paging:
+          $ref: '#/components/schemas/PagingObject'
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+      additionalProperties: false
+    FilesListResponse:
+      type: object
+      required:
+        - ok
+        - files
+        - paging
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        files:
+          type: array
+          description: List of files
+          items:
+            $ref: '#/components/schemas/FileObject'
+        paging:
+          $ref: '#/components/schemas/PagingObject'
+      additionalProperties: false
+    FilesUploadResponse:
+      type: object
+      required:
+        - ok
+        - file
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        file:
+          $ref: '#/components/schemas/FileObject'
+      additionalProperties: false
+    FilesRevokePublicUrlResponse:
+      type: object
+      required:
+        - ok
+        - file
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        file:
+          $ref: '#/components/schemas/FileObject'
+      additionalProperties: false
+    FilesSharedPublicUrlResponse:
+      type: object
+      required:
+        - ok
+        - file
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        file:
+          $ref: '#/components/schemas/FileObject'
+      additionalProperties: false
+    FilesRemoteAddResponse:
+      type: object
+      required:
+        - ok
+        - file
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        file:
+          $ref: '#/components/schemas/RemoteFileObject'
+      additionalProperties: false
+    FilesRemoteInfoResponse:
+      type: object
+      required:
+        - ok
+        - file
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        file:
+          $ref: '#/components/schemas/RemoteFileObject'
+      additionalProperties: false
+    FilesRemoteListResponse:
+      type: object
+      required:
+        - ok
+        - files
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        files:
+          type: array
+          description: List of remote files
+          items:
+            $ref: '#/components/schemas/RemoteFileObject'
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+      additionalProperties: false
+    FilesRemoteShareResponse:
+      type: object
+      required:
+        - ok
+        - file
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        file:
+          $ref: '#/components/schemas/RemoteFileObject'
+      additionalProperties: false
+    FilesRemoteUpdateResponse:
+      type: object
+      required:
+        - ok
+        - file
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        file:
+          $ref: '#/components/schemas/RemoteFileObject'
+      additionalProperties: false
+    BaseErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          description: Error code
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+    FilesCommentsDeleteErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - cant_delete
+                - comment_not_found
+                - file_not_found
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - no_permission
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+      additionalProperties: false
+    FilesDeleteErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - file_not_found
+                - file_deleted
+                - cant_delete_file
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - no_permission
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+      additionalProperties: false
+    FilesInfoErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - file_not_found
+                - file_deleted
+                - timezone_count_failed
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - no_permission
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+      additionalProperties: false
+    FilesListErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - user_not_found
+                - unknown_type
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - no_permission
+                - user_is_bot
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+      additionalProperties: false
+    FilesUploadErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - posting_to_general_channel_denied
+                - invalid_channel
+                - file_uploads_disabled
+                - file_uploads_except_images_disabled
+                - storage_limit_reached
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - no_permission
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+      additionalProperties: false
+    FilesRevokePublicUrlErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - file_not_found
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - token_revoked
+                - no_permission
+                - org_login_required
+                - user_is_bot
+                - user_is_restricted
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+                - fatal_error
+      additionalProperties: false
+    FilesSharedPublicUrlErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - file_not_found
+                - not_allowed
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - token_revoked
+                - no_permission
+                - org_login_required
+                - user_is_bot
+                - user_is_restricted
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+                - fatal_error
+      additionalProperties: false
+    FilesRemoteErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - file_not_found
+                - not_authed
+                - invalid_auth
+                - account_inactive
+                - token_revoked
+                - no_permission
+                - org_login_required
+                - invalid_arg_name
+                - invalid_array_arg
+                - invalid_charset
+                - invalid_form_data
+                - invalid_post_type
+                - missing_post_type
+                - team_added_to_org
+                - invalid_json
+                - json_not_object
+                - request_timeout
+                - upgrade_required
+                - fatal_error
+      additionalProperties: false
+  examples:
+    FilesCommentsDeleteRequestExample:
+      summary: Example request to delete a file comment
+      value:
+        file: F0S43PZDF
+        id: Fc12345678
+    FilesDeleteRequestExample:
+      summary: Example request to delete a file
+      value:
+        file: F0S43PZDF
+    FilesUploadRequestExample:
+      summary: Example request to upload a file
+      value:
+        token: example-key1234567890-abcdefghijklmnop
+        content: Hello World
+        filename: hello.txt
+        title: Hello World File
+        initial_comment: Check out this file!
+        channels: C0T8SE4AU
+    FilesRevokePublicUrlRequestExample:
+      summary: Example request to revoke public URL
+      value:
+        file: F0S43PZDF
+    FilesSharedPublicUrlRequestExample:
+      summary: Example request to share file publicly
+      value:
+        file: F0S43PZDF
+    FilesRemoteAddRequestExample:
+      summary: Example request to add a remote file
+      value:
+        token: example-key1234567890-abcdefghijklmnop
+        external_id: ext-file-12345
+        title: Project Documentation
+        filetype: pdf
+        external_url: https://example.com/docs/project.pdf
+    FilesRemoteRemoveRequestExample:
+      summary: Example request to remove a remote file
+      value:
+        token: example-key1234567890-abcdefghijklmnop
+        file: F0S43PZDF
+    FilesRemoteUpdateRequestExample:
+      summary: Example request to update a remote file
+      value:
+        token: example-key1234567890-abcdefghijklmnop
+        file: F0S43PZDF
+        title: Updated Project Documentation
+        external_url: https://example.com/docs/project-v2.pdf
+    SuccessResponseExample:
+      summary: Example of a successful response
+      value:
+        ok: true
+    FilesInfoSuccessResponseExample:
+      summary: Example of a successful files.info response
+      value:
+        ok: true
+        file:
+          Id: F0S43PZDF
+          Name: tedair.gif
+          Title: tedair.gif
+          Mimetype: image/gif
+          Filetype: gif
+          PrettyType: GIF
+          User: U061F7AUR
+          Mode: hosted
+          Editable: false
+          IsExternal: false
+          IsPublic: true
+          IsStarred: false
+          PublicUrlShared: false
+          Size: 137531
+          Created: 1531763342
+          Timestamp: 1531763342
+          OriginalH: 226
+          OriginalW: 176
+          HasRichPreview: false
+          CommentsCount: 0
+          Channels:
+            - C0T8SE4AU
+          Groups: []
+          Ims: []
+        comments: []
+        response_metadata:
+          NextCursor: dGVhbTpDMUg5UkVTR0w=
+    FilesListSuccessResponseExample:
+      summary: Example of a successful files.list response
+      value:
+        ok: true
+        files:
+          - Id: F0S43P1CZ
+            Name: billair.gif
+            Title: billair.gif
+            Mimetype: image/gif
+            Filetype: gif
+            PrettyType: GIF
+            User: U061F7AUR
+            Mode: hosted
+            IsExternal: false
+            IsPublic: true
+            Size: 144538
+            Created: 1531763254
+            Channels:
+              - C0T8SE4AU
+          - Id: F0S43PZDF
+            Name: tedair.gif
+            Title: tedair.gif
+            Mimetype: image/gif
+            Filetype: gif
+            PrettyType: GIF
+            User: U061F7AUR
+            Mode: hosted
+            IsExternal: false
+            IsPublic: true
+            Size: 137531
+            Created: 1531763342
+            Channels:
+              - C0T8SE4AU
+        paging:
+          Count: 100
+          Total: 2
+          Page: 1
+          Pages: 1
+    FilesUploadSuccessResponseExample:
+      summary: Example of a successful files.upload response
+      value:
+        ok: true
+        file:
+          Id: F0TD00400
+          Name: dramacat.gif
+          Title: dramacat
+          Mimetype: image/jpeg
+          Filetype: gif
+          PrettyType: JPEG
+          User: U0L4B9NSU
+          Mode: hosted
+          Editable: false
+          IsExternal: false
+          IsPublic: false
+          IsStarred: false
+          PublicUrlShared: false
+          Size: 43518
+          Created: 1532293501
+          Timestamp: 1532293501
+          OriginalH: 366
+          OriginalW: 526
+          HasRichPreview: false
+          CommentsCount: 0
+          Channels: []
+          Groups: []
+          Ims:
+            - D0L4B9P0Q
+    FilesRevokePublicUrlSuccessResponseExample:
+      summary: Example of a successful files.revokePublicURL response
+      value:
+        ok: true
+        file:
+          Id: F0S43PZDF
+          Name: tedair.gif
+          PublicUrlShared: false
+    FilesSharedPublicUrlSuccessResponseExample:
+      summary: Example of a successful files.sharedPublicURL response
+      value:
+        ok: true
+        file:
+          Id: F0S43PZDF
+          Name: tedair.gif
+          PublicUrlShared: true
+          PermalinkPublic: https://slack-files.com/T061EG9R6-F0S43PZDF-abc123
+    FilesRemoteAddSuccessResponseExample:
+      summary: Example of a successful files.remote.add response
+      value:
+        ok: true
+        file:
+          Id: F0S43PZDF
+          ExternalId: ext-file-12345
+          Title: Project Documentation
+          ExternalUrl: https://example.com/docs/project.pdf
+          Filetype: pdf
+          Mimetype: application/pdf
+          Created: 1531763342
+    FilesRemoteInfoSuccessResponseExample:
+      summary: Example of a successful files.remote.info response
+      value:
+        ok: true
+        file:
+          Id: F0S43PZDF
+          ExternalId: ext-file-12345
+          Title: Project Documentation
+          ExternalUrl: https://example.com/docs/project.pdf
+          Filetype: pdf
+          Mimetype: application/pdf
+          Created: 1531763342
+    FilesRemoteListSuccessResponseExample:
+      summary: Example of a successful files.remote.list response
+      value:
+        ok: true
+        files:
+          - Id: F0S43PZDF
+            ExternalId: ext-file-12345
+            Title: Project Documentation
+            ExternalUrl: https://example.com/docs/project.pdf
+            Filetype: pdf
+            Created: 1531763342
+          - Id: F0S43P1CZ
+            ExternalId: ext-file-67890
+            Title: Design Mockups
+            ExternalUrl: https://example.com/design/mockups.png
+            Filetype: png
+            Created: 1531763254
+        response_metadata:
+          NextCursor: dGVhbTpDMUg5UkVTR0w=
+    FilesRemoteShareSuccessResponseExample:
+      summary: Example of a successful files.remote.share response
+      value:
+        ok: true
+        file:
+          Id: F0S43PZDF
+          ExternalId: ext-file-12345
+          Title: Project Documentation
+          ExternalUrl: https://example.com/docs/project.pdf
+    FilesRemoteUpdateSuccessResponseExample:
+      summary: Example of a successful files.remote.update response
+      value:
+        ok: true
+        file:
+          Id: F0S43PZDF
+          ExternalId: ext-file-12345
+          Title: Updated Project Documentation
+          ExternalUrl: https://example.com/docs/project-v2.pdf
+          Filetype: pdf
+          Mimetype: application/pdf
+    FilesCommentsDeleteErrorResponseExample:
+      summary: Example error response for files.comments.delete
+      value:
+        ok: false
+        error: file_not_found
+    FilesDeleteErrorResponseExample:
+      summary: Example error response for files.delete
+      value:
+        ok: false
+        error: invalid_auth
+    FilesInfoErrorResponseExample:
+      summary: Example error response for files.info
+      value:
+        ok: false
+        error: invalid_auth
+    FilesListErrorResponseExample:
+      summary: Example error response for files.list
+      value:
+        ok: false
+        error: invalid_auth
+    FilesUploadErrorResponseExample:
+      summary: Example error response for files.upload
+      value:
+        ok: false
+        error: invalid_auth
+    FilesRevokePublicUrlErrorResponseExample:
+      summary: Example error response for files.revokePublicURL
+      value:
+        ok: false
+        error: invalid_auth
+    FilesSharedPublicUrlErrorResponseExample:
+      summary: Example error response for files.sharedPublicURL
+      value:
+        ok: false
+        error: invalid_auth
+    FilesRemoteErrorResponseExample:
+      summary: Example error response for files.remote operations
+      value:
+        ok: false
+        error: invalid_auth

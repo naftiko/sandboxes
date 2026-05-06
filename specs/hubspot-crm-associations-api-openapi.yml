@@ -1,0 +1,1207 @@
+openapi: 3.1.0
+info:
+  title: hubspot-crm-associations-api
+  description: >
+    The HubSpot CRM Associations API enables you to manage relationships between
+    CRM objects.
+
+
+    ## Overview
+
+    Associations represent the connections between different CRM records in
+    HubSpot. This API allows you to:
+
+    - Create, read, update, and delete associations between contacts, companies,
+    deals, tickets, and custom objects
+
+    - Define custom association types with labels for more granular relationship
+    tracking
+
+    - Perform batch operations on multiple associations for efficient bulk
+    processing
+
+    - Manage association labels to categorize and describe relationships
+
+
+    ## Authentication
+
+    This API supports OAuth 2.0 and Private App authentication methods.
+
+
+    ## Rate Limits
+
+    Standard HubSpot API rate limits apply. See HubSpot documentation for
+    details.
+  version: 4.0.0
+  contact:
+    name: HubSpot Developer Support
+    url: https://developers.hubspot.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot Production API Server
+  - url: http://localhost:8080/rest/hubspot-crm-associations-api/4.0.0
+    description: Sandbox
+tags:
+  - name: Object Associations
+    description: Create, retrieve, and delete associations between individual CRM objects
+  - name: Batch Association Operations
+    description: Perform bulk create, read, and archive operations on multiple associations
+  - name: Association Type Definitions
+    description: Retrieve and manage association type definitions across object types
+  - name: Association Label Management
+    description: Create, update, and delete custom labels for association types
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.objects.contacts.read: Read contacts
+            crm.objects.contacts.write: Write contacts
+            crm.objects.companies.read: Read companies
+            crm.objects.companies.write: Write companies
+            crm.objects.deals.read: Read deals
+            crm.objects.deals.write: Write deals
+    PrivateAppToken:
+      type: apiKey
+      name: private-app
+      in: header
+  schemas:
+    Association:
+      type: object
+      description: Represents an association between two CRM objects
+      properties:
+        toObjectId:
+          type: string
+          description: ID of the target object
+        associationTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssociationType'
+          description: Types of associations between the objects
+      required:
+        - toObjectId
+        - associationTypes
+    AssociationType:
+      type: object
+      description: Defines the type of association
+      properties:
+        associationCategory:
+          type: string
+          enum:
+            - HUBSPOT_DEFINED
+            - USER_DEFINED
+            - INTEGRATOR_DEFINED
+          description: Category of the association type
+        associationTypeId:
+          type: integer
+          description: Numeric identifier for the association type
+        label:
+          type: string
+          description: Human-readable label for the association
+      required:
+        - associationCategory
+        - associationTypeId
+    AssociationDefinition:
+      type: object
+      description: Definition of an association type between two object types
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the association definition
+        fromObjectTypeId:
+          type: string
+          description: Source object type ID
+        toObjectTypeId:
+          type: string
+          description: Target object type ID
+        name:
+          type: string
+          description: Name of the association type
+        label:
+          type: string
+          description: Display label for the association
+        inverseLabel:
+          type: string
+          description: Label for the inverse association
+        category:
+          type: string
+          enum:
+            - HUBSPOT_DEFINED
+            - USER_DEFINED
+            - INTEGRATOR_DEFINED
+          description: Category of the association definition
+      required:
+        - id
+        - fromObjectTypeId
+        - toObjectTypeId
+    AssociationLabel:
+      type: object
+      description: A label that can be applied to associations
+      properties:
+        typeId:
+          type: integer
+          description: Numeric identifier for the label type
+        label:
+          type: string
+          description: Display text for the label
+        category:
+          type: string
+          enum:
+            - HUBSPOT_DEFINED
+            - USER_DEFINED
+            - INTEGRATOR_DEFINED
+          description: Category of the label
+      required:
+        - typeId
+        - label
+        - category
+    CreateAssociationInput:
+      type: object
+      description: Input for creating an association
+      properties:
+        to:
+          $ref: '#/components/schemas/ObjectReference'
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssociationTypeInput'
+          description: Association types to create
+      required:
+        - to
+        - types
+    ObjectReference:
+      type: object
+      description: Reference to a CRM object by ID
+      properties:
+        id:
+          type: string
+          description: ID of the object
+      required:
+        - id
+    AssociationTypeInput:
+      type: object
+      description: Input for specifying an association type
+      properties:
+        associationCategory:
+          type: string
+          enum:
+            - HUBSPOT_DEFINED
+            - USER_DEFINED
+            - INTEGRATOR_DEFINED
+        associationTypeId:
+          type: integer
+      required:
+        - associationCategory
+        - associationTypeId
+    BatchAssociationReadInput:
+      type: object
+      description: Input for batch reading associations
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectReference'
+          description: Source objects to read associations for
+      required:
+        - inputs
+    BatchAssociationCreateInput:
+      type: object
+      description: Input for batch creating associations
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchAssociationCreateItem'
+          description: Associations to create
+      required:
+        - inputs
+    BatchAssociationCreateItem:
+      type: object
+      description: Single item in a batch association create request
+      properties:
+        from:
+          $ref: '#/components/schemas/ObjectReference'
+        to:
+          $ref: '#/components/schemas/ObjectReference'
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssociationTypeInput'
+      required:
+        - from
+        - to
+        - types
+    BatchAssociationArchiveInput:
+      type: object
+      description: Input for batch archiving associations
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchAssociationArchiveItem'
+          description: Associations to archive
+      required:
+        - inputs
+    BatchAssociationArchiveItem:
+      type: object
+      description: Single item in a batch association archive request
+      properties:
+        from:
+          $ref: '#/components/schemas/ObjectReference'
+        to:
+          $ref: '#/components/schemas/ObjectReference'
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssociationTypeInput'
+      required:
+        - from
+        - to
+    CreateLabelInput:
+      type: object
+      description: Input for creating an association label
+      properties:
+        label:
+          type: string
+          description: Display text for the label
+        name:
+          type: string
+          description: Internal name for the label
+        inverseLabel:
+          type: string
+          description: Label for the inverse direction
+      required:
+        - label
+        - name
+    AssociationResult:
+      type: object
+      description: Result of an association query
+      properties:
+        from:
+          $ref: '#/components/schemas/ObjectReference'
+        to:
+          type: array
+          items:
+            $ref: '#/components/schemas/Association'
+          description: Associated objects
+        paging:
+          $ref: '#/components/schemas/Paging'
+      required:
+        - from
+        - to
+    BatchAssociationResponse:
+      type: object
+      description: Response from batch association operations
+      properties:
+        status:
+          type: string
+          enum:
+            - PENDING
+            - PROCESSING
+            - CANCELED
+            - COMPLETE
+          description: Status of the batch operation
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssociationResult'
+          description: Successfully processed associations
+        requestedAt:
+          type: string
+          format: date-time
+          description: When the batch was requested
+        startedAt:
+          type: string
+          format: date-time
+          description: When processing started
+        completedAt:
+          type: string
+          format: date-time
+          description: When processing completed
+        numErrors:
+          type: integer
+          description: Number of errors encountered
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/StandardError'
+          description: List of errors
+        links:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - status
+        - results
+        - startedAt
+        - completedAt
+    PagingNext:
+      type: object
+      description: Pagination cursor for next page
+      properties:
+        after:
+          type: string
+          description: Cursor token for the next page
+        link:
+          type: string
+          description: Link to the next page
+    Paging:
+      type: object
+      description: Pagination information
+      properties:
+        next:
+          $ref: '#/components/schemas/PagingNext'
+    AssociationDefinitionCollection:
+      type: object
+      description: Collection of association definitions
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssociationDefinition'
+          description: Array of association definitions
+        paging:
+          $ref: '#/components/schemas/Paging'
+      required:
+        - results
+    AssociationLabelCollection:
+      type: object
+      description: Collection of association labels
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssociationLabel'
+          description: Array of association labels
+        paging:
+          $ref: '#/components/schemas/Paging'
+      required:
+        - results
+    StandardError:
+      type: object
+      description: Standard error in batch operations
+      properties:
+        status:
+          type: string
+        id:
+          type: string
+        category:
+          type: string
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - status
+        - category
+        - message
+    ErrorDetail:
+      type: object
+      description: Details about a specific error
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+        subCategory:
+          type: string
+        in:
+          type: string
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+        - message
+    Error:
+      type: object
+      description: Standard error response
+      properties:
+        category:
+          type: string
+          example: VALIDATION_ERROR
+        correlationId:
+          type: string
+          format: uuid
+        message:
+          type: string
+        subCategory:
+          type: string
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+      required:
+        - category
+        - correlationId
+        - message
+  examples:
+    AssociationResultExample:
+      summary: Example association result
+      value:
+        from:
+          id: '12345'
+        to:
+          - toObjectId: '67890'
+            associationTypes:
+              - associationCategory: HUBSPOT_DEFINED
+                associationTypeId: 1
+                label: Primary Company
+          - toObjectId: '67891'
+            associationTypes:
+              - associationCategory: USER_DEFINED
+                associationTypeId: 101
+                label: Partner Company
+    AssociationDefinitionExample:
+      summary: Example association definition
+      value:
+        id: contact_to_company
+        fromObjectTypeId: 0-1
+        toObjectTypeId: 0-2
+        name: contact_to_company
+        label: Company
+        inverseLabel: Contacts
+        category: HUBSPOT_DEFINED
+    AssociationDefinitionCollectionExample:
+      summary: Example collection of association definitions
+      value:
+        results:
+          - id: contact_to_company
+            fromObjectTypeId: 0-1
+            toObjectTypeId: 0-2
+            name: contact_to_company
+            label: Company
+            inverseLabel: Contacts
+            category: HUBSPOT_DEFINED
+          - id: deal_to_contact
+            fromObjectTypeId: 0-3
+            toObjectTypeId: 0-1
+            name: deal_to_contact
+            label: Contact
+            inverseLabel: Deals
+            category: HUBSPOT_DEFINED
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+            link: >-
+              https://api.hubapi.com/crm/v4/associations/definitions?after=NTI1Cg%3D%3D
+    AssociationLabelExample:
+      summary: Example association label
+      value:
+        typeId: 101
+        label: Primary Contact
+        category: USER_DEFINED
+    AssociationLabelCollectionExample:
+      summary: Example collection of association labels
+      value:
+        results:
+          - typeId: 101
+            label: Primary Contact
+            category: USER_DEFINED
+          - typeId: 102
+            label: Billing Contact
+            category: USER_DEFINED
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+            link: >-
+              https://api.hubapi.com/crm/v4/associations/contacts/companies/labels?after=NTI1Cg%3D%3D
+    BatchAssociationResponseExample:
+      summary: Example batch association response
+      value:
+        status: COMPLETE
+        results:
+          - from:
+              id: '12345'
+            to:
+              - toObjectId: '67890'
+                associationTypes:
+                  - associationCategory: HUBSPOT_DEFINED
+                    associationTypeId: 1
+        requestedAt: '2024-01-20T14:44:00Z'
+        startedAt: '2024-01-20T14:44:01Z'
+        completedAt: '2024-01-20T14:45:00Z'
+    CreateAssociationInputExample:
+      summary: Example create association input
+      value:
+        to:
+          id: '67890'
+        types:
+          - associationCategory: HUBSPOT_DEFINED
+            associationTypeId: 1
+    BatchAssociationReadInputExample:
+      summary: Example batch read input
+      value:
+        inputs:
+          - id: '12345'
+          - id: '12346'
+    BatchAssociationCreateInputExample:
+      summary: Example batch create input
+      value:
+        inputs:
+          - from:
+              id: '12345'
+            to:
+              id: '67890'
+            types:
+              - associationCategory: HUBSPOT_DEFINED
+                associationTypeId: 1
+    BatchAssociationArchiveInputExample:
+      summary: Example batch archive input
+      value:
+        inputs:
+          - from:
+              id: '12345'
+            to:
+              id: '67890'
+    CreateLabelInputExample:
+      summary: Example create label input
+      value:
+        label: Primary Contact
+        name: primary_contact
+        inverseLabel: Main Company
+    ErrorExample:
+      summary: Example error response
+      value:
+        category: VALIDATION_ERROR
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: Invalid association type
+  responses:
+    ErrorResponse:
+      description: An error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ErrorExample:
+              $ref: '#/components/examples/ErrorExample'
+paths:
+  /crm/v4/objects/{fromObjectType}/{fromObjectId}/associations/{toObjectType}:
+    get:
+      tags:
+        - Object Associations
+      operationId: listObjectAssociations
+      summary: List associations for an object
+      description: >
+        Retrieves all associations of a specific type for a given CRM object.
+
+        Returns paginated results with the associated objects and their
+        association types.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def mockResponse =
+          mockRequest.getResponseByDispatchCriteria("success")
+
+          return "success"
+        delay: 100
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateAppToken: []
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of the source object (e.g., contacts, companies, deals)
+          example: contacts
+        - name: fromObjectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the source object
+          example: '12345'
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of target objects to retrieve associations for
+          example: companies
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+          description: Maximum number of results per page
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: Pagination cursor for fetching next page of results
+      responses:
+        '200':
+          description: Successfully retrieved associations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssociationResult'
+              examples:
+                success:
+                  $ref: '#/components/examples/AssociationResultExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+    put:
+      tags:
+        - Object Associations
+      operationId: createObjectAssociation
+      summary: Create an association between objects
+      description: >
+        Creates a new association between two CRM objects.
+
+        Specify the target object and the association types to establish the
+        relationship.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def mockResponse =
+          mockRequest.getResponseByDispatchCriteria("success")
+
+          return "success"
+        delay: 100
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateAppToken: []
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of the source object
+          example: contacts
+        - name: fromObjectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the source object
+          example: '12345'
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of the target object
+          example: companies
+      requestBody:
+        required: true
+        description: Association details to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAssociationInput'
+            examples:
+              CreateAssociationInputExample:
+                $ref: '#/components/examples/CreateAssociationInputExample'
+      responses:
+        '200':
+          description: Successfully created association
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssociationResult'
+              examples:
+                success:
+                  $ref: '#/components/examples/AssociationResultExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /crm/v4/objects/{fromObjectType}/{fromObjectId}/associations/{toObjectType}/{toObjectId}:
+    delete:
+      tags:
+        - Object Associations
+      operationId: deleteObjectAssociation
+      summary: Delete an association between objects
+      description: >
+        Removes an association between two CRM objects.
+
+        This operation deletes all association types between the specified
+        objects.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "success"
+        delay: 100
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateAppToken: []
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of the source object
+          example: contacts
+        - name: fromObjectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the source object
+          example: '12345'
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of the target object
+          example: companies
+        - name: toObjectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the target object
+          example: '67890'
+      responses:
+        '204':
+          description: Successfully deleted association
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /crm/v4/associations/{fromObjectType}/{toObjectType}/batch/read:
+    post:
+      tags:
+        - Batch Association Operations
+      operationId: batchReadAssociations
+      summary: Batch read associations for multiple objects
+      description: |
+        Retrieves associations for multiple source objects in a single request.
+        Useful for efficiently loading associations for a list of records.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def mockResponse =
+          mockRequest.getResponseByDispatchCriteria("success")
+
+          return "success"
+        delay: 100
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateAppToken: []
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of source objects
+          example: contacts
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of target objects
+          example: companies
+      requestBody:
+        required: true
+        description: List of source object IDs to read associations for
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchAssociationReadInput'
+            examples:
+              BatchAssociationReadInputExample:
+                $ref: '#/components/examples/BatchAssociationReadInputExample'
+      responses:
+        '200':
+          description: Successfully retrieved associations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchAssociationResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/BatchAssociationResponseExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /crm/v4/associations/{fromObjectType}/{toObjectType}/batch/create:
+    post:
+      tags:
+        - Batch Association Operations
+      operationId: batchCreateAssociations
+      summary: Batch create associations
+      description: |
+        Creates multiple associations in a single request.
+        Allows efficient bulk creation of relationships between CRM objects.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def mockResponse =
+          mockRequest.getResponseByDispatchCriteria("success")
+
+          return "success"
+        delay: 100
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateAppToken: []
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of source objects
+          example: contacts
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of target objects
+          example: companies
+      requestBody:
+        required: true
+        description: List of associations to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchAssociationCreateInput'
+            examples:
+              BatchAssociationCreateInputExample:
+                $ref: '#/components/examples/BatchAssociationCreateInputExample'
+      responses:
+        '200':
+          description: Successfully created associations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchAssociationResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/BatchAssociationResponseExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /crm/v4/associations/{fromObjectType}/{toObjectType}/batch/archive:
+    post:
+      tags:
+        - Batch Association Operations
+      operationId: batchArchiveAssociations
+      summary: Batch archive associations
+      description: |
+        Deletes multiple associations in a single request.
+        Efficiently removes relationships between multiple CRM objects.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "success"
+        delay: 100
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateAppToken: []
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of source objects
+          example: contacts
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Type of target objects
+          example: companies
+      requestBody:
+        required: true
+        description: List of associations to archive
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchAssociationArchiveInput'
+            examples:
+              BatchAssociationArchiveInputExample:
+                $ref: '#/components/examples/BatchAssociationArchiveInputExample'
+      responses:
+        '204':
+          description: Successfully archived associations
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /crm/v4/associations/{fromObjectType}/{toObjectType}/labels:
+    get:
+      tags:
+        - Association Label Management
+      operationId: listAssociationLabels
+      summary: List association labels
+      description: >
+        Retrieves all association labels defined for a pair of object types.
+
+        Labels provide human-readable descriptions for different types of
+        associations.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def mockResponse =
+          mockRequest.getResponseByDispatchCriteria("success")
+
+          return "success"
+        delay: 100
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateAppToken: []
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Source object type
+          example: contacts
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Target object type
+          example: companies
+      responses:
+        '200':
+          description: Successfully retrieved association labels
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssociationLabelCollection'
+              examples:
+                success:
+                  $ref: '#/components/examples/AssociationLabelCollectionExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+        - Association Label Management
+      operationId: createAssociationLabel
+      summary: Create an association label
+      description: |
+        Creates a new custom association label for categorizing relationships.
+        Custom labels help distinguish between different types of associations.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def mockResponse =
+          mockRequest.getResponseByDispatchCriteria("success")
+
+          return "success"
+        delay: 100
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateAppToken: []
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Source object type
+          example: contacts
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Target object type
+          example: companies
+      requestBody:
+        required: true
+        description: Label details to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLabelInput'
+            examples:
+              CreateLabelInputExample:
+                $ref: '#/components/examples/CreateLabelInputExample'
+      responses:
+        '200':
+          description: Successfully created association label
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssociationLabel'
+              examples:
+                success:
+                  $ref: '#/components/examples/AssociationLabelExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /crm/v4/associations/{fromObjectType}/{toObjectType}/labels/{associationTypeId}:
+    put:
+      tags:
+        - Association Label Management
+      operationId: updateAssociationLabel
+      summary: Update an association label
+      description: |
+        Updates an existing association label.
+        Modify the display text or inverse label for a custom association type.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "success"
+        delay: 100
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateAppToken: []
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Source object type
+          example: contacts
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Target object type
+          example: companies
+        - name: associationTypeId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Association type ID to update
+          example: 101
+      requestBody:
+        required: true
+        description: Updated label details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLabelInput'
+            examples:
+              CreateLabelInputExample:
+                $ref: '#/components/examples/CreateLabelInputExample'
+      responses:
+        '204':
+          description: Successfully updated association label
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      tags:
+        - Association Label Management
+      operationId: deleteAssociationLabel
+      summary: Delete an association label
+      description: >
+        Deletes a custom association label.
+
+        This removes the label definition but does not affect existing
+        associations.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "success"
+        delay: 100
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateAppToken: []
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Source object type
+          example: contacts
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Target object type
+          example: companies
+        - name: associationTypeId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Association type ID to delete
+          example: 101
+      responses:
+        '204':
+          description: Successfully deleted association label
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /crm/v4/associations/definitions:
+    get:
+      tags:
+        - Association Type Definitions
+      operationId: listAssociationDefinitions
+      summary: List all association definitions
+      description: >
+        Retrieves all association type definitions available in the account.
+
+        Returns both HubSpot-defined and custom association types across all
+        object types.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def mockResponse =
+          mockRequest.getResponseByDispatchCriteria("success")
+
+          return "success"
+        delay: 100
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateAppToken: []
+      responses:
+        '200':
+          description: Successfully retrieved association definitions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssociationDefinitionCollection'
+              examples:
+                success:
+                  $ref: '#/components/examples/AssociationDefinitionCollectionExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'

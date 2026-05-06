@@ -1,0 +1,4984 @@
+openapi: 3.1.0
+info:
+  title: slack-admin-api
+  version: 1.0.0
+  description: >-
+    The Slack Admin API is a set of privileged endpoints primarily under admin.*
+    with related SCIM and Audit Logs APIs that lets Enterprise Grid owners and
+    admins automate organization-wide management and governance. It covers user
+    lifecycle (provision, suspend, assign roles), workspace and channel
+    administration across workspaces (create, move, archive channels; manage
+    membership and settings), app governance (approve/deny or allowlist/ban apps
+    and install them to workspaces), invite request handling, and
+    security/compliance controls such as information barriers, session and
+    authentication policies, and org-level analytics exports.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-admin-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Apps
+    description: Operations for managing app approvals, restrictions, and requests
+  - name: Conversations
+    description: Operations for managing channels and conversations
+  - name: Emoji
+    description: Operations for managing custom emoji
+  - name: Invite Requests
+    description: Operations for managing workspace invite requests
+  - name: Teams
+    description: Operations for managing teams and workspaces
+  - name: Use Groups
+    description: Operations for managing IDP groups and user groups
+  - name: Users
+    description: Operations for managing users and user sessions
+paths:
+  /admin.apps.approve:
+    post:
+      operationId: adminAppsApprove
+      summary: Approve App for Installation
+      description: Approve an app for installation on a workspace.
+      tags:
+        - Applications
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.apps.approve
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAppsApproveRequest'
+            examples:
+              ApproveByAppId:
+                $ref: '#/components/examples/AdminAppsApproveByAppIdRequest'
+              ApproveByRequestId:
+                $ref: '#/components/examples/AdminAppsApproveByRequestIdRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminAppsApproveRequest'
+      responses:
+        '200':
+          description: Successful app approval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.apps:write
+  /admin.apps.approved.list:
+    get:
+      operationId: adminAppsApprovedList
+      summary: List Approved Apps
+      description: List approved apps for an org or workspace.
+      tags:
+        - Applications
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.apps.approved.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/TeamIdQuery'
+        - $ref: '#/components/parameters/EnterpriseIdQuery'
+      responses:
+        '200':
+          description: Successful response with list of approved apps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAppsApprovedListResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminAppsApprovedListSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.apps:read
+  /admin.apps.requests.list:
+    get:
+      operationId: adminAppsRequestsList
+      summary: List App Requests
+      description: List app requests for a team/workspace.
+      tags:
+        - Applications
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.apps.requests.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/TeamIdQuery'
+      responses:
+        '200':
+          description: Successful response with list of app requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAppsRequestsListResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminAppsRequestsListSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                MissingScope:
+                  $ref: '#/components/examples/MissingScopeErrorExample'
+      security:
+        - SlackAuth:
+            - admin.apps:read
+  /admin.apps.restrict:
+    post:
+      operationId: adminAppsRestrict
+      summary: Restrict App Installation
+      description: Restrict an app for installation on a workspace.
+      tags:
+        - Applications
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.apps.restrict
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAppsRestrictRequest'
+            examples:
+              RestrictByAppId:
+                $ref: '#/components/examples/AdminAppsRestrictByAppIdRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminAppsRestrictRequest'
+      responses:
+        '200':
+          description: Successful app restriction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.apps:write
+  /admin.apps.restricted.list:
+    get:
+      operationId: adminAppsRestrictedList
+      summary: List Restricted Apps
+      description: List restricted apps for an org or workspace.
+      tags:
+        - Applications
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.apps.restricted.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/TeamIdQuery'
+        - $ref: '#/components/parameters/EnterpriseIdQuery'
+      responses:
+        '200':
+          description: Successful response with list of restricted apps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAppsRestrictedListResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminAppsRestrictedListSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.apps:read
+  /admin.conversations.archive:
+    post:
+      operationId: adminConversationsArchive
+      summary: Archive Channel
+      description: Archive a public or private channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.archive
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsArchiveRequest'
+            examples:
+              ArchiveChannel:
+                $ref: '#/components/examples/AdminConversationsArchiveRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsArchiveRequest'
+      responses:
+        '200':
+          description: Successful channel archive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConversationsArchiveErrorResponse'
+              examples:
+                ChannelNotFound:
+                  $ref: '#/components/examples/ChannelNotFoundErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.conversations.convertToPrivate:
+    post:
+      operationId: adminConversationsConvertToPrivate
+      summary: Convert Channel to Private
+      description: Convert a public channel to a private channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.convertToPrivate
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsConvertToPrivateRequest'
+            examples:
+              ConvertChannel:
+                $ref: >-
+                  #/components/examples/AdminConversationsConvertToPrivateRequestExample
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsConvertToPrivateRequest'
+      responses:
+        '200':
+          description: Successful channel conversion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/AdminConversationsConvertToPrivateErrorResponse
+              examples:
+                ChannelNotFound:
+                  $ref: '#/components/examples/ChannelNotFoundErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.conversations.create:
+    post:
+      operationId: adminConversationsCreate
+      summary: Create Channel
+      description: Create a public or private channel-based conversation.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.create
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsCreateRequest'
+            examples:
+              CreatePublicChannel:
+                $ref: >-
+                  #/components/examples/AdminConversationsCreatePublicRequestExample
+              CreatePrivateChannel:
+                $ref: >-
+                  #/components/examples/AdminConversationsCreatePrivateRequestExample
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsCreateRequest'
+      responses:
+        '200':
+          description: Successful channel creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConversationsCreateResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminConversationsCreateSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConversationsCreateErrorResponse'
+              examples:
+                NameTaken:
+                  $ref: '#/components/examples/NameTakenErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.conversations.delete:
+    post:
+      operationId: adminConversationsDelete
+      summary: Delete Channel
+      description: Delete a public or private channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.delete
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsDeleteRequest'
+            examples:
+              DeleteChannel:
+                $ref: '#/components/examples/AdminConversationsDeleteRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsDeleteRequest'
+      responses:
+        '200':
+          description: Successful channel deletion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConversationsDeleteErrorResponse'
+              examples:
+                ChannelNotFound:
+                  $ref: '#/components/examples/ChannelNotFoundErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.conversations.disconnectShared:
+    post:
+      operationId: adminConversationsDisconnectShared
+      summary: Disconnect Shared Channel
+      description: Disconnect a connected channel from one or more workspaces.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.disconnectShared
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsDisconnectSharedRequest'
+            examples:
+              DisconnectChannel:
+                $ref: >-
+                  #/components/examples/AdminConversationsDisconnectSharedRequestExample
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsDisconnectSharedRequest'
+      responses:
+        '200':
+          description: Successful disconnect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/AdminConversationsDisconnectSharedErrorResponse
+              examples:
+                ChannelNotFound:
+                  $ref: '#/components/examples/ChannelNotFoundErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.conversations.ekm.listOriginalConnectedChannelInfo:
+    get:
+      operationId: adminConversationsEkmListOriginalConnectedChannelInfo
+      summary: List Original Connected Channel Info for EKM
+      description: >-
+        List all disconnected channels and their original channel IDs for key
+        revocation with EKM.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: >-
+          https://api.slack.com/methods/admin.conversations.ekm.listOriginalConnectedChannelInfo
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+        - name: channel_ids
+          in: query
+          description: A comma-separated list of channels to filter to.
+          schema:
+            type: string
+        - name: team_ids
+          in: query
+          description: A comma-separated list of workspaces to filter channels by.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/CursorParam'
+      responses:
+        '200':
+          description: Successful response with channel info
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/AdminConversationsEkmListOriginalConnectedChannelInfoResponse
+              examples:
+                Success:
+                  $ref: >-
+                    #/components/examples/AdminConversationsEkmListSuccessExample
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:read
+  /admin.conversations.getConversationPrefs:
+    get:
+      operationId: adminConversationsGetConversationPrefs
+      summary: Get Conversation Preferences
+      description: Get conversation preferences for a public or private channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.getConversationPrefs
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - name: channel_id
+          in: query
+          description: The channel to get preferences for.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with conversation preferences
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/AdminConversationsGetConversationPrefsResponse
+              examples:
+                Success:
+                  $ref: >-
+                    #/components/examples/AdminConversationsGetConversationPrefsSuccessExample
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/AdminConversationsGetConversationPrefsErrorResponse
+              examples:
+                ChannelNotFound:
+                  $ref: '#/components/examples/ChannelNotFoundErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:read
+  /admin.conversations.getTeams:
+    get:
+      operationId: adminConversationsGetTeams
+      summary: Get Connected Workspaces
+      description: Get all workspaces a channel is connected to within the Enterprise org.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.getTeams
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - name: channel_id
+          in: query
+          description: The channel to get connected workspaces for.
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful response with team IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConversationsGetTeamsResponse'
+              examples:
+                Success:
+                  $ref: >-
+                    #/components/examples/AdminConversationsGetTeamsSuccessExample
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConversationsGetTeamsErrorResponse'
+              examples:
+                ChannelNotFound:
+                  $ref: '#/components/examples/ChannelNotFoundErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:read
+  /admin.conversations.invite:
+    post:
+      operationId: adminConversationsInvite
+      summary: Invite Users to Channel
+      description: Invite a user to a public or private channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.invite
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsInviteRequest'
+            examples:
+              InviteUsers:
+                $ref: '#/components/examples/AdminConversationsInviteRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsInviteRequest'
+      responses:
+        '200':
+          description: Successful invite
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConversationsInviteErrorResponse'
+              examples:
+                ChannelNotFound:
+                  $ref: '#/components/examples/ChannelNotFoundErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.conversations.rename:
+    post:
+      operationId: adminConversationsRename
+      summary: Rename Channel
+      description: Rename a public or private channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.rename
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsRenameRequest'
+            examples:
+              RenameChannel:
+                $ref: '#/components/examples/AdminConversationsRenameRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsRenameRequest'
+      responses:
+        '200':
+          description: Successful rename
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConversationsRenameErrorResponse'
+              examples:
+                NameTaken:
+                  $ref: '#/components/examples/NameTakenErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.conversations.restrictAccess.addGroup:
+    post:
+      operationId: adminConversationsRestrictAccessAddGroup
+      summary: Add IDP Group to Channel Allowlist
+      description: Add an allowlist of IDP groups for accessing a channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: >-
+          https://api.slack.com/methods/admin.conversations.restrictAccess.addGroup
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: >-
+                #/components/schemas/AdminConversationsRestrictAccessAddGroupRequest
+            examples:
+              AddGroup:
+                $ref: >-
+                  #/components/examples/AdminConversationsRestrictAccessAddGroupRequestExample
+      responses:
+        '200':
+          description: Successful group addition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.conversations.restrictAccess.listGroups:
+    get:
+      operationId: adminConversationsRestrictAccessListGroups
+      summary: List IDP Groups for Channel
+      description: List all IDP Groups linked to a channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: >-
+          https://api.slack.com/methods/admin.conversations.restrictAccess.listGroups
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+        - name: channel_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/TeamIdQuery'
+      responses:
+        '200':
+          description: Successful response with group IDs
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/AdminConversationsRestrictAccessListGroupsResponse
+              examples:
+                Success:
+                  $ref: >-
+                    #/components/examples/AdminConversationsRestrictAccessListGroupsSuccessExample
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:read
+  /admin.conversations.restrictAccess.removeGroup:
+    post:
+      operationId: adminConversationsRestrictAccessRemoveGroup
+      summary: Remove IDP Group from Channel
+      description: Remove a linked IDP group from a private channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: >-
+          https://api.slack.com/methods/admin.conversations.restrictAccess.removeGroup
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: >-
+                #/components/schemas/AdminConversationsRestrictAccessRemoveGroupRequest
+            examples:
+              RemoveGroup:
+                $ref: >-
+                  #/components/examples/AdminConversationsRestrictAccessRemoveGroupRequestExample
+      responses:
+        '200':
+          description: Successful group removal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.conversations.search:
+    get:
+      operationId: adminConversationsSearch
+      summary: Search Channels
+      description: Search for public or private channels in an Enterprise organization.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.search
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - name: team_ids
+          in: query
+          description: Comma separated string of team IDs.
+          schema:
+            type: string
+        - name: query
+          in: query
+          description: Name of the channel to query by.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of items to return (1-20).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 10
+        - $ref: '#/components/parameters/CursorParam'
+        - name: search_channel_types
+          in: query
+          description: The type of channel to include or exclude.
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Sort order (relevant, name, member_count, created).
+          schema:
+            type: string
+            enum:
+              - relevant
+              - name
+              - member_count
+              - created
+        - name: sort_dir
+          in: query
+          description: Sort direction (asc or desc).
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        '200':
+          description: Successful search response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConversationsSearchResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminConversationsSearchSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConversationsSearchErrorResponse'
+              examples:
+                NotAnEnterprise:
+                  $ref: '#/components/examples/NotAnEnterpriseErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:read
+  /admin.conversations.setConversationPrefs:
+    post:
+      operationId: adminConversationsSetConversationPrefs
+      summary: Set Conversation Preferences
+      description: Set the posting permissions for a public or private channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.setConversationPrefs
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: >-
+                #/components/schemas/AdminConversationsSetConversationPrefsRequest
+            examples:
+              SetPrefs:
+                $ref: >-
+                  #/components/examples/AdminConversationsSetConversationPrefsRequestExample
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: >-
+                #/components/schemas/AdminConversationsSetConversationPrefsRequest
+      responses:
+        '200':
+          description: Successful preference update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/AdminConversationsSetConversationPrefsErrorResponse
+              examples:
+                ChannelNotFound:
+                  $ref: '#/components/examples/ChannelNotFoundErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.conversations.setTeams:
+    post:
+      operationId: adminConversationsSetTeams
+      summary: Set Channel Workspaces
+      description: Set the workspaces that connect to a channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.setTeams
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsSetTeamsRequest'
+            examples:
+              SetTeams:
+                $ref: '#/components/examples/AdminConversationsSetTeamsRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsSetTeamsRequest'
+      responses:
+        '200':
+          description: Successful team assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.conversations.unarchive:
+    post:
+      operationId: adminConversationsUnarchive
+      summary: Unarchive Channel
+      description: Unarchive a public or private channel.
+      tags:
+        - Conversations
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.conversations.unarchive
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsUnarchiveRequest'
+            examples:
+              UnarchiveChannel:
+                $ref: >-
+                  #/components/examples/AdminConversationsUnarchiveRequestExample
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminConversationsUnarchiveRequest'
+      responses:
+        '200':
+          description: Successful unarchive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConversationsUnarchiveErrorResponse'
+              examples:
+                ChannelNotArchived:
+                  $ref: '#/components/examples/ChannelNotArchivedErrorExample'
+      security:
+        - SlackAuth:
+            - admin.conversations:write
+  /admin.emoji.add:
+    post:
+      operationId: adminEmojiAdd
+      summary: Add Emoji
+      description: Add an emoji.
+      tags:
+        - Emoji
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.emoji.add
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminEmojiAddRequest'
+            examples:
+              AddEmoji:
+                $ref: '#/components/examples/AdminEmojiAddRequestExample'
+      responses:
+        '200':
+          description: Successful emoji addition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:write
+  /admin.emoji.addAlias:
+    post:
+      operationId: adminEmojiAddAlias
+      summary: Add Emoji Alias
+      description: Add an emoji alias.
+      tags:
+        - Emoji
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.emoji.addAlias
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminEmojiAddAliasRequest'
+            examples:
+              AddAlias:
+                $ref: '#/components/examples/AdminEmojiAddAliasRequestExample'
+      responses:
+        '200':
+          description: Successful alias addition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:write
+  /admin.emoji.list:
+    get:
+      operationId: adminEmojiList
+      summary: List Emoji
+      description: List emoji for an Enterprise Grid organization.
+      tags:
+        - Emoji
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.emoji.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful emoji list response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminEmojiListResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminEmojiListSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:read
+  /admin.emoji.remove:
+    post:
+      operationId: adminEmojiRemove
+      summary: Remove Emoji
+      description: Remove an emoji across an Enterprise Grid organization.
+      tags:
+        - Emoji
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.emoji.remove
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminEmojiRemoveRequest'
+            examples:
+              RemoveEmoji:
+                $ref: '#/components/examples/AdminEmojiRemoveRequestExample'
+      responses:
+        '200':
+          description: Successful emoji removal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:write
+  /admin.emoji.rename:
+    post:
+      operationId: adminEmojiRename
+      summary: Rename Emoji
+      description: Rename an emoji.
+      tags:
+        - Emoji
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.emoji.rename
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminEmojiRenameRequest'
+            examples:
+              RenameEmoji:
+                $ref: '#/components/examples/AdminEmojiRenameRequestExample'
+      responses:
+        '200':
+          description: Successful emoji rename
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:write
+  /admin.Invite Requests.approve:
+    post:
+      operationId: adminInvite RequestsApprove
+      summary: Approve Invite Request
+      description: Approve a workspace invite request.
+      tags:
+        - Invite Requests
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.Invite Requests.approve
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminInvite RequestsApproveRequest'
+            examples:
+              ApproveRequest:
+                $ref: '#/components/examples/AdminInviteRequestsApproveRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminInvite RequestsApproveRequest'
+      responses:
+        '200':
+          description: Successful approval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.invites:write
+  /admin.Invite Requests.approved.list:
+    get:
+      operationId: adminInvite RequestsApprovedList
+      summary: List Approved Invite Requests
+      description: List all approved workspace invite requests.
+      tags:
+        - Invite Requests
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.Invite Requests.approved.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - $ref: '#/components/parameters/TeamIdQuery'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.invites:read
+  /admin.Invite Requests.denied.list:
+    get:
+      operationId: adminInvite RequestsDeniedList
+      summary: List Denied Invite Requests
+      description: List all denied workspace invite requests.
+      tags:
+        - Invite Requests
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.Invite Requests.denied.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - $ref: '#/components/parameters/TeamIdQuery'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.invites:read
+  /admin.Invite Requests.deny:
+    post:
+      operationId: adminInvite RequestsDeny
+      summary: Deny Invite Request
+      description: Deny a workspace invite request.
+      tags:
+        - Invite Requests
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.Invite Requests.deny
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminInvite RequestsDenyRequest'
+            examples:
+              DenyRequest:
+                $ref: '#/components/examples/AdminInviteRequestsDenyRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminInvite RequestsDenyRequest'
+      responses:
+        '200':
+          description: Successful denial
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.invites:write
+  /admin.Invite Requests.list:
+    get:
+      operationId: adminInvite RequestsList
+      summary: List Pending Invite Requests
+      description: List all pending workspace invite requests.
+      tags:
+        - Invite Requests
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.Invite Requests.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - $ref: '#/components/parameters/TeamIdQuery'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.invites:read
+  /admin.teams.admins.list:
+    get:
+      operationId: adminTeamsAdminsList
+      summary: List Workspace Admins
+      description: List all of the admins on a given workspace.
+      tags:
+        - Teams
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.teams.admins.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/CursorParam'
+        - name: team_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with admin IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTeamsAdminsListResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminTeamsAdminsListSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:read
+  /admin.teams.create:
+    post:
+      operationId: adminTeamsCreate
+      summary: Create Enterprise Team
+      description: Create an Enterprise team.
+      tags:
+        - Teams
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.teams.create
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTeamsCreateRequest'
+            examples:
+              CreateTeam:
+                $ref: '#/components/examples/AdminTeamsCreateRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminTeamsCreateRequest'
+      responses:
+        '200':
+          description: Successful team creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTeamsCreateResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminTeamsCreateSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:write
+  /admin.teams.list:
+    get:
+      operationId: adminTeamsList
+      summary: List Enterprise Teams
+      description: List all teams on an Enterprise organization.
+      tags:
+        - Teams
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.teams.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - name: limit
+          in: query
+          description: Maximum number of items to return (1-100).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - $ref: '#/components/parameters/CursorParam'
+      responses:
+        '200':
+          description: Successful response with teams list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTeamsListResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminTeamsListSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:read
+  /admin.teams.owners.list:
+    get:
+      operationId: adminTeamsOwnersList
+      summary: List Workspace Owners
+      description: List all of the owners on a given workspace.
+      tags:
+        - Teams
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.teams.owners.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+        - name: team_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/CursorParam'
+      responses:
+        '200':
+          description: Successful response with owner IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTeamsOwnersListResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminTeamsOwnersListSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:read
+  /admin.teams.settings.info:
+    get:
+      operationId: adminTeamsSettingsInfo
+      summary: Get Workspace Settings
+      description: Fetch information about settings in a workspace.
+      tags:
+        - Teams
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.teams.settings.info
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - name: team_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with team settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTeamsSettingsInfoResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminTeamsSettingsInfoSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:read
+  /admin.teams.settings.setDefaultChannels:
+    post:
+      operationId: adminTeamsSettingsSetDefaultChannels
+      summary: Set Default Channels
+      description: Set the default channels of a workspace.
+      tags:
+        - Teams
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.teams.settings.setDefaultChannels
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminTeamsSettingsSetDefaultChannelsRequest'
+            examples:
+              SetDefaultChannels:
+                $ref: >-
+                  #/components/examples/AdminTeamsSettingsSetDefaultChannelsRequestExample
+      responses:
+        '200':
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:write
+  /admin.teams.settings.setDescription:
+    post:
+      operationId: adminTeamsSettingsSetDescription
+      summary: Set Workspace Description
+      description: Set the description of a given workspace.
+      tags:
+        - Teams
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.teams.settings.setDescription
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTeamsSettingsSetDescriptionRequest'
+            examples:
+              SetDescription:
+                $ref: >-
+                  #/components/examples/AdminTeamsSettingsSetDescriptionRequestExample
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminTeamsSettingsSetDescriptionRequest'
+      responses:
+        '200':
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:write
+  /admin.teams.settings.setDiscoverability:
+    post:
+      operationId: adminTeamsSettingsSetDiscoverability
+      summary: Set Workspace Discoverability
+      description: Set the discoverability of a given workspace.
+      tags:
+        - Teams
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.teams.settings.setDiscoverability
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTeamsSettingsSetDiscoverabilityRequest'
+            examples:
+              SetDiscoverability:
+                $ref: >-
+                  #/components/examples/AdminTeamsSettingsSetDiscoverabilityRequestExample
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminTeamsSettingsSetDiscoverabilityRequest'
+      responses:
+        '200':
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:write
+  /admin.teams.settings.setIcon:
+    post:
+      operationId: adminTeamsSettingsSetIcon
+      summary: Set Workspace Icon
+      description: Sets the icon of a workspace.
+      tags:
+        - Teams
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.teams.settings.setIcon
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminTeamsSettingsSetIconRequest'
+            examples:
+              SetIcon:
+                $ref: '#/components/examples/AdminTeamsSettingsSetIconRequestExample'
+      responses:
+        '200':
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:write
+  /admin.teams.settings.setName:
+    post:
+      operationId: adminTeamsSettingsSetName
+      summary: Set Workspace Name
+      description: Set the name of a given workspace.
+      tags:
+        - Teams
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.teams.settings.setName
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTeamsSettingsSetNameRequest'
+            examples:
+              SetName:
+                $ref: '#/components/examples/AdminTeamsSettingsSetNameRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminTeamsSettingsSetNameRequest'
+      responses:
+        '200':
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:write
+  /admin.Use Groups.addChannels:
+    post:
+      operationId: adminUse GroupsAddChannels
+      summary: Add Default Channels to IDP Group
+      description: Add one or more default channels to an IDP group.
+      tags:
+        - Use Groups
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.Use Groups.addChannels
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUse GroupsAddChannelsRequest'
+            examples:
+              AddChannels:
+                $ref: '#/components/examples/AdminUse GroupsAddChannelsRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUse GroupsAddChannelsRequest'
+      responses:
+        '200':
+          description: Successful channel addition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                NotAnAdmin:
+                  $ref: '#/components/examples/NotAnAdminErrorExample'
+      security:
+        - SlackAuth:
+            - admin.Use Groups:write
+  /admin.Use Groups.addTeams:
+    post:
+      operationId: adminUse GroupsAddTeams
+      summary: Add Workspaces to IDP Group
+      description: >-
+        Associate one or more default workspaces with an organization-wide IDP
+        group.
+      tags:
+        - Use Groups
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.Use Groups.addTeams
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUse GroupsAddTeamsRequest'
+            examples:
+              AddTeams:
+                $ref: '#/components/examples/AdminUse GroupsAddTeamsRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUse GroupsAddTeamsRequest'
+      responses:
+        '200':
+          description: Successful team addition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.teams:write
+  /admin.Use Groups.listChannels:
+    get:
+      operationId: adminUse GroupsListChannels
+      summary: List IDP Group Channels
+      description: List the channels linked to an org-level IDP group.
+      tags:
+        - Use Groups
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.Use Groups.listChannels
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - name: usergroup_id
+          in: query
+          description: ID of the IDP group to list default channels for.
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/TeamIdQuery'
+        - name: include_num_members
+          in: query
+          description: Flag to include or exclude the count of members per channel.
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response with channels
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUse GroupsListChannelsResponse'
+              examples:
+                Success:
+                  $ref: >-
+                    #/components/examples/AdminUse
+                    GroupsListChannelsSuccessExample
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                NotAnAdmin:
+                  $ref: '#/components/examples/NotAnAdminErrorExample'
+      security:
+        - SlackAuth:
+            - admin.Use Groups:read
+  /admin.Use Groups.removeChannels:
+    post:
+      operationId: adminUse GroupsRemoveChannels
+      summary: Remove Channels from IDP Group
+      description: Remove one or more default channels from an org-level IDP group.
+      tags:
+        - Use Groups
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.Use Groups.removeChannels
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUse GroupsRemoveChannelsRequest'
+            examples:
+              RemoveChannels:
+                $ref: >-
+                  #/components/examples/AdminUse
+                  GroupsRemoveChannelsRequestExample
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUse GroupsRemoveChannelsRequest'
+      responses:
+        '200':
+          description: Successful channel removal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                NotAnAdmin:
+                  $ref: '#/components/examples/NotAnAdminErrorExample'
+      security:
+        - SlackAuth:
+            - admin.Use Groups:write
+  /admin.users.assign:
+    post:
+      operationId: adminUsersAssign
+      summary: Assign User to Workspace
+      description: Add an Enterprise user to a workspace.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.users.assign
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUsersAssignRequest'
+            examples:
+              AssignUser:
+                $ref: '#/components/examples/AdminUsersAssignRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUsersAssignRequest'
+      responses:
+        '200':
+          description: Successful user assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.users:write
+  /admin.users.invite:
+    post:
+      operationId: adminUsersInvite
+      summary: Invite User to Workspace
+      description: Invite a user to a workspace.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.users.invite
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUsersInviteRequest'
+            examples:
+              InviteUser:
+                $ref: '#/components/examples/AdminUsersInviteRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUsersInviteRequest'
+      responses:
+        '200':
+          description: Successful user invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.users:write
+  /admin.users.list:
+    get:
+      operationId: adminUsersList
+      summary: List Workspace Users
+      description: List users on a workspace.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.users.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - name: team_id
+          in: query
+          description: The ID (T1234) of the workspace.
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful response with users list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUsersListResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AdminUsersListSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.users:read
+  /admin.users.remove:
+    post:
+      operationId: adminUsersRemove
+      summary: Remove User from Workspace
+      description: Remove a user from a workspace.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.users.remove
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUsersRemoveRequest'
+            examples:
+              RemoveUser:
+                $ref: '#/components/examples/AdminUsersRemoveRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUsersRemoveRequest'
+      responses:
+        '200':
+          description: Successful user removal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.users:write
+  /admin.users.session.invalidate:
+    post:
+      operationId: adminUsersSessionInvalidate
+      summary: Invalidate User Session
+      description: Invalidate a single session for a user by session_id.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.users.session.invalidate
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSessionInvalidateRequest'
+            examples:
+              InvalidateSession:
+                $ref: >-
+                  #/components/examples/AdminUsersSessionInvalidateRequestExample
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSessionInvalidateRequest'
+      responses:
+        '200':
+          description: Successful session invalidation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.users:write
+  /admin.users.session.reset:
+    post:
+      operationId: adminUsersSessionReset
+      summary: Reset User Sessions
+      description: Wipes all valid sessions on all devices for a given user.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.users.session.reset
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSessionResetRequest'
+            examples:
+              ResetSession:
+                $ref: '#/components/examples/AdminUsersSessionResetRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSessionResetRequest'
+      responses:
+        '200':
+          description: Successful session reset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.users:write
+  /admin.users.setAdmin:
+    post:
+      operationId: adminUsersSetAdmin
+      summary: Set User as Admin
+      description: Set an existing guest, regular user, or owner to be an admin user.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.users.setAdmin
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSetAdminRequest'
+            examples:
+              SetAdmin:
+                $ref: '#/components/examples/AdminUsersSetAdminRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSetAdminRequest'
+      responses:
+        '200':
+          description: Successful admin assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.users:write
+  /admin.users.setExpiration:
+    post:
+      operationId: adminUsersSetExpiration
+      summary: Set Guest User Expiration
+      description: Set an expiration for a guest user.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.users.setExpiration
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSetExpirationRequest'
+            examples:
+              SetExpiration:
+                $ref: '#/components/examples/AdminUsersSetExpirationRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSetExpirationRequest'
+      responses:
+        '200':
+          description: Successful expiration setting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.users:write
+  /admin.users.setOwner:
+    post:
+      operationId: adminUsersSetOwner
+      summary: Set User as Owner
+      description: >-
+        Set an existing guest, regular user, or admin user to be a workspace
+        owner.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.users.setOwner
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSetOwnerRequest'
+            examples:
+              SetOwner:
+                $ref: '#/components/examples/AdminUsersSetOwnerRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSetOwnerRequest'
+      responses:
+        '200':
+          description: Successful owner assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.users:write
+  /admin.users.setRegular:
+    post:
+      operationId: adminUsersSetRegular
+      summary: Set User as Regular
+      description: Set an existing guest user, admin user, or owner to be a regular user.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/admin.users.setRegular
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSetRegularRequest'
+            examples:
+              SetRegular:
+                $ref: '#/components/examples/AdminUsersSetRegularRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUsersSetRegularRequest'
+      responses:
+        '200':
+          description: Successful regular user assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - admin.users:write
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            admin.apps:read: Read access to admin apps
+            admin.apps:write: Write access to admin apps
+            admin.conversations:read: Read access to admin conversations
+            admin.conversations:write: Write access to admin conversations
+            admin.invites:read: Read access to admin invites
+            admin.invites:write: Write access to admin invites
+            admin.teams:read: Read access to admin teams
+            admin.teams:write: Write access to admin teams
+            admin.Use Groups:read: Read access to admin Use Groups
+            admin.Use Groups:write: Write access to admin Use Groups
+            admin.users:read: Read access to admin users
+            admin.users:write: Write access to admin users
+  parameters:
+    TokenHeader:
+      name: token
+      in: header
+      description: Authentication token with required scopes
+      required: true
+      schema:
+        type: string
+    TokenQuery:
+      name: token
+      in: query
+      description: Authentication token with required scopes
+      required: true
+      schema:
+        type: string
+    LimitParam:
+      name: limit
+      in: query
+      description: The maximum number of items to return (1-1000).
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+    CursorParam:
+      name: cursor
+      in: query
+      description: Set cursor to next_cursor from previous call for pagination.
+      schema:
+        type: string
+    TeamIdQuery:
+      name: team_id
+      in: query
+      description: The ID of the workspace.
+      schema:
+        type: string
+    EnterpriseIdQuery:
+      name: enterprise_id
+      in: query
+      description: The ID of the enterprise organization.
+      schema:
+        type: string
+  schemas:
+    DefaultSuccessResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+      additionalProperties: true
+    DefaultErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+      additionalProperties: true
+    ResponseMetadata:
+      type: object
+      properties:
+        next_cursor:
+          type: string
+    AppInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        help_url:
+          type: string
+        privacy_policy_url:
+          type: string
+        app_homepage_url:
+          type: string
+        app_directory_url:
+          type: string
+        is_app_directory_approved:
+          type: boolean
+        is_internal:
+          type: boolean
+        additional_info:
+          type: string
+        icons:
+          $ref: '#/components/schemas/AppIcons'
+    AppIcons:
+      type: object
+      properties:
+        image_32:
+          type: string
+        image_36:
+          type: string
+        image_48:
+          type: string
+        image_64:
+          type: string
+        image_72:
+          type: string
+        image_96:
+          type: string
+        image_128:
+          type: string
+        image_192:
+          type: string
+        image_512:
+          type: string
+        image_1024:
+          type: string
+        image_original:
+          type: string
+    AppScope:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        is_sensitive:
+          type: boolean
+        token_type:
+          type: string
+    ApprovedApp:
+      type: object
+      properties:
+        app:
+          $ref: '#/components/schemas/AppInfo'
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppScope'
+        date_updated:
+          type: integer
+        last_resolved_by:
+          $ref: '#/components/schemas/ActorInfo'
+    RestrictedApp:
+      type: object
+      properties:
+        app:
+          $ref: '#/components/schemas/AppInfo'
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppScope'
+        date_updated:
+          type: integer
+        last_resolved_by:
+          $ref: '#/components/schemas/ActorInfo'
+    ActorInfo:
+      type: object
+      properties:
+        actor_id:
+          type: string
+        actor_type:
+          type: string
+    AppRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        app:
+          $ref: '#/components/schemas/AppInfo'
+        user:
+          $ref: '#/components/schemas/RequestUser'
+        team:
+          $ref: '#/components/schemas/RequestTeam'
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppScope'
+        message:
+          type: string
+        date_created:
+          type: integer
+        previous_resolution:
+          type: string
+          nullable: true
+    RequestUser:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+    RequestTeam:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+    ChannelInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        name_normalized:
+          type: string
+        is_channel:
+          type: boolean
+        is_group:
+          type: boolean
+        is_im:
+          type: boolean
+        is_mpim:
+          type: boolean
+        is_private:
+          type: boolean
+        is_archived:
+          type: boolean
+        is_general:
+          type: boolean
+        is_shared:
+          type: boolean
+        is_ext_shared:
+          type: boolean
+        is_org_shared:
+          type: boolean
+        is_pending_ext_shared:
+          type: boolean
+        is_member:
+          type: boolean
+        unlinked:
+          type: integer
+        created:
+          type: integer
+        creator:
+          type: string
+        num_members:
+          type: integer
+        pending_shared:
+          type: array
+          items:
+            type: string
+        previous_names:
+          type: array
+          items:
+            type: string
+        topic:
+          $ref: '#/components/schemas/ChannelTopic'
+        purpose:
+          $ref: '#/components/schemas/ChannelPurpose'
+    ChannelTopic:
+      type: object
+      properties:
+        value:
+          type: string
+        creator:
+          type: string
+        last_set:
+          type: integer
+    ChannelPurpose:
+      type: object
+      properties:
+        value:
+          type: string
+        creator:
+          type: string
+        last_set:
+          type: integer
+    ConversationPrefs:
+      type: object
+      properties:
+        who_can_post:
+          $ref: '#/components/schemas/PermissionSetting'
+        can_thread:
+          $ref: '#/components/schemas/PermissionSetting'
+    PermissionSetting:
+      type: object
+      properties:
+        type:
+          type: array
+          items:
+            type: string
+        user:
+          type: array
+          items:
+            type: string
+    TeamInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        discoverability:
+          type: string
+        primary_owner:
+          $ref: '#/components/schemas/PrimaryOwner'
+        team_url:
+          type: string
+    PrimaryOwner:
+      type: object
+      properties:
+        user_id:
+          type: string
+        email:
+          type: string
+    TeamSettingsInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        email_domain:
+          type: string
+        enterprise_id:
+          type: string
+        enterprise_name:
+          type: string
+        default_channels:
+          type: array
+          items:
+            type: string
+        icon:
+          type: object
+    UsergroupChannel:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        team_id:
+          type: string
+        num_members:
+          type: integer
+        is_redacted:
+          type: boolean
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        is_admin:
+          type: boolean
+        is_owner:
+          type: boolean
+        is_primary_owner:
+          type: boolean
+        is_restricted:
+          type: boolean
+        is_ultra_restricted:
+          type: boolean
+        is_bot:
+          type: boolean
+    EkmChannelInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        internal_team_ids:
+          type: array
+          items:
+            type: string
+        original_connected_channel_id:
+          type: string
+        original_connected_host_id:
+          type: string
+    AdminAppsApproveRequest:
+      type: object
+      properties:
+        app_id:
+          type: string
+          description: The id of the app to approve.
+        request_id:
+          type: string
+          description: The id of the request to approve.
+        team_id:
+          type: string
+          description: The workspace ID.
+    AdminAppsRestrictRequest:
+      type: object
+      properties:
+        app_id:
+          type: string
+          description: The id of the app to restrict.
+        request_id:
+          type: string
+          description: The id of the request to restrict.
+        team_id:
+          type: string
+          description: The workspace ID.
+    AdminConversationsArchiveRequest:
+      type: object
+      required:
+        - channel_id
+      properties:
+        channel_id:
+          type: string
+          description: The channel to archive.
+    AdminConversationsConvertToPrivateRequest:
+      type: object
+      required:
+        - channel_id
+      properties:
+        channel_id:
+          type: string
+          description: The channel to convert to private.
+    AdminConversationsCreateRequest:
+      type: object
+      required:
+        - name
+        - is_private
+      properties:
+        name:
+          type: string
+          description: Name of the public or private channel to create.
+        description:
+          type: string
+          description: Description of the public or private channel to create.
+        is_private:
+          type: boolean
+          description: When true, creates a private channel instead of a public channel.
+        org_wide:
+          type: boolean
+          description: When true, the channel will be available org-wide.
+        team_id:
+          type: string
+          description: The workspace to create the channel in.
+    AdminConversationsDeleteRequest:
+      type: object
+      required:
+        - channel_id
+      properties:
+        channel_id:
+          type: string
+          description: The channel to delete.
+    AdminConversationsDisconnectSharedRequest:
+      type: object
+      required:
+        - channel_id
+      properties:
+        channel_id:
+          type: string
+          description: The channel to be disconnected from some workspaces.
+        leaving_team_ids:
+          type: string
+          description: The team to be removed from the channel.
+    AdminConversationsInviteRequest:
+      type: object
+      required:
+        - channel_id
+        - user_ids
+      properties:
+        channel_id:
+          type: string
+          description: The channel that the users will be invited to.
+        user_ids:
+          type: string
+          description: The users to invite.
+    AdminConversationsRenameRequest:
+      type: object
+      required:
+        - channel_id
+        - name
+      properties:
+        channel_id:
+          type: string
+          description: The channel to rename.
+        name:
+          type: string
+          description: The new name for the channel.
+    AdminConversationsRestrictAccessAddGroupRequest:
+      type: object
+      required:
+        - token
+        - channel_id
+        - group_id
+      properties:
+        token:
+          type: string
+          description: Authentication token.
+        channel_id:
+          type: string
+          description: The channel to link this group to.
+        group_id:
+          type: string
+          description: The IDP Group ID to be an allowlist for the private channel.
+        team_id:
+          type: string
+          description: The workspace where the channel exists.
+    AdminConversationsRestrictAccessRemoveGroupRequest:
+      type: object
+      required:
+        - token
+        - channel_id
+        - group_id
+        - team_id
+      properties:
+        token:
+          type: string
+          description: Authentication token.
+        channel_id:
+          type: string
+          description: The channel to remove the linked group from.
+        group_id:
+          type: string
+          description: The IDP Group ID to remove from the private channel.
+        team_id:
+          type: string
+          description: The workspace where the channel exists.
+    AdminConversationsSetConversationPrefsRequest:
+      type: object
+      required:
+        - channel_id
+        - prefs
+      properties:
+        channel_id:
+          type: string
+          description: The channel to set the prefs for.
+        prefs:
+          type: string
+          description: The prefs for this channel in a stringified JSON format.
+    AdminConversationsSetTeamsRequest:
+      type: object
+      required:
+        - channel_id
+      properties:
+        channel_id:
+          type: string
+          description: The encoded channel_id to add or remove to workspaces.
+        team_id:
+          type: string
+          description: The workspace to which the channel belongs.
+        target_team_ids:
+          type: string
+          description: >-
+            A comma-separated list of workspaces to which the channel should be
+            shared.
+        org_channel:
+          type: boolean
+          description: True if channel has to be converted to an org channel.
+    AdminConversationsUnarchiveRequest:
+      type: object
+      required:
+        - channel_id
+      properties:
+        channel_id:
+          type: string
+          description: The channel to unarchive.
+    AdminEmojiAddRequest:
+      type: object
+      required:
+        - token
+        - name
+        - url
+      properties:
+        token:
+          type: string
+          description: Authentication token.
+        name:
+          type: string
+          description: The name of the emoji to be added.
+        url:
+          type: string
+          description: The URL of a file to use as an image for the emoji.
+    AdminEmojiAddAliasRequest:
+      type: object
+      required:
+        - token
+        - name
+        - alias_for
+      properties:
+        token:
+          type: string
+          description: Authentication token.
+        name:
+          type: string
+          description: The name of the emoji to be aliased.
+        alias_for:
+          type: string
+          description: The alias of the emoji.
+    AdminEmojiRemoveRequest:
+      type: object
+      required:
+        - token
+        - name
+      properties:
+        token:
+          type: string
+          description: Authentication token.
+        name:
+          type: string
+          description: The name of the emoji to be removed.
+    AdminEmojiRenameRequest:
+      type: object
+      required:
+        - token
+        - name
+        - new_name
+      properties:
+        token:
+          type: string
+          description: Authentication token.
+        name:
+          type: string
+          description: The name of the emoji to be renamed.
+        new_name:
+          type: string
+          description: The new name of the emoji.
+    AdminInvite RequestsApproveRequest:
+      type: object
+      required:
+        - invite_request_id
+      properties:
+        invite_request_id:
+          type: string
+          description: ID of the request to invite.
+        team_id:
+          type: string
+          description: ID for the workspace where the invite request was made.
+    AdminInvite RequestsDenyRequest:
+      type: object
+      required:
+        - invite_request_id
+      properties:
+        invite_request_id:
+          type: string
+          description: ID of the request to invite.
+        team_id:
+          type: string
+          description: ID for the workspace where the invite request was made.
+    AdminTeamsCreateRequest:
+      type: object
+      required:
+        - team_domain
+        - team_name
+      properties:
+        team_domain:
+          type: string
+          description: Team domain (for example, slacksoftballteam).
+        team_name:
+          type: string
+          description: Team name (for example, Slack Softball Team).
+        team_description:
+          type: string
+          description: Description for the team.
+        team_discoverability:
+          type: string
+          description: Who can join the team (open, closed, invite_only, or unlisted).
+          enum:
+            - open
+            - closed
+            - invite_only
+            - unlisted
+    AdminTeamsSettingsSetDefaultChannelsRequest:
+      type: object
+      required:
+        - token
+        - team_id
+        - channel_ids
+      properties:
+        token:
+          type: string
+          description: Authentication token.
+        team_id:
+          type: string
+          description: ID for the workspace to set the default channel for.
+        channel_ids:
+          type: string
+          description: An array of channel IDs.
+    AdminTeamsSettingsSetDescriptionRequest:
+      type: object
+      required:
+        - team_id
+        - description
+      properties:
+        team_id:
+          type: string
+          description: ID for the workspace to set the description for.
+        description:
+          type: string
+          description: The new description for the workspace.
+    AdminTeamsSettingsSetDiscoverabilityRequest:
+      type: object
+      required:
+        - team_id
+        - discoverability
+      properties:
+        team_id:
+          type: string
+          description: The ID of the workspace to set discoverability on.
+        discoverability:
+          type: string
+          description: This workspace's discovery setting.
+          enum:
+            - open
+            - invite_only
+            - closed
+            - unlisted
+    AdminTeamsSettingsSetIconRequest:
+      type: object
+      required:
+        - token
+        - image_url
+        - team_id
+      properties:
+        token:
+          type: string
+          description: Authentication token.
+        image_url:
+          type: string
+          description: Image URL for the icon.
+        team_id:
+          type: string
+          description: ID for the workspace to set the icon for.
+    AdminTeamsSettingsSetNameRequest:
+      type: object
+      required:
+        - team_id
+        - name
+      properties:
+        team_id:
+          type: string
+          description: ID for the workspace to set the name for.
+        name:
+          type: string
+          description: The new name of the workspace.
+    AdminUse GroupsAddChannelsRequest:
+      type: object
+      required:
+        - usergroup_id
+        - channel_ids
+      properties:
+        usergroup_id:
+          type: string
+          description: ID of the IDP group to add default channels for.
+        channel_ids:
+          type: string
+          description: Comma separated string of channel IDs.
+        team_id:
+          type: string
+          description: The workspace to add default channels in.
+    AdminUse GroupsAddTeamsRequest:
+      type: object
+      required:
+        - usergroup_id
+        - team_ids
+      properties:
+        usergroup_id:
+          type: string
+          description: An encoded usergroup (IDP Group) ID.
+        team_ids:
+          type: string
+          description: A comma separated list of encoded team (workspace) IDs.
+        auto_provision:
+          type: boolean
+          description: >-
+            When true, automatically creates new workspace accounts for the IDP
+            group members.
+    AdminUse GroupsRemoveChannelsRequest:
+      type: object
+      required:
+        - usergroup_id
+        - channel_ids
+      properties:
+        usergroup_id:
+          type: string
+          description: ID of the IDP Group.
+        channel_ids:
+          type: string
+          description: Comma-separated string of channel IDs.
+    AdminUsersAssignRequest:
+      type: object
+      required:
+        - team_id
+        - user_id
+      properties:
+        team_id:
+          type: string
+          description: The ID (T1234) of the workspace.
+        user_id:
+          type: string
+          description: The ID of the user to add to the workspace.
+        is_restricted:
+          type: boolean
+          description: True if user should be added to the workspace as a guest.
+        is_ultra_restricted:
+          type: boolean
+          description: >-
+            True if user should be added to the workspace as a single-channel
+            guest.
+        channel_ids:
+          type: string
+          description: >-
+            Comma separated values of channel IDs to add user in the new
+            workspace.
+    AdminUsersInviteRequest:
+      type: object
+      required:
+        - team_id
+        - email
+        - channel_ids
+      properties:
+        team_id:
+          type: string
+          description: The ID (T1234) of the workspace.
+        email:
+          type: string
+          description: The email address of the person to invite.
+        channel_ids:
+          type: string
+          description: A comma-separated list of channel_ids for this user to join.
+        custom_message:
+          type: string
+          description: An optional message to send to the user in the invite email.
+        real_name:
+          type: string
+          description: Full name of the user.
+        resend:
+          type: boolean
+          description: >-
+            Allow this invite to be resent in the future if a user has not
+            signed up yet.
+        is_restricted:
+          type: boolean
+          description: Is this user a multi-channel guest user?
+        is_ultra_restricted:
+          type: boolean
+          description: Is this user a single channel guest user?
+        guest_expiration_ts:
+          type: string
+          description: Timestamp when guest account should be disabled.
+    AdminUsersRemoveRequest:
+      type: object
+      required:
+        - team_id
+        - user_id
+      properties:
+        team_id:
+          type: string
+          description: The ID (T1234) of the workspace.
+        user_id:
+          type: string
+          description: The ID of the user to remove.
+    AdminUsersSessionInvalidateRequest:
+      type: object
+      required:
+        - team_id
+        - session_id
+      properties:
+        team_id:
+          type: string
+          description: ID of the team that the session belongs to.
+        session_id:
+          type: integer
+          format: int32
+          description: The session ID to invalidate.
+    AdminUsersSessionResetRequest:
+      type: object
+      required:
+        - user_id
+      properties:
+        user_id:
+          type: string
+          description: The ID of the user to wipe sessions for.
+        mobile_only:
+          type: boolean
+          description: Only expire mobile sessions.
+        web_only:
+          type: boolean
+          description: Only expire web sessions.
+    AdminUsersSetAdminRequest:
+      type: object
+      required:
+        - team_id
+        - user_id
+      properties:
+        team_id:
+          type: string
+          description: The ID (T1234) of the workspace.
+        user_id:
+          type: string
+          description: The ID of the user to designate as an admin.
+    AdminUsersSetExpirationRequest:
+      type: object
+      required:
+        - team_id
+        - user_id
+        - expiration_ts
+      properties:
+        team_id:
+          type: string
+          description: The ID (T1234) of the workspace.
+        user_id:
+          type: string
+          description: The ID of the user to set an expiration for.
+        expiration_ts:
+          type: integer
+          format: int32
+          description: Timestamp when guest account should be disabled.
+    AdminUsersSetOwnerRequest:
+      type: object
+      required:
+        - team_id
+        - user_id
+      properties:
+        team_id:
+          type: string
+          description: The ID (T1234) of the workspace.
+        user_id:
+          type: string
+          description: Id of the user to promote to owner.
+    AdminUsersSetRegularRequest:
+      type: object
+      required:
+        - team_id
+        - user_id
+      properties:
+        team_id:
+          type: string
+          description: The ID (T1234) of the workspace.
+        user_id:
+          type: string
+          description: The ID of the user to designate as a regular user.
+    AdminAppsApprovedListResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        approved_apps:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApprovedApp'
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+    AdminAppsRestrictedListResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        restricted_apps:
+          type: array
+          items:
+            $ref: '#/components/schemas/RestrictedApp'
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+    AdminAppsRequestsListResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        app_requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppRequest'
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+    AdminConversationsCreateResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        channel_id:
+          type: string
+    AdminConversationsArchiveErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - channel_not_found
+            - channel_type_not_supported
+            - default_org_wide_channel
+            - already_archived
+            - cant_archive_general
+            - restricted_action
+            - could_not_archive_channel
+    AdminConversationsConvertToPrivateErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - restricted_action
+            - name_taken
+            - channel_not_found
+            - channel_type_not_supported
+            - default_org_wide_channel
+            - method_not_supported_for_channel_type
+            - could_not_convert_channel
+            - external_channel_migrating
+    AdminConversationsCreateErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - name_taken
+            - restricted_action
+            - team_not_found
+            - invalid_team
+            - invalid_name
+            - could_not_create_channel
+            - team_id_or_org_required
+    AdminConversationsDeleteErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - not_an_admin
+            - channel_not_found
+            - channel_type_not_supported
+            - default_org_wide_channel
+            - restricted_action
+            - could_not_delete_channel
+            - missing_scope
+    AdminConversationsDisconnectSharedErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - not_an_admin
+            - not_an_enterprise
+            - channel_not_found
+            - not_supported
+            - team_not_found
+            - restricted_action
+            - missing_scope
+            - leaving_team_not_in_channel
+            - no_teams_to_disconnect
+            - leaving_team_required
+            - cannot_kick_team
+            - cannot_kick_home_team
+    AdminConversationsEkmListOriginalConnectedChannelInfoResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/EkmChannelInfo'
+    AdminConversationsGetConversationPrefsResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        prefs:
+          $ref: '#/components/schemas/ConversationPrefs'
+    AdminConversationsGetConversationPrefsErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - not_an_admin
+            - not_an_enterprise
+            - restricted_action
+            - missing_scope
+            - channel_not_found
+            - channel_type_not_supported
+            - could_not_get_conversation_prefs
+    AdminConversationsGetTeamsResponse:
+      type: object
+      required:
+        - ok
+        - team_ids
+      properties:
+        ok:
+          type: boolean
+          const: true
+        team_ids:
+          type: array
+          items:
+            type: string
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+    AdminConversationsGetTeamsErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - channel_not_found
+            - channel_type_not_supported
+            - unsupported_team_type
+            - restricted_action
+            - could_not_get_teams
+            - invalid_cursor
+            - invalid_limit
+    AdminConversationsInviteErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - channel_not_found
+            - channel_type_not_supported
+            - default_org_wide_channel
+            - restricted_action
+            - user_must_be_admin
+            - failed_for_some_users
+    AdminConversationsRenameErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - channel_not_found
+            - channel_type_not_supported
+            - restricted_action
+            - could_not_rename_channel
+            - default_org_wide_channel
+            - name_taken
+    AdminConversationsRestrictAccessListGroupsResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        group_ids:
+          type: array
+          items:
+            type: string
+    AdminConversationsSearchResponse:
+      type: object
+      required:
+        - channels
+        - next_cursor
+      properties:
+        ok:
+          type: boolean
+          const: true
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChannelInfo'
+        next_cursor:
+          type: string
+    AdminConversationsSearchErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - not_an_admin
+            - not_an_enterprise
+            - team_not_found
+            - not_allowed
+            - invalid_auth
+            - invalid_cursor
+            - invalid_search_channel_type
+            - invalid_sort
+            - invalid_sort_dir
+    AdminConversationsSetConversationPrefsErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - not_an_admin
+            - channel_not_found
+            - channel_type_not_supported
+            - restricted_action
+            - missing_scope
+            - could_not_set_channel_pref
+            - default_org_wide_channel
+    AdminConversationsUnarchiveErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - feature_not_enabled
+            - channel_not_found
+            - channel_not_archived
+            - channel_type_not_supported
+            - restricted_action
+            - could_not_unarchive_channel
+            - default_org_wide_channel
+            - missing_scope
+    AdminEmojiListResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        emoji:
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: object
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              emoji_names:
+                type: array
+                items:
+                  type: string
+        categories_version:
+          type: string
+        cache_ts:
+          type: string
+    AdminTeamsAdminsListResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        admin_ids:
+          type: array
+          items:
+            type: string
+    AdminTeamsCreateResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        team:
+          type: string
+    AdminTeamsListResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamInfo'
+    AdminTeamsOwnersListResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        owner_ids:
+          type: array
+          items:
+            type: string
+    AdminTeamsSettingsInfoResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        team:
+          $ref: '#/components/schemas/TeamSettingsInfo'
+    AdminUse GroupsListChannelsResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsergroupChannel'
+    AdminUsersListResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserInfo'
+  examples:
+    DefaultSuccessExample:
+      summary: Successful response
+      value:
+        ok: true
+    InvalidAuthErrorExample:
+      summary: Invalid authentication error
+      value:
+        ok: false
+        error: invalid_auth
+    MissingScopeErrorExample:
+      summary: Missing scope error
+      value:
+        ok: false
+        error: missing_scope
+        needed: admin.apps:read
+        provided: read,client,admin,identify,post,apps
+    ChannelNotFoundErrorExample:
+      summary: Channel not found error
+      value:
+        ok: false
+        error: channel_not_found
+    NameTakenErrorExample:
+      summary: Name taken error
+      value:
+        ok: false
+        error: name_taken
+    NotAnEnterpriseErrorExample:
+      summary: Not an enterprise error
+      value:
+        ok: false
+        error: not_an_enterprise
+    NotAnAdminErrorExample:
+      summary: Not an admin error
+      value:
+        ok: false
+        error: not_an_admin
+    ChannelNotArchivedErrorExample:
+      summary: Channel not archived error
+      value:
+        ok: false
+        error: channel_not_archived
+    AdminAppsApproveByAppIdRequest:
+      summary: Approve app by app ID
+      value:
+        app_id: A0W7UKG8E
+        team_id: T1234
+    AdminAppsApproveByRequestIdRequest:
+      summary: Approve app by request ID
+      value:
+        request_id: Ar0XJGFLMLS
+        team_id: T1234
+    AdminAppsRestrictByAppIdRequest:
+      summary: Restrict app by app ID
+      value:
+        app_id: A0FDLP8M2L
+        team_id: T1234
+    AdminConversationsArchiveRequestExample:
+      summary: Archive channel request
+      value:
+        channel_id: C012AB3CD
+    AdminConversationsConvertToPrivateRequestExample:
+      summary: Convert channel to private request
+      value:
+        channel_id: C012AB3CD
+    AdminConversationsCreatePublicRequestExample:
+      summary: Create public channel request
+      value:
+        name: new-channel
+        description: A new public channel
+        is_private: false
+        team_id: T1234
+    AdminConversationsCreatePrivateRequestExample:
+      summary: Create private channel request
+      value:
+        name: private-channel
+        description: A new private channel
+        is_private: true
+        team_id: T1234
+    AdminConversationsDeleteRequestExample:
+      summary: Delete channel request
+      value:
+        channel_id: C012AB3CD
+    AdminConversationsDisconnectSharedRequestExample:
+      summary: Disconnect shared channel request
+      value:
+        channel_id: C012AB3CD
+        leaving_team_ids: T1234
+    AdminConversationsInviteRequestExample:
+      summary: Invite users to channel request
+      value:
+        channel_id: C012AB3CD
+        user_ids: U1234,U5678
+    AdminConversationsRenameRequestExample:
+      summary: Rename channel request
+      value:
+        channel_id: C012AB3CD
+        name: new-channel-name
+    AdminConversationsRestrictAccessAddGroupRequestExample:
+      summary: Add IDP group to channel request
+      value:
+        token: example-key1234567890
+        channel_id: C012AB3CD
+        group_id: S0614TZR7
+        team_id: T1234
+    AdminConversationsRestrictAccessRemoveGroupRequestExample:
+      summary: Remove IDP group from channel request
+      value:
+        token: example-key1234567890
+        channel_id: C012AB3CD
+        group_id: S0614TZR7
+        team_id: T1234
+    AdminConversationsSetConversationPrefsRequestExample:
+      summary: Set conversation preferences request
+      value:
+        channel_id: C012AB3CD
+        prefs: '{"who_can_post":{"type":["admin","owner"]}}'
+    AdminConversationsSetTeamsRequestExample:
+      summary: Set channel teams request
+      value:
+        channel_id: C012AB3CD
+        target_team_ids: T1234,T5678
+        org_channel: false
+    AdminConversationsUnarchiveRequestExample:
+      summary: Unarchive channel request
+      value:
+        channel_id: C012AB3CD
+    AdminEmojiAddRequestExample:
+      summary: Add emoji request
+      value:
+        token: example-key1234567890
+        name: bowtie
+        url: https://example.com/bowtie.png
+    AdminEmojiAddAliasRequestExample:
+      summary: Add emoji alias request
+      value:
+        token: example-key1234567890
+        name: shipit
+        alias_for: squirrel
+    AdminEmojiRemoveRequestExample:
+      summary: Remove emoji request
+      value:
+        token: example-key1234567890
+        name: bowtie
+    AdminEmojiRenameRequestExample:
+      summary: Rename emoji request
+      value:
+        token: example-key1234567890
+        name: bowtie
+        new_name: necktie
+    AdminInvite RequestsApproveRequestExample:
+      summary: Approve invite request
+      value:
+        invite_request_id: Ir0XJGFLMLS
+        team_id: T1234
+    AdminInviteRequestsDenyRequestExample:
+      summary: Deny invite request
+      value:
+        invite_request_id: Ir0XJGFLMLS
+        team_id: T1234
+    AdminTeamsCreateRequestExample:
+      summary: Create team request
+      value:
+        team_domain: slacksoftballteam
+        team_name: Slack Softball Team
+        team_description: A team for softball enthusiasts
+        team_discoverability: invite_only
+    AdminTeamsSettingsSetDefaultChannelsRequestExample:
+      summary: Set default channels request
+      value:
+        token: example-key1234567890
+        team_id: T1234
+        channel_ids: C012AB3CD,C056EF7GH
+    AdminTeamsSettingsSetDescriptionRequestExample:
+      summary: Set team description request
+      value:
+        team_id: T1234
+        description: The best team at Slack
+    AdminTeamsSettingsSetDiscoverabilityRequestExample:
+      summary: Set team discoverability request
+      value:
+        team_id: T1234
+        discoverability: invite_only
+    AdminTeamsSettingsSetIconRequestExample:
+      summary: Set team icon request
+      value:
+        token: example-key1234567890
+        team_id: T1234
+        image_url: https://example.com/icon.png
+    AdminTeamsSettingsSetNameRequestExample:
+      summary: Set team name request
+      value:
+        team_id: T1234
+        name: New Team Name
+    AdminUse GroupsAddChannelsRequestExample:
+      summary: Add channels to usergroup request
+      value:
+        usergroup_id: S0614TZR7
+        channel_ids: C012AB3CD,C056EF7GH
+        team_id: T1234
+    AdminUse GroupsAddTeamsRequestExample:
+      summary: Add teams to usergroup request
+      value:
+        usergroup_id: S0614TZR7
+        team_ids: T1234,T5678
+        auto_provision: true
+    AdminUse GroupsRemoveChannelsRequestExample:
+      summary: Remove channels from usergroup request
+      value:
+        usergroup_id: S0614TZR7
+        channel_ids: C012AB3CD,C056EF7GH
+    AdminUsersAssignRequestExample:
+      summary: Assign user to workspace request
+      value:
+        team_id: T1234
+        user_id: U012A3CDE
+        is_restricted: false
+        channel_ids: C012AB3CD
+    AdminUsersInviteRequestExample:
+      summary: Invite user to workspace request
+      value:
+        team_id: T1234
+        email: janedoe@example.com
+        channel_ids: C012AB3CD,C056EF7GH
+        real_name: Jane Doe
+        resend: true
+    AdminUsersRemoveRequestExample:
+      summary: Remove user from workspace request
+      value:
+        team_id: T1234
+        user_id: U012A3CDE
+    AdminUsersSessionInvalidateRequestExample:
+      summary: Invalidate user session request
+      value:
+        team_id: T1234
+        session_id: 12345678
+    AdminUsersSessionResetRequestExample:
+      summary: Reset user sessions request
+      value:
+        user_id: U012A3CDE
+        mobile_only: false
+        web_only: false
+    AdminUsersSetAdminRequestExample:
+      summary: Set user as admin request
+      value:
+        team_id: T1234
+        user_id: U012A3CDE
+    AdminUsersSetExpirationRequestExample:
+      summary: Set guest user expiration request
+      value:
+        team_id: T1234
+        user_id: U012A3CDE
+        expiration_ts: 1704067200
+    AdminUsersSetOwnerRequestExample:
+      summary: Set user as owner request
+      value:
+        team_id: T1234
+        user_id: U012A3CDE
+    AdminUsersSetRegularRequestExample:
+      summary: Set user as regular request
+      value:
+        team_id: T1234
+        user_id: U012A3CDE
+    AdminAppsApprovedListSuccessExample:
+      summary: Successful approved apps list response
+      value:
+        ok: true
+        approved_apps:
+          - app:
+              id: A0W7UKG8E
+              name: My Test App
+              description: test app
+              help_url: https://www.slack.com
+              privacy_policy_url: https://www.slack.com
+              app_homepage_url: https://www.slack.com
+              app_directory_url: https://myteam.enterprise.slack.com/apps/A0W7UKG8E-my-test-app
+              is_app_directory_approved: false
+              is_internal: false
+              additional_info: ''
+              icons:
+                image_32: https://example.com/icon_32.png
+                image_48: https://example.com/icon_48.png
+                image_64: https://example.com/icon_64.png
+                image_72: https://example.com/icon_72.png
+                image_96: https://example.com/icon_96.png
+                image_128: https://example.com/icon_128.png
+                image_192: https://example.com/icon_192.png
+                image_512: https://example.com/icon_512.png
+                image_1024: https://example.com/icon_1024.png
+                image_original: https://example.com/icon_original.png
+            scopes:
+              - name: bot
+                description: >-
+                  Add the ability for people to direct message or mention
+                  @my_test_app
+                is_sensitive: true
+                token_type: bot
+            date_updated: 1574296707
+            last_resolved_by:
+              actor_id: W0G82F4FD
+              actor_type: user
+        response_metadata:
+          next_cursor: ''
+    AdminAppsRestrictedListSuccessExample:
+      summary: Successful restricted apps list response
+      value:
+        ok: true
+        restricted_apps:
+          - app:
+              id: A0FDLP8M2L
+              name: My Test App
+              description: A fun test app for Slack
+              help_url: https://example.com
+              privacy_policy_url: https://example.com
+              app_homepage_url: https://example.com
+              app_directory_url: https://myteam.enterprise.slack.com/apps/A0FDLP8M2L-my-test-app
+              is_app_directory_approved: true
+              is_internal: false
+              additional_info: ''
+              icons:
+                image_32: https://example.com/icon_32.png
+                image_48: https://example.com/icon_48.png
+                image_64: https://example.com/icon_64.png
+                image_72: https://example.com/icon_72.png
+                image_96: https://example.com/icon_96.png
+                image_128: https://example.com/icon_128.png
+                image_192: https://example.com/icon_192.png
+                image_512: https://example.com/icon_512.png
+                image_1024: https://example.com/icon_1024.png
+                image_original: https://example.com/icon_original.png
+            scopes:
+              - name: files:write:user
+                description: Upload, edit, and delete files on the user's behalf
+                is_sensitive: true
+                token_type: user
+            date_updated: 1574296721
+            last_resolved_by:
+              actor_id: W0G82LMFD
+              actor_type: user
+        response_metadata:
+          next_cursor: ''
+    AdminAppsRequestsListSuccessExample:
+      summary: Successful app requests list response
+      value:
+        ok: true
+        app_requests:
+          - id: Ar0XJGFLMLS
+            app:
+              id: A061BL8RQ0
+              name: Test App
+              description: ''
+              help_url: ''
+              privacy_policy_url: https://testapp.com/privacy
+              app_homepage_url: ''
+              app_directory_url: https://acmecorp.slack.com/apps/A061BL8RQ0-test-app
+              is_app_directory_approved: true
+              is_internal: false
+              additional_info: ''
+              icons:
+                image_32: /cdn/157658203/img/testapp/service_32.png
+                image_48: /cdn/157658203/img/testapp/service_48.png
+                image_64: /cdn/157658203/img/testapp/service_64.png
+                image_72: /cdn/157658203/img/testapp/service_72.png
+                image_96: /cdn/157658203/img/testapp/service_96.png
+                image_128: /cdn/157258203/img/testapp/service_128.png
+                image_192: /cdn/157258203/img/testapp/service_192.png
+                image_512: /cdn/15758203/img/testapp/service_512.png
+                image_1024: /cdn/15258203/img/testapp/service_1024.png
+            user:
+              id: W08RA9G5HR
+              name: Jane Doe
+              email: janedoe@example.com
+            team:
+              id: T0M94LNUCR
+              name: Acme Corp
+              domain: acmecorp
+            scopes:
+              - name: incoming-webhook
+                description: Post messages to specific channels in Slack
+                is_sensitive: false
+                token_type: user
+            message: test test again
+            date_created: 1578956327
+            previous_resolution: null
+        response_metadata:
+          next_cursor: ''
+    AdminConversationsCreateSuccessExample:
+      summary: Successful channel creation response
+      value:
+        ok: true
+        channel_id: C12345
+    AdminConversationsEkmListSuccessExample:
+      summary: Successful EKM channel list response
+      value:
+        ok: true
+        channels:
+          - id: C012AB3CD
+            internal_team_ids:
+              - T1234
+              - T5678
+            original_connected_channel_id: C098ZY7XW
+            original_connected_host_id: E1234567
+    AdminConversationsGetConversationPrefsSuccessExample:
+      summary: Successful conversation preferences response
+      value:
+        ok: true
+        prefs:
+          who_can_post:
+            type:
+              - admin
+              - owner
+            user: []
+          can_thread:
+            type:
+              - admin
+              - owner
+              - member
+            user: []
+    AdminConversationsGetTeamsSuccessExample:
+      summary: Successful teams list response
+      value:
+        ok: true
+        team_ids:
+          - T1234
+          - T5678
+        response_metadata:
+          next_cursor: ''
+    AdminConversationsRestrictAccessListGroupsSuccessExample:
+      summary: Successful groups list response
+      value:
+        ok: true
+        group_ids:
+          - S0614TZR7
+    AdminConversationsSearchSuccessExample:
+      summary: Successful channel search response
+      value:
+        ok: true
+        channels:
+          - id: C012AB3CD
+            name: general
+            name_normalized: general
+            is_channel: true
+            is_group: false
+            is_im: false
+            is_mpim: false
+            is_private: false
+            is_archived: false
+            is_general: true
+            is_shared: false
+            is_ext_shared: false
+            is_org_shared: false
+            is_pending_ext_shared: false
+            is_member: true
+            unlinked: 0
+            created: 1449252889
+            creator: U012A3CDE
+            num_members: 4
+            pending_shared: []
+            previous_names: []
+            topic:
+              value: Company-wide announcements and work-based matters
+              creator: ''
+              last_set: 0
+            purpose:
+              value: >-
+                This channel is for team-wide communication and announcements.
+                All team members are in this channel.
+              creator: ''
+              last_set: 0
+        next_cursor: dGVhbTpDMDYxRkE1UEI=
+    AdminEmojiListSuccessExample:
+      summary: Successful emoji list response
+      value:
+        ok: true
+        emoji:
+          bowtie: https://emoji.slack-edge.com/T9TK3CUKW/bowtie/f3ec6f2bb0.png
+          squirrel: https://emoji.slack-edge.com/T9TK3CUKW/squirrel/465f40c0e0.png
+          shipit: alias:squirrel
+          black_square: alias:black_large_square
+        categories:
+          - name: Smileys & People
+            emoji_names:
+              - grinning
+              - grin
+              - joy
+        categories_version: '5'
+        cache_ts: '1575283387.000000'
+    AdminTeamsAdminsListSuccessExample:
+      summary: Successful admins list response
+      value:
+        ok: true
+        admin_ids:
+          - U1234
+          - U5678
+    AdminTeamsCreateSuccessExample:
+      summary: Successful team creation response
+      value:
+        ok: true
+        team: T12345
+    AdminTeamsListSuccessExample:
+      summary: Successful teams list response
+      value:
+        ok: true
+        teams:
+          - id: T1234
+            name: My Team
+            discoverability: hidden
+            primary_owner:
+              user_id: W1234
+              email: bront@slack.com
+            team_url: https://subarachnoid.slack.com/
+    AdminTeamsOwnersListSuccessExample:
+      summary: Successful owners list response
+      value:
+        ok: true
+        owner_ids:
+          - U1234
+    AdminTeamsSettingsInfoSuccessExample:
+      summary: Successful team settings info response
+      value:
+        ok: true
+        team:
+          id: T1234
+          name: My Team
+          domain: myteam
+          email_domain: ''
+          enterprise_id: E1234
+          enterprise_name: My Enterprise
+          default_channels:
+            - C012AB3CD
+          icon: {}
+    AdminUse GroupsListChannelsSuccessExample:
+      summary: Successful usergroup channels list response
+      value:
+        ok: true
+        channels:
+          - id: C024BE91L
+            name: fun
+            team_id: T024BE911
+            num_members: 34
+          - id: C024BE91K
+            name: more fun
+            team_id: T024BE912
+          - id: C024BE91M
+            name: public-channel
+            team_id: T024BE911
+            num_members: 34
+            is_redacted: true
+    AdminUsersListSuccessExample:
+      summary: Successful users list response
+      value:
+        ok: true
+        users:
+          - id: U1234
+            email: bront@slack.com
+            is_admin: false
+            is_owner: false
+            is_primary_owner: false
+            is_restricted: false
+            is_ultra_restricted: false
+            is_bot: false

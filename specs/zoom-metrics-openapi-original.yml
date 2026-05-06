@@ -1,0 +1,1905 @@
+openapi: 3.1.0
+info:
+  title: zoom-dashboard-metrics-api
+  description: >
+    API for accessing Zoom dashboard metrics and analytics. This API provides
+    real-time and historical 
+
+    analytics data for meetings, webinars, Zoom Rooms, instant messaging usage,
+    quality of service (QoS) 
+
+    metrics, and CRC port usage. Ideal for monitoring platform performance and
+    user engagement.
+  contact:
+    name: Zoom Developers
+    url: https://zoom.us/developer
+    email: developer@zoom.us
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+externalDocs:
+  description: Zoom REST API Documentation
+  url: https://zoom.github.io/api
+servers:
+  - url: https://api.zoom.us/v1
+    description: Zoom API Production Server
+  - url: http://localhost:8080/rest/zoom-dashboard-metrics-api/1.0.0
+    description: Sandbox
+security:
+  - ApiKey: []
+  - ApiSecret: []
+tags:
+  - name: CRC Metrics
+    description: Cloud Room Connector port usage metrics
+  - name: Instant Messaging Metrics
+    description: Zoom IM usage statistics and analytics
+  - name: Meeting Metrics
+    description: Live and past meeting analytics and participant details
+  - name: Quality Of Service
+    description: Audio and video quality metrics for meetings
+  - name: Webinar Metrics
+    description: Live and past webinar analytics and participant details
+  - name: Zoom Rooms Metrics
+    description: Zoom Rooms status, details, and meeting history
+paths:
+  /metrics/crc:
+    post:
+      tags:
+        - CRC Metrics
+      summary: Get CRC Port Usage
+      description: >
+        Retrieves Cloud Room Connector (CRC) port usage statistics hour by hour
+        for a specified time period. 
+
+        Useful for monitoring and capacity planning of CRC resources.
+      operationId: getCrcPortUsage
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DateRangeRequest'
+            examples:
+              GetCrcPortUsageRequestExample:
+                $ref: '#/components/examples/GetCrcPortUsageRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved CRC port usage data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrcPortUsageResponse'
+              examples:
+                GetCrcPortUsageSuccessExample:
+                  $ref: '#/components/examples/GetCrcPortUsageSuccessExample'
+  /metrics/im:
+    post:
+      tags:
+        - Instant Messaging Metrics
+      summary: Get Instant Messaging Statistics
+      description: >
+        Retrieves comprehensive statistics for Zoom Instant Messaging (IM) usage
+        across the account, 
+
+        including message counts, file sharing, voice messages, and emoji usage
+        per user.
+      operationId: getInstantMessagingStats
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaginatedDateRangeRequest'
+            examples:
+              GetInstantMessagingStatsRequestExample:
+                $ref: '#/components/examples/GetInstantMessagingStatsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved instant messaging statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImStatisticsResponse'
+              examples:
+                GetInstantMessagingStatsSuccessExample:
+                  $ref: '#/components/examples/GetInstantMessagingStatsSuccessExample'
+  /metrics/meetingdetail:
+    post:
+      tags:
+        - Meeting Metrics
+      summary: Get Meeting Details
+      description: >
+        Retrieves detailed information about a specific live or past meeting,
+        including participant 
+
+        information, devices used, network details, and sharing activities.
+      operationId: getMeetingDetails
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MeetingDetailRequest'
+            examples:
+              GetMeetingDetailsRequestExample:
+                $ref: '#/components/examples/GetMeetingDetailsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved meeting details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingDetailResponse'
+              examples:
+                GetMeetingDetailsSuccessExample:
+                  $ref: '#/components/examples/GetMeetingDetailsSuccessExample'
+  /metrics/meetings:
+    post:
+      tags:
+        - Meeting Metrics
+      summary: List Meetings Metrics
+      description: >
+        Retrieves a paginated list of live meetings or past meetings for a
+        specified time period, 
+
+        including basic meeting information and participant counts.
+      operationId: listMeetingsMetrics
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MeetingListMetricsRequest'
+            examples:
+              ListMeetingsMetricsRequestExample:
+                $ref: '#/components/examples/ListMeetingsMetricsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved meetings metrics list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingListMetricsResponse'
+              examples:
+                ListMeetingsMetricsSuccessExample:
+                  $ref: '#/components/examples/ListMeetingsMetricsSuccessExample'
+  /metrics/qos:
+    post:
+      tags:
+        - Quality Of Service
+      summary: Get Quality Of Service Metrics
+      description: >
+        Retrieves detailed quality of service (QoS) metrics for users in a Zoom
+        meeting, including 
+
+        audio/video bitrate, latency, jitter, packet loss, resolution, frame
+        rate, and CPU usage.
+      operationId: getQualityOfService
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QosRequest'
+            examples:
+              GetQualityOfServiceRequestExample:
+                $ref: '#/components/examples/GetQualityOfServiceRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved quality of service metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QosResponse'
+              examples:
+                GetQualityOfServiceSuccessExample:
+                  $ref: '#/components/examples/GetQualityOfServiceSuccessExample'
+  /metrics/webinardetail:
+    post:
+      tags:
+        - Webinar Metrics
+      summary: Get Webinar Details
+      description: >
+        Retrieves detailed information about a specific live or past webinar,
+        including participant 
+
+        information, devices used, network details, and sharing activities.
+      operationId: getWebinarDetails
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebinarDetailRequest'
+            examples:
+              GetWebinarDetailsRequestExample:
+                $ref: '#/components/examples/GetWebinarDetailsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved webinar details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarDetailResponse'
+              examples:
+                GetWebinarDetailsSuccessExample:
+                  $ref: '#/components/examples/GetWebinarDetailsSuccessExample'
+  /metrics/webinars:
+    post:
+      tags:
+        - Webinar Metrics
+      summary: List Webinars Metrics
+      description: >
+        Retrieves a paginated list of live webinars or past webinars for a
+        specified time period, 
+
+        including basic webinar information and participant counts.
+      operationId: listWebinarsMetrics
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebinarListMetricsRequest'
+            examples:
+              ListWebinarsMetricsRequestExample:
+                $ref: '#/components/examples/ListWebinarsMetricsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved webinars metrics list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebinarListMetricsResponse'
+              examples:
+                ListWebinarsMetricsSuccessExample:
+                  $ref: '#/components/examples/ListWebinarsMetricsSuccessExample'
+  /metrics/zoomroomdetail:
+    post:
+      tags:
+        - Zoom Rooms Metrics
+      summary: Get Zoom Room Details
+      description: >
+        Retrieves detailed information about a specific Zoom Room, including its
+        current status, 
+
+        live meeting information, and past meeting history.
+      operationId: getZoomRoomDetails
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ZoomRoomDetailRequest'
+            examples:
+              GetZoomRoomDetailsRequestExample:
+                $ref: '#/components/examples/GetZoomRoomDetailsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved Zoom Room details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoomRoomDetailResponse'
+              examples:
+                GetZoomRoomDetailsSuccessExample:
+                  $ref: '#/components/examples/GetZoomRoomDetailsSuccessExample'
+  /metrics/zoomrooms:
+    post:
+      tags:
+        - Zoom Rooms Metrics
+      summary: List Zoom Rooms
+      description: >
+        Retrieves a paginated list of all Zoom Rooms in the account, including
+        their current status 
+
+        and configuration details.
+      operationId: listZoomRooms
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "200"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaginationRequest'
+            examples:
+              ListZoomRoomsRequestExample:
+                $ref: '#/components/examples/ListZoomRoomsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved Zoom Rooms list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoomRoomsListResponse'
+              examples:
+                ListZoomRoomsSuccessExample:
+                  $ref: '#/components/examples/ListZoomRoomsSuccessExample'
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      name: api_key
+      in: query
+      description: Zoom API Key for authentication
+    ApiSecret:
+      type: apiKey
+      name: api_secret
+      in: query
+      description: Zoom API Secret for authentication
+  schemas:
+    DateRangeRequest:
+      type: object
+      required:
+        - from
+        - to
+      properties:
+        from:
+          type: string
+          description: Start date for the query range.
+          example: '2015-03-12'
+        to:
+          type: string
+          description: End date for the query range.
+          example: '2015-03-12'
+    PaginatedDateRangeRequest:
+      type: object
+      required:
+        - from
+        - to
+      properties:
+        from:
+          type: string
+          description: Start date for the query range.
+          example: '2016-04-12'
+        to:
+          type: string
+          description: End date for the query range.
+          example: '2016-04-13'
+        page_size:
+          type: string
+          description: >-
+            The number of records returned within a single API call. Defaults to
+            30. Maximum of 30 records.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Current page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    PaginationRequest:
+      type: object
+      properties:
+        page_size:
+          type: string
+          description: >-
+            The number of records returned within a single API call. Defaults to
+            30. Maximum of 30 records.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Current page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    MeetingDetailRequest:
+      type: object
+      required:
+        - meeting_id
+        - type
+      properties:
+        meeting_id:
+          type: string
+          description: The meeting ID (UUID or meeting number).
+          example: ucc69C82Q5mTNyCRWE29Aw==
+        type:
+          type: string
+          description: Meeting type. 1 for live meeting, 2 for past meeting.
+          enum:
+            - '1'
+            - '2'
+          example: '2'
+        page_size:
+          type: string
+          description: >-
+            The number of records returned within a single API call. Defaults to
+            30. Maximum of 100 records.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Current page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    MeetingListMetricsRequest:
+      type: object
+      required:
+        - type
+        - from
+        - to
+      properties:
+        type:
+          type: string
+          description: Meeting list type. 1 for live meetings, 2 for past meetings.
+          default: '1'
+          enum:
+            - '1'
+            - '2'
+          example: '2'
+        from:
+          type: string
+          description: Start date. Required for past meetings.
+          example: '2015-08-02'
+        to:
+          type: string
+          description: End date. Required for past meetings.
+          example: '2015-09-02'
+        page_size:
+          type: string
+          description: >-
+            The number of records returned within a single API call. Defaults to
+            30. Maximum of 100 meetings.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Current page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    QosRequest:
+      type: object
+      required:
+        - meeting_id
+        - type
+      properties:
+        meeting_id:
+          type: string
+          description: The meeting ID.
+          example: ucc69C82Q5mTNyCRWE29Aw==
+        type:
+          type: string
+          description: Meeting type. 1 for live meeting, 2 for past meeting.
+          enum:
+            - '1'
+            - '2'
+          example: '2'
+        user_id:
+          type: string
+          description: The user ID to get specific user QoS data.
+          example: user123
+        page_size:
+          type: string
+          description: >-
+            The number of records returned within a single API call. Defaults to
+            10. Maximum of 10 records.
+          default: '10'
+          example: '10'
+        page_number:
+          type: string
+          description: Current page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    WebinarDetailRequest:
+      type: object
+      required:
+        - meeting_id
+        - type
+      properties:
+        meeting_id:
+          type: string
+          description: The webinar ID (UUID or webinar number).
+          example: ucc69C82Q5mTNyCRWE29Aw==
+        type:
+          type: string
+          description: Webinar type. 1 for live webinar, 2 for past webinar.
+          enum:
+            - '1'
+            - '2'
+          example: '2'
+        page_size:
+          type: string
+          description: >-
+            The number of records returned within a single API call. Defaults to
+            30. Maximum of 100 records.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Current page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    WebinarListMetricsRequest:
+      type: object
+      required:
+        - type
+        - from
+        - to
+      properties:
+        type:
+          type: string
+          description: Webinar list type. 1 for live webinars, 2 for past webinars.
+          default: '1'
+          enum:
+            - '1'
+            - '2'
+          example: '2'
+        from:
+          type: string
+          description: Start date. Required for past webinars.
+          example: '2015-08-02'
+        to:
+          type: string
+          description: End date. Required for past webinars.
+          example: '2015-09-02'
+        page_size:
+          type: string
+          description: >-
+            The number of records returned within a single API call. Defaults to
+            30. Maximum of 100 webinars.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Current page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    ZoomRoomDetailRequest:
+      type: object
+      required:
+        - id
+        - from
+        - to
+      properties:
+        id:
+          type: string
+          description: The Zoom Room ID.
+          example: ucc69C82Q5mTNyCRWE29Aw==
+        from:
+          type: string
+          description: Start date.
+          example: '2016-04-12'
+        to:
+          type: string
+          description: End date.
+          example: '2016-04-13'
+        page_size:
+          type: string
+          description: >-
+            The number of records returned within a single API call. Defaults to
+            30. Maximum of 30 records.
+          default: '30'
+          example: '30'
+        page_number:
+          type: string
+          description: Current page number of returned records. Defaults to 1.
+          default: '1'
+          example: '1'
+    CrcPortUsageResponse:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+          description: Start date of the report period.
+          example: '2015-03-12T00:00:00.000Z'
+        to:
+          type: string
+          format: date-time
+          description: End date of the report period.
+          example: '2015-03-12T00:00:00.000Z'
+        crc_ports_usage:
+          type: array
+          description: Daily CRC port usage data.
+          items:
+            $ref: '#/components/schemas/CrcDailyUsage'
+    CrcDailyUsage:
+      type: object
+      properties:
+        date_time:
+          type: string
+          format: date-time
+          description: The date for this usage data.
+          example: '2015-03-12T00:00:00.000Z'
+        crc_ports_hour_usage:
+          type: array
+          description: Hourly CRC port usage for the day.
+          items:
+            $ref: '#/components/schemas/CrcHourlyUsage'
+    CrcHourlyUsage:
+      type: object
+      properties:
+        hour:
+          type: string
+          description: Hour of the day (00-23).
+          example: '00'
+        max_usage:
+          type: integer
+          description: Maximum number of ports used during this hour.
+          example: 1
+        total_usage:
+          type: integer
+          description: Total port usage during this hour.
+          example: 3
+    ImStatisticsResponse:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+          description: Start date of the report period.
+          example: '2016-04-12T00:00:00.000Z'
+        to:
+          type: string
+          format: date-time
+          description: End date of the report period.
+          example: '2016-04-13T00:00:00.000Z'
+        page_count:
+          type: integer
+          description: Total number of pages available.
+          example: 1
+        page_number:
+          type: integer
+          description: Current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: Number of records per page.
+          example: 30
+        total_records:
+          type: integer
+          description: Total number of user records.
+          example: 10
+        users:
+          type: array
+          description: List of users with their IM statistics.
+          items:
+            $ref: '#/components/schemas/ImUserStatistics'
+    ImUserStatistics:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: Unique identifier of the user.
+          example: unique_id
+        user_name:
+          type: string
+          description: Display name of the user.
+          example: Zoomie Userton
+        email:
+          type: string
+          format: email
+          description: Email address of the user.
+          example: email_address
+        total_send:
+          type: integer
+          description: Total messages sent.
+          example: 0
+        total_receive:
+          type: integer
+          description: Total messages received.
+          example: 0
+        group_send:
+          type: integer
+          description: Group messages sent.
+          example: 0
+        group_receive:
+          type: integer
+          description: Group messages received.
+          example: 0
+        calls_send:
+          type: integer
+          description: Call invitations sent.
+          example: 0
+        calls_receive:
+          type: integer
+          description: Call invitations received.
+          example: 0
+        files_send:
+          type: integer
+          description: Files sent.
+          example: 0
+        files_receive:
+          type: integer
+          description: Files received.
+          example: 0
+        images_send:
+          type: integer
+          description: Images sent.
+          example: 0
+        images_receive:
+          type: integer
+          description: Images received.
+          example: 0
+        voice_send:
+          type: integer
+          description: Voice messages sent.
+          example: 0
+        voice_receive:
+          type: integer
+          description: Voice messages received.
+          example: 0
+        videos_send:
+          type: integer
+          description: Videos sent.
+          example: 0
+        videos_receive:
+          type: integer
+          description: Videos received.
+          example: 0
+        emoji_send:
+          type: integer
+          description: Emojis sent.
+          example: 0
+        emoji_receive:
+          type: integer
+          description: Emojis received.
+          example: 0
+    MeetingDetailResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Unique meeting identifier.
+          example: unique_id
+        id:
+          type: string
+          description: Meeting number.
+          example: '123456789'
+        type:
+          type: string
+          description: Type of meeting (Live Meeting or Past Meeting).
+          example: Past Meeting
+        host:
+          type: string
+          description: Name of the meeting host.
+          example: Zoomie Userton
+        email:
+          type: string
+          format: email
+          description: Email of the meeting host.
+          example: email_address
+        user_type:
+          type: string
+          description: License type of the host.
+          example: Pro
+        start_time:
+          type: string
+          format: date-time
+          description: Start time of the meeting.
+          example: '2015-08-30T05:36:56.000Z'
+        end_time:
+          type: string
+          format: date-time
+          description: End time of the meeting.
+          example: '2015-08-30T06:36:56.000Z'
+        duration:
+          type: string
+          description: Duration of the meeting.
+          example: 4 mins
+        has_pstn:
+          type: boolean
+          description: Whether PSTN was used.
+          example: false
+        has_voip:
+          type: boolean
+          description: Whether VoIP was used.
+          example: true
+        has_3rd_party_audio:
+          type: boolean
+          description: Whether third-party audio was used.
+          example: false
+        has_video:
+          type: boolean
+          description: Whether video was used.
+          example: true
+        has_screen_share:
+          type: boolean
+          description: Whether screen sharing was used.
+          example: false
+        recording:
+          type: integer
+          description: Recording status.
+          example: 0
+        participants_count:
+          type: integer
+          description: Total number of participants.
+          example: 2
+        page_count:
+          type: integer
+          description: Total number of pages.
+          example: 1
+        page_number:
+          type: integer
+          description: Current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: Number of records per page.
+          example: 30
+        participants:
+          type: array
+          description: List of meeting participants.
+          items:
+            $ref: '#/components/schemas/MeetingParticipant'
+    MeetingParticipant:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique participant identifier.
+          example: unique_id
+        user_id:
+          type: string
+          description: User ID of the participant.
+          example: unique_id
+        user_name:
+          type: string
+          description: Display name of the participant.
+          example: Zoomie Userton
+        device:
+          type: string
+          description: Device type used.
+          example: Mac
+        ip_address:
+          type: string
+          description: IP address of the participant.
+          example: 117.83.222.228
+        cn:
+          type: string
+          description: Country code.
+          example: CN
+        city:
+          type: string
+          description: City name.
+          example: Nanjing
+        network_type:
+          type: string
+          description: Network connection type.
+          example: Wifi
+        join_time:
+          type: string
+          format: date-time
+          description: Time when participant joined.
+          example: '2017-02-18T01:44:47.000Z'
+        leave_time:
+          type: string
+          format: date-time
+          description: Time when participant left.
+          example: '2017-02-18T01:45:58.000Z'
+        share_application:
+          type: boolean
+          description: Whether application sharing was used.
+          example: true
+        share_desktop:
+          type: boolean
+          description: Whether desktop sharing was used.
+          example: true
+        share_whiteboard:
+          type: boolean
+          description: Whether whiteboard sharing was used.
+          example: true
+        recording:
+          type: boolean
+          description: Whether recording was enabled.
+          example: true
+    MeetingListMetricsResponse:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+          description: Start date of the report period.
+          example: '2015-08-02T00:00:00.000Z'
+        to:
+          type: string
+          format: date-time
+          description: End date of the report period.
+          example: '2015-09-02T00:00:00.000Z'
+        page_count:
+          type: integer
+          description: Total number of pages available.
+          example: 2
+        page_number:
+          type: integer
+          description: Current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: Number of records per page.
+          example: 30
+        total_records:
+          type: integer
+          description: Total number of meetings.
+          example: 49
+        type:
+          type: string
+          description: Type of meetings in the list.
+          example: Past Meetings
+        meetings:
+          type: array
+          description: List of meetings.
+          items:
+            $ref: '#/components/schemas/MeetingMetricsSummary'
+    MeetingMetricsSummary:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Unique meeting identifier.
+          example: unique_id
+        id:
+          type: string
+          description: Meeting number.
+          example: '123456789'
+        host:
+          type: string
+          description: Name of the meeting host.
+          example: Zoomie Userton
+        email:
+          type: string
+          format: email
+          description: Email of the meeting host.
+          example: email_address
+        user_type:
+          type: string
+          description: License type of the host.
+          example: Pro
+        start_time:
+          type: string
+          format: date-time
+          description: Start time of the meeting.
+          example: '2015-08-29T05:36:56.000Z'
+        end_time:
+          type: string
+          format: date-time
+          description: End time of the meeting.
+          example: '2015-08-29T06:36:56.000Z'
+        duration:
+          type: string
+          description: Duration of the meeting.
+          example: 4 mins
+        participants:
+          type: integer
+          description: Total number of participants.
+          example: 2
+        has_pstn:
+          type: boolean
+          description: Whether PSTN was used.
+          example: false
+        has_voip:
+          type: boolean
+          description: Whether VoIP was used.
+          example: true
+        has_3rd_party_audio:
+          type: boolean
+          description: Whether third-party audio was used.
+          example: false
+        has_video:
+          type: boolean
+          description: Whether video was used.
+          example: true
+        has_screen_share:
+          type: boolean
+          description: Whether screen sharing was used.
+          example: false
+        recording:
+          type: integer
+          description: Recording status.
+          example: 0
+    QosResponse:
+      type: object
+      properties:
+        meeting_id:
+          type: string
+          description: The meeting ID.
+          example: unique_id
+        user_id:
+          type: string
+          description: The user ID.
+          example: unique_id
+        type:
+          type: string
+          description: Type of meeting.
+          example: Past Meeting
+        device:
+          type: string
+          description: Device type used.
+          example: Mac
+        ip_address:
+          type: string
+          description: IP address of the participant.
+          example: 112.80.63.6
+        cn:
+          type: string
+          description: Country code.
+          example: CN
+        city:
+          type: string
+          description: City name.
+          example: Nanjing
+        version:
+          type: string
+          description: Zoom client version.
+          example: 3.5.35288.1217
+        user_qos:
+          type: array
+          description: Quality of service data over time.
+          items:
+            $ref: '#/components/schemas/QosMetrics'
+    QosMetrics:
+      type: object
+      properties:
+        dateTime:
+          type: string
+          format: date-time
+          description: Timestamp of the QoS measurement.
+          example: '2015-08-30T06:40:56.000Z'
+        audio_input:
+          $ref: '#/components/schemas/AudioQosMetrics'
+        audio_output:
+          $ref: '#/components/schemas/AudioQosMetrics'
+        video_input:
+          $ref: '#/components/schemas/VideoQosMetrics'
+        video_output:
+          $ref: '#/components/schemas/VideoQosMetrics'
+        as_input:
+          $ref: '#/components/schemas/VideoQosMetrics'
+        as_output:
+          $ref: '#/components/schemas/VideoQosMetrics'
+        cpu_usage:
+          $ref: '#/components/schemas/CpuUsageMetrics'
+    AudioQosMetrics:
+      type: object
+      properties:
+        bitrate:
+          type: string
+          description: Audio bitrate.
+          example: 29 kbps
+        latency:
+          type: string
+          description: Audio latency.
+          example: 39 ms
+        jitter:
+          type: string
+          description: Audio jitter.
+          example: 11 ms
+        avg_loss:
+          type: string
+          description: Average packet loss.
+          example: 2.5%
+        max_loss:
+          type: string
+          description: Maximum packet loss.
+          example: 5.0%
+    VideoQosMetrics:
+      type: object
+      properties:
+        bitrate:
+          type: string
+          description: Video bitrate.
+          example: 77 kbps
+        latency:
+          type: string
+          description: Video latency.
+          example: 84 ms
+        jitter:
+          type: string
+          description: Video jitter.
+          example: 4 ms
+        avg_loss:
+          type: string
+          description: Average packet loss.
+          example: 28.3%
+        max_loss:
+          type: string
+          description: Maximum packet loss.
+          example: 28.3%
+        resolution:
+          type: string
+          description: Video resolution.
+          example: 480*270
+        frame_rate:
+          type: string
+          description: Video frame rate.
+          example: 3 fps
+    CpuUsageMetrics:
+      type: object
+      properties:
+        zoom_min_cpu_usage:
+          type: string
+          description: Minimum CPU usage by Zoom.
+          example: 1%
+        zoom_avg_cpu_usage:
+          type: string
+          description: Average CPU usage by Zoom.
+          example: 3%
+        zoom_max_cpu_usage:
+          type: string
+          description: Maximum CPU usage by Zoom.
+          example: 5%
+        system_max_cpu_usage:
+          type: string
+          description: Maximum system CPU usage.
+          example: 20%
+    WebinarDetailResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Unique webinar identifier.
+          example: unique_id
+        id:
+          type: string
+          description: Webinar number.
+          example: '123456789'
+        type:
+          type: string
+          description: Type of webinar.
+          example: Past Webinar
+        host:
+          type: string
+          description: Name of the webinar host.
+          example: Zoomie Userton
+        email:
+          type: string
+          format: email
+          description: Email of the webinar host.
+          example: email_address
+        user_type:
+          type: string
+          description: License type of the host.
+          example: Pro
+        start_time:
+          type: string
+          format: date-time
+          description: Start time of the webinar.
+          example: '2015-08-30T05:36:56.000Z'
+        end_time:
+          type: string
+          format: date-time
+          description: End time of the webinar.
+          example: '2015-08-30T06:36:56.000Z'
+        duration:
+          type: string
+          description: Duration of the webinar.
+          example: 4 mins
+        has_pstn:
+          type: boolean
+          description: Whether PSTN was used.
+          example: false
+        has_voip:
+          type: boolean
+          description: Whether VoIP was used.
+          example: true
+        has_3rd_party_audio:
+          type: boolean
+          description: Whether third-party audio was used.
+          example: false
+        has_video:
+          type: boolean
+          description: Whether video was used.
+          example: true
+        has_screen_share:
+          type: boolean
+          description: Whether screen sharing was used.
+          example: false
+        recording:
+          type: integer
+          description: Recording status.
+          example: 0
+        participants_count:
+          type: integer
+          description: Total number of participants.
+          example: 2
+        page_count:
+          type: integer
+          description: Total number of pages.
+          example: 1
+        page_number:
+          type: integer
+          description: Current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: Number of records per page.
+          example: 30
+        participants:
+          type: array
+          description: List of webinar participants.
+          items:
+            $ref: '#/components/schemas/MeetingParticipant'
+    WebinarListMetricsResponse:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+          description: Start date of the report period.
+          example: '2015-08-02T00:00:00.000Z'
+        to:
+          type: string
+          format: date-time
+          description: End date of the report period.
+          example: '2015-09-02T00:00:00.000Z'
+        page_count:
+          type: integer
+          description: Total number of pages available.
+          example: 2
+        page_number:
+          type: integer
+          description: Current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: Number of records per page.
+          example: 30
+        total_records:
+          type: integer
+          description: Total number of webinars.
+          example: 49
+        type:
+          type: string
+          description: Type of webinars in the list.
+          example: Past Webinars
+        meetings:
+          type: array
+          description: List of webinars.
+          items:
+            $ref: '#/components/schemas/WebinarMetricsSummary'
+    WebinarMetricsSummary:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Unique webinar identifier.
+          example: unique_id
+        id:
+          type: string
+          description: Webinar number.
+          example: '123456789'
+        host:
+          type: string
+          description: Name of the webinar host.
+          example: Zoomie Userton
+        email:
+          type: string
+          format: email
+          description: Email of the webinar host.
+          example: email_address
+        user_type:
+          type: string
+          description: License type of the host.
+          example: Pro
+        start_time:
+          type: string
+          format: date-time
+          description: Start time of the webinar.
+          example: '2015-08-29T05:36:56.000Z'
+        end_time:
+          type: string
+          format: date-time
+          description: End time of the webinar.
+          example: '2015-08-29T06:36:56.000Z'
+        duration:
+          type: string
+          description: Duration of the webinar.
+          example: 4 mins
+        participants:
+          type: integer
+          description: Total number of participants.
+          example: 2
+        has_pstn:
+          type: boolean
+          description: Whether PSTN was used.
+          example: false
+        has_voip:
+          type: boolean
+          description: Whether VoIP was used.
+          example: true
+        has_3rd_party_audio:
+          type: boolean
+          description: Whether third-party audio was used.
+          example: false
+        has_video:
+          type: boolean
+          description: Whether video was used.
+          example: true
+        has_screen_share:
+          type: boolean
+          description: Whether screen sharing was used.
+          example: false
+        recording:
+          type: integer
+          description: Recording status.
+          example: 0
+    ZoomRoomDetailResponse:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+          description: Start date of the report period.
+          example: '2016-04-12T00:00:00.000Z'
+        to:
+          type: string
+          format: date-time
+          description: End date of the report period.
+          example: '2016-04-13T00:00:00.000Z'
+        page_count:
+          type: integer
+          description: Total number of pages.
+          example: 1
+        page_number:
+          type: integer
+          description: Current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: Number of records per page.
+          example: 30
+        total_records:
+          type: integer
+          description: Total number of records.
+          example: 1
+        zoom_room:
+          $ref: '#/components/schemas/ZoomRoomInfo'
+        live_meeting:
+          $ref: '#/components/schemas/ZoomRoomMeeting'
+        past_meetings:
+          type: array
+          description: List of past meetings in this Zoom Room.
+          items:
+            $ref: '#/components/schemas/ZoomRoomMeeting'
+    ZoomRoomInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique Zoom Room identifier.
+          example: unique_id
+        room_name:
+          type: string
+          description: Name of the Zoom Room.
+          example: zoom room
+        email:
+          type: string
+          format: email
+          description: Email associated with the Zoom Room.
+          example: zoomroom@zoom.us
+        account_type:
+          type: string
+          description: Account type of the Zoom Room.
+          example: Work Email
+        passcode:
+          type: string
+          description: Passcode for the Zoom Room.
+          example: '123'
+        status:
+          type: string
+          description: Current status of the Zoom Room.
+          enum:
+            - Available
+            - InMeeting
+            - Offline
+          example: Available
+        messages:
+          $ref: '#/components/schemas/ZoomRoomMessages'
+        meeting_id:
+          type: string
+          description: Current meeting ID if in a meeting.
+          example: ''
+    ZoomRoomMessages:
+      type: object
+      properties:
+        last_started_time:
+          type: string
+          description: Last time the Zoom Room was started.
+          example: ''
+        running_time:
+          type: string
+          description: Total running time.
+          example: ''
+        selected_microphone:
+          type: string
+          description: Currently selected microphone.
+          example: ''
+        selected_speaker:
+          type: string
+          description: Currently selected speaker.
+          example: ''
+        selected_camera:
+          type: string
+          description: Currently selected camera.
+          example: ''
+    ZoomRoomMeeting:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Unique meeting identifier.
+          example: unique_id
+        id:
+          type: string
+          description: Meeting number.
+          example: '123456789'
+        host:
+          type: string
+          description: Name of the meeting host.
+          example: Zoomie Userton
+        email:
+          type: string
+          format: email
+          description: Email of the meeting host.
+          example: email_address
+        user_type:
+          type: string
+          description: License type of the host.
+          example: ''
+        start_time:
+          type: string
+          description: Start time of the meeting.
+          example: ''
+        end_time:
+          type: string
+          description: End time of the meeting.
+          example: ''
+        duration:
+          type: string
+          description: Duration of the meeting.
+          example: ''
+        participants:
+          type: integer
+          description: Total number of participants.
+          example: 1
+        has_pstn:
+          type: boolean
+          description: Whether PSTN was used.
+          example: false
+        has_voip:
+          type: boolean
+          description: Whether VoIP was used.
+          example: false
+        has_3rd_party_audio:
+          type: boolean
+          description: Whether third-party audio was used.
+          example: false
+        has_video:
+          type: boolean
+          description: Whether video was used.
+          example: false
+        has_screen_share:
+          type: boolean
+          description: Whether screen sharing was used.
+          example: false
+        recording:
+          type: integer
+          description: Recording status.
+          example: 0
+    ZoomRoomsListResponse:
+      type: object
+      properties:
+        page_count:
+          type: integer
+          description: Total number of pages.
+          example: 1
+        page_number:
+          type: integer
+          description: Current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: Number of records per page.
+          example: 30
+        total_records:
+          type: integer
+          description: Total number of Zoom Rooms.
+          example: 2
+        zoom_rooms:
+          type: array
+          description: List of Zoom Rooms.
+          items:
+            $ref: '#/components/schemas/ZoomRoomInfo'
+  examples:
+    GetCrcPortUsageRequestExample:
+      summary: Get CRC port usage request
+      value:
+        from: '2015-03-12'
+        to: '2015-03-12'
+    GetCrcPortUsageSuccessExample:
+      summary: Successful CRC port usage response
+      value:
+        from: '2015-03-12T00:00:00.000Z'
+        to: '2015-03-12T00:00:00.000Z'
+        crc_ports_usage:
+          - date_time: '2015-03-12T00:00:00.000Z'
+            crc_ports_hour_usage:
+              - hour: '00'
+                max_usage: 1
+                total_usage: 3
+    GetInstantMessagingStatsRequestExample:
+      summary: Get IM statistics request
+      value:
+        from: '2016-04-12'
+        to: '2016-04-13'
+        page_size: '30'
+        page_number: '1'
+    GetInstantMessagingStatsSuccessExample:
+      summary: Successful IM statistics response
+      value:
+        from: '2016-04-12T00:00:00.000Z'
+        to: '2016-04-13T00:00:00.000Z'
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 10
+        users:
+          - user_id: unique_id
+            user_name: Zoomie Userton
+            email: email_address
+            total_send: 0
+            total_receive: 0
+            group_send: 0
+            group_receive: 0
+            calls_send: 0
+            calls_receive: 0
+            files_send: 0
+            files_receive: 0
+            images_send: 0
+            images_receive: 0
+            voice_send: 0
+            voice_receive: 0
+            videos_send: 0
+            videos_receive: 0
+            emoji_send: 0
+            emoji_receive: 0
+    GetMeetingDetailsRequestExample:
+      summary: Get meeting details request
+      value:
+        meeting_id: ucc69C82Q5mTNyCRWE29Aw==
+        type: '2'
+        page_size: '30'
+        page_number: '1'
+    GetMeetingDetailsSuccessExample:
+      summary: Successful meeting details response
+      value:
+        uuid: unique_id
+        id: '123456789'
+        type: Past Meeting
+        host: Zoomie Userton
+        email: email_address
+        user_type: Pro
+        start_time: '2015-08-30T05:36:56.000Z'
+        end_time: '2015-08-30T06:36:56.000Z'
+        duration: 4 mins
+        has_pstn: false
+        has_voip: true
+        has_3rd_party_audio: false
+        has_video: true
+        has_screen_share: false
+        recording: 0
+        participants_count: 2
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        participants:
+          - id: unique_id
+            user_id: unique_id
+            user_name: Zoomie Userton
+            device: Mac
+            ip_address: 117.83.222.228
+            cn: CN
+            city: Nanjing
+            network_type: Wifi
+            join_time: '2017-02-18T01:44:47.000Z'
+            leave_time: '2017-02-18T01:45:58.000Z'
+            share_application: true
+            share_desktop: true
+            share_whiteboard: true
+            recording: true
+    ListMeetingsMetricsRequestExample:
+      summary: List meetings metrics request
+      value:
+        type: '2'
+        from: '2015-08-02'
+        to: '2015-09-02'
+        page_size: '30'
+        page_number: '1'
+    ListMeetingsMetricsSuccessExample:
+      summary: Successful meetings metrics list response
+      value:
+        from: '2015-08-02T00:00:00.000Z'
+        to: '2015-09-02T00:00:00.000Z'
+        page_count: 2
+        page_number: 1
+        page_size: 30
+        total_records: 49
+        type: Past Meetings
+        meetings:
+          - uuid: unique_id
+            id: '123456789'
+            host: Zoomie Userton
+            email: email_address
+            user_type: Pro
+            start_time: '2015-08-29T05:36:56.000Z'
+            end_time: '2015-08-29T06:36:56.000Z'
+            duration: 4 mins
+            participants: 2
+            has_pstn: false
+            has_voip: true
+            has_3rd_party_audio: false
+            has_video: true
+            has_screen_share: false
+            recording: 0
+    GetQualityOfServiceRequestExample:
+      summary: Get QoS metrics request
+      value:
+        meeting_id: ucc69C82Q5mTNyCRWE29Aw==
+        type: '2'
+        user_id: user123
+        page_size: '10'
+        page_number: '1'
+    GetQualityOfServiceSuccessExample:
+      summary: Successful QoS metrics response
+      value:
+        meeting_id: unique_id
+        user_id: unique_id
+        type: Past Meeting
+        device: Mac
+        ip_address: 112.80.63.6
+        cn: CN
+        city: Nanjing
+        version: 3.5.35288.1217
+        user_qos:
+          - dateTime: '2015-08-30T06:40:56.000Z'
+            audio_input:
+              bitrate: 29 kbps
+              latency: 39 ms
+              jitter: 11 ms
+              avg_loss: 2.5%
+              max_loss: 5.0%
+            audio_output:
+              bitrate: ''
+              latency: ''
+              jitter: ''
+              avg_loss: ''
+              max_loss: ''
+            video_input:
+              bitrate: 77 kbps
+              latency: 84 ms
+              jitter: 4 ms
+              avg_loss: 28.3%
+              max_loss: 28.3%
+              resolution: 480*270
+              frame_rate: 3 fps
+            video_output:
+              bitrate: ''
+              latency: ''
+              jitter: ''
+              avg_loss: ''
+              max_loss: ''
+              resolution: ''
+              frame_rate: ''
+            as_input:
+              bitrate: ''
+              latency: ''
+              jitter: ''
+              avg_loss: ''
+              max_loss: ''
+              resolution: ''
+              frame_rate: ''
+            as_output:
+              bitrate: ''
+              latency: ''
+              jitter: ''
+              avg_loss: ''
+              max_loss: ''
+              resolution: ''
+              frame_rate: ''
+            cpu_usage:
+              zoom_min_cpu_usage: 1%
+              zoom_avg_cpu_usage: 3%
+              zoom_max_cpu_usage: 5%
+              system_max_cpu_usage: 20%
+    GetWebinarDetailsRequestExample:
+      summary: Get webinar details request
+      value:
+        meeting_id: ucc69C82Q5mTNyCRWE29Aw==
+        type: '2'
+        page_size: '30'
+        page_number: '1'
+    GetWebinarDetailsSuccessExample:
+      summary: Successful webinar details response
+      value:
+        uuid: unique_id
+        id: '123456789'
+        type: Past Webinar
+        host: Zoomie Userton
+        email: email_address
+        user_type: Pro
+        start_time: '2015-08-30T05:36:56.000Z'
+        end_time: '2015-08-30T06:36:56.000Z'
+        duration: 4 mins
+        has_pstn: false
+        has_voip: true
+        has_3rd_party_audio: false
+        has_video: true
+        has_screen_share: false
+        recording: 0
+        participants_count: 2
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        participants:
+          - id: unique_id
+            user_id: unique_id
+            user_name: Zoomie Userton
+            device: Mac
+            ip_address: 117.83.222.228
+            cn: CN
+            city: Nanjing
+            network_type: Wifi
+            join_time: '2017-02-18T01:44:47.000Z'
+            leave_time: '2017-02-18T01:45:58.000Z'
+            share_application: true
+            share_desktop: true
+            share_whiteboard: true
+            recording: true
+    ListWebinarsMetricsRequestExample:
+      summary: List webinars metrics request
+      value:
+        type: '2'
+        from: '2015-08-02'
+        to: '2015-09-02'
+        page_size: '30'
+        page_number: '1'
+    ListWebinarsMetricsSuccessExample:
+      summary: Successful webinars metrics list response
+      value:
+        from: '2015-08-02T00:00:00.000Z'
+        to: '2015-09-02T00:00:00.000Z'
+        page_count: 2
+        page_number: 1
+        page_size: 30
+        total_records: 49
+        type: Past Webinars
+        meetings:
+          - uuid: unique_id
+            id: '123456789'
+            host: Zoomie Userton
+            email: email_address
+            user_type: Pro
+            start_time: '2015-08-29T05:36:56.000Z'
+            end_time: '2015-08-29T06:36:56.000Z'
+            duration: 4 mins
+            participants: 2
+            has_pstn: false
+            has_voip: true
+            has_3rd_party_audio: false
+            has_video: true
+            has_screen_share: false
+            recording: 0
+    GetZoomRoomDetailsRequestExample:
+      summary: Get Zoom Room details request
+      value:
+        id: ucc69C82Q5mTNyCRWE29Aw==
+        from: '2016-04-12'
+        to: '2016-04-13'
+        page_size: '30'
+        page_number: '1'
+    GetZoomRoomDetailsSuccessExample:
+      summary: Successful Zoom Room details response
+      value:
+        from: '2016-04-12T00:00:00.000Z'
+        to: '2016-04-13T00:00:00.000Z'
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 1
+        zoom_room:
+          id: unique_id
+          room_name: zoom room
+          email: zoomroom@zoom.us
+          account_type: Work Email
+          passcode: '123'
+          status: Available
+          messages:
+            last_started_time: ''
+            running_time: ''
+            selected_microphone: ''
+            selected_speaker: ''
+            selected_camera: ''
+          meeting_id: ''
+        live_meeting:
+          uuid: ''
+          id: '0'
+          host: ''
+          email: ''
+          user_type: ''
+          start_time: ''
+          end_time: ''
+          duration: ''
+          participants: 0
+          has_pstn: false
+          has_voip: false
+          has_3rd_party_audio: false
+          has_video: false
+          has_screen_share: false
+          recording: 0
+        past_meetings:
+          - uuid: unique_id
+            id: '123456789'
+            host: Zoomie Userton
+            email: email_address
+            user_type: ''
+            start_time: ''
+            end_time: ''
+            duration: ''
+            participants: 1
+            has_pstn: false
+            has_voip: false
+            has_3rd_party_audio: false
+            has_video: false
+            has_screen_share: false
+            recording: 0
+    ListZoomRoomsRequestExample:
+      summary: List Zoom Rooms request
+      value:
+        page_size: '30'
+        page_number: '1'
+    ListZoomRoomsSuccessExample:
+      summary: Successful Zoom Rooms list response
+      value:
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 2
+        zoom_rooms:
+          - id: unique_id
+            room_name: zoom room1
+            email: zoomroom1@zoom.us
+            account_type: Work Email
+            passcode: '123'
+            status: Available
+            messages:
+              last_started_time: ''
+              running_time: ''
+              selected_microphone: ''
+              selected_speaker: ''
+              selected_camera: ''
+            meeting_id: ''

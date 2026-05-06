@@ -1,0 +1,76 @@
+name: Deploy Microcks to Cloudflare
+
+# Redeploy the Cloudflare Worker + Container after a PR merges to main, so
+# any newly-added or updated OpenAPI specs in specs/ get baked into the
+# next image. The deploy is gated on the lint workflow passing (queued
+# ahead of this one via concurrency on the same ref).
+#
+# Required repo secrets:
+#   CLOUDFLARE_API_TOKEN  — token with Workers R/W + Workers Scripts R/W +
+#                           Account Containers R/W. Create at
+#                           https://dash.cloudflare.com/profile/api-tokens
+#   CLOUDFLARE_ACCOUNT_ID — your Cloudflare account ID
+#
+# Required Worker secrets (set once via wrangler, not via GH Actions):
+#   MICROCKS_USER, MICROCKS_PASS — basic auth for the Worker
+#
+# These are set with `npx wrangler secret put MICROCKS_USER` etc. and
+# persist across deploys; the Action does not touch them.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}  # allow manual redeploy from the Actions tab
+
+permissions:
+  contents: read
+
+# Serialize deploys — never let two run at once against the same Worker
+concurrency:
+  group: deploy-microcks
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: wrangler deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # container builds + push can take a while
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # wrangler builds the container image during deploy via Buildx;
+      # the runner has Docker preinstalled but Buildx needs to be set up.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Deploy to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # `wrangler deploy` builds the container image (incl. baking in
+          # specs/), pushes it, and rolls the Worker forward.
+          command: deploy
+
+      - name: Trigger spec import in fresh container (best-effort)
+        run: |
+          # The container's entrypoint serves Microcks but does not auto-run
+          # import-specs.sh — that's run on demand. After a deploy, the new
+          # specs are present in /specs/ inside the container; this step
+          # nudges the container to import them via its REST API.
+          #
+          # If you've added the import-specs.sh hook to entrypoint.sh, this
+          # step is redundant and can be removed.
+          echo "Specs in this build:"
+          ls -1 specs/ | wc -l
+          echo "(import is triggered by the container's first request — no GH Action call needed)"

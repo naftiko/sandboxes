@@ -1,0 +1,720 @@
+openapi: 3.1.0
+info:
+  title: slack-reminders-api
+  version: 1.0.0
+  description: >
+    Slack's Reminders API lets apps create and manage personal reminders for
+    Slack users, so teams 
+
+    can automate nudges, follow-ups, and routine check-ins without leaving
+    Slack. Through Web API 
+
+    methods, an app can add reminders with natural language or timestamps
+    (including recurring 
+
+    patterns like "every Monday at 9am"), list a user's upcoming reminders,
+    fetch details, and 
+
+    mark or delete them when done. It's useful for workflows like task handoffs,
+    compliance pings, 
+
+    or lightweight to-dos that need to surface at the right moment. Access is
+    controlled with 
+
+    granular OAuth scopes (reminders:write and reminders:read), and reminders
+    are delivered inside 
+
+    Slack where users already communicate, keeping prompts contextual and
+    unobtrusive.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-reminders-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Reminders
+    description: Operations for creating and managing personal reminders
+paths:
+  /reminders.add:
+    post:
+      tags:
+        - Reminders
+      summary: Add Reminder
+      description: Creates a reminder for a user.
+      operationId: remindersAdd
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/reminders.add
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - name: token
+          in: header
+          description: 'Authentication token. Requires scope: `reminders:write`'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemindersAddRequest'
+            examples:
+              addReminder:
+                $ref: '#/components/examples/RemindersAddRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RemindersAddRequest'
+      responses:
+        '200':
+          description: Successful response with reminder details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersAddSuccessResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/RemindersAddSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersAddErrorResponse'
+              examples:
+                error:
+                  $ref: '#/components/examples/RemindersAddErrorExample'
+      security:
+        - slackAuth:
+            - reminders:write
+  /reminders.complete:
+    post:
+      tags:
+        - Reminders
+      summary: Complete Reminder
+      description: Marks a reminder as complete.
+      operationId: remindersComplete
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/reminders.complete
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - name: token
+          in: header
+          description: 'Authentication token. Requires scope: `reminders:write`'
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemindersCompleteRequest'
+            examples:
+              completeReminder:
+                $ref: '#/components/examples/RemindersCompleteRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RemindersCompleteRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersCompleteSuccessResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/RemindersCompleteSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersCompleteErrorResponse'
+              examples:
+                error:
+                  $ref: '#/components/examples/RemindersCompleteErrorExample'
+      security:
+        - slackAuth:
+            - reminders:write
+  /reminders.delete:
+    post:
+      tags:
+        - Reminders
+      summary: Delete Reminder
+      description: Deletes a reminder.
+      operationId: remindersDelete
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/reminders.delete
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - name: token
+          in: header
+          description: 'Authentication token. Requires scope: `reminders:write`'
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemindersDeleteRequest'
+            examples:
+              deleteReminder:
+                $ref: '#/components/examples/RemindersDeleteRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RemindersDeleteRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersDeleteSuccessResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/RemindersDeleteSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersDeleteErrorResponse'
+              examples:
+                error:
+                  $ref: '#/components/examples/RemindersDeleteErrorExample'
+      security:
+        - slackAuth:
+            - reminders:write
+  /reminders.info:
+    get:
+      tags:
+        - Reminders
+      summary: Get Reminder Info
+      description: Gets information about a reminder.
+      operationId: remindersInfo
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/reminders.info
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - name: token
+          in: query
+          description: 'Authentication token. Requires scope: `reminders:read`'
+          schema:
+            type: string
+        - name: reminder
+          in: query
+          description: The ID of the reminder
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with reminder details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersInfoSuccessResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/RemindersInfoSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersInfoErrorResponse'
+              examples:
+                error:
+                  $ref: '#/components/examples/RemindersInfoErrorExample'
+      security:
+        - slackAuth:
+            - reminders:read
+  /reminders.list:
+    get:
+      tags:
+        - Reminders
+      summary: List Reminders
+      description: Lists all reminders created by or for a given user.
+      operationId: remindersList
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/reminders.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - name: token
+          in: query
+          description: 'Authentication token. Requires scope: `reminders:read`'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with list of reminders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersListSuccessResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/RemindersListSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersListErrorResponse'
+              examples:
+                error:
+                  $ref: '#/components/examples/RemindersListErrorExample'
+      security:
+        - slackAuth:
+            - reminders:read
+components:
+  securitySchemes:
+    slackAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            reminders:read: View reminders
+            reminders:write: Create, complete, and delete reminders
+  schemas:
+    DefsOkTrue:
+      type: boolean
+      enum:
+        - true
+      description: Indicates successful operation
+    DefsOkFalse:
+      type: boolean
+      enum:
+        - false
+      description: Indicates failed operation
+    ReminderObject:
+      type: object
+      description: A reminder object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the reminder
+        creator:
+          type: string
+          description: User ID who created the reminder
+        user:
+          type: string
+          description: User ID who will receive the reminder
+        text:
+          type: string
+          description: The content of the reminder
+        recurring:
+          type: boolean
+          description: Whether this is a recurring reminder
+        time:
+          type: integer
+          description: Unix timestamp when the reminder will be delivered
+        complete_ts:
+          type: integer
+          description: Unix timestamp when the reminder was completed (0 if not completed)
+    RemindersAddRequest:
+      type: object
+      description: Request body for creating a reminder
+      required:
+        - text
+        - time
+      properties:
+        text:
+          type: string
+          description: The content of the reminder
+        time:
+          type: string
+          description: >
+            When this reminder should happen: the Unix timestamp (up to five
+            years from now), 
+
+            the number of seconds until the reminder (if within 24 hours), or a
+            natural language 
+
+            description (Ex. "in 15 minutes," or "every Thursday")
+        user:
+          type: string
+          description: >
+            The user who will receive the reminder. If no user is specified, the
+            reminder will 
+
+            go to user who created it.
+    RemindersAddSuccessResponse:
+      type: object
+      description: Schema for successful response from reminders.add method
+      required:
+        - ok
+        - reminder
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkTrue'
+        reminder:
+          $ref: '#/components/schemas/ReminderObject'
+      additionalProperties: false
+    RemindersAddErrorResponse:
+      type: object
+      description: Schema for error response from reminders.add method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkFalse'
+        error:
+          type: string
+          description: Error code
+          enum:
+            - cannot_parse
+            - user_not_found
+            - cannot_add_bot
+            - cannot_add_slackbot
+            - cannot_add_others
+            - cannot_add_others_recurring
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    RemindersCompleteRequest:
+      type: object
+      description: Request body for completing a reminder
+      properties:
+        reminder:
+          type: string
+          description: The ID of the reminder to be marked as complete
+    RemindersCompleteSuccessResponse:
+      type: object
+      description: Schema for successful response from reminders.complete method
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkTrue'
+      additionalProperties: false
+    RemindersCompleteErrorResponse:
+      type: object
+      description: Schema for error response from reminders.complete method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkFalse'
+        error:
+          type: string
+          description: Error code
+          enum:
+            - not_found
+            - cannot_complete_recurring
+            - cannot_complete_others
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    RemindersDeleteRequest:
+      type: object
+      description: Request body for deleting a reminder
+      properties:
+        reminder:
+          type: string
+          description: The ID of the reminder
+    RemindersDeleteSuccessResponse:
+      type: object
+      description: Schema for successful response from reminders.delete method
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkTrue'
+      additionalProperties: false
+    RemindersDeleteErrorResponse:
+      type: object
+      description: Schema for error response from reminders.delete method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkFalse'
+        error:
+          type: string
+          description: Error code
+          enum:
+            - not_found
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    RemindersInfoSuccessResponse:
+      type: object
+      description: Schema for successful response from reminders.info method
+      required:
+        - ok
+        - reminder
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkTrue'
+        reminder:
+          $ref: '#/components/schemas/ReminderObject'
+      additionalProperties: false
+    RemindersInfoErrorResponse:
+      type: object
+      description: Schema for error response from reminders.info method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkFalse'
+        error:
+          type: string
+          description: Error code
+          enum:
+            - not_found
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    RemindersListSuccessResponse:
+      type: object
+      description: Schema for successful response from reminders.list method
+      required:
+        - ok
+        - reminders
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkTrue'
+        reminders:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReminderObject'
+          description: List of reminders
+      additionalProperties: false
+    RemindersListErrorResponse:
+      type: object
+      description: Schema for error response from reminders.list method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkFalse'
+        error:
+          type: string
+          description: Error code
+          enum:
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+  examples:
+    RemindersAddRequestExample:
+      summary: Create a reminder for tomorrow
+      value:
+        text: Submit the quarterly report
+        time: tomorrow at 9am
+        user: U1234567890
+    RemindersAddSuccessExample:
+      summary: Successfully created reminder
+      value:
+        ok: true
+        reminder:
+          id: Rm12345678
+          creator: U1234567890
+          user: U1234567890
+          text: Submit the quarterly report
+          recurring: false
+          time: 1706180400
+          complete_ts: 0
+    RemindersAddErrorExample:
+      summary: Cannot parse time error
+      value:
+        ok: false
+        error: cannot_parse
+    RemindersCompleteRequestExample:
+      summary: Complete a reminder
+      value:
+        reminder: Rm12345678
+    RemindersCompleteSuccessExample:
+      summary: Successfully completed reminder
+      value:
+        ok: true
+    RemindersCompleteErrorExample:
+      summary: Reminder not found error
+      value:
+        ok: false
+        error: not_found
+    RemindersDeleteRequestExample:
+      summary: Delete a reminder
+      value:
+        reminder: Rm12345678
+    RemindersDeleteSuccessExample:
+      summary: Successfully deleted reminder
+      value:
+        ok: true
+    RemindersDeleteErrorExample:
+      summary: Reminder not found error
+      value:
+        ok: false
+        error: not_found
+    RemindersInfoSuccessExample:
+      summary: Successfully retrieved reminder info
+      value:
+        ok: true
+        reminder:
+          id: Rm12345678
+          creator: U1234567890
+          user: U1234567890
+          text: Submit the quarterly report
+          recurring: false
+          time: 1706180400
+          complete_ts: 0
+    RemindersInfoErrorExample:
+      summary: Authentication error
+      value:
+        ok: false
+        error: invalid_auth
+    RemindersListSuccessExample:
+      summary: Successfully retrieved reminders list
+      value:
+        ok: true
+        reminders:
+          - id: Rm12345678
+            creator: U1234567890
+            user: U1234567890
+            text: Submit the quarterly report
+            recurring: false
+            time: 1706180400
+            complete_ts: 0
+          - id: Rm87654321
+            creator: U1234567890
+            user: U1234567890
+            text: Weekly team standup
+            recurring: true
+            time: 1706094000
+            complete_ts: 0
+    RemindersListErrorExample:
+      summary: Authentication error
+      value:
+        ok: false
+        error: invalid_auth

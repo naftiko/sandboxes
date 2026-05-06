@@ -1,0 +1,2286 @@
+openapi: 3.1.0
+info:
+  title: webflow-webhooks-api
+  description: >-
+    API for managing webhooks in Webflow. Allows creating, listing, retrieving,
+    and deleting webhook subscriptions for various site events.
+  version: 1.0.0
+servers:
+  - url: https://api.webflow.com
+  - url: http://localhost:8080/rest/webflow-webhooks-api/1.0.0
+    description: Sandbox
+paths:
+  /sites/{site_id}/webhooks:
+    get:
+      tags:
+        - Webhooks
+      operationId: listWebhooks
+      summary: List Webhooks
+      description: |
+        List all App-created Webhooks registered for a given site
+
+        Required scope | `sites:read`
+      parameters:
+        - name: site_id
+          in: path
+          description: Unique identifier for a Site
+          example: 580e63e98c9a982ac9b8b741
+          required: true
+          schema:
+            type: string
+            format: objectid
+            default: null
+      responses:
+        '200':
+          description: Request was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listwebhooksresponse200'
+              examples:
+                Listwebhooksresponse200example:
+                  $ref: '#/components/examples/Listwebhooksresponse200example'
+        '400':
+          description: Request body was incorrectly formatted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listwebhooksresponse400'
+              examples:
+                Listwebhooksresponse400example:
+                  $ref: '#/components/examples/Listwebhooksresponse400example'
+                Listwebhooksresponse400example1:
+                  $ref: '#/components/examples/Listwebhooksresponse400example1'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listwebhooksresponse401'
+              examples:
+                Listwebhooksresponse401example:
+                  $ref: '#/components/examples/Listwebhooksresponse401example'
+                Listwebhooksresponse401example1:
+                  $ref: '#/components/examples/Listwebhooksresponse401example1'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listwebhooksresponse404'
+              examples:
+                Listwebhooksresponse404example:
+                  $ref: '#/components/examples/Listwebhooksresponse404example'
+                Listwebhooksresponse404example1:
+                  $ref: '#/components/examples/Listwebhooksresponse404example1'
+        '429':
+          description: >-
+            The rate limit of the provided access_token has been reached. Please
+            have your application respect the X-RateLimit-Remaining header we
+            include on API responses.
+          headers:
+            X-RateLimit-Remaining:
+              description: >-
+                Contains the number of available requests remaining in the
+                current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Contains your current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listwebhooksresponse429'
+              examples:
+                Listwebhooksresponse429example:
+                  $ref: '#/components/examples/Listwebhooksresponse429example'
+                Listwebhooksresponse429example1:
+                  $ref: '#/components/examples/Listwebhooksresponse429example1'
+        '500':
+          description: We had a problem with our server. Try again later.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listwebhooksresponse500'
+              examples:
+                Listwebhooksresponse500example:
+                  $ref: '#/components/examples/Listwebhooksresponse500example'
+                Listwebhooksresponse500example1:
+                  $ref: '#/components/examples/Listwebhooksresponse500example1'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def dispatch(request, context) {
+              // Return successful response
+              return "200"
+          }
+    post:
+      tags:
+        - Webhooks
+      operationId: createWebhook
+      summary: Create Webhook
+      description: >
+        Create a new Webhook.
+
+
+        Limit of 75 registrations per `triggerType`, per site.
+
+
+        <Note>Access to this endpoint requires a bearer token from a [Data
+        Client App](/data/docs/getting-started-data-clients).</Note>
+
+        Required scope | `sites:write`
+      parameters:
+        - name: site_id
+          in: path
+          description: Unique identifier for a Site
+          example: 580e63e98c9a982ac9b8b741
+          required: true
+          schema:
+            type: string
+            format: objectid
+            default: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Createwebhookrequest'
+            examples:
+              Createwebhookrequestexample:
+                $ref: '#/components/examples/Createwebhookrequestexample'
+        required: true
+        description: The Webhook registration object
+      responses:
+        '201':
+          description: Request was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createwebhookresponse201'
+              examples:
+                Createwebhookresponse201example:
+                  $ref: '#/components/examples/Createwebhookresponse201example'
+        '400':
+          description: Request body was incorrectly formatted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createwebhookresponse400'
+              examples:
+                Createwebhookresponse400example:
+                  $ref: '#/components/examples/Createwebhookresponse400example'
+                Createwebhookresponse400example1:
+                  $ref: '#/components/examples/Createwebhookresponse400example1'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createwebhookresponse401'
+              examples:
+                Createwebhookresponse401example:
+                  $ref: '#/components/examples/Createwebhookresponse401example'
+                Createwebhookresponse401example1:
+                  $ref: '#/components/examples/Createwebhookresponse401example1'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createwebhookresponse404'
+              examples:
+                Createwebhookresponse404example:
+                  $ref: '#/components/examples/Createwebhookresponse404example'
+                Createwebhookresponse404example1:
+                  $ref: '#/components/examples/Createwebhookresponse404example1'
+        '429':
+          description: >-
+            The rate limit of the provided access_token has been reached. Please
+            have your application respect the X-RateLimit-Remaining header we
+            include on API responses.
+          headers:
+            X-RateLimit-Remaining:
+              description: >-
+                Contains the number of available requests remaining in the
+                current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Contains your current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createwebhookresponse429'
+              examples:
+                Createwebhookresponse429example:
+                  $ref: '#/components/examples/Createwebhookresponse429example'
+                Createwebhookresponse429example1:
+                  $ref: '#/components/examples/Createwebhookresponse429example1'
+        '500':
+          description: We had a problem with our server. Try again later.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createwebhookresponse500'
+              examples:
+                Createwebhookresponse500example:
+                  $ref: '#/components/examples/Createwebhookresponse500example'
+                Createwebhookresponse500example1:
+                  $ref: '#/components/examples/Createwebhookresponse500example1'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def dispatch(request, context) {
+              // Return successful response
+              return "201"
+          }
+  /webhooks/{webhook_id}:
+    get:
+      tags:
+        - Webhooks
+      operationId: getWebhook
+      summary: Get Webhook
+      description: |
+        Get a specific Webhook instance
+
+        Required scope: `sites:read`
+      parameters:
+        - name: webhook_id
+          in: path
+          description: Unique identifier for a Webhook
+          example: 580e64008c9a982ac9b8b754
+          required: true
+          schema:
+            type: string
+            format: objectid
+      responses:
+        '200':
+          description: Request was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getwebhookresponse200'
+              examples:
+                Getwebhookresponse200example:
+                  $ref: '#/components/examples/Getwebhookresponse200example'
+        '400':
+          description: Request body was incorrectly formatted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getwebhookresponse400'
+              examples:
+                Getwebhookresponse400example:
+                  $ref: '#/components/examples/Getwebhookresponse400example'
+                Getwebhookresponse400example1:
+                  $ref: '#/components/examples/Getwebhookresponse400example1'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getwebhookresponse401'
+              examples:
+                Getwebhookresponse401example:
+                  $ref: '#/components/examples/Getwebhookresponse401example'
+                Getwebhookresponse401example1:
+                  $ref: '#/components/examples/Getwebhookresponse401example1'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getwebhookresponse404'
+              examples:
+                Getwebhookresponse404example:
+                  $ref: '#/components/examples/Getwebhookresponse404example'
+                Getwebhookresponse404example1:
+                  $ref: '#/components/examples/Getwebhookresponse404example1'
+        '429':
+          description: >-
+            The rate limit of the provided access_token has been reached. Please
+            have your application respect the X-RateLimit-Remaining header we
+            include on API responses.
+          headers:
+            X-RateLimit-Remaining:
+              description: >-
+                Contains the number of available requests remaining in the
+                current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Contains your current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getwebhookresponse429'
+              examples:
+                Getwebhookresponse429example:
+                  $ref: '#/components/examples/Getwebhookresponse429example'
+                Getwebhookresponse429example1:
+                  $ref: '#/components/examples/Getwebhookresponse429example1'
+        '500':
+          description: We had a problem with our server. Try again later.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getwebhookresponse500'
+              examples:
+                Getwebhookresponse500example:
+                  $ref: '#/components/examples/Getwebhookresponse500example'
+                Getwebhookresponse500example1:
+                  $ref: '#/components/examples/Getwebhookresponse500example1'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def dispatch(request, context) {
+              // Return successful response
+              return "200"
+          }
+    delete:
+      tags:
+        - Webhooks
+      operationId: removeWebhook
+      summary: Remove Webhook
+      description: |
+        Remove a Webhook
+
+        Required scope: `sites:read`
+      parameters:
+        - name: webhook_id
+          in: path
+          description: Unique identifier for a Webhook
+          example: 580e64008c9a982ac9b8b754
+          required: true
+          schema:
+            type: string
+            format: objectid
+      responses:
+        '204':
+          description: Request was successful. No Content is returned.
+        '400':
+          description: Request body was incorrectly formatted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Removewebhookresponse400'
+              examples:
+                Removewebhookresponse400example:
+                  $ref: '#/components/examples/Removewebhookresponse400example'
+                Removewebhookresponse400example1:
+                  $ref: '#/components/examples/Removewebhookresponse400example1'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Removewebhookresponse401'
+              examples:
+                Removewebhookresponse401example:
+                  $ref: '#/components/examples/Removewebhookresponse401example'
+                Removewebhookresponse401example1:
+                  $ref: '#/components/examples/Removewebhookresponse401example1'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Removewebhookresponse404'
+              examples:
+                Removewebhookresponse404example:
+                  $ref: '#/components/examples/Removewebhookresponse404example'
+                Removewebhookresponse404example1:
+                  $ref: '#/components/examples/Removewebhookresponse404example1'
+        '429':
+          description: >-
+            The rate limit of the provided access_token has been reached. Please
+            have your application respect the X-RateLimit-Remaining header we
+            include on API responses.
+          headers:
+            X-RateLimit-Remaining:
+              description: >-
+                Contains the number of available requests remaining in the
+                current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Contains your current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Removewebhookresponse429'
+              examples:
+                Removewebhookresponse429example:
+                  $ref: '#/components/examples/Removewebhookresponse429example'
+                Removewebhookresponse429example1:
+                  $ref: '#/components/examples/Removewebhookresponse429example1'
+        '500':
+          description: We had a problem with our server. Try again later.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Removewebhookresponse500'
+              examples:
+                Removewebhookresponse500example:
+                  $ref: '#/components/examples/Removewebhookresponse500example'
+                Removewebhookresponse500example1:
+                  $ref: '#/components/examples/Removewebhookresponse500example1'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def dispatch(request, context) {
+              // Return successful response
+              return "204"
+          }
+tags:
+  - name: Webhooks
+    description: Operations for managing webhook subscriptions and configurations
+components:
+  schemas:
+    Listwebhooksresponse200webhooksitemfilter:
+      description: >-
+        Only supported for the `form_submission` trigger type. Filter for the
+        form you want Webhooks to be sent for.
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the form you'd like to recieve notifications for.
+          example: My Form
+    Listwebhooksresponse200webhooksitem:
+      example:
+        id: 582266e0cd48de0f0e3c6d8b
+        triggerType: form_submission
+        siteId: 562ac0395358780a1f5e6fbd
+        workspaceId: 4f4e46fd476ea8c507000001
+        createdOn: '2022-11-08T23:59:28.572Z'
+        lastTriggered: '2023-02-08T23:59:28.572Z'
+        filter: null
+        url: https://webhook.site/7f7f7f7f-7f7f-7f7f-7f7f-7f7f7f7f7f7f
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 57ca0a9e418c504a6e1acbb6
+          description: Unique identifier for the Webhook registration
+        triggerType:
+          type: string
+          example: form_submission
+          description: >
+            The type of event that triggered the request. See the the
+            documentation for details on [supported
+            events](/data/reference/all-events).
+          enum:
+            - form_submission
+            - site_publish
+            - page_created
+            - page_metadata_updated
+            - page_deleted
+            - ecomm_new_order
+            - ecomm_order_changed
+            - ecomm_inventory_changed
+            - user_account_added
+            - user_account_updated
+            - user_account_deleted
+            - collection_item_created
+            - collection_item_changed
+            - collection_item_deleted
+            - collection_item_published
+            - collection_item_unpublished
+            - comment_created
+        url:
+          type: string
+          example: https://example.com/webhook
+          description: URL to send the Webhook payload to
+        workspaceId:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 580e63e98c9a982ac9b8b741
+          description: Unique identifier for the Workspace the Webhook is registered in
+        siteId:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 562ac0395358780a1f5e6fbd
+          description: Unique identifier for the Site the Webhook is registered in
+        filter:
+          $ref: '#/components/schemas/Listwebhooksresponse200webhooksitemfilter'
+        lastTriggered:
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2016-09-06T21:12:22.148Z'
+          description: Date the Webhook instance was last triggered
+        createdOn:
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2016-09-02T23:26:22.241Z'
+          description: Date the Webhook registration was created
+    Listwebhooksresponse200pagination:
+      description: Pagination object
+      type: object
+      required:
+        - limit
+        - offset
+        - total
+      properties:
+        limit:
+          type: integer
+          description: The limit used for pagination
+          example: 100
+          readOnly: true
+        offset:
+          type: integer
+          description: The offset used for pagination
+          example: 0
+          readOnly: true
+        total:
+          type: integer
+          description: The total number of records
+          example: 100
+          readOnly: true
+    Listwebhooksresponse200:
+      properties:
+        webhooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Listwebhooksresponse200webhooksitem'
+        pagination:
+          $ref: '#/components/schemas/Listwebhooksresponse200pagination'
+    Listwebhooksresponse400:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Listwebhooksresponse401:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Listwebhooksresponse404:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Listwebhooksresponse429:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Listwebhooksresponse500:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Createwebhookrequestfilter:
+      description: >-
+        Only supported for the `form_submission` trigger type. Filter for the
+        form you want Webhooks to be sent for.
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the form you'd like to recieve notifications for.
+          example: My Form
+    Createwebhookrequest:
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 57ca0a9e418c504a6e1acbb6
+          description: Unique identifier for the Webhook registration
+        triggerType:
+          type: string
+          example: form_submission
+          description: >
+            The type of event that triggered the request. See the the
+            documentation for details on [supported
+            events](/data/reference/all-events).
+          enum:
+            - form_submission
+            - site_publish
+            - page_created
+            - page_metadata_updated
+            - page_deleted
+            - ecomm_new_order
+            - ecomm_order_changed
+            - ecomm_inventory_changed
+            - user_account_added
+            - user_account_updated
+            - user_account_deleted
+            - collection_item_created
+            - collection_item_changed
+            - collection_item_deleted
+            - collection_item_published
+            - collection_item_unpublished
+            - comment_created
+        url:
+          type: string
+          example: https://example.com/webhook
+          description: URL to send the Webhook payload to
+        workspaceId:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 580e63e98c9a982ac9b8b741
+          description: Unique identifier for the Workspace the Webhook is registered in
+        siteId:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 562ac0395358780a1f5e6fbd
+          description: Unique identifier for the Site the Webhook is registered in
+        filter:
+          $ref: '#/components/schemas/Createwebhookrequestfilter'
+        lastTriggered:
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2016-09-06T21:12:22.148Z'
+          description: Date the Webhook instance was last triggered
+        createdOn:
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2016-09-02T23:26:22.241Z'
+          description: Date the Webhook registration was created
+    Createwebhookresponse201filter:
+      description: >-
+        Only supported for the `form_submission` trigger type. Filter for the
+        form you want Webhooks to be sent for.
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the form you'd like to recieve notifications for.
+          example: My Form
+    Createwebhookresponse201:
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 57ca0a9e418c504a6e1acbb6
+          description: Unique identifier for the Webhook registration
+        triggerType:
+          type: string
+          example: form_submission
+          description: >
+            The type of event that triggered the request. See the the
+            documentation for details on [supported
+            events](/data/reference/all-events).
+          enum:
+            - form_submission
+            - site_publish
+            - page_created
+            - page_metadata_updated
+            - page_deleted
+            - ecomm_new_order
+            - ecomm_order_changed
+            - ecomm_inventory_changed
+            - user_account_added
+            - user_account_updated
+            - user_account_deleted
+            - collection_item_created
+            - collection_item_changed
+            - collection_item_deleted
+            - collection_item_published
+            - collection_item_unpublished
+            - comment_created
+        url:
+          type: string
+          example: https://example.com/webhook
+          description: URL to send the Webhook payload to
+        workspaceId:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 580e63e98c9a982ac9b8b741
+          description: Unique identifier for the Workspace the Webhook is registered in
+        siteId:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 562ac0395358780a1f5e6fbd
+          description: Unique identifier for the Site the Webhook is registered in
+        filter:
+          $ref: '#/components/schemas/Createwebhookresponse201filter'
+        lastTriggered:
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2016-09-06T21:12:22.148Z'
+          description: Date the Webhook instance was last triggered
+        createdOn:
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2016-09-02T23:26:22.241Z'
+          description: Date the Webhook registration was created
+    Createwebhookresponse400:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Createwebhookresponse401:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Createwebhookresponse404:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Createwebhookresponse429:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Createwebhookresponse500:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Getwebhookresponse200filter:
+      description: >-
+        Only supported for the `form_submission` trigger type. Filter for the
+        form you want Webhooks to be sent for.
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the form you'd like to recieve notifications for.
+          example: My Form
+    Getwebhookresponse200:
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 57ca0a9e418c504a6e1acbb6
+          description: Unique identifier for the Webhook registration
+        triggerType:
+          type: string
+          example: form_submission
+          description: >
+            The type of event that triggered the request. See the the
+            documentation for details on [supported
+            events](/data/reference/all-events).
+          enum:
+            - form_submission
+            - site_publish
+            - page_created
+            - page_metadata_updated
+            - page_deleted
+            - ecomm_new_order
+            - ecomm_order_changed
+            - ecomm_inventory_changed
+            - user_account_added
+            - user_account_updated
+            - user_account_deleted
+            - collection_item_created
+            - collection_item_changed
+            - collection_item_deleted
+            - collection_item_published
+            - collection_item_unpublished
+            - comment_created
+        url:
+          type: string
+          example: https://example.com/webhook
+          description: URL to send the Webhook payload to
+        workspaceId:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 580e63e98c9a982ac9b8b741
+          description: Unique identifier for the Workspace the Webhook is registered in
+        siteId:
+          readOnly: true
+          type: string
+          format: objectid
+          example: 562ac0395358780a1f5e6fbd
+          description: Unique identifier for the Site the Webhook is registered in
+        filter:
+          $ref: '#/components/schemas/Getwebhookresponse200filter'
+        lastTriggered:
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2016-09-06T21:12:22.148Z'
+          description: Date the Webhook instance was last triggered
+        createdOn:
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2016-09-02T23:26:22.241Z'
+          description: Date the Webhook registration was created
+    Getwebhookresponse400:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Getwebhookresponse401:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Getwebhookresponse404:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Getwebhookresponse429:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Getwebhookresponse500:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Removewebhookresponse400:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Removewebhookresponse401:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Removewebhookresponse404:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Removewebhookresponse429:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Removewebhookresponse500:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+  examples:
+    Listwebhooksresponse200example:
+      value:
+        webhooks:
+          - id: 57ca0a9e418c504a6e1acbb6
+            triggerType: form_submission
+            siteId: 562ac0395358780a1f5e6fbd
+            workspaceId: 4f4e46fd476ea8c507000001
+            filter:
+              name: Email Form
+            createdOn: '2016-09-02T23:26:22.241Z'
+            lastTriggered: '2023-02-08T23:59:28.572Z'
+            url: https://webhook.site/7f7f7f7f-7f7f-7f7f-7f7f-7f7f7f7f7f7f
+          - id: 578d85cce0c47cd2865f4cf2
+            triggerType: form_submission
+            siteId: 562ac0395358780a1f5e6fbd
+            workspaceId: 4f4e46fd476ea8c507000001
+            filter:
+              name: Email Form
+            createdOn: '2016-07-19T01:43:40.585Z'
+            lastTriggered: '2023-02-08T23:59:28.572Z'
+            url: https://webhook.site/7f7f7f7f-7f7f-7f7f-7f7f-7f7f7f7f7f7f
+          - id: 578d85cce0c47cd2865f4cf3
+            triggerType: form_submission
+            siteId: 562ac0395358780a1f5e6fbd
+            workspaceId: 4f4e46fd476ea8c507000001
+            filter:
+              name: Email Form
+            createdOn: '2016-07-19T01:43:40.605Z'
+            lastTriggered: '2023-02-08T23:59:28.572Z'
+            url: https://webhook.site/7f7f7f7f-7f7f-7f7f-7f7f-7f7f7f7f7f7f
+    Listwebhooksresponse400example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Listwebhooksresponse400example1:
+      value:
+        code: bad_request
+        message: 'Bad Request: Request is malformed'
+        externalReference: null
+        details: []
+    Listwebhooksresponse401example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Listwebhooksresponse401example1:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Listwebhooksresponse404example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Listwebhooksresponse404example1:
+      value:
+        code: resource_not_found
+        message: 'Requested resource not found: The site cannot be found'
+        externalReference: null
+        details: []
+    Listwebhooksresponse429example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Listwebhooksresponse429example1:
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    Listwebhooksresponse500example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Listwebhooksresponse500example1:
+      value:
+        code: internal_error
+        message: An Internal Error occurred
+        externalReference: null
+        details: []
+    Createwebhookrequestexample:
+      value:
+        id: 582266e0cd48de0f0e3c6d8b
+        triggerType: form_submission
+        siteId: 562ac0395358780a1f5e6fbd
+        workspaceId: 4f4e46fd476ea8c507000001
+        createdOn: '2022-11-08T23:59:28.572Z'
+        lastTriggered: '2023-02-08T23:59:28.572Z'
+        filter: null
+        url: https://webhook.site/7f7f7f7f-7f7f-7f7f-7f7f-7f7f7f7f7f7f
+    Createwebhookresponse201example:
+      value:
+        id: 582266e0cd48de0f0e3c6d8b
+        triggerType: form_submission
+        siteId: 562ac0395358780a1f5e6fbd
+        workspaceId: 4f4e46fd476ea8c507000001
+        createdOn: '2022-11-08T23:59:28.572Z'
+        lastTriggered: '2023-02-08T23:59:28.572Z'
+        filter: null
+        url: https://webhook.site/7f7f7f7f-7f7f-7f7f-7f7f-7f7f7f7f7f7f
+    Createwebhookresponse400example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createwebhookresponse400example1:
+      value:
+        code: bad_request
+        message: 'Bad Request: Request is malformed'
+        externalReference: null
+        details: []
+    Createwebhookresponse401example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createwebhookresponse401example1:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createwebhookresponse404example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createwebhookresponse404example1:
+      value:
+        code: resource_not_found
+        message: 'Requested resource not found: The site cannot be found'
+        externalReference: null
+        details: []
+    Createwebhookresponse429example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createwebhookresponse429example1:
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    Createwebhookresponse500example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createwebhookresponse500example1:
+      value:
+        code: internal_error
+        message: An Internal Error occurred
+        externalReference: null
+        details: []
+    Getwebhookresponse200example:
+      value:
+        id: 582266e0cd48de0f0e3c6d8b
+        triggerType: form_submission
+        siteId: 562ac0395358780a1f5e6fbd
+        workspaceId: 4f4e46fd476ea8c507000001
+        createdOn: '2022-11-08T23:59:28.572Z'
+        lastTriggered: '2023-02-08T23:59:28.572Z'
+        filter: null
+        url: https://webhook.site/7f7f7f7f-7f7f-7f7f-7f7f-7f7f7f7f7f7f
+    Getwebhookresponse400example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getwebhookresponse400example1:
+      value:
+        code: bad_request
+        message: 'Bad Request: Request is malformed'
+        externalReference: null
+        details: []
+    Getwebhookresponse401example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getwebhookresponse401example1:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getwebhookresponse404example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getwebhookresponse404example1:
+      value:
+        code: resource_not_found
+        message: 'Requested resource not found: The site cannot be found'
+        externalReference: null
+        details: []
+    Getwebhookresponse429example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getwebhookresponse429example1:
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    Getwebhookresponse500example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getwebhookresponse500example1:
+      value:
+        code: internal_error
+        message: An Internal Error occurred
+        externalReference: null
+        details: []
+    Removewebhookresponse400example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Removewebhookresponse400example1:
+      value:
+        code: bad_request
+        message: 'Bad Request: Request is malformed'
+        externalReference: null
+        details: []
+    Removewebhookresponse401example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Removewebhookresponse401example1:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Removewebhookresponse404example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Removewebhookresponse404example1:
+      value:
+        code: resource_not_found
+        message: 'Requested resource not found: The site cannot be found'
+        externalReference: null
+        details: []
+    Removewebhookresponse429example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Removewebhookresponse429example1:
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    Removewebhookresponse500example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Removewebhookresponse500example1:
+      value:
+        code: internal_error
+        message: An Internal Error occurred
+        externalReference: null
+        details: []
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          scopes:
+            authorized_user:read: read details about the authorized user
+            assets:read: read assets on the site
+            assets:write: write assets on a site
+            cms:read: read collections and items for a site
+            cms:write: write to collections and items for a site
+            comments:read: read comments on the site
+            comments:write: write comments on the site
+            custom_code:read: read custom code on the site
+            custom_code:write: modify custom code on the site
+            ecommerce:read: read ecommerce data
+            ecommerce:write: edit ecommerce data
+            forms:read: read form data
+            forms:write: write form data
+            pages:read: read pages on the site
+            pages:write: write to pages on the site
+            components:read: read component data
+            components:write: write component data
+            sites:read: read sites on the site
+            sites:write: modify pages on the site
+            users:read: read users on the site
+            site_activity:read: read site activity logs
+            users:write: modify users on the site
+            workspace:read: read workspace resource data
+            workspace:write: write workspace resource data
+            site_config:read: read site configuration data
+            site_config:write: write site configuration data
+          authorizationUrl: https://webflow.com/oauth/authorize
+          tokenUrl: https://api.webflow.com/oauth/token
+    ApiKey:
+      type: http
+      scheme: bearer
+      x-fern-token-variable-name: access_token

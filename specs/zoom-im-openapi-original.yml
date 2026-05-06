@@ -1,0 +1,670 @@
+openapi: 3.1.0
+info:
+  title: zoom-instant-messaging-groups-api
+  description: >
+    The Zoom Instant Messaging (IM) Groups API enables management of IM groups
+    within a Zoom account.
+
+    This API provides endpoints to create, retrieve, update, and delete IM
+    groups, as well as manage
+
+    group membership. IM groups allow users to organize contacts for quick
+    messaging and collaboration.
+  contact:
+    name: Zoom Developers
+    url: https://zoom.us/developer
+    email: developer@zoom.us
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+externalDocs:
+  description: Zoom REST API Documentation
+  url: https://zoom.github.io/api
+servers:
+  - url: https://api.zoom.us/v1
+    description: Zoom API Production Server
+  - url: http://localhost:8080/rest/zoom-instant-messaging-groups-api/1.0.0
+    description: Sandbox
+security:
+  - ApiKey: []
+    ApiSecret: []
+tags:
+  - name: IM Groups
+    description: Operations for managing Instant Messaging groups
+  - name: IM Group Members
+    description: Operations for managing members within IM groups
+paths:
+  /im/group/create:
+    post:
+      tags:
+        - IM Groups
+      summary: Create an IM group
+      description: >
+        Creates a new Instant Messaging group on your Zoom account. The group
+        name must be unique
+
+        within the account. You can configure search visibility options to
+        control how other users
+
+        can discover group members.
+      operationId: createImGroup
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "CreateImGroupSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateImGroupRequest'
+            examples:
+              CreateImGroupRequestExample:
+                $ref: '#/components/examples/CreateImGroupRequestExample'
+      responses:
+        '200':
+          description: IM group created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImGroupResponse'
+              examples:
+                CreateImGroupSuccessExample:
+                  $ref: '#/components/examples/CreateImGroupSuccessExample'
+  /im/group/delete:
+    post:
+      tags:
+        - IM Groups
+      summary: Delete an IM group
+      description: >
+        Deletes an existing Instant Messaging group from your Zoom account. This
+        action removes
+
+        the group and all its membership associations. The deleted group ID and
+        timestamp are
+
+        returned for confirmation.
+      operationId: deleteImGroup
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "DeleteImGroupSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ImGroupIdRequest'
+            examples:
+              DeleteImGroupRequestExample:
+                $ref: '#/components/examples/ImGroupIdRequestExample'
+      responses:
+        '200':
+          description: IM group deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteImGroupResponse'
+              examples:
+                DeleteImGroupSuccessExample:
+                  $ref: '#/components/examples/DeleteImGroupSuccessExample'
+  /im/group/edit:
+    post:
+      tags:
+        - IM Groups
+      summary: Update an IM group
+      description: >
+        Updates the properties of an existing Instant Messaging group. You can
+        modify the group
+
+        name, type, and search visibility options. Returns the updated group
+        information.
+      operationId: updateImGroup
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "UpdateImGroupSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateImGroupRequest'
+            examples:
+              UpdateImGroupRequestExample:
+                $ref: '#/components/examples/UpdateImGroupRequestExample'
+      responses:
+        '200':
+          description: IM group updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImGroupResponse'
+              examples:
+                UpdateImGroupSuccessExample:
+                  $ref: '#/components/examples/UpdateImGroupSuccessExample'
+  /im/group/get:
+    post:
+      tags:
+        - IM Groups
+      summary: Get IM group details
+      description: >
+        Retrieves detailed information about a specific Instant Messaging group
+        by its ID.
+
+        Returns the group configuration, member count, and search visibility
+        settings.
+      operationId: getImGroup
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "GetImGroupSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ImGroupIdRequest'
+            examples:
+              GetImGroupRequestExample:
+                $ref: '#/components/examples/ImGroupIdRequestExample'
+      responses:
+        '200':
+          description: IM group details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImGroupResponse'
+              examples:
+                GetImGroupSuccessExample:
+                  $ref: '#/components/examples/GetImGroupSuccessExample'
+  /im/group/list:
+    post:
+      tags:
+        - IM Groups
+      summary: List all IM groups
+      description: >
+        Retrieves a list of all Instant Messaging groups within your Zoom
+        account.
+
+        Returns basic information about each group including member counts and
+        last modified timestamps.
+      operationId: listImGroups
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "ListImGroupsSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApiCredentialsRequest'
+            examples:
+              ListImGroupsRequestExample:
+                $ref: '#/components/examples/ApiCredentialsRequestExample'
+      responses:
+        '200':
+          description: IM groups list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImGroupListResponse'
+              examples:
+                ListImGroupsSuccessExample:
+                  $ref: '#/components/examples/ListImGroupsSuccessExample'
+  /im/group/member/delete:
+    post:
+      tags:
+        - IM Group Members
+      summary: Remove members from an IM group
+      description: >
+        Removes one or more members from an existing Instant Messaging group.
+        Multiple member
+
+        IDs can be specified as a comma-separated list. Returns confirmation of
+        the deletion
+
+        with a count of removed members.
+      operationId: deleteImGroupMembers
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "DeleteImGroupMembersSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ImGroupMemberModifyRequest'
+            examples:
+              DeleteImGroupMembersRequestExample:
+                $ref: '#/components/examples/ImGroupMemberModifyRequestExample'
+      responses:
+        '200':
+          description: Members removed from IM group successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteMembersResponse'
+              examples:
+                DeleteImGroupMembersSuccessExample:
+                  $ref: '#/components/examples/DeleteMembersSuccessExample'
+  /im/group/member/list:
+    post:
+      tags:
+        - IM Group Members
+      summary: List IM group members
+      description: >
+        Retrieves a paginated list of all members in a specific Instant
+        Messaging group.
+
+        Returns member details including name, email, and profile picture URL.
+      operationId: listImGroupMembers
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def headers = mockRequest.getRequestHeaders()
+          return "ListImGroupMembersSuccessExample"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ImGroupMemberListRequest'
+            examples:
+              ListImGroupMembersRequestExample:
+                $ref: '#/components/examples/ListImGroupMembersRequestExample'
+      responses:
+        '200':
+          description: IM group members retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberListResponse'
+              examples:
+                ListImGroupMembersSuccessExample:
+                  $ref: '#/components/examples/ListImGroupMembersSuccessExample'
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: api_key
+    ApiSecret:
+      type: apiKey
+      in: query
+      name: api_secret
+  schemas:
+    CreateImGroupRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Group name, must be unique within the account.
+        type:
+          type: string
+          description: |
+            Group type:
+            - Normal: Standard group
+            - Restricted: Restricted group with limited access
+            - Shared: Shared group accessible across the organization
+          default: Normal
+          enum:
+            - Normal
+            - Restricted
+            - Shared
+        option_search_by_domain:
+          type: boolean
+          description: Allow users in the same email domain to search for group members.
+          default: false
+        option_search_by_account:
+          type: boolean
+          description: Allow users under the same account to search for group members.
+          default: false
+        option_search_by_ma:
+          type: boolean
+          description: >-
+            Allow users under the same master account, including all
+            sub-accounts, to search for group members.
+          default: false
+    UpdateImGroupRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the IM group to update.
+        name:
+          type: string
+          description: Group name, must be unique within the account.
+        type:
+          type: string
+          description: |
+            Group type:
+            - Normal: Standard group
+            - Restricted: Restricted group with limited access
+            - Shared: Shared group accessible across the organization
+          default: Normal
+          enum:
+            - Normal
+            - Restricted
+            - Shared
+        option_search_by_domain:
+          type: boolean
+          description: Allow users in the same email domain to search for group members.
+          default: false
+        option_search_by_account:
+          type: boolean
+          description: Allow users under the same account to search for group members.
+          default: false
+        option_search_by_ma:
+          type: boolean
+          description: >-
+            Allow users under the same master account, including all
+            sub-accounts, to search for group members.
+          default: false
+    ImGroupIdRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the IM group.
+    ApiCredentialsRequest:
+      type: object
+      required:
+        - api_key
+        - api_secret
+      properties:
+        api_key:
+          type: string
+          description: Your Zoom API Key.
+        api_secret:
+          type: string
+          description: Your Zoom API Secret.
+    ImGroupMemberModifyRequest:
+      type: object
+      required:
+        - id
+        - member_ids
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the IM group.
+        member_ids:
+          type: string
+          description: Comma-separated list of member IDs to modify.
+    ImGroupMemberListRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the IM group.
+        page_size:
+          type: string
+          description: Number of records to return per API call. Defaults to 30.
+          default: '30'
+        page_number:
+          type: string
+          description: Page number of returned records. Defaults to 1.
+          default: '1'
+    ImGroupResponse:
+      type: object
+      properties:
+        group_id:
+          type: string
+          description: Unique identifier of the IM group.
+        account_id:
+          type: string
+          description: Account identifier the group belongs to.
+        name:
+          type: string
+          description: Name of the IM group.
+        total_members:
+          type: integer
+          description: Total number of members in the group.
+        option_search_by_domain:
+          type: boolean
+          description: Whether domain-based member search is enabled.
+        option_search_by_account:
+          type: boolean
+          description: Whether account-based member search is enabled.
+        option_search_by_ma_account:
+          type: boolean
+          description: Whether master account-based member search is enabled.
+    DeleteImGroupResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the deleted IM group.
+        deleted_at:
+          type: string
+          format: date-time
+          description: Timestamp when the group was deleted.
+        deleted_count:
+          type: integer
+          description: Number of groups deleted.
+    ImGroupListResponse:
+      type: object
+      properties:
+        total_records:
+          type: integer
+          description: Total number of IM groups.
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImGroupListItem'
+    ImGroupListItem:
+      type: object
+      properties:
+        group_id:
+          type: string
+          description: Unique identifier of the IM group.
+        account_id:
+          type: string
+          description: Account identifier the group belongs to.
+        name:
+          type: string
+          description: Name of the IM group.
+        total_members:
+          type: integer
+          description: Total number of members in the group.
+        option_search_by_domain:
+          type: boolean
+          description: Whether domain-based member search is enabled.
+        option_search_by_account:
+          type: boolean
+          description: Whether account-based member search is enabled.
+        option_search_by_ma_account:
+          type: boolean
+          description: Whether master account-based member search is enabled.
+        last_modified_time:
+          type: string
+          format: date-time
+          description: Timestamp of last modification.
+    DeleteMembersResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the IM group.
+        deleted_at:
+          type: string
+          format: date-time
+          description: Timestamp when members were removed.
+        deleted_count:
+          type: integer
+          description: Number of members removed.
+    MemberListResponse:
+      type: object
+      properties:
+        page_count:
+          type: integer
+          description: Total number of pages.
+        page_number:
+          type: integer
+          description: Current page number.
+        page_size:
+          type: integer
+          description: Number of records per page.
+        total_records:
+          type: integer
+          description: Total number of member records.
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberInfo'
+    MemberInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the member.
+        email:
+          type: string
+          format: email
+          description: Email address of the member.
+        first_name:
+          type: string
+          description: First name of the member.
+        last_name:
+          type: string
+          description: Last name of the member.
+        pic_url:
+          type: string
+          format: uri
+          description: URL of the member's profile picture.
+  examples:
+    CreateImGroupRequestExample:
+      summary: Create IM Group Request
+      value:
+        name: Engineering Team Chat
+        type: Normal
+        option_search_by_domain: false
+        option_search_by_account: true
+        option_search_by_ma: false
+    CreateImGroupSuccessExample:
+      summary: Create IM Group Success Response
+      value:
+        group_id: grp_abc123def456
+        account_id: acc_xyz789ghi012
+        name: Engineering Team Chat
+        total_members: 0
+        option_search_by_domain: false
+        option_search_by_account: true
+        option_search_by_ma_account: false
+    ImGroupIdRequestExample:
+      summary: IM Group ID Request
+      value:
+        id: grp_abc123def456
+    DeleteImGroupSuccessExample:
+      summary: Delete IM Group Success Response
+      value:
+        id: grp_abc123def456
+        deleted_at: '2024-01-15T08:41:58.000Z'
+        deleted_count: 1
+    UpdateImGroupRequestExample:
+      summary: Update IM Group Request
+      value:
+        id: grp_abc123def456
+        name: Engineering Team Chat Updated
+        type: Normal
+        option_search_by_domain: false
+        option_search_by_account: true
+        option_search_by_ma: false
+    UpdateImGroupSuccessExample:
+      summary: Update IM Group Success Response
+      value:
+        group_id: grp_abc123def456
+        account_id: acc_xyz789ghi012
+        name: Engineering Team Chat Updated
+        total_members: 5
+        option_search_by_domain: false
+        option_search_by_account: true
+        option_search_by_ma_account: false
+    GetImGroupSuccessExample:
+      summary: Get IM Group Success Response
+      value:
+        group_id: grp_abc123def456
+        account_id: acc_xyz789ghi012
+        name: Engineering Team Chat
+        total_members: 12
+        option_search_by_domain: false
+        option_search_by_account: true
+        option_search_by_ma_account: false
+    ApiCredentialsRequestExample:
+      summary: API Credentials Request
+      value:
+        api_key: your_api_key_here
+        api_secret: your_api_secret_here
+    ListImGroupsSuccessExample:
+      summary: List IM Groups Success Response
+      value:
+        total_records: 2
+        groups:
+          - group_id: grp_abc123def456
+            account_id: acc_xyz789ghi012
+            name: Engineering Team Chat
+            total_members: 12
+            option_search_by_domain: false
+            option_search_by_account: true
+            option_search_by_ma_account: false
+            last_modified_time: '2024-01-10T07:45:41.000Z'
+          - group_id: grp_mno345pqr678
+            account_id: acc_xyz789ghi012
+            name: Marketing Team Chat
+            total_members: 8
+            option_search_by_domain: true
+            option_search_by_account: true
+            option_search_by_ma_account: false
+            last_modified_time: '2024-01-12T14:30:22.000Z'
+    ImGroupMemberModifyRequestExample:
+      summary: IM Group Member Modify Request
+      value:
+        id: grp_abc123def456
+        member_ids: usr_111222333,usr_444555666
+    DeleteMembersSuccessExample:
+      summary: Delete Members Success Response
+      value:
+        id: grp_abc123def456
+        deleted_at: '2024-01-15T08:57:38.000Z'
+        deleted_count: 2
+    ListImGroupMembersRequestExample:
+      summary: List IM Group Members Request
+      value:
+        id: grp_abc123def456
+        page_size: '30'
+        page_number: '1'
+    ListImGroupMembersSuccessExample:
+      summary: List IM Group Members Success Response
+      value:
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 2
+        members:
+          - id: usr_111222333
+            email: john.doe@example.com
+            first_name: John
+            last_name: Doe
+            pic_url: https://zoom.us/p/user123/profile-pic-abc123
+          - id: usr_444555666
+            email: jane.smith@example.com
+            first_name: Jane
+            last_name: Smith
+            pic_url: https://zoom.us/p/user456/profile-pic-def456

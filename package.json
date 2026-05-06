@@ -1,0 +1,17 @@
+{
+  "name": "microcks-cloudflare",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "npx wrangler deploy",
+    "dev": "npx wrangler dev",
+    "tail": "npx wrangler tail"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "^0.0.13"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250401.0",
+    "wrangler": "^4.0.0"
+  }
+}

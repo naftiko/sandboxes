@@ -1,0 +1,488 @@
+openapi: 3.1.0
+info:
+  title: slack-search-api
+  version: 1.0.0
+  description: >-
+    Slack's Search API lets apps programmatically find messages and files in a
+    workspace  using the same query syntax users have in Slack (e.g., in:,
+    from:, has:, before:/after:, is:thread).  Through endpoints like
+    search.messages and search.files, it returns ranked matches with snippets 
+    and optional highlighting, plus rich metadata such as channel, timestamps,
+    user, thread context,  permalinks, and file details. You can sort by
+    relevance or time, filter with operators, and page  through results. All
+    results respect the app's scopes and the workspace's permissions,
+    retention,  and data controls, and the methods are subject to rate limits.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Slack API Terms of Service
+    url: https://slack.com/terms-of-service/api
+servers:
+  - url: https://slack.com/api
+    description: Slack Web API Production Server
+  - url: http://localhost:8080/rest/slack-search-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Search Messages
+    description: Operations for searching messages within a Slack workspace
+paths:
+  /search.messages:
+    get:
+      tags:
+        - Search Messages
+      summary: Search Messages
+      description: >-
+        Searches for messages matching a query within the authenticated user's
+        accessible channels.
+      operationId: searchMessages
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/search.messages
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": "SearchMessagesSuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/TokenQueryParam'
+        - $ref: '#/components/parameters/QueryParam'
+        - $ref: '#/components/parameters/CountParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/HighlightParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/SortDirParam'
+      responses:
+        '200':
+          description: Successful response containing matching messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchMessagesSuccessResponse'
+              examples:
+                SearchMessagesSuccessResponse:
+                  $ref: '#/components/examples/SearchMessagesSuccessResponseExample'
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchMessagesErrorResponse'
+              examples:
+                SearchMessagesErrorResponse:
+                  $ref: '#/components/examples/SearchMessagesNoQueryErrorExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchMessagesErrorResponse'
+              examples:
+                SearchMessagesErrorResponse:
+                  $ref: '#/components/examples/SearchMessagesInvalidAuthErrorExample'
+      security:
+        - SlackOAuth:
+            - search:read
+components:
+  securitySchemes:
+    SlackOAuth:
+      type: oauth2
+      description: Slack OAuth 2.0 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            search:read: Search messages and files in the workspace
+  parameters:
+    TokenQueryParam:
+      name: token
+      in: query
+      description: 'Authentication token. Requires scope: `search:read`'
+      required: true
+      schema:
+        type: string
+      example: example-123456789012-1234567890123-key
+    QueryParam:
+      name: query
+      in: query
+      description: >-
+        Search query. Supports Slack search syntax including operators like in:,
+        from:, has:, before:, after:.
+      required: true
+      schema:
+        type: string
+      example: The meaning of life
+    CountParam:
+      name: count
+      in: query
+      description: Number of results to return per page. Maximum of 100.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      example: 20
+    PageParam:
+      name: page
+      in: query
+      description: Page number of results to return.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      example: 1
+    HighlightParam:
+      name: highlight
+      in: query
+      description: >-
+        Pass a value of `true` to enable query highlight markers in the response
+        text.
+      required: false
+      schema:
+        type: boolean
+        default: false
+      example: true
+    SortParam:
+      name: sort
+      in: query
+      description: Return matches sorted by either `score` (relevance) or `timestamp`.
+      required: false
+      schema:
+        type: string
+        enum:
+          - score
+          - timestamp
+        default: score
+      example: timestamp
+    SortDirParam:
+      name: sort_dir
+      in: query
+      description: Change sort direction to ascending (`asc`) or descending (`desc`).
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: desc
+      example: desc
+  schemas:
+    OkTrue:
+      type: boolean
+      enum:
+        - true
+      description: Indicates the request was successful
+    OkFalse:
+      type: boolean
+      enum:
+        - false
+      description: Indicates the request failed
+    ChannelInfo:
+      type: object
+      description: Information about a Slack channel
+      required:
+        - id
+        - name
+        - is_private
+        - is_shared
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the channel
+          example: C12345678
+        name:
+          type: string
+          description: Name of the channel
+          example: general
+        is_private:
+          type: boolean
+          description: Whether the channel is private
+          example: false
+        is_shared:
+          type: boolean
+          description: Whether the channel is shared with external organizations
+          example: false
+        is_ext_shared:
+          type: boolean
+          description: Whether the channel is externally shared
+          example: false
+        is_mpim:
+          type: boolean
+          description: Whether this is a multi-party instant message
+          example: false
+        is_org_shared:
+          type: boolean
+          description: Whether the channel is shared across the organization
+          example: false
+        is_pending_ext_shared:
+          type: boolean
+          description: Whether external sharing is pending
+          example: false
+        pending_shared:
+          type: array
+          items:
+            type: string
+          description: List of pending shared team IDs
+          example: []
+    MessageMatch:
+      type: object
+      description: A message that matches the search query
+      required:
+        - type
+        - channel
+        - user
+        - text
+        - ts
+        - permalink
+      properties:
+        type:
+          type: string
+          description: Type of the item
+          enum:
+            - message
+          example: message
+        channel:
+          $ref: '#/components/schemas/ChannelInfo'
+        user:
+          type: string
+          description: User ID who posted the message
+          example: U2U85N1RV
+        username:
+          type: string
+          description: Username of the poster
+          example: roach
+        text:
+          type: string
+          description: The message text content
+          example: The meaning of life the universe and everything is 42.
+        ts:
+          type: string
+          description: Timestamp of the message
+          example: '1508284197.000015'
+        permalink:
+          type: string
+          format: uri
+          description: Permanent link to the message
+          example: https://hitchhikers.slack.com/archives/C12345678/p1508284197000015
+        team:
+          type: string
+          description: Team ID where the message was posted
+          example: T12345678
+        iid:
+          type: string
+          format: uuid
+          description: Internal unique identifier
+          example: cb64bdaa-c1e8-4631-8a91-0f78080113e9
+    PaginationInfo:
+      type: object
+      description: Pagination details for the result set
+      required:
+        - page
+        - page_count
+        - per_page
+        - total_count
+        - first
+        - last
+      properties:
+        page:
+          type: integer
+          description: Current page number
+          example: 1
+        page_count:
+          type: integer
+          description: Total number of pages
+          example: 1
+        per_page:
+          type: integer
+          description: Number of results per page
+          example: 20
+        total_count:
+          type: integer
+          description: Total number of matching results
+          example: 2
+        first:
+          type: integer
+          description: Index of the first result on this page
+          example: 1
+        last:
+          type: integer
+          description: Index of the last result on this page
+          example: 2
+    PagingInfo:
+      type: object
+      description: Legacy paging information
+      required:
+        - count
+        - page
+        - pages
+        - total
+      properties:
+        count:
+          type: integer
+          description: Number of results per page
+          example: 20
+        page:
+          type: integer
+          description: Current page number
+          example: 1
+        pages:
+          type: integer
+          description: Total number of pages
+          example: 1
+        total:
+          type: integer
+          description: Total number of results
+          example: 2
+    MessagesResult:
+      type: object
+      description: Container for message search results
+      required:
+        - matches
+        - total
+        - pagination
+        - paging
+      properties:
+        matches:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageMatch'
+          description: Array of matching messages
+        total:
+          type: integer
+          description: Total number of matching messages
+          example: 2
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+        paging:
+          $ref: '#/components/schemas/PagingInfo'
+    SearchMessagesSuccessResponse:
+      type: object
+      description: Successful response from search.messages method
+      required:
+        - ok
+        - messages
+        - query
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        messages:
+          $ref: '#/components/schemas/MessagesResult'
+        query:
+          type: string
+          description: The search query that was executed
+          example: The meaning of life the universe and everything
+    SearchMessagesErrorResponse:
+      type: object
+      description: Error response from search.messages method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          description: Error code describing what went wrong
+          enum:
+            - no_query
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - ekm_access_denied
+            - missing_scope
+            - invalid_arguments
+            - invalid_arg_name
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+          example: no_query
+        callstack:
+          type: string
+          description: Debugging callstack (only visible in dev/qa environments)
+  examples:
+    SearchMessagesSuccessResponseExample:
+      summary: Successful search results
+      description: Example of a successful search returning two matching messages
+      value:
+        ok: true
+        query: The meaning of life the universe and everything
+        messages:
+          matches:
+            - type: message
+              channel:
+                id: C12345678
+                name: general
+                is_private: false
+                is_shared: false
+                is_ext_shared: false
+                is_mpim: false
+                is_org_shared: false
+                is_pending_ext_shared: false
+                pending_shared: []
+              user: U2U85N1RV
+              username: roach
+              text: The meaning of life the universe and everything is 42.
+              ts: '1508284197.000015'
+              permalink: >-
+                https://hitchhikers.slack.com/archives/C12345678/p1508284197000015
+              team: T12345678
+              iid: cb64bdaa-c1e8-4631-8a91-0f78080113e9
+            - type: message
+              channel:
+                id: C87654321
+                name: random
+                is_private: false
+                is_shared: false
+                is_ext_shared: false
+                is_mpim: false
+                is_org_shared: false
+                is_pending_ext_shared: false
+                pending_shared: []
+              user: U3U96N2RW
+              username: robot_overlord
+              text: The meaning of life the universe and everything is 101010
+              ts: '1508795665.000236'
+              permalink: >-
+                https://hitchhikers.slack.com/archives/C87654321/p1508795665000236
+              team: T12345678
+              iid: 9a00d3c9-bd2d-45b0-988b-6cff99ae2a90
+          total: 2
+          pagination:
+            page: 1
+            page_count: 1
+            per_page: 20
+            total_count: 2
+            first: 1
+            last: 2
+          paging:
+            count: 20
+            page: 1
+            pages: 1
+            total: 2
+    SearchMessagesNoQueryErrorExample:
+      summary: No query provided error
+      description: Error response when the query parameter is missing
+      value:
+        ok: false
+        error: no_query
+    SearchMessagesInvalidAuthErrorExample:
+      summary: Invalid authentication error
+      description: Error response when the authentication token is invalid
+      value:
+        ok: false
+        error: invalid_auth

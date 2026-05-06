@@ -1,0 +1,1692 @@
+openapi: 3.1.0
+info:
+  title: openai-threads-api
+  description: >
+    The Threads API enables you to create and manage conversation threads for
+    the Assistants feature.
+
+
+    Threads contain messages that can be processed by assistants. You can create
+    threads, add messages to them, run assistants against them, and retrieve the
+    results. This API is part of the Assistants beta feature.
+
+
+    Related guide: [Assistants
+    Overview](https://platform.openai.com/docs/assistants/overview)
+  version: 1.0.0
+  termsOfService: https://openai.com/policies/terms-of-use
+  contact:
+    name: OpenAI Support
+    url: https://help.openai.com/
+  license:
+    name: MIT
+    url: https://github.com/openai/openai-openapi/blob/master/LICENSE
+servers:
+  - url: https://api.openai.com/v1
+    description: OpenAI API Production Server
+  - url: http://localhost:8080/rest/openai-threads-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Thread Management
+    description: >-
+      Operations for creating, retrieving, modifying, and deleting conversation
+      threads.
+  - name: Message Management
+    description: Operations for creating and managing messages within threads.
+  - name: Run Execution
+    description: Operations for executing assistants on threads and managing run state.
+  - name: Run Steps
+    description: Operations for retrieving detailed step information from assistant runs.
+paths:
+  /threads:
+    post:
+      operationId: createThread
+      tags:
+        - Thread Management
+      summary: Create New Thread
+      description: >-
+        Create a new conversation thread. Optionally, you can include initial
+        messages when creating the thread.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateThreadRequest'
+            examples:
+              EmptyThreadExample:
+                $ref: '#/components/examples/CreateThreadEmptyRequestExample'
+      responses:
+        '200':
+          description: Successfully created the thread.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadObject'
+              examples:
+                EmptyThreadExample:
+                  $ref: '#/components/examples/ThreadObjectExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "EmptyThreadExample"
+  /threads/{thread_id}:
+    get:
+      operationId: retrieveThread
+      tags:
+        - Thread Management
+      summary: Retrieve Thread
+      description: Retrieves a thread by its unique identifier.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved the thread.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadObject'
+              examples:
+                RetrieveThreadExample:
+                  $ref: '#/components/examples/ThreadObjectExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "RetrieveThreadExample"
+    post:
+      operationId: modifyThread
+      tags:
+        - Thread Management
+      summary: Modify Thread
+      description: Modifies a thread. Currently only the metadata can be modified.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread to modify.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyThreadRequest'
+            examples:
+              ModifyThreadExample:
+                $ref: '#/components/examples/ModifyThreadRequestExample'
+      responses:
+        '200':
+          description: Successfully modified the thread.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadObject'
+              examples:
+                ModifyThreadExample:
+                  $ref: '#/components/examples/ThreadObjectModifiedExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ModifyThreadExample"
+    delete:
+      operationId: deleteThread
+      tags:
+        - Thread Management
+      summary: Delete Thread
+      description: Permanently deletes a thread and all of its messages.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread to delete.
+      responses:
+        '200':
+          description: Successfully deleted the thread.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteThreadResponse'
+              examples:
+                DeleteThreadExample:
+                  $ref: '#/components/examples/DeleteThreadResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "DeleteThreadExample"
+  /threads/{thread_id}/messages:
+    get:
+      operationId: listMessages
+      tags:
+        - Message Management
+      summary: List Thread Messages
+      description: Returns a list of messages for a given thread with pagination support.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread containing the messages.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: A limit on the number of objects to be returned.
+        - name: order
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Sort order by the created_at timestamp of the objects.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+          description: A cursor for use in pagination. Returns objects after this ID.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+          description: A cursor for use in pagination. Returns objects before this ID.
+      responses:
+        '200':
+          description: Successfully retrieved the list of messages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListMessagesResponse'
+              examples:
+                ListMessagesExample:
+                  $ref: '#/components/examples/ListMessagesResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListMessagesExample"
+    post:
+      operationId: createMessage
+      tags:
+        - Message Management
+      summary: Create Thread Message
+      description: Create a new message in a thread.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread to create a message in.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageRequest'
+            examples:
+              CreateMessageExample:
+                $ref: '#/components/examples/CreateMessageRequestExample'
+      responses:
+        '200':
+          description: Successfully created the message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageObject'
+              examples:
+                CreateMessageExample:
+                  $ref: '#/components/examples/MessageObjectExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "CreateMessageExample"
+  /threads/{thread_id}/messages/{message_id}:
+    get:
+      operationId: retrieveMessage
+      tags:
+        - Message Management
+      summary: Retrieve Message
+      description: Retrieve a specific message from a thread.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread containing the message.
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the message to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved the message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageObject'
+              examples:
+                RetrieveMessageExample:
+                  $ref: '#/components/examples/MessageObjectExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "RetrieveMessageExample"
+    post:
+      operationId: modifyMessage
+      tags:
+        - Message Management
+      summary: Modify Message
+      description: Modifies a message. Currently only the metadata can be modified.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread containing the message.
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the message to modify.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyMessageRequest'
+            examples:
+              ModifyMessageExample:
+                $ref: '#/components/examples/ModifyMessageRequestExample'
+      responses:
+        '200':
+          description: Successfully modified the message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageObject'
+              examples:
+                ModifyMessageExample:
+                  $ref: '#/components/examples/MessageObjectModifiedExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ModifyMessageExample"
+  /threads/{thread_id}/runs:
+    get:
+      operationId: listRuns
+      tags:
+        - Run Execution
+      summary: List Thread Runs
+      description: Returns a list of runs belonging to a thread.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread to list runs for.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: A limit on the number of objects to be returned.
+        - name: order
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Sort order by the created_at timestamp of the objects.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+          description: A cursor for use in pagination. Returns objects after this ID.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+          description: A cursor for use in pagination. Returns objects before this ID.
+      responses:
+        '200':
+          description: Successfully retrieved the list of runs.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRunsResponse'
+              examples:
+                ListRunsExample:
+                  $ref: '#/components/examples/ListRunsResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListRunsExample"
+    post:
+      operationId: createRun
+      tags:
+        - Run Execution
+      summary: Create Thread Run
+      description: Create a run for a thread using the specified assistant.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread to run.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRunRequest'
+            examples:
+              CreateRunExample:
+                $ref: '#/components/examples/CreateRunRequestExample'
+      responses:
+        '200':
+          description: Successfully created the run.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunObject'
+              examples:
+                CreateRunExample:
+                  $ref: '#/components/examples/RunObjectExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "CreateRunExample"
+  /threads/{thread_id}/runs/{run_id}:
+    get:
+      operationId: retrieveRun
+      tags:
+        - Run Execution
+      summary: Retrieve Run
+      description: Retrieves a run by its unique identifier.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread that was run.
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the run to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved the run.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunObject'
+              examples:
+                RetrieveRunExample:
+                  $ref: '#/components/examples/RunObjectCompletedExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "RetrieveRunExample"
+    post:
+      operationId: modifyRun
+      tags:
+        - Run Execution
+      summary: Modify Run
+      description: Modifies a run. Currently only the metadata can be modified.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread that was run.
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the run to modify.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyRunRequest'
+            examples:
+              ModifyRunExample:
+                $ref: '#/components/examples/ModifyRunRequestExample'
+      responses:
+        '200':
+          description: Successfully modified the run.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunObject'
+              examples:
+                ModifyRunExample:
+                  $ref: '#/components/examples/RunObjectModifiedExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ModifyRunExample"
+  /threads/{thread_id}/runs/{run_id}/cancel:
+    post:
+      operationId: cancelRun
+      tags:
+        - Run Execution
+      summary: Cancel Run
+      description: Cancels a run that is in_progress.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread that was run.
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the run to cancel.
+      responses:
+        '200':
+          description: Successfully cancelled the run.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunObject'
+              examples:
+                CancelRunExample:
+                  $ref: '#/components/examples/RunObjectCancelledExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "CancelRunExample"
+  /threads/{thread_id}/runs/{run_id}/submit_tool_outputs:
+    post:
+      operationId: submitToolOutputs
+      tags:
+        - Run Execution
+      summary: Submit Tool Outputs
+      description: >-
+        Submit the outputs from tool calls when the run is in the
+        requires_action state.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread to which the run belongs.
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the run that requires tool outputs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitToolOutputsRequest'
+            examples:
+              SubmitToolOutputsExample:
+                $ref: '#/components/examples/SubmitToolOutputsRequestExample'
+      responses:
+        '200':
+          description: Successfully submitted the tool outputs.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunObject'
+              examples:
+                SubmitToolOutputsExample:
+                  $ref: '#/components/examples/RunObjectExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "SubmitToolOutputsExample"
+  /threads/{thread_id}/runs/{run_id}/steps:
+    get:
+      operationId: listRunSteps
+      tags:
+        - Run Steps
+      summary: List Run Steps
+      description: Returns a list of run steps belonging to a run.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread that was run.
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the run to list steps for.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: A limit on the number of objects to be returned.
+        - name: order
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Sort order by the created_at timestamp of the objects.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+          description: A cursor for use in pagination. Returns objects after this ID.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+          description: A cursor for use in pagination. Returns objects before this ID.
+      responses:
+        '200':
+          description: Successfully retrieved the list of run steps.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRunStepsResponse'
+              examples:
+                ListRunStepsExample:
+                  $ref: '#/components/examples/ListRunStepsResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListRunStepsExample"
+  /threads/{thread_id}/runs/{run_id}/steps/{step_id}:
+    get:
+      operationId: retrieveRunStep
+      tags:
+        - Run Steps
+      summary: Retrieve Run Step
+      description: Retrieves a run step by its unique identifier.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread that was run.
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the run containing the step.
+        - name: step_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the run step to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved the run step.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunStepObject'
+              examples:
+                RetrieveRunStepExample:
+                  $ref: '#/components/examples/RunStepObjectExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "RetrieveRunStepExample"
+  /threads/runs:
+    post:
+      operationId: createThreadAndRun
+      tags:
+        - Run Execution
+      summary: Create Thread And Run
+      description: >-
+        Create a thread and run it in one request. This is a convenience method
+        that combines thread creation and run execution.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateThreadAndRunRequest'
+            examples:
+              CreateThreadAndRunExample:
+                $ref: '#/components/examples/CreateThreadAndRunRequestExample'
+      responses:
+        '200':
+          description: Successfully created the thread and run.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunObject'
+              examples:
+                CreateThreadAndRunExample:
+                  $ref: '#/components/examples/RunObjectExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "CreateThreadAndRunExample"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+      description: Use your OpenAI API key as the bearer token.
+  schemas:
+    ThreadObject:
+      type: object
+      title: ThreadObject
+      description: Represents a thread that contains messages.
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the thread.
+        object:
+          type: string
+          enum:
+            - thread
+          description: The object type, which is always "thread".
+        created_at:
+          type: integer
+          description: The Unix timestamp (in seconds) for when the thread was created.
+        metadata:
+          type:
+            - object
+            - 'null'
+          description: Set of key-value pairs for storing additional information.
+          additionalProperties:
+            type: string
+      required:
+        - id
+        - object
+        - created_at
+        - metadata
+    MessageObject:
+      type: object
+      title: MessageObject
+      description: Represents a message within a thread.
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the message.
+        object:
+          type: string
+          enum:
+            - thread.message
+          description: The object type, which is always "thread.message".
+        created_at:
+          type: integer
+          description: The Unix timestamp (in seconds) for when the message was created.
+        thread_id:
+          type: string
+          description: The unique identifier of the thread the message belongs to.
+        role:
+          type: string
+          enum:
+            - user
+            - assistant
+          description: The role of the entity that created the message.
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageContent'
+          description: The content of the message in array format.
+        file_ids:
+          type: array
+          items:
+            type: string
+          description: A list of file IDs attached to the message.
+        assistant_id:
+          type:
+            - string
+            - 'null'
+          description: The ID of the assistant that authored the message, if applicable.
+        run_id:
+          type:
+            - string
+            - 'null'
+          description: The ID of the run associated with the message, if applicable.
+        metadata:
+          type:
+            - object
+            - 'null'
+          description: Set of key-value pairs for storing additional information.
+          additionalProperties:
+            type: string
+      required:
+        - id
+        - object
+        - created_at
+        - thread_id
+        - role
+        - content
+        - file_ids
+        - metadata
+    MessageContent:
+      type: object
+      title: MessageContent
+      description: Content block within a message.
+      properties:
+        type:
+          type: string
+          enum:
+            - text
+            - image_file
+          description: The type of content.
+        text:
+          type: object
+          properties:
+            value:
+              type: string
+              description: The text content.
+            annotations:
+              type: array
+              items:
+                type: object
+              description: Annotations within the text.
+        image_file:
+          type: object
+          properties:
+            file_id:
+              type: string
+              description: The file ID of the image.
+      required:
+        - type
+    RunObject:
+      type: object
+      title: RunObject
+      description: Represents an execution run on a thread.
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the run.
+        object:
+          type: string
+          enum:
+            - thread.run
+          description: The object type, which is always "thread.run".
+        created_at:
+          type: integer
+          description: The Unix timestamp (in seconds) for when the run was created.
+        thread_id:
+          type: string
+          description: The unique identifier of the thread that was executed.
+        assistant_id:
+          type: string
+          description: The unique identifier of the assistant used for this run.
+        status:
+          type: string
+          enum:
+            - queued
+            - in_progress
+            - requires_action
+            - cancelling
+            - cancelled
+            - failed
+            - completed
+            - expired
+          description: The status of the run.
+        required_action:
+          type:
+            - object
+            - 'null'
+          description: Details on the action required to continue the run.
+          properties:
+            type:
+              type: string
+              enum:
+                - submit_tool_outputs
+            submit_tool_outputs:
+              type: object
+              properties:
+                tool_calls:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ToolCall'
+        last_error:
+          type:
+            - object
+            - 'null'
+          description: The last error associated with this run.
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+        expires_at:
+          type: integer
+          description: The Unix timestamp for when the run will expire.
+        started_at:
+          type:
+            - integer
+            - 'null'
+          description: The Unix timestamp for when the run was started.
+        cancelled_at:
+          type:
+            - integer
+            - 'null'
+          description: The Unix timestamp for when the run was cancelled.
+        failed_at:
+          type:
+            - integer
+            - 'null'
+          description: The Unix timestamp for when the run failed.
+        completed_at:
+          type:
+            - integer
+            - 'null'
+          description: The Unix timestamp for when the run was completed.
+        model:
+          type: string
+          description: The model that the assistant used for this run.
+        instructions:
+          type:
+            - string
+            - 'null'
+          description: The instructions that the assistant used for this run.
+        tools:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tool'
+          description: The list of tools that the assistant used for this run.
+        file_ids:
+          type: array
+          items:
+            type: string
+          description: The list of file IDs associated with this run.
+        metadata:
+          type:
+            - object
+            - 'null'
+          description: Set of key-value pairs for storing additional information.
+          additionalProperties:
+            type: string
+        usage:
+          type:
+            - object
+            - 'null'
+          description: Usage statistics for the run.
+          properties:
+            prompt_tokens:
+              type: integer
+            completion_tokens:
+              type: integer
+            total_tokens:
+              type: integer
+      required:
+        - id
+        - object
+        - created_at
+        - thread_id
+        - assistant_id
+        - status
+        - model
+        - tools
+        - file_ids
+        - metadata
+    RunStepObject:
+      type: object
+      title: RunStepObject
+      description: Represents a step in the execution of a run.
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the run step.
+        object:
+          type: string
+          enum:
+            - thread.run.step
+          description: The object type, which is always "thread.run.step".
+        created_at:
+          type: integer
+          description: The Unix timestamp for when the run step was created.
+        run_id:
+          type: string
+          description: The unique identifier of the run this step belongs to.
+        assistant_id:
+          type: string
+          description: The unique identifier of the assistant associated with the run step.
+        thread_id:
+          type: string
+          description: The unique identifier of the thread that was run.
+        type:
+          type: string
+          enum:
+            - message_creation
+            - tool_calls
+          description: The type of run step.
+        status:
+          type: string
+          enum:
+            - in_progress
+            - cancelled
+            - failed
+            - completed
+            - expired
+          description: The status of the run step.
+        step_details:
+          type: object
+          description: The details of the run step.
+          properties:
+            type:
+              type: string
+            message_creation:
+              type: object
+              properties:
+                message_id:
+                  type: string
+            tool_calls:
+              type: array
+              items:
+                $ref: '#/components/schemas/ToolCall'
+        last_error:
+          type:
+            - object
+            - 'null'
+          description: The last error associated with this run step.
+        cancelled_at:
+          type:
+            - integer
+            - 'null'
+          description: The Unix timestamp for when the run step was cancelled.
+        failed_at:
+          type:
+            - integer
+            - 'null'
+          description: The Unix timestamp for when the run step failed.
+        completed_at:
+          type:
+            - integer
+            - 'null'
+          description: The Unix timestamp for when the run step was completed.
+        expired_at:
+          type:
+            - integer
+            - 'null'
+          description: The Unix timestamp for when the run step expired.
+        usage:
+          type:
+            - object
+            - 'null'
+          description: Usage statistics for the run step.
+          properties:
+            prompt_tokens:
+              type: integer
+            completion_tokens:
+              type: integer
+            total_tokens:
+              type: integer
+      required:
+        - id
+        - object
+        - created_at
+        - run_id
+        - assistant_id
+        - thread_id
+        - type
+        - status
+        - step_details
+    Tool:
+      type: object
+      title: Tool
+      description: A tool that can be used by an assistant.
+      properties:
+        type:
+          type: string
+          enum:
+            - code_interpreter
+            - retrieval
+            - function
+          description: The type of tool.
+        function:
+          type: object
+          description: The function definition for function tools.
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            parameters:
+              type: object
+      required:
+        - type
+    ToolCall:
+      type: object
+      title: ToolCall
+      description: A tool call made during a run.
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the tool call.
+        type:
+          type: string
+          enum:
+            - code_interpreter
+            - retrieval
+            - function
+          description: The type of tool call.
+        function:
+          type: object
+          properties:
+            name:
+              type: string
+            arguments:
+              type: string
+            output:
+              type:
+                - string
+                - 'null'
+      required:
+        - id
+        - type
+    CreateThreadRequest:
+      type: object
+      title: CreateThreadRequest
+      description: Request body for creating a new thread.
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateMessageRequest'
+          description: A list of messages to start the thread with.
+        metadata:
+          type: object
+          description: Set of key-value pairs for storing additional information.
+          additionalProperties:
+            type: string
+    ModifyThreadRequest:
+      type: object
+      title: ModifyThreadRequest
+      description: Request body for modifying a thread.
+      properties:
+        metadata:
+          type: object
+          description: Set of key-value pairs for storing additional information.
+          additionalProperties:
+            type: string
+    DeleteThreadResponse:
+      type: object
+      title: DeleteThreadResponse
+      description: Response confirming the deletion of a thread.
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the deleted thread.
+        object:
+          type: string
+          enum:
+            - thread.deleted
+          description: The object type, which is always "thread.deleted".
+        deleted:
+          type: boolean
+          description: Indicates whether the thread was successfully deleted.
+      required:
+        - id
+        - object
+        - deleted
+    CreateMessageRequest:
+      type: object
+      title: CreateMessageRequest
+      description: Request body for creating a new message.
+      properties:
+        role:
+          type: string
+          enum:
+            - user
+          description: The role of the entity creating the message.
+        content:
+          type: string
+          description: The content of the message.
+        file_ids:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+          description: A list of file IDs to attach to the message.
+        metadata:
+          type: object
+          description: Set of key-value pairs for storing additional information.
+          additionalProperties:
+            type: string
+      required:
+        - role
+        - content
+    ModifyMessageRequest:
+      type: object
+      title: ModifyMessageRequest
+      description: Request body for modifying a message.
+      properties:
+        metadata:
+          type: object
+          description: Set of key-value pairs for storing additional information.
+          additionalProperties:
+            type: string
+    CreateRunRequest:
+      type: object
+      title: CreateRunRequest
+      description: Request body for creating a new run.
+      properties:
+        assistant_id:
+          type: string
+          description: The ID of the assistant to use for this run.
+        model:
+          type: string
+          description: Override the model to use for this run.
+        instructions:
+          type: string
+          description: Override the instructions for this run.
+        tools:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tool'
+          description: Override the tools for this run.
+        metadata:
+          type: object
+          description: Set of key-value pairs for storing additional information.
+          additionalProperties:
+            type: string
+      required:
+        - assistant_id
+    ModifyRunRequest:
+      type: object
+      title: ModifyRunRequest
+      description: Request body for modifying a run.
+      properties:
+        metadata:
+          type: object
+          description: Set of key-value pairs for storing additional information.
+          additionalProperties:
+            type: string
+    SubmitToolOutputsRequest:
+      type: object
+      title: SubmitToolOutputsRequest
+      description: Request body for submitting tool outputs.
+      properties:
+        tool_outputs:
+          type: array
+          items:
+            type: object
+            properties:
+              tool_call_id:
+                type: string
+                description: The ID of the tool call to submit output for.
+              output:
+                type: string
+                description: The output of the tool call.
+            required:
+              - tool_call_id
+          description: A list of tool outputs to submit.
+      required:
+        - tool_outputs
+    CreateThreadAndRunRequest:
+      type: object
+      title: CreateThreadAndRunRequest
+      description: Request body for creating a thread and running it.
+      properties:
+        assistant_id:
+          type: string
+          description: The ID of the assistant to use for this run.
+        thread:
+          $ref: '#/components/schemas/CreateThreadRequest'
+        model:
+          type: string
+          description: Override the model to use for this run.
+        instructions:
+          type: string
+          description: Override the instructions for this run.
+        tools:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tool'
+          description: Override the tools for this run.
+        metadata:
+          type: object
+          description: Set of key-value pairs for storing additional information.
+          additionalProperties:
+            type: string
+      required:
+        - assistant_id
+    ListMessagesResponse:
+      type: object
+      title: ListMessagesResponse
+      description: Response containing a list of messages.
+      properties:
+        object:
+          type: string
+          enum:
+            - list
+          description: The object type, which is always "list".
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageObject'
+          description: An array of message objects.
+        first_id:
+          type: string
+          description: The ID of the first message in the list.
+        last_id:
+          type: string
+          description: The ID of the last message in the list.
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+      required:
+        - object
+        - data
+        - first_id
+        - last_id
+        - has_more
+    ListRunsResponse:
+      type: object
+      title: ListRunsResponse
+      description: Response containing a list of runs.
+      properties:
+        object:
+          type: string
+          enum:
+            - list
+          description: The object type, which is always "list".
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RunObject'
+          description: An array of run objects.
+        first_id:
+          type: string
+          description: The ID of the first run in the list.
+        last_id:
+          type: string
+          description: The ID of the last run in the list.
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+      required:
+        - object
+        - data
+        - first_id
+        - last_id
+        - has_more
+    ListRunStepsResponse:
+      type: object
+      title: ListRunStepsResponse
+      description: Response containing a list of run steps.
+      properties:
+        object:
+          type: string
+          enum:
+            - list
+          description: The object type, which is always "list".
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RunStepObject'
+          description: An array of run step objects.
+        first_id:
+          type: string
+          description: The ID of the first run step in the list.
+        last_id:
+          type: string
+          description: The ID of the last run step in the list.
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+      required:
+        - object
+        - data
+        - first_id
+        - last_id
+        - has_more
+  examples:
+    ThreadObjectExample:
+      summary: Example thread object
+      value:
+        id: thread_abc123
+        object: thread
+        created_at: 1699012949
+        metadata: {}
+    ThreadObjectModifiedExample:
+      summary: Example modified thread object
+      value:
+        id: thread_abc123
+        object: thread
+        created_at: 1699014083
+        metadata:
+          modified: 'true'
+          user: abc123
+    CreateThreadEmptyRequestExample:
+      summary: Example create empty thread request
+      value: {}
+    ModifyThreadRequestExample:
+      summary: Example modify thread request
+      value:
+        metadata:
+          modified: 'true'
+          user: abc123
+    DeleteThreadResponseExample:
+      summary: Example delete thread response
+      value:
+        id: thread_abc123
+        object: thread.deleted
+        deleted: true
+    MessageObjectExample:
+      summary: Example message object
+      value:
+        id: msg_abc123
+        object: thread.message
+        created_at: 1699017614
+        thread_id: thread_abc123
+        role: user
+        content:
+          - type: text
+            text:
+              value: How does AI work? Explain it in simple terms.
+              annotations: []
+        file_ids: []
+        assistant_id: null
+        run_id: null
+        metadata: {}
+    MessageObjectModifiedExample:
+      summary: Example modified message object
+      value:
+        id: msg_abc123
+        object: thread.message
+        created_at: 1699017614
+        thread_id: thread_abc123
+        role: user
+        content:
+          - type: text
+            text:
+              value: How does AI work? Explain it in simple terms.
+              annotations: []
+        file_ids: []
+        assistant_id: null
+        run_id: null
+        metadata:
+          modified: 'true'
+    CreateMessageRequestExample:
+      summary: Example create message request
+      value:
+        role: user
+        content: How does AI work? Explain it in simple terms.
+    ModifyMessageRequestExample:
+      summary: Example modify message request
+      value:
+        metadata:
+          modified: 'true'
+    ListMessagesResponseExample:
+      summary: Example list messages response
+      value:
+        object: list
+        data:
+          - id: msg_abc123
+            object: thread.message
+            created_at: 1699016383
+            thread_id: thread_abc123
+            role: user
+            content:
+              - type: text
+                text:
+                  value: How does AI work? Explain it in simple terms.
+                  annotations: []
+            file_ids: []
+            assistant_id: null
+            run_id: null
+            metadata: {}
+        first_id: msg_abc123
+        last_id: msg_abc123
+        has_more: false
+    RunObjectExample:
+      summary: Example run object
+      value:
+        id: run_abc123
+        object: thread.run
+        created_at: 1699063290
+        thread_id: thread_abc123
+        assistant_id: asst_abc123
+        status: queued
+        required_action: null
+        last_error: null
+        expires_at: 1699063890
+        started_at: null
+        cancelled_at: null
+        failed_at: null
+        completed_at: null
+        model: gpt-4
+        instructions: You are a helpful assistant.
+        tools:
+          - type: code_interpreter
+        file_ids: []
+        metadata: {}
+        usage: null
+    RunObjectCompletedExample:
+      summary: Example completed run object
+      value:
+        id: run_abc123
+        object: thread.run
+        created_at: 1699063290
+        thread_id: thread_abc123
+        assistant_id: asst_abc123
+        status: completed
+        required_action: null
+        last_error: null
+        expires_at: 1699063890
+        started_at: 1699063291
+        cancelled_at: null
+        failed_at: null
+        completed_at: 1699063295
+        model: gpt-4
+        instructions: You are a helpful assistant.
+        tools:
+          - type: code_interpreter
+        file_ids: []
+        metadata: {}
+        usage:
+          prompt_tokens: 123
+          completion_tokens: 456
+          total_tokens: 579
+    RunObjectCancelledExample:
+      summary: Example cancelled run object
+      value:
+        id: run_abc123
+        object: thread.run
+        created_at: 1699063290
+        thread_id: thread_abc123
+        assistant_id: asst_abc123
+        status: cancelled
+        required_action: null
+        last_error: null
+        expires_at: 1699063890
+        started_at: 1699063291
+        cancelled_at: 1699063292
+        failed_at: null
+        completed_at: null
+        model: gpt-4
+        instructions: You are a helpful assistant.
+        tools: []
+        file_ids: []
+        metadata: {}
+        usage: null
+    RunObjectModifiedExample:
+      summary: Example modified run object
+      value:
+        id: run_abc123
+        object: thread.run
+        created_at: 1699063290
+        thread_id: thread_abc123
+        assistant_id: asst_abc123
+        status: queued
+        required_action: null
+        last_error: null
+        expires_at: 1699063890
+        started_at: null
+        cancelled_at: null
+        failed_at: null
+        completed_at: null
+        model: gpt-4
+        instructions: You are a helpful assistant.
+        tools: []
+        file_ids: []
+        metadata:
+          modified: 'true'
+        usage: null
+    CreateRunRequestExample:
+      summary: Example create run request
+      value:
+        assistant_id: asst_abc123
+    ModifyRunRequestExample:
+      summary: Example modify run request
+      value:
+        metadata:
+          modified: 'true'
+    SubmitToolOutputsRequestExample:
+      summary: Example submit tool outputs request
+      value:
+        tool_outputs:
+          - tool_call_id: call_abc123
+            output: The result is 42.
+    ListRunsResponseExample:
+      summary: Example list runs response
+      value:
+        object: list
+        data:
+          - id: run_abc123
+            object: thread.run
+            created_at: 1699063290
+            thread_id: thread_abc123
+            assistant_id: asst_abc123
+            status: completed
+            required_action: null
+            last_error: null
+            expires_at: 1699063890
+            started_at: 1699063291
+            cancelled_at: null
+            failed_at: null
+            completed_at: 1699063295
+            model: gpt-4
+            instructions: You are a helpful assistant.
+            tools: []
+            file_ids: []
+            metadata: {}
+            usage:
+              prompt_tokens: 123
+              completion_tokens: 456
+              total_tokens: 579
+        first_id: run_abc123
+        last_id: run_abc123
+        has_more: false
+    RunStepObjectExample:
+      summary: Example run step object
+      value:
+        id: step_abc123
+        object: thread.run.step
+        created_at: 1699063291
+        run_id: run_abc123
+        assistant_id: asst_abc123
+        thread_id: thread_abc123
+        type: message_creation
+        status: completed
+        step_details:
+          type: message_creation
+          message_creation:
+            message_id: msg_abc123
+        last_error: null
+        cancelled_at: null
+        failed_at: null
+        completed_at: 1699063291
+        expired_at: null
+        usage:
+          prompt_tokens: 123
+          completion_tokens: 456
+          total_tokens: 579
+    ListRunStepsResponseExample:
+      summary: Example list run steps response
+      value:
+        object: list
+        data:
+          - id: step_abc123
+            object: thread.run.step
+            created_at: 1699063291
+            run_id: run_abc123
+            assistant_id: asst_abc123
+            thread_id: thread_abc123
+            type: message_creation
+            status: completed
+            step_details:
+              type: message_creation
+              message_creation:
+                message_id: msg_abc123
+            last_error: null
+            cancelled_at: null
+            failed_at: null
+            completed_at: 1699063291
+            expired_at: null
+            usage:
+              prompt_tokens: 123
+              completion_tokens: 456
+              total_tokens: 579
+        first_id: step_abc123
+        last_id: step_abc123
+        has_more: false
+    CreateThreadAndRunRequestExample:
+      summary: Example create thread and run request
+      value:
+        assistant_id: asst_abc123
+        thread:
+          messages:
+            - role: user
+              content: Hello, what is AI?
+security:
+  - BearerAuth: []

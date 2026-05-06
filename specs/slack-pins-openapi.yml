@@ -1,0 +1,756 @@
+openapi: 3.1.0
+info:
+  title: slack-pins-api
+  version: 1.0.0
+  description: >-
+    The Slack Pins API is a set of Web API methods that let your app manage
+    pinned items in conversations so important content is easy to find. With
+    pins.add, pins.list, and pins.remove, you can programmatically pin or unpin
+    messages, files, and file comments in channels, private channels, and DMs by
+    providing the conversation ID and the message timestamp or file/comment ID.
+    Pinned items surface in the conversation's details panel in the Slack
+    client, and pins.list returns the same set so your app can mirror or analyze
+    it. These methods require your app to be a member of the conversation and
+    have appropriate permissions, and they observe Slack's standard rate limits.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-pins-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Pins
+    description: Operations for managing pinned items in Slack conversations
+paths:
+  /pins.add:
+    post:
+      operationId: addPin
+      summary: Pin Item To Channel
+      description: Pins an item (message, file, or file comment) to a channel.
+      tags:
+        - Pins
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/pins.add
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenHeaderParameter'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PinAddRequest'
+            examples:
+              PinMessageExample:
+                $ref: '#/components/examples/PinAddRequestExample'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PinAddRequest'
+            examples:
+              PinMessageExample:
+                $ref: '#/components/examples/PinAddRequestExample'
+      responses:
+        '200':
+          description: Successful pin operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinSuccessResponse'
+              examples:
+                SuccessExample:
+                  $ref: '#/components/examples/PinSuccessExample'
+        '400':
+          description: Bad request due to invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinAddErrorResponse'
+              examples:
+                BadTimestampExample:
+                  $ref: '#/components/examples/BadTimestampErrorExample'
+                NoItemSpecifiedExample:
+                  $ref: '#/components/examples/NoItemSpecifiedErrorExample'
+        '401':
+          description: Authentication error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinAddErrorResponse'
+              examples:
+                NotAuthedExample:
+                  $ref: '#/components/examples/NotAuthedErrorExample'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinAddErrorResponse'
+              examples:
+                PermissionDeniedExample:
+                  $ref: '#/components/examples/PermissionDeniedErrorExample'
+        '404':
+          description: Channel or message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinAddErrorResponse'
+              examples:
+                ChannelNotFoundExample:
+                  $ref: '#/components/examples/ChannelNotFoundErrorExample'
+                MessageNotFoundExample:
+                  $ref: '#/components/examples/MessageNotFoundErrorExample'
+        '409':
+          description: Item already pinned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinAddErrorResponse'
+              examples:
+                AlreadyPinnedExample:
+                  $ref: '#/components/examples/AlreadyPinnedErrorExample'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinAddErrorResponse'
+              examples:
+                GenericErrorExample:
+                  $ref: '#/components/examples/GenericPinErrorExample'
+      security:
+        - SlackAuth:
+            - pins:write
+  /pins.list:
+    get:
+      operationId: listPins
+      summary: List Pinned Items In Channel
+      description: Lists all items pinned to a channel.
+      tags:
+        - Pins
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/pins.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenQueryParameter'
+        - $ref: '#/components/parameters/ChannelParameter'
+      responses:
+        '200':
+          description: Successful retrieval of pinned items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinListSuccessResponse'
+              examples:
+                PinnedItemsExample:
+                  $ref: '#/components/examples/PinListSuccessExample'
+        '401':
+          description: Authentication error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinListErrorResponse'
+              examples:
+                InvalidAuthExample:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+        '404':
+          description: Channel not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinListErrorResponse'
+              examples:
+                ChannelNotFoundExample:
+                  $ref: '#/components/examples/ChannelNotFoundErrorExample'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinListErrorResponse'
+              examples:
+                GenericErrorExample:
+                  $ref: '#/components/examples/GenericPinErrorExample'
+      security:
+        - SlackAuth:
+            - pins:read
+  /pins.remove:
+    post:
+      operationId: removePin
+      summary: Remove Pin From Channel
+      description: Un-pins an item (message, file, or file comment) from a channel.
+      tags:
+        - Pins
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/pins.remove
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/TokenHeaderParameter'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PinRemoveRequest'
+            examples:
+              UnpinMessageExample:
+                $ref: '#/components/examples/PinRemoveRequestExample'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PinRemoveRequest'
+            examples:
+              UnpinMessageExample:
+                $ref: '#/components/examples/PinRemoveRequestExample'
+      responses:
+        '200':
+          description: Successful unpin operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinSuccessResponse'
+              examples:
+                SuccessExample:
+                  $ref: '#/components/examples/PinSuccessExample'
+        '400':
+          description: Bad request due to invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinRemoveErrorResponse'
+              examples:
+                BadTimestampExample:
+                  $ref: '#/components/examples/BadTimestampErrorExample'
+                NoItemSpecifiedExample:
+                  $ref: '#/components/examples/NoItemSpecifiedErrorExample'
+        '401':
+          description: Authentication error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinRemoveErrorResponse'
+              examples:
+                NotAuthedExample:
+                  $ref: '#/components/examples/NotAuthedErrorExample'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinRemoveErrorResponse'
+              examples:
+                PermissionDeniedExample:
+                  $ref: '#/components/examples/PermissionDeniedErrorExample'
+        '404':
+          description: Item not found or not pinned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinRemoveErrorResponse'
+              examples:
+                NotPinnedExample:
+                  $ref: '#/components/examples/NotPinnedErrorExample'
+                MessageNotFoundExample:
+                  $ref: '#/components/examples/MessageNotFoundErrorExample'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinRemoveErrorResponse'
+              examples:
+                GenericErrorExample:
+                  $ref: '#/components/examples/GenericPinErrorExample'
+      security:
+        - SlackAuth:
+            - pins:write
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      description: Slack OAuth 2.0 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            pins:read: View pinned content in channels
+            pins:write: Add and remove pinned messages and files
+  parameters:
+    TokenHeaderParameter:
+      name: token
+      in: header
+      description: 'Authentication token. Requires scope: `pins:write`'
+      required: true
+      schema:
+        $ref: '#/components/schemas/AuthToken'
+      example: example-key1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+    TokenQueryParameter:
+      name: token
+      in: query
+      description: 'Authentication token. Requires scope: `pins:read`'
+      required: true
+      schema:
+        $ref: '#/components/schemas/AuthToken'
+      example: example-key1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+    ChannelParameter:
+      name: channel
+      in: query
+      description: Channel to get pinned items for
+      required: true
+      schema:
+        $ref: '#/components/schemas/ChannelId'
+      example: C1234567890
+  schemas:
+    AuthToken:
+      type: string
+      description: Slack authentication token
+      pattern: ^xox[pboa]-[0-9a-zA-Z-]+$
+      example: example-key1234567890-1234567890123-abcdefghijklmnopqrstuvwx
+    ChannelId:
+      type: string
+      description: Slack channel identifier
+      pattern: ^[CDG][A-Z0-9]+$
+      example: C1234567890
+    UserId:
+      type: string
+      description: Slack user identifier
+      pattern: ^U[A-Z0-9]+$
+      example: U2U85N1RZ
+    MessageTimestamp:
+      type: string
+      description: Slack message timestamp (ts)
+      pattern: ^\d+\.\d+$
+      example: '1508197641.000151'
+    UnixTimestamp:
+      type: integer
+      description: Unix timestamp in seconds
+      example: 1508881078
+    OkTrue:
+      type: boolean
+      description: Indicates successful operation
+      const: true
+      example: true
+    OkFalse:
+      type: boolean
+      description: Indicates failed operation
+      const: false
+      example: false
+    PinAddErrorCode:
+      type: string
+      description: Error code for pins.add failures
+      enum:
+        - bad_timestamp
+        - message_not_found
+        - channel_not_found
+        - no_item_specified
+        - already_pinned
+        - permission_denied
+        - file_not_shared
+        - not_pinnable
+        - not_authed
+        - invalid_auth
+        - account_inactive
+        - no_permission
+        - invalid_arg_name
+        - invalid_array_arg
+        - invalid_charset
+        - invalid_form_data
+        - invalid_post_type
+        - missing_post_type
+        - team_added_to_org
+        - invalid_json
+        - json_not_object
+        - request_timeout
+        - upgrade_required
+      example: channel_not_found
+    PinListErrorCode:
+      type: string
+      description: Error code for pins.list failures
+      enum:
+        - channel_not_found
+        - not_authed
+        - invalid_auth
+        - account_inactive
+        - no_permission
+        - invalid_arg_name
+        - invalid_array_arg
+        - invalid_charset
+        - invalid_form_data
+        - invalid_post_type
+        - missing_post_type
+        - team_added_to_org
+        - invalid_json
+        - json_not_object
+        - request_timeout
+        - upgrade_required
+      example: invalid_auth
+    PinRemoveErrorCode:
+      type: string
+      description: Error code for pins.remove failures
+      enum:
+        - bad_timestamp
+        - file_not_found
+        - file_comment_not_found
+        - message_not_found
+        - no_item_specified
+        - not_pinned
+        - permission_denied
+        - not_authed
+        - invalid_auth
+        - account_inactive
+        - no_permission
+        - invalid_arg_name
+        - invalid_array_arg
+        - invalid_charset
+        - invalid_form_data
+        - invalid_post_type
+        - missing_post_type
+        - team_added_to_org
+        - invalid_json
+        - json_not_object
+        - request_timeout
+        - upgrade_required
+      example: not_pinned
+    PinnedMessageContent:
+      type: object
+      description: Content details of a pinned message
+      required:
+        - type
+        - ts
+        - text
+        - user
+        - permalink
+      properties:
+        type:
+          type: string
+          description: Type of the pinned content
+          enum:
+            - message
+          example: message
+        ts:
+          $ref: '#/components/schemas/MessageTimestamp'
+        text:
+          type: string
+          description: Text content of the message
+          example: What is the meaning of life?
+        user:
+          $ref: '#/components/schemas/UserId'
+        permalink:
+          type: string
+          format: uri
+          description: Permanent link to the message
+          example: https://hitchhikers.slack.com/archives/C2U86NC6H/p1508197641000151
+        pinned_to:
+          type: array
+          description: List of channels this message is pinned to
+          items:
+            $ref: '#/components/schemas/ChannelId'
+          example:
+            - C2U86NC6H
+      example:
+        type: message
+        ts: '1508197641.000151'
+        text: What is the meaning of life?
+        user: U2U85N1RZ
+        permalink: https://hitchhikers.slack.com/archives/C2U86NC6H/p1508197641000151
+        pinned_to:
+          - C2U86NC6H
+    PinnedItem:
+      type: object
+      description: A pinned item in a channel
+      required:
+        - type
+        - channel
+        - created
+        - created_by
+      properties:
+        type:
+          type: string
+          description: Type of pinned item
+          enum:
+            - message
+            - file
+            - file_comment
+          example: message
+        channel:
+          $ref: '#/components/schemas/ChannelId'
+        created:
+          $ref: '#/components/schemas/UnixTimestamp'
+        created_by:
+          $ref: '#/components/schemas/UserId'
+        message:
+          $ref: '#/components/schemas/PinnedMessageContent'
+      example:
+        type: message
+        channel: C2U86NC6H
+        created: 1508881078
+        created_by: U2U85N1RZ
+        message:
+          type: message
+          ts: '1508197641.000151'
+          text: What is the meaning of life?
+          user: U2U85N1RZ
+          permalink: https://hitchhikers.slack.com/archives/C2U86NC6H/p1508197641000151
+          pinned_to:
+            - C2U86NC6H
+    PinAddRequest:
+      type: object
+      description: Request body for pinning an item
+      required:
+        - channel
+      properties:
+        channel:
+          $ref: '#/components/schemas/ChannelId'
+        timestamp:
+          $ref: '#/components/schemas/MessageTimestamp'
+      example:
+        channel: C1234567890
+        timestamp: '1508197641.000151'
+    PinRemoveRequest:
+      type: object
+      description: Request body for unpinning an item
+      required:
+        - channel
+      properties:
+        channel:
+          $ref: '#/components/schemas/ChannelId'
+        timestamp:
+          $ref: '#/components/schemas/MessageTimestamp'
+      example:
+        channel: C1234567890
+        timestamp: '1508197641.000151'
+    PinSuccessResponse:
+      type: object
+      description: Successful response for pin add/remove operations
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+      additionalProperties: false
+      example:
+        ok: true
+    PinListSuccessResponse:
+      type: object
+      description: Successful response for pins.list method
+      required:
+        - ok
+        - items
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        items:
+          type: array
+          description: List of pinned items in the channel
+          items:
+            $ref: '#/components/schemas/PinnedItem'
+      additionalProperties: false
+      example:
+        ok: true
+        items:
+          - type: message
+            channel: C2U86NC6H
+            created: 1508881078
+            created_by: U2U85N1RZ
+            message:
+              type: message
+              ts: '1508197641.000151'
+              text: What is the meaning of life?
+              user: U2U85N1RZ
+              permalink: >-
+                https://hitchhikers.slack.com/archives/C2U86NC6H/p1508197641000151
+              pinned_to:
+                - C2U86NC6H
+          - type: message
+            channel: C2U86NC6H
+            created: 1508880991
+            created_by: U2U85N1RZ
+            message:
+              type: message
+              ts: '1503289197.000015'
+              text: The meaning of life, the universe, and everything is 42.
+              user: U2U85N1RZ
+              permalink: >-
+                https://hitchhikers.slack.com/archives/C2U86NC6H/p1508284197000015
+              pinned_to:
+                - C2U86NC6H
+    PinAddErrorResponse:
+      type: object
+      description: Error response for pins.add method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          $ref: '#/components/schemas/PinAddErrorCode'
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+      example:
+        ok: false
+        error: channel_not_found
+    PinListErrorResponse:
+      type: object
+      description: Error response for pins.list method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          $ref: '#/components/schemas/PinListErrorCode'
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+      example:
+        ok: false
+        error: invalid_auth
+    PinRemoveErrorResponse:
+      type: object
+      description: Error response for pins.remove method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          $ref: '#/components/schemas/PinRemoveErrorCode'
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+      example:
+        ok: false
+        error: not_pinned
+  examples:
+    PinAddRequestExample:
+      summary: Pin a message to a channel
+      description: Request to pin a specific message by its timestamp
+      value:
+        channel: C1234567890
+        timestamp: '1508197641.000151'
+    PinRemoveRequestExample:
+      summary: Unpin a message from a channel
+      description: Request to unpin a specific message by its timestamp
+      value:
+        channel: C1234567890
+        timestamp: '1508197641.000151'
+    PinSuccessExample:
+      summary: Successful pin operation
+      description: Response when a pin is successfully added or removed
+      value:
+        ok: true
+    PinListSuccessExample:
+      summary: List of pinned items
+      description: Successful response with pinned messages in a channel
+      value:
+        ok: true
+        items:
+          - type: message
+            channel: C2U86NC6H
+            created: 1508881078
+            created_by: U2U85N1RZ
+            message:
+              type: message
+              ts: '1508197641.000151'
+              text: What is the meaning of life?
+              user: U2U85N1RZ
+              permalink: >-
+                https://hitchhikers.slack.com/archives/C2U86NC6H/p1508197641000151
+              pinned_to:
+                - C2U86NC6H
+          - type: message
+            channel: C2U86NC6H
+            created: 1508880991
+            created_by: U2U85N1RZ
+            message:
+              type: message
+              ts: '1503289197.000015'
+              text: The meaning of life, the universe, and everything is 42.
+              user: U2U85N1RZ
+              permalink: >-
+                https://hitchhikers.slack.com/archives/C2U86NC6H/p1508284197000015
+              pinned_to:
+                - C2U86NC6H
+    ChannelNotFoundErrorExample:
+      summary: Channel not found error
+      description: Error when the specified channel does not exist
+      value:
+        ok: false
+        error: channel_not_found
+    MessageNotFoundErrorExample:
+      summary: Message not found error
+      description: Error when the specified message does not exist
+      value:
+        ok: false
+        error: message_not_found
+    BadTimestampErrorExample:
+      summary: Bad timestamp error
+      description: Error when the provided timestamp is invalid
+      value:
+        ok: false
+        error: bad_timestamp
+    NoItemSpecifiedErrorExample:
+      summary: No item specified error
+      description: Error when no item (timestamp) is provided to pin/unpin
+      value:
+        ok: false
+        error: no_item_specified
+    AlreadyPinnedErrorExample:
+      summary: Already pinned error
+      description: Error when attempting to pin an item that is already pinned
+      value:
+        ok: false
+        error: already_pinned
+    NotPinnedErrorExample:
+      summary: Not pinned error
+      description: Error when attempting to unpin an item that is not pinned
+      value:
+        ok: false
+        error: not_pinned
+    PermissionDeniedErrorExample:
+      summary: Permission denied error
+      description: Error when the user lacks permission to pin/unpin in the channel
+      value:
+        ok: false
+        error: permission_denied
+    NotAuthedErrorExample:
+      summary: Not authenticated error
+      description: Error when no authentication token is provided
+      value:
+        ok: false
+        error: not_authed
+    InvalidAuthErrorExample:
+      summary: Invalid authentication error
+      description: Error when the authentication token is invalid
+      value:
+        ok: false
+        error: invalid_auth
+    GenericPinErrorExample:
+      summary: Generic pin error
+      description: Unexpected error during pin operation
+      value:
+        ok: false
+        error: request_timeout

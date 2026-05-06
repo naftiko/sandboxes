@@ -1,0 +1,165 @@
+openapi: 3.1.0
+info:
+  title: slack-tests-api
+  version: 1.0.0
+  description: >-
+    The Slack Tests API provides endpoints for testing API calling code. 
+    Developers use this API to validate their Slack integration setup,  test
+    error handling, and verify connectivity to the Slack platform  before
+    deploying production applications.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://slack.com
+    description: Slack Production API Server
+  - url: http://localhost:8080/rest/slack-tests-api/1.0.0
+    description: Sandbox
+tags:
+  - name: API Testing
+    description: Operations for testing API connectivity and functionality
+paths:
+  /api.test:
+    get:
+      tags:
+        - API Testing
+      summary: Test API Connection
+      description: Checks API calling code and validates connectivity to the Slack API.
+      operationId: getApiTest
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/api.test
+      parameters:
+        - $ref: '#/components/parameters/ErrorParam'
+        - $ref: '#/components/parameters/FooParam'
+      responses:
+        '200':
+          description: Successful API test response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiTestSuccessResponse'
+              examples:
+                ApiTestSuccessExample:
+                  $ref: '#/components/examples/ApiTestSuccessExample'
+                ApiTestSuccessWithArgsExample:
+                  $ref: '#/components/examples/ApiTestSuccessWithArgsExample'
+        default:
+          description: Artificial error response for testing error handling
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiTestErrorResponse'
+              examples:
+                ApiTestErrorExample:
+                  $ref: '#/components/examples/ApiTestErrorExample'
+      security:
+        - SlackAuth:
+            - none
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": "ApiTestSuccessExample"
+          }
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            none: No scope required for this test endpoint
+  parameters:
+    ErrorParam:
+      name: error
+      in: query
+      description: >-
+        Error response to return. When provided, the API will return an error 
+        response with this error code, allowing you to test error handling in
+        your code.
+      schema:
+        type: string
+      examples:
+        MyErrorExample:
+          summary: Example error parameter
+          value: my_error
+    FooParam:
+      name: foo
+      in: query
+      description: >-
+        Example property to return. This parameter demonstrates how additional 
+        properties are echoed back in the response args object.
+      schema:
+        type: string
+      examples:
+        BarExample:
+          summary: Example foo parameter
+          value: bar
+  schemas:
+    OkTrue:
+      type: boolean
+      const: true
+      description: Indicates successful operation
+    OkFalse:
+      type: boolean
+      const: false
+      description: Indicates failed operation
+    Args:
+      type: object
+      description: Echo of the arguments passed to the API
+      additionalProperties:
+        type: string
+    ApiTestSuccessResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        args:
+          $ref: '#/components/schemas/Args'
+      additionalProperties: true
+      description: Schema for successful response from api.test method
+    ApiTestErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          description: The error code that was requested or generated
+        args:
+          $ref: '#/components/schemas/Args'
+      additionalProperties: true
+      description: Schema for error response from api.test method
+  examples:
+    ApiTestSuccessExample:
+      summary: Successful API test response
+      description: Standard success response when no parameters are provided
+      value:
+        ok: true
+    ApiTestSuccessWithArgsExample:
+      summary: Successful response with echoed arguments
+      description: Success response showing how foo parameter is echoed back
+      value:
+        ok: true
+        args:
+          foo: bar
+    ApiTestErrorExample:
+      summary: Error response for testing
+      description: Error response when the error parameter is provided
+      value:
+        ok: false
+        error: my_error
+        args:
+          error: my_error

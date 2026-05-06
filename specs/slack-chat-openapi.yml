@@ -1,0 +1,1823 @@
+openapi: 3.1.0
+info:
+  title: slack-chat-api
+  description: >-
+    The Slack Chat API is the set of chat.* methods in the Slack Web API that
+    lets apps and bots create and manage messages in Slack workspaces. It
+    enables posting messages to channels and DMs with Block Kit formatting,
+    sending ephemeral messages visible only to a specific user, replying in
+    threads, scheduling messages for later delivery, updating or deleting
+    existing messages, retrieving permalinks, and providing custom link unfurls.
+    These methods work over HTTP with JSON payloads, use bot/user tokens with
+    scopes like chat:write and chat:write.public, and return metadata such as
+    channel, ts, and thread_ts. Teams use the Chat API to automate
+    notifications, power interactive workflows, and deliver rich conversational
+    experiences inside Slack.
+  version: 1.0.0
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-chat-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Messages
+    description: Operations for sending, updating, and deleting messages
+  - name: Scheduled Messages
+    description: Operations for scheduling and managing scheduled messages
+  - name: Message Utilities
+    description: Utility operations for messages including permalinks and unfurls
+paths:
+  /chat.delete:
+    post:
+      tags:
+        - Messages
+      summary: Delete a message
+      description: Deletes a message from a channel.
+      operationId: chatDelete
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/chat.delete
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatDeleteRequest'
+            examples:
+              ChatDeleteRequestExample:
+                $ref: '#/components/examples/ChatDeleteRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatDeleteRequest'
+            examples:
+              ChatDeleteRequestExample:
+                $ref: '#/components/examples/ChatDeleteRequestExample'
+      responses:
+        '200':
+          description: Successful response when a message is deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatDeleteResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/ChatDeleteSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatDeleteErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ChatDeleteErrorResponseExample'
+      security:
+        - SlackAuth:
+            - chat:write:user
+            - chat:write:bot
+  /chat.deleteScheduledMessage:
+    post:
+      tags:
+        - Scheduled Messages
+      summary: Delete a scheduled message
+      description: Deletes a pending scheduled message from the queue.
+      operationId: chatDeleteScheduledMessage
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/chat.deleteScheduledMessage
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeaderRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatDeleteScheduledMessageRequest'
+            examples:
+              ChatDeleteScheduledMessageRequestExample:
+                $ref: '#/components/examples/ChatDeleteScheduledMessageRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatDeleteScheduledMessageRequest'
+            examples:
+              ChatDeleteScheduledMessageRequestExample:
+                $ref: '#/components/examples/ChatDeleteScheduledMessageRequestExample'
+      responses:
+        '200':
+          description: Successful response when a scheduled message is deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatDeleteScheduledMessageErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ChatDeleteScheduledMessageErrorResponseExample
+      security:
+        - SlackAuth:
+            - chat:write:user
+            - chat:write:bot
+  /chat.getPermalink:
+    get:
+      tags:
+        - Message Utilities
+      summary: Get a message permalink
+      description: Retrieve a permalink URL for a specific extant message.
+      operationId: chatGetPermalink
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/chat.getPermalink
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQueryRequired'
+        - $ref: '#/components/parameters/ChannelIdRequired'
+        - $ref: '#/components/parameters/MessageTimestamp'
+      responses:
+        '200':
+          description: Successful response with permalink URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatGetPermalinkResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/ChatGetPermalinkSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatGetPermalinkErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ChatGetPermalinkErrorResponseExample'
+      security:
+        - SlackAuth:
+            - none
+  /chat.meMessage:
+    post:
+      tags:
+        - Messages
+      summary: Send a me message
+      description: Share a me message into a channel.
+      operationId: chatMeMessage
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/chat.meMessage
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMeMessageRequest'
+            examples:
+              ChatMeMessageRequestExample:
+                $ref: '#/components/examples/ChatMeMessageRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatMeMessageRequest'
+            examples:
+              ChatMeMessageRequestExample:
+                $ref: '#/components/examples/ChatMeMessageRequestExample'
+      responses:
+        '200':
+          description: Successful response when a me message is sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMeMessageResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/ChatMeMessageSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMeMessageErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ChatMeMessageErrorResponseExample'
+      security:
+        - SlackAuth:
+            - chat:write:user
+            - chat:write:bot
+  /chat.postEphemeral:
+    post:
+      tags:
+        - Messages
+      summary: Send an ephemeral message
+      description: Sends an ephemeral message to a user in a channel.
+      operationId: chatPostEphemeral
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/chat.postEphemeral
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeaderRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatPostEphemeralRequest'
+            examples:
+              ChatPostEphemeralRequestExample:
+                $ref: '#/components/examples/ChatPostEphemeralRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatPostEphemeralRequest'
+            examples:
+              ChatPostEphemeralRequestExample:
+                $ref: '#/components/examples/ChatPostEphemeralRequestExample'
+      responses:
+        '200':
+          description: Successful response when an ephemeral message is sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatPostEphemeralResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ChatPostEphemeralSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatPostEphemeralErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ChatPostEphemeralErrorResponseExample'
+      security:
+        - SlackAuth:
+            - chat:write:user
+            - chat:write:bot
+  /chat.postMessage:
+    post:
+      tags:
+        - Messages
+      summary: Send a message
+      description: Sends a message to a channel.
+      operationId: chatPostMessage
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/chat.postMessage
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeaderRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatPostMessageRequest'
+            examples:
+              ChatPostMessageRequestExample:
+                $ref: '#/components/examples/ChatPostMessageRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatPostMessageRequest'
+            examples:
+              ChatPostMessageRequestExample:
+                $ref: '#/components/examples/ChatPostMessageRequestExample'
+      responses:
+        '200':
+          description: Successful response when a message is sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatPostMessageResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/ChatPostMessageSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatPostMessageErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ChatPostMessageErrorResponseExample'
+      security:
+        - SlackAuth:
+            - chat:write:user
+            - chat:write:bot
+  /chat.scheduleMessage:
+    post:
+      tags:
+        - Scheduled Messages
+      summary: Schedule a message
+      description: Schedules a message to be sent to a channel.
+      operationId: chatScheduleMessage
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/chat.scheduleMessage
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatScheduleMessageRequest'
+            examples:
+              ChatScheduleMessageRequestExample:
+                $ref: '#/components/examples/ChatScheduleMessageRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatScheduleMessageRequest'
+            examples:
+              ChatScheduleMessageRequestExample:
+                $ref: '#/components/examples/ChatScheduleMessageRequestExample'
+      responses:
+        '200':
+          description: Successful response when a message is scheduled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatScheduleMessageResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ChatScheduleMessageSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatScheduleMessageErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ChatScheduleMessageErrorResponseExample
+      security:
+        - SlackAuth:
+            - chat:write:user
+            - chat:write:bot
+  /chat.scheduledMessages.list:
+    get:
+      tags:
+        - Scheduled Messages
+      summary: List scheduled messages
+      description: Returns a list of scheduled messages.
+      operationId: chatScheduled MessagesList
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/chat.scheduledMessages.list
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+        - $ref: '#/components/parameters/ChannelIdOptional'
+        - $ref: '#/components/parameters/LatestTimestamp'
+        - $ref: '#/components/parameters/OldestTimestamp'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Successful response with list of scheduled messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatScheduled MessagesListResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ChatScheduled
+                    MessagesListSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatScheduled MessagesListErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ChatScheduled
+                    MessagesListErrorResponseExample
+      security:
+        - SlackAuth:
+            - none
+  /chat.unfurl:
+    post:
+      tags:
+        - Message Utilities
+      summary: Provide custom unfurl behavior
+      description: Provide custom unfurl behavior for user-posted URLs.
+      operationId: chatUnfurl
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/chat.unfurl
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeaderRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatUnfurlRequest'
+            examples:
+              ChatUnfurlRequestExample:
+                $ref: '#/components/examples/ChatUnfurlRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatUnfurlRequest'
+            examples:
+              ChatUnfurlRequestExample:
+                $ref: '#/components/examples/ChatUnfurlRequestExample'
+      responses:
+        '200':
+          description: Successful response when unfurl is applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatUnfurlErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ChatUnfurlErrorResponseExample'
+      security:
+        - SlackAuth:
+            - links:write
+  /chat.update:
+    post:
+      tags:
+        - Messages
+      summary: Update a message
+      description: Updates an existing message.
+      operationId: chatUpdate
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/chat.update
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeaderRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatUpdateRequest'
+            examples:
+              ChatUpdateRequestExample:
+                $ref: '#/components/examples/ChatUpdateRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatUpdateRequest'
+            examples:
+              ChatUpdateRequestExample:
+                $ref: '#/components/examples/ChatUpdateRequestExample'
+      responses:
+        '200':
+          description: Successful response when a message is updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatUpdateResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/ChatUpdateSuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatUpdateErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ChatUpdateErrorResponseExample'
+      security:
+        - SlackAuth:
+            - chat:write:user
+            - chat:write:bot
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      description: Slack OAuth2 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            chat:write:user: Send messages as the authenticated user
+            chat:write:bot: Send messages as the bot
+            links:write: Provide custom unfurl behavior
+            none: No specific scope required
+  parameters:
+    AuthTokenHeader:
+      name: token
+      in: header
+      description: 'Authentication token. Requires scope: `chat:write`'
+      required: false
+      schema:
+        type: string
+      example: example-key1234567890-abcdefghijklmnop
+    AuthTokenHeaderRequired:
+      name: token
+      in: header
+      description: 'Authentication token. Requires scope: `chat:write`'
+      required: true
+      schema:
+        type: string
+      example: example-key1234567890-abcdefghijklmnop
+    AuthTokenQueryRequired:
+      name: token
+      in: query
+      description: Authentication token
+      required: true
+      schema:
+        type: string
+      example: example-key1234567890-abcdefghijklmnop
+    ChannelIdRequired:
+      name: channel
+      in: query
+      description: The ID of the conversation or channel containing the message
+      required: true
+      schema:
+        type: string
+      example: C1H9RESGA
+    ChannelIdOptional:
+      name: channel
+      in: query
+      description: The channel of the scheduled messages
+      required: false
+      schema:
+        type: string
+      example: C1H9RESGA
+    MessageTimestamp:
+      name: message_ts
+      in: query
+      description: A message's `ts` value, uniquely identifying it within a channel
+      required: true
+      schema:
+        type: string
+      example: '1234567890.123456'
+    LatestTimestamp:
+      name: latest
+      in: query
+      description: A UNIX timestamp of the latest value in the time range
+      required: false
+      schema:
+        type: number
+      example: 1562180400
+    OldestTimestamp:
+      name: oldest
+      in: query
+      description: A UNIX timestamp of the oldest value in the time range
+      required: false
+      schema:
+        type: number
+      example: 1562094000
+    Limit:
+      name: limit
+      in: query
+      description: Maximum number of original entries to return
+      required: false
+      schema:
+        type: integer
+      example: 100
+    Cursor:
+      name: cursor
+      in: query
+      description: >-
+        For pagination purposes, this is the `cursor` value returned from a
+        previous call indicating where you want to start this call from.
+      required: false
+      schema:
+        type: string
+      example: dXNlcjpVMDYxTkZUVDI=
+  schemas:
+    OkTrue:
+      type: boolean
+      const: true
+      description: Indicates a successful operation
+    OkFalse:
+      type: boolean
+      const: false
+      description: Indicates a failed operation
+    ChannelId:
+      type: string
+      description: A channel ID
+      pattern: ^[C][A-Z0-9]{8,}$
+      example: C1H9RESGA
+    UserId:
+      type: string
+      description: A Slack user ID
+      pattern: ^[U][A-Z0-9]{8,}$
+      example: U1234567890
+    Timestamp:
+      type: string
+      description: A message timestamp
+      pattern: ^\d+\.\d+$
+      example: '1503435956.000247'
+    ScheduledMessageId:
+      type: string
+      description: A scheduled message ID
+      pattern: ^[Q][A-Z0-9]{8,}$
+      example: Q1298393284
+    MessageAttachment:
+      type: object
+      description: A message attachment
+      properties:
+        Id:
+          type: integer
+          description: Attachment ID
+          example: 1
+        Fallback:
+          type: string
+          description: Fallback text for the attachment
+          example: This is an attachment's fallback
+        Text:
+          type: string
+          description: The main text of the attachment
+          example: This is an attachment
+        Color:
+          type: string
+          description: Color of the attachment border
+          example: '#36a64f'
+    MessageObject:
+      type: object
+      description: A Slack message object
+      properties:
+        Type:
+          type: string
+          description: The type of message
+          example: message
+        Subtype:
+          type: string
+          description: The subtype of message
+          example: bot_message
+        Text:
+          type: string
+          description: The message text
+          example: Here's a message for you
+        Ts:
+          $ref: '#/components/schemas/Timestamp'
+        Username:
+          type: string
+          description: The username of the message author
+          example: ecto1
+        BotId:
+          type: string
+          description: The bot ID if sent by a bot
+          example: B19LU7CSY
+        Attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageAttachment'
+    ScheduledMessageObject:
+      type: object
+      description: A scheduled message object
+      properties:
+        Id:
+          type: string
+          description: The scheduled message ID
+          example: '1298393284'
+        ChannelId:
+          $ref: '#/components/schemas/ChannelId'
+        PostAt:
+          type: integer
+          format: int64
+          description: Unix timestamp when the message will be posted
+          example: 1551991428
+        DateCreated:
+          type: integer
+          format: int64
+          description: Unix timestamp when the message was scheduled
+          example: 1551891734
+        Text:
+          type: string
+          description: The message text
+          example: Here's a message for you in the future
+    ResponseMetadata:
+      type: object
+      description: Response metadata for pagination
+      properties:
+        NextCursor:
+          type: string
+          description: Cursor for the next page of results
+          example: dXNlcjpVMDYxTkZUVDI=
+    ChatDeleteRequest:
+      type: object
+      properties:
+        ts:
+          type: string
+          description: Timestamp of the message to be deleted
+          example: '1401383885.000061'
+        channel:
+          type: string
+          description: Channel containing the message to be deleted
+          example: C024BE91L
+        as_user:
+          type: boolean
+          description: Pass true to delete the message as the authed user
+          example: true
+    ChatDeleteScheduledMessageRequest:
+      type: object
+      required:
+        - channel
+        - scheduled_message_id
+      properties:
+        channel:
+          type: string
+          description: The channel the scheduled_message is posting to
+          example: C1H9RESGL
+        scheduled_message_id:
+          type: string
+          description: scheduled_message_id returned from call to chat.scheduleMessage
+          example: Q1298393284
+        as_user:
+          type: boolean
+          description: Pass true to delete the message as the authed user
+          example: false
+    ChatMeMessageRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: Channel to send message to
+          example: C024BE7LR
+        text:
+          type: string
+          description: Text of the message to send
+          example: is doing something interesting
+    ChatPostEphemeralRequest:
+      type: object
+      required:
+        - channel
+        - user
+      properties:
+        channel:
+          type: string
+          description: Channel, private group, or IM channel to send message to
+          example: C1H9RESGL
+        user:
+          type: string
+          description: ID of the user who will receive the ephemeral message
+          example: U0BPQUNTA
+        text:
+          type: string
+          description: The message text
+          example: This is an ephemeral message
+        as_user:
+          type: boolean
+          description: Pass true to post the message as the authed user
+          example: false
+        attachments:
+          type: string
+          description: A JSON-based array of structured attachments
+          example: '[]'
+        blocks:
+          type: string
+          description: A JSON-based array of structured blocks
+          example: '[]'
+        icon_emoji:
+          type: string
+          description: Emoji to use as the icon for this message
+          example: ':chart_with_upwards_trend:'
+        icon_url:
+          type: string
+          format: uri
+          description: URL to an image to use as the icon for this message
+          example: https://example.com/icon.png
+        link_names:
+          type: boolean
+          description: Find and link channel names and usernames
+          example: true
+        parse:
+          type: string
+          description: Change how messages are treated
+          example: none
+        thread_ts:
+          type: string
+          description: Provide another message's ts value to post this message in a thread
+          example: '1234567890.123456'
+        username:
+          type: string
+          description: Set your bot's user name
+          example: My Bot
+    ChatPostMessageRequest:
+      type: object
+      required:
+        - channel
+      properties:
+        channel:
+          type: string
+          description: Channel, private group, or IM channel to send message to
+          example: C1H9RESGL
+        text:
+          type: string
+          description: The message text
+          example: Hello, world!
+        as_user:
+          type: string
+          description: Pass true to post the message as the authed user
+          example: 'false'
+        attachments:
+          type: string
+          description: A JSON-based array of structured attachments
+          example: '[]'
+        blocks:
+          type: string
+          description: A JSON-based array of structured blocks
+          example: '[]'
+        icon_emoji:
+          type: string
+          description: Emoji to use as the icon for this message
+          example: ':robot_face:'
+        icon_url:
+          type: string
+          format: uri
+          description: URL to an image to use as the icon for this message
+          example: https://example.com/icon.png
+        link_names:
+          type: boolean
+          description: Find and link channel names and usernames
+          example: true
+        mrkdwn:
+          type: boolean
+          description: Disable Slack markup parsing by setting to false
+          example: true
+        parse:
+          type: string
+          description: Change how messages are treated
+          example: none
+        reply_broadcast:
+          type: boolean
+          description: Whether reply should be made visible to everyone in the channel
+          example: false
+        thread_ts:
+          type: string
+          description: Provide another message's ts value to make this message a reply
+          example: '1234567890.123456'
+        unfurl_links:
+          type: boolean
+          description: Pass true to enable unfurling of primarily text-based content
+          example: true
+        unfurl_media:
+          type: boolean
+          description: Pass false to disable unfurling of media content
+          example: true
+        username:
+          type: string
+          description: Set your bot's user name
+          example: My Bot
+    ChatScheduleMessageRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: Channel, private group, or DM channel to send message to
+          example: C1H9RESGL
+        text:
+          type: string
+          description: The message text
+          example: Here's a message for you in the future
+        post_at:
+          type: string
+          description: Unix EPOCH timestamp of time in future to send the message
+          example: '1562180400'
+        as_user:
+          type: boolean
+          description: Pass true to post the message as the authed user
+          example: false
+        attachments:
+          type: string
+          description: A JSON-based array of structured attachments
+          example: '[]'
+        blocks:
+          type: string
+          description: A JSON-based array of structured blocks
+          example: '[]'
+        link_names:
+          type: boolean
+          description: Find and link channel names and usernames
+          example: true
+        parse:
+          type: string
+          description: Change how messages are treated
+          example: none
+        reply_broadcast:
+          type: boolean
+          description: Whether reply should be made visible to everyone in the channel
+          example: false
+        thread_ts:
+          type: number
+          description: Provide another message's ts value to make this message a reply
+          example: 1234567890.123456
+        unfurl_links:
+          type: boolean
+          description: Pass true to enable unfurling of primarily text-based content
+          example: true
+        unfurl_media:
+          type: boolean
+          description: Pass false to disable unfurling of media content
+          example: true
+    ChatUnfurlRequest:
+      type: object
+      required:
+        - channel
+        - ts
+      properties:
+        channel:
+          type: string
+          description: Channel ID of the message
+          example: C1H9RESGL
+        ts:
+          type: string
+          description: Timestamp of the message to add unfurl behavior to
+          example: '1234567890.123456'
+        unfurls:
+          type: string
+          description: URL-encoded JSON map with keys set to URLs featured in the message
+          example: '{"https://example.com":{"text":"Example Domain"}}'
+        user_auth_message:
+          type: string
+          description: >-
+            A simply-formatted string to send as an ephemeral message to the
+            user
+          example: Please authenticate to see more details
+        user_auth_required:
+          type: boolean
+          description: Set to true to indicate the user must install your Slack app
+          example: false
+        user_auth_url:
+          type: string
+          format: uri
+          description: >-
+            Send users to this custom URL where they will complete
+            authentication
+          example: https://example.com/auth
+    ChatUpdateRequest:
+      type: object
+      required:
+        - channel
+        - ts
+      properties:
+        channel:
+          type: string
+          description: Channel containing the message to be updated
+          example: C024BE91L
+        ts:
+          type: string
+          description: Timestamp of the message to be updated
+          example: '1401383885.000061'
+        text:
+          type: string
+          description: New text for the message
+          example: Updated text you carefully authored
+        as_user:
+          type: string
+          description: Pass true to update the message as the authed user
+          example: 'false'
+        attachments:
+          type: string
+          description: A JSON-based array of structured attachments
+          example: '[]'
+        blocks:
+          type: string
+          description: A JSON-based array of structured blocks
+          example: '[]'
+        link_names:
+          type: string
+          description: Find and link channel names and usernames
+          example: none
+        parse:
+          type: string
+          description: Change how messages are treated
+          example: none
+    SuccessResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+      additionalProperties: false
+    ChatDeleteResponse:
+      type: object
+      required:
+        - ok
+        - channel
+        - ts
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ChannelId'
+        ts:
+          $ref: '#/components/schemas/Timestamp'
+      additionalProperties: false
+    ChatDeleteErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          enum:
+            - message_not_found
+            - channel_not_found
+            - cant_delete_message
+            - compliance_exports_prevent_deletion
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ChatDeleteScheduledMessageErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          enum:
+            - invalid_scheduled_message_id
+            - channel_not_found
+            - bad_token
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - ekm_access_denied
+            - missing_scope
+            - invalid_arguments
+            - invalid_arg_name
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ChatGetPermalinkResponse:
+      type: object
+      required:
+        - ok
+        - channel
+        - permalink
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ChannelId'
+        permalink:
+          type: string
+          format: uri
+          description: The permalink URL for the message
+          example: https://ghostbusters.slack.com/archives/C1H9RESGA/p135854651500008
+      additionalProperties: false
+    ChatGetPermalinkErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          enum:
+            - channel_not_found
+            - message_not_found
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ChatMeMessageResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ChannelId'
+        ts:
+          $ref: '#/components/schemas/Timestamp'
+      additionalProperties: false
+    ChatMeMessageErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          enum:
+            - channel_not_found
+            - not_in_channel
+            - is_archived
+            - msg_too_long
+            - no_text
+            - rate_limited
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ChatPostEphemeralResponse:
+      type: object
+      required:
+        - ok
+        - message_ts
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        message_ts:
+          $ref: '#/components/schemas/Timestamp'
+      additionalProperties: false
+    ChatPostEphemeralErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          enum:
+            - channel_not_found
+            - is_archived
+            - msg_too_long
+            - no_text
+            - restricted_action
+            - too_many_attachments
+            - user_not_in_channel
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ChatPostMessageResponse:
+      type: object
+      required:
+        - ok
+        - channel
+        - ts
+        - message
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ChannelId'
+        ts:
+          $ref: '#/components/schemas/Timestamp'
+        message:
+          $ref: '#/components/schemas/MessageObject'
+      additionalProperties: false
+    ChatPostMessageErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          enum:
+            - channel_not_found
+            - not_in_channel
+            - is_archived
+            - msg_too_long
+            - no_text
+            - too_many_attachments
+            - rate_limited
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ChatScheduleMessageResponse:
+      type: object
+      required:
+        - ok
+        - channel
+        - scheduled_message_id
+        - post_at
+        - message
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ChannelId'
+        scheduled_message_id:
+          $ref: '#/components/schemas/ScheduledMessageId'
+        post_at:
+          type: integer
+          format: int64
+          description: Unix timestamp when the message will be posted
+          example: 1562180400
+        message:
+          $ref: '#/components/schemas/MessageObject'
+      additionalProperties: false
+    ChatScheduleMessageErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          enum:
+            - invalid_time
+            - time_in_past
+            - time_too_far
+            - channel_not_found
+            - not_in_channel
+            - is_archived
+            - msg_too_long
+            - no_text
+            - restricted_action
+            - restricted_action_read_only_channel
+            - restricted_action_thread_only_channel
+            - restricted_action_non_threadable_channel
+            - too_many_attachments
+            - rate_limited
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - ekm_access_denied
+            - missing_scope
+            - invalid_arguments
+            - invalid_arg_name
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ChatScheduled MessagesListResponse:
+      type: object
+      required:
+        - ok
+        - scheduled_messages
+        - response_metadata
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        scheduled_messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduledMessageObject'
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+      additionalProperties: false
+    ChatScheduled MessagesListErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          enum:
+            - invalid_channel
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - ekm_access_denied
+            - missing_scope
+            - invalid_arguments
+            - invalid_arg_name
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ChatUnfurlErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          enum:
+            - cannot_unfurl_url
+            - cannot_find_service
+            - missing_unfurls
+            - cannot_prompt
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ChatUpdateResponse:
+      type: object
+      required:
+        - ok
+        - channel
+        - ts
+        - text
+        - message
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          type: string
+          description: Channel ID
+          example: C024BE91L
+        ts:
+          type: string
+          description: Message timestamp
+          example: '1401383885.000061'
+        text:
+          type: string
+          description: Updated message text
+          example: Updated text you carefully authored
+        message:
+          type: object
+          required:
+            - text
+          properties:
+            text:
+              type: string
+              description: The message text
+              example: Updated text you carefully authored
+            user:
+              type: string
+              description: User ID who authored the message
+              example: U34567890
+            attachments:
+              type: array
+              items:
+                type: object
+            blocks:
+              type: object
+      additionalProperties: false
+    ChatUpdateErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          enum:
+            - message_not_found
+            - cant_update_message
+            - channel_not_found
+            - edit_window_closed
+            - msg_too_long
+            - too_many_attachments
+            - rate_limited
+            - no_text
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - request_timeout
+            - invalid_json
+            - json_not_object
+            - upgrade_required
+            - fatal_error
+            - is_inactive
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+  examples:
+    ChatDeleteRequestExample:
+      summary: Example request to delete a message
+      value:
+        channel: C024BE91L
+        ts: '1401383885.000061'
+        as_user: true
+    ChatDeleteScheduledMessageRequestExample:
+      summary: Example request to delete a scheduled message
+      value:
+        channel: C1H9RESGL
+        scheduled_message_id: Q1298393284
+        as_user: false
+    ChatMeMessageRequestExample:
+      summary: Example request to send a me message
+      value:
+        channel: C024BE7LR
+        text: is doing something interesting
+    ChatPostEphemeralRequestExample:
+      summary: Example request to send an ephemeral message
+      value:
+        channel: C1H9RESGL
+        user: U0BPQUNTA
+        text: This is a secret message just for you
+        as_user: false
+    ChatPostMessageRequestExample:
+      summary: Example request to send a message
+      value:
+        channel: C1H9RESGL
+        text: Hello, world!
+        as_user: 'false'
+        mrkdwn: true
+        unfurl_links: true
+        unfurl_media: true
+    ChatScheduleMessageRequestExample:
+      summary: Example request to schedule a message
+      value:
+        channel: C1H9RESGL
+        text: Here's a message for you in the future
+        post_at: '1562180400'
+        as_user: false
+    ChatUnfurlRequestExample:
+      summary: Example request to provide custom unfurl behavior
+      value:
+        channel: C1H9RESGL
+        ts: '1234567890.123456'
+        unfurls: '{"https://example.com":{"text":"Example Domain"}}'
+    ChatUpdateRequestExample:
+      summary: Example request to update a message
+      value:
+        channel: C024BE91L
+        ts: '1401383885.000061'
+        text: Updated text you carefully authored
+    SuccessResponseExample:
+      summary: Example of a successful response
+      value:
+        ok: true
+    ChatDeleteSuccessResponseExample:
+      summary: Example of a successful chat.delete response
+      value:
+        ok: true
+        channel: C024BE91L
+        ts: '1401383885.000061'
+    ChatDeleteErrorResponseExample:
+      summary: Example of an error response for chat.delete
+      value:
+        ok: false
+        error: message_not_found
+    ChatDeleteScheduledMessageErrorResponseExample:
+      summary: Example of an error response for chat.deleteScheduledMessage
+      value:
+        ok: false
+        error: invalid_scheduled_message_id
+    ChatGetPermalinkSuccessResponseExample:
+      summary: Example of a successful chat.getPermalink response
+      value:
+        ok: true
+        channel: C1H9RESGA
+        permalink: https://ghostbusters.slack.com/archives/C1H9RESGA/p135854651500008
+    ChatGetPermalinkErrorResponseExample:
+      summary: Example of an error response for chat.getPermalink
+      value:
+        ok: false
+        error: channel_not_found
+    ChatMeMessageSuccessResponseExample:
+      summary: Example of a successful chat.meMessage response
+      value:
+        ok: true
+        channel: C024BE7LR
+        ts: '1417671948.000006'
+    ChatMeMessageErrorResponseExample:
+      summary: Example of an error response for chat.meMessage
+      value:
+        ok: false
+        error: invalid_auth
+    ChatPostEphemeralSuccessResponseExample:
+      summary: Example of a successful chat.postEphemeral response
+      value:
+        ok: true
+        message_ts: '1502210682.580145'
+    ChatPostEphemeralErrorResponseExample:
+      summary: Example of an error response for chat.postEphemeral
+      value:
+        ok: false
+        error: user_not_in_channel
+    ChatPostMessageSuccessResponseExample:
+      summary: Example of a successful chat.postMessage response
+      value:
+        ok: true
+        channel: C1H9RESGL
+        ts: '1503435956.000247'
+        message:
+          Type: message
+          Subtype: bot_message
+          Text: Here's a message for you
+          Ts: '1503435956.000247'
+          Username: ecto1
+          BotId: B19LU7CSY
+          Attachments:
+            - Id: 1
+              Fallback: This is an attachment's fallback
+              Text: This is an attachment
+    ChatPostMessageErrorResponseExample:
+      summary: Example of an error response for chat.postMessage
+      value:
+        ok: false
+        error: too_many_attachments
+    ChatScheduleMessageSuccessResponseExample:
+      summary: Example of a successful chat.scheduleMessage response
+      value:
+        ok: true
+        channel: C1H9RESGL
+        scheduled_message_id: Q1298393284
+        post_at: 1562180400
+        message:
+          Type: delayed_message
+          Subtype: bot_message
+          Text: Here's a message for you in the future
+          Username: ecto1
+          BotId: B19LU7CSY
+          Attachments:
+            - Id: 1
+              Fallback: This is an attachment's fallback
+              Text: This is an attachment
+    ChatScheduleMessageErrorResponseExample:
+      summary: Example of an error response for chat.scheduleMessage
+      value:
+        ok: false
+        error: time_in_past
+    ChatScheduled MessagesListSuccessResponseExample:
+      summary: Example of a successful chat.scheduledMessages.list response
+      value:
+        ok: true
+        scheduled_messages:
+          - Id: '1298393284'
+            ChannelId: C1H9RESGL
+            PostAt: 1551991428
+            DateCreated: 1551891734
+            Text: Here's a message for you in the future
+        response_metadata:
+          NextCursor: ''
+    ChatScheduled MessagesListErrorResponseExample:
+      summary: Example of an error response for chat.scheduledMessages.list
+      value:
+        ok: false
+        error: invalid_channel
+    ChatUnfurlErrorResponseExample:
+      summary: Example of an error response for chat.unfurl
+      value:
+        ok: false
+        error: cannot_unfurl_url
+    ChatUpdateSuccessResponseExample:
+      summary: Example of a successful chat.update response
+      value:
+        ok: true
+        channel: C024BE91L
+        ts: '1401383885.000061'
+        text: Updated text you carefully authored
+        message:
+          text: Updated text you carefully authored
+          user: U34567890
+    ChatUpdateErrorResponseExample:
+      summary: Example of an error response for chat.update
+      value:
+        ok: false
+        error: cant_update_message

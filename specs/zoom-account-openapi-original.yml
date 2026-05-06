@@ -1,0 +1,1294 @@
+openapi: 3.1.0
+info:
+  title: zoom-account-management-api
+  description: >
+    The Zoom Account Management API enables master account administrators to
+    manage sub-accounts 
+
+    within their organization. This API provides functionality for creating,
+    updating, deleting, 
+
+    and retrieving sub-account information, as well as managing billing and
+    subscription plans.
+
+
+    **Key Features:**
+
+    - Create and manage sub-accounts under a master account
+
+    - Configure billing information and payment methods
+
+    - Subscribe to and manage various Zoom plans
+
+    - Control account settings such as meeting capacity and recording options
+
+
+    **Note:** Your account must be a master account with appropriate privileges
+    to use these endpoints.
+  contact:
+    name: Zoom Developers
+    url: https://zoom.us/developer
+    email: developer@zoom.us
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+externalDocs:
+  description: Zoom REST API Documentation
+  url: https://zoom.github.io/api
+servers:
+  - url: https://api.zoom.us/v1
+    description: Zoom Production API Server
+  - url: http://localhost:8080/rest/zoom-account-management-api/1.0.0
+    description: Sandbox
+security:
+  - ApiKeyAuth: []
+  - ApiSecretAuth: []
+tags:
+  - name: Sub-Account Management
+    description: Operations for creating, updating, deleting, and retrieving sub-accounts
+  - name: Billing Management
+    description: Operations for managing billing information for sub-accounts
+  - name: Plan Management
+    description: >-
+      Operations for subscribing to, adding, updating, and retrieving
+      subscription plans
+paths:
+  /ma/account/create:
+    post:
+      tags:
+        - Sub-Account Management
+      summary: Create a new sub-account
+      description: >
+        Creates a new sub-account under the master account and returns the
+        created sub-account ID and owner ID.
+
+
+        **Requirements:**
+
+        - Your account must be a master account with sub-account creation
+        privileges
+
+        - This privilege is only assigned to trusted partners by Zoom
+
+
+        **Note:** The user will not receive a confirmation email upon account
+        creation.
+      operationId: createSubAccount
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.email && requestBody.first_name &&
+          requestBody.last_name && requestBody.password) {
+            return "CreateSubAccountSuccessResponse"
+          }
+
+          return "CreateSubAccountSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateSubAccountRequest'
+            examples:
+              CreateSubAccountRequestExample:
+                $ref: '#/components/examples/CreateSubAccountRequestExample'
+      responses:
+        '200':
+          description: Sub-account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSubAccountResponse'
+              examples:
+                CreateSubAccountSuccessResponse:
+                  $ref: '#/components/examples/CreateSubAccountSuccessResponse'
+  /ma/account/get:
+    post:
+      tags:
+        - Sub-Account Management
+      summary: Get sub-account details
+      description: >
+        Retrieves details of a specific sub-account under the master account,
+        including the account ID and owner information.
+
+
+        **Requirements:**
+
+        - Your account must be a master account with appropriate privileges
+
+        - This privilege is only assigned to trusted partners by Zoom
+
+
+        **Note:** This API allows the master account owner to retrieve
+        sub-account API key pairs. 
+
+        This is a private feature that must be enabled by Zoom support.
+      operationId: getSubAccount
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.account_id) {
+            return "GetSubAccountSuccessResponse"
+          }
+
+          return "GetSubAccountSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountIdRequest'
+            examples:
+              AccountIdRequestExample:
+                $ref: '#/components/examples/AccountIdRequestExample'
+      responses:
+        '200':
+          description: Sub-account details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSubAccountResponse'
+              examples:
+                GetSubAccountSuccessResponse:
+                  $ref: '#/components/examples/GetSubAccountSuccessResponse'
+  /ma/account/list:
+    post:
+      tags:
+        - Sub-Account Management
+      summary: List all sub-accounts
+      description: |
+        Retrieves a paginated list of all sub-accounts under the master account.
+      operationId: listSubAccounts
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.api_key && requestBody.api_secret) {
+            return "ListSubAccountsSuccessResponse"
+          }
+
+          return "ListSubAccountsSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListSubAccountsRequest'
+            examples:
+              ListSubAccountsRequestExample:
+                $ref: '#/components/examples/ListSubAccountsRequestExample'
+      responses:
+        '200':
+          description: Sub-accounts list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSubAccountsResponse'
+              examples:
+                ListSubAccountsSuccessResponse:
+                  $ref: '#/components/examples/ListSubAccountsSuccessResponse'
+  /ma/account/update:
+    post:
+      tags:
+        - Sub-Account Management
+      summary: Update a sub-account
+      description: >
+        Updates the settings and configuration of an existing sub-account under
+        the master account.
+
+
+        Configurable options include:
+
+        - Virtual Room Connector sharing
+
+        - Meeting Connector sharing
+
+        - Payment mode and collection method
+
+        - PSTN and call-out settings
+
+        - Login enforcement and domain restrictions
+
+        - Meeting capacity
+
+        - Cloud recording settings
+      operationId: updateSubAccount
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.account_id) {
+            return "UpdateSubAccountSuccessResponse"
+          }
+
+          return "UpdateSubAccountSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateSubAccountRequest'
+            examples:
+              UpdateSubAccountRequestExample:
+                $ref: '#/components/examples/UpdateSubAccountRequestExample'
+      responses:
+        '200':
+          description: Sub-account updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSubAccountResponse'
+              examples:
+                UpdateSubAccountSuccessResponse:
+                  $ref: '#/components/examples/UpdateSubAccountSuccessResponse'
+  /ma/account/delete:
+    post:
+      tags:
+        - Sub-Account Management
+      summary: Delete a sub-account
+      description: >
+        Permanently deletes a sub-account from the master account. This action
+        cannot be undone.
+      operationId: deleteSubAccount
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.account_id) {
+            return "DeleteSubAccountSuccessResponse"
+          }
+
+          return "DeleteSubAccountSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountIdRequest'
+            examples:
+              DeleteAccountIdRequestExample:
+                $ref: '#/components/examples/AccountIdRequestExample'
+      responses:
+        '200':
+          description: Sub-account deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteSubAccountResponse'
+              examples:
+                DeleteSubAccountSuccessResponse:
+                  $ref: '#/components/examples/DeleteSubAccountSuccessResponse'
+  /ma/account/billing/update:
+    post:
+      tags:
+        - Billing Management
+      summary: Update billing information
+      description: >
+        Updates the billing contact information for a sub-account of the master
+        account.
+
+
+        This includes updating the sold-to contact details such as name,
+        address, phone number, and location information.
+      operationId: updateBillingInformation
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.account_id) {
+            return "UpdateBillingSuccessResponse"
+          }
+
+          return "UpdateBillingSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateBillingRequest'
+            examples:
+              UpdateBillingRequestExample:
+                $ref: '#/components/examples/UpdateBillingRequestExample'
+      responses:
+        '200':
+          description: Billing information updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBillingResponse'
+              examples:
+                UpdateBillingSuccessResponse:
+                  $ref: '#/components/examples/UpdateBillingSuccessResponse'
+  /ma/account/plan/subscribe:
+    post:
+      tags:
+        - Plan Management
+      summary: Subscribe to plans
+      description: >
+        Subscribes a sub-account to one or more Zoom plans including base plans
+        and additional plans.
+
+
+        Available plan types include:
+
+        - Base plans (monthly/yearly)
+
+        - Zoom Rooms
+
+        - Room Connector (H.323/SIP)
+
+        - Large Meeting
+
+        - Webinar
+
+        - Cloud Recording
+
+        - Audio Conferencing
+      operationId: subscribeToPlan
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.account_id && requestBody.plan_base) {
+            return "SubscribeToPlanSuccessResponse"
+          }
+
+          return "SubscribeToPlanSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubscribeToPlanRequest'
+            examples:
+              SubscribeToPlanRequestExample:
+                $ref: '#/components/examples/SubscribeToPlanRequestExample'
+      responses:
+        '200':
+          description: Plan subscription created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscribeToPlanResponse'
+              examples:
+                SubscribeToPlanSuccessResponse:
+                  $ref: '#/components/examples/SubscribeToPlanSuccessResponse'
+  /ma/account/plan/add:
+    post:
+      tags:
+        - Plan Management
+      summary: Add an additional plan
+      description: |
+        Adds an additional plan to an existing sub-account.
+
+        **Requirements:**
+        - The sub-account must be a paid account
+        - The sub-account must be paid by the master account
+
+        **Note:** This endpoint only adds additional plans, not base plans.
+      operationId: addAdditionalPlan
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.account_id && requestBody.plan) {
+            return "AddAdditionalPlanSuccessResponse"
+          }
+
+          return "AddAdditionalPlanSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AddAdditionalPlanRequest'
+            examples:
+              AddAdditionalPlanRequestExample:
+                $ref: '#/components/examples/AddAdditionalPlanRequestExample'
+      responses:
+        '200':
+          description: Additional plan added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddAdditionalPlanResponse'
+              examples:
+                AddAdditionalPlanSuccessResponse:
+                  $ref: '#/components/examples/AddAdditionalPlanSuccessResponse'
+  /ma/account/plan/get:
+    post:
+      tags:
+        - Plan Management
+      summary: Get plan information
+      description: >
+        Retrieves detailed information about all plans subscribed to by a
+        sub-account, 
+
+        including base plans and all additional plans.
+      operationId: getPlanInformation
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.account_id) {
+            return "GetPlanInformationSuccessResponse"
+          }
+
+          return "GetPlanInformationSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountIdRequest'
+            examples:
+              GetPlanAccountIdRequestExample:
+                $ref: '#/components/examples/AccountIdRequestExample'
+      responses:
+        '200':
+          description: Plan information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPlanInformationResponse'
+              examples:
+                GetPlanInformationSuccessResponse:
+                  $ref: '#/components/examples/GetPlanInformationSuccessResponse'
+  /ma/account/plan/update:
+    post:
+      tags:
+        - Plan Management
+      summary: Update a plan
+      description: |
+        Updates an existing plan for a sub-account of the master account.
+
+        **Requirements:**
+        - The sub-account must be a paid account
+        - The sub-account must be paid by the master account
+
+        You can update either a base plan or an additional plan.
+      operationId: updatePlan
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.account_id && requestBody.type && requestBody.plan) {
+            return "UpdatePlanSuccessResponse"
+          }
+
+          return "UpdatePlanSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdatePlanRequest'
+            examples:
+              UpdatePlanRequestExample:
+                $ref: '#/components/examples/UpdatePlanRequestExample'
+      responses:
+        '200':
+          description: Plan updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatePlanResponse'
+              examples:
+                UpdatePlanSuccessResponse:
+                  $ref: '#/components/examples/UpdatePlanSuccessResponse'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: query
+      name: api_key
+    ApiSecretAuth:
+      type: apiKey
+      in: query
+      name: api_secret
+  schemas:
+    CreateSubAccountRequest:
+      type: object
+      required:
+        - email
+        - first_name
+        - last_name
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: A valid email address. Must be unique in Zoom service.
+        first_name:
+          type: string
+          description: User's first name.
+        last_name:
+          type: string
+          description: User's last name.
+        password:
+          type: string
+          format: password
+          description: User's password.
+        enable_share_rc:
+          type: boolean
+          description: Enable Share Virtual Room Connector.
+          default: false
+        share_rc:
+          type: string
+          description: Virtual Room Connector IDs, multiple values separated by comma.
+        enable_share_mc:
+          type: boolean
+          description: Enable Share Meeting Connector.
+          default: false
+        share_mc:
+          type: string
+          description: Meeting Connector IDs, multiple values separated by comma.
+        pay_mode:
+          type: string
+          description: >-
+            Payment mode. 0 = Sub Account Holder Pays, 1 = Master Account Holder
+            Pays.
+          enum:
+            - '0'
+            - '1'
+          default: '1'
+        collection_method:
+          type: string
+          description: >-
+            Collection method. 0 = Automatic (billing online), 1 = Manual (send
+            invoice).
+          enum:
+            - '0'
+            - '1'
+          default: '1'
+        enable_pstn:
+          type: boolean
+          description: Enable PSTN for the account.
+          default: true
+        enable_enforce_login:
+          type: boolean
+          description: Only signed-in users can join meetings.
+          default: false
+        enable_enforce_login_sd:
+          type: boolean
+          description: Only signed-in users with specified domains can join meetings.
+          default: false
+        enforce_login_domains:
+          type: string
+          description: Comma-separated list of allowed domains for signed-in users.
+        meeting_capacity:
+          type: string
+          description: Account's meeting capacity, maximum of 100.
+        disable_cmr_reminder:
+          type: boolean
+          description: Disable cloud recording reminder.
+          default: false
+        enable_only_host_download_cmr:
+          type: boolean
+          description: Only the host can download cloud recordings.
+          default: false
+        enable_same_account_access_cmr:
+          type: boolean
+          description: Only users on the same account can access cloud recordings.
+          default: false
+    CreateSubAccountResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The created sub-account ID.
+        owner_id:
+          type: string
+          description: The owner's user ID.
+        owner_email:
+          type: string
+          format: email
+          description: The owner's email address.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the account was created.
+    AccountIdRequest:
+      type: object
+      required:
+        - account_id
+      properties:
+        account_id:
+          type: string
+          description: The sub-account ID.
+    GetSubAccountResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The sub-account ID.
+        owner_id:
+          type: string
+          description: The owner's user ID.
+        owner_email:
+          type: string
+          format: email
+          description: The owner's email address.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the account was created.
+    ListSubAccountsRequest:
+      type: object
+      required:
+        - api_key
+        - api_secret
+      properties:
+        api_key:
+          type: string
+          description: Your API Key.
+        api_secret:
+          type: string
+          description: Your API Secret.
+    ListSubAccountsResponse:
+      type: object
+      properties:
+        page_count:
+          type: integer
+          description: Total number of pages.
+        page_number:
+          type: integer
+          description: Current page number.
+        page_size:
+          type: integer
+          description: Number of records per page.
+        total_records:
+          type: integer
+          description: Total number of sub-accounts.
+        subAccounts:
+          type: array
+          description: List of sub-accounts.
+          items:
+            $ref: '#/components/schemas/SubAccountSummary'
+    SubAccountSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The sub-account ID.
+        owner_email:
+          type: string
+          format: email
+          description: The owner's email address.
+        created_at:
+          type: string
+          description: Timestamp when the account was created.
+    UpdateSubAccountRequest:
+      type: object
+      required:
+        - account_id
+      properties:
+        account_id:
+          type: string
+          description: The sub-account ID.
+        enable_share_rc:
+          type: string
+          description: Enable Share Virtual Room Connector (true/false).
+        share_rc:
+          type: string
+          description: Virtual Room Connector IDs, multiple values separated by comma.
+        enable_share_mc:
+          type: string
+          description: Enable Share Meeting Connector (true/false).
+        share_mc:
+          type: string
+          description: Meeting Connector IDs, multiple values separated by comma.
+        pay_mode:
+          type: string
+          description: >-
+            Payment mode. 0 = Sub Account Holder Pays, 1 = Master Account Holder
+            Pays.
+        collection_method:
+          type: string
+          description: >-
+            Collection method. 0 = Automatic (billing online), 1 = Manual (send
+            invoice).
+        enable_pstn:
+          type: boolean
+          description: Enable PSTN for the account.
+          default: true
+        enable_call_out:
+          type: boolean
+          description: >-
+            If true, users under this account will follow master account call
+            out type.
+          default: false
+        enable_enforce_login:
+          type: boolean
+          description: Only signed-in users can join meetings.
+          default: false
+        enable_enforce_login_sd:
+          type: boolean
+          description: Only signed-in users with specified domains can join meetings.
+          default: false
+        enforce_login_domains:
+          type: string
+          description: Comma-separated list of allowed domains for signed-in users.
+        meeting_capacity:
+          type: string
+          description: Account's meeting capacity, maximum of 100.
+        disable_cmr_reminder:
+          type: boolean
+          description: Disable cloud recording reminder.
+          default: false
+        enable_only_host_download_cmr:
+          type: boolean
+          description: Only the host can download cloud recordings.
+          default: false
+        enable_same_account_access_cmr:
+          type: boolean
+          description: Only users on the same account can access cloud recordings.
+          default: false
+    UpdateSubAccountResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The updated sub-account ID.
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the account was updated.
+    DeleteSubAccountResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The deleted sub-account ID.
+        deleted_at:
+          type: string
+          format: date-time
+          description: Timestamp when the account was deleted.
+    UpdateBillingRequest:
+      type: object
+      required:
+        - account_id
+      properties:
+        account_id:
+          type: string
+          description: The sub-account ID.
+        first_name:
+          type: string
+          description: Sold To Contact's first name.
+        last_name:
+          type: string
+          description: Sold To Contact's last name.
+        phone_number:
+          type: string
+          description: Sold To Contact's phone number.
+        address:
+          type: string
+          description: Sold To Contact's address.
+        apt:
+          type: string
+          description: Sold To Contact's Apt/Suite.
+        city:
+          type: string
+          description: Sold To Contact's city.
+        country:
+          type: string
+          description: Sold To Contact's country code (refer to country list).
+        state:
+          type: string
+          description: Sold To Contact's state (for US/CA, refer to state list).
+        zip:
+          type: string
+          description: Sold To Contact's zip/postal code.
+    UpdateBillingResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The sub-account ID.
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the billing information was updated.
+    SubscribeToPlanRequest:
+      type: object
+      required:
+        - account_id
+        - first_name
+        - last_name
+        - phone_number
+        - address
+        - city
+        - country
+        - state
+        - zip
+        - plan_base
+      properties:
+        account_id:
+          type: string
+          description: The sub-account ID.
+        first_name:
+          type: string
+          description: Sold To Contact's first name.
+        last_name:
+          type: string
+          description: Sold To Contact's last name.
+        phone_number:
+          type: string
+          description: Sold To Contact's phone number.
+        address:
+          type: string
+          description: Sold To Contact's address.
+        apt:
+          type: string
+          description: Sold To Contact's Apt/Suite.
+        city:
+          type: string
+          description: Sold To Contact's city.
+        country:
+          type: string
+          description: Sold To Contact's country code.
+        state:
+          type: string
+          description: Sold To Contact's state.
+        zip:
+          type: string
+          description: Sold To Contact's zip/postal code.
+        plan_base:
+          type: string
+          description: Base Plan identifier.
+        plan_zoom_rooms:
+          type: string
+          description: Additional Zoom Rooms Plan identifier.
+        plan_room_connector:
+          type: string
+          description: Additional H.323/SIP Room Connector Plan identifier.
+        plan_large_meeting:
+          type: string
+          description: Additional Large Meeting Plan identifier.
+        plan_webinar:
+          type: string
+          description: Additional Webinar Plan identifier.
+        plan_recording:
+          type: string
+          description: Additional Cloud Recording Plan identifier.
+        plan_audio:
+          type: string
+          description: Additional Audio Conferencing Plan identifier.
+    SubscribeToPlanResponse:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: The account owner's email.
+        first_name:
+          type: string
+          description: Sold To Contact's first name.
+        last_name:
+          type: string
+          description: Sold To Contact's last name.
+        phone_number:
+          type: string
+          description: Sold To Contact's phone number.
+        address:
+          type: string
+          description: Sold To Contact's address.
+        apt:
+          type: string
+          description: Sold To Contact's Apt/Suite.
+        city:
+          type: string
+          description: Sold To Contact's city.
+        state:
+          type: string
+          description: Sold To Contact's state.
+        zip:
+          type: string
+          description: Sold To Contact's zip/postal code.
+        country:
+          type: string
+          description: Sold To Contact's country.
+        plan_base:
+          $ref: '#/components/schemas/PlanDetails'
+        plan_zoom_rooms:
+          $ref: '#/components/schemas/PlanDetails'
+        plan_room_connector:
+          $ref: '#/components/schemas/PlanDetails'
+        plan_large_meeting:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanDetails'
+        plan_webinar:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanDetails'
+        plan_recording:
+          type: string
+          description: Cloud Recording plan identifier.
+        plan_audio:
+          $ref: '#/components/schemas/AudioPlanDetails'
+    PlanDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Plan type identifier.
+        hosts:
+          type: integer
+          description: Number of hosts included in the plan.
+    AudioPlanDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Audio plan type identifier.
+        tollfree_country:
+          type: string
+          description: Toll-free country code.
+        premium_country:
+          type: string
+          description: Premium country code.
+        callout:
+          type: integer
+          description: Call-out setting.
+        ddi_numbers:
+          type: integer
+          description: Number of DDI numbers.
+    AddAdditionalPlanRequest:
+      type: object
+      required:
+        - account_id
+        - plan
+      properties:
+        account_id:
+          type: string
+          description: The sub-account ID.
+        plan:
+          type: string
+          description: Additional Plan identifier.
+    AddAdditionalPlanResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The sub-account ID.
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the plan was added.
+    GetPlanInformationResponse:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: The account owner's email.
+        first_name:
+          type: string
+          description: Contact's first name.
+        last_name:
+          type: string
+          description: Contact's last name.
+        phone_number:
+          type: string
+          description: Contact's phone number.
+        address:
+          type: string
+          description: Contact's address.
+        apt:
+          type: string
+          description: Contact's Apt/Suite.
+        city:
+          type: string
+          description: Contact's city.
+        state:
+          type: string
+          description: Contact's state.
+        zip:
+          type: string
+          description: Contact's zip/postal code.
+        country:
+          type: string
+          description: Contact's country.
+        plan_base:
+          $ref: '#/components/schemas/PlanDetails'
+        plan_zoom_rooms:
+          $ref: '#/components/schemas/PlanDetails'
+        plan_room_connector:
+          $ref: '#/components/schemas/PlanDetails'
+        plan_large_meeting:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanDetails'
+        plan_webinar:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanDetails'
+        plan_recording:
+          type: string
+          description: Cloud Recording plan identifier.
+        plan_audio:
+          $ref: '#/components/schemas/AudioPlanDetails'
+    UpdatePlanRequest:
+      type: object
+      required:
+        - account_id
+        - type
+        - plan
+      properties:
+        account_id:
+          type: string
+          description: The sub-account ID.
+        type:
+          type: string
+          description: Plan type. 1 = Base Plan, 2 = Additional Plan.
+          enum:
+            - '1'
+            - '2'
+          default: '1'
+        plan:
+          type: string
+          description: Plan identifier to update to.
+    UpdatePlanResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The sub-account ID.
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the plan was updated.
+  examples:
+    CreateSubAccountRequestExample:
+      summary: Example request for creating a sub-account
+      value:
+        email: newuser@example.com
+        first_name: John
+        last_name: Smith
+        password: SecurePassword123
+        enable_share_rc: false
+        enable_share_mc: false
+        pay_mode: '1'
+        collection_method: '1'
+        enable_pstn: true
+        enable_enforce_login: false
+        meeting_capacity: '100'
+    CreateSubAccountSuccessResponse:
+      summary: Successful sub-account creation response
+      value:
+        id: abc123def456
+        owner_id: usr789xyz012
+        owner_email: newuser@example.com
+        created_at: '2024-01-15T10:30:00.000Z'
+    AccountIdRequestExample:
+      summary: Example request with account ID
+      value:
+        account_id: abc123def456
+    GetSubAccountSuccessResponse:
+      summary: Successful get sub-account response
+      value:
+        id: abc123def456
+        owner_id: usr789xyz012
+        owner_email: owner@example.com
+        created_at: '2024-01-15T10:30:00.000Z'
+    ListSubAccountsRequestExample:
+      summary: Example request for listing sub-accounts
+      value:
+        api_key: your_api_key_here
+        api_secret: your_api_secret_here
+    ListSubAccountsSuccessResponse:
+      summary: Successful list sub-accounts response
+      value:
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 3
+        subAccounts:
+          - id: abc123def456
+            owner_email: user1@example.com
+            created_at: '2024-01-10T08:00:00Z'
+          - id: def456ghi789
+            owner_email: user2@example.com
+            created_at: '2024-01-12T14:30:00Z'
+          - id: ghi789jkl012
+            owner_email: user3@example.com
+            created_at: '2024-01-14T09:15:00Z'
+    UpdateSubAccountRequestExample:
+      summary: Example request for updating a sub-account
+      value:
+        account_id: abc123def456
+        enable_pstn: true
+        enable_enforce_login: true
+        meeting_capacity: '50'
+        disable_cmr_reminder: false
+    UpdateSubAccountSuccessResponse:
+      summary: Successful update sub-account response
+      value:
+        id: abc123def456
+        updated_at: '2024-01-16T14:25:00.000Z'
+    DeleteSubAccountSuccessResponse:
+      summary: Successful delete sub-account response
+      value:
+        id: abc123def456
+        deleted_at: '2024-01-17T09:00:00.000Z'
+    UpdateBillingRequestExample:
+      summary: Example request for updating billing information
+      value:
+        account_id: abc123def456
+        first_name: Jane
+        last_name: Doe
+        phone_number: +1-555-123-4567
+        address: 123 Business Ave
+        apt: Suite 500
+        city: San Francisco
+        country: US
+        state: CA
+        zip: '94105'
+    UpdateBillingSuccessResponse:
+      summary: Successful billing update response
+      value:
+        id: abc123def456
+        updated_at: '2024-01-18T11:45:00.000Z'
+    SubscribeToPlanRequestExample:
+      summary: Example request for subscribing to plans
+      value:
+        account_id: abc123def456
+        first_name: Jane
+        last_name: Doe
+        phone_number: +1-555-123-4567
+        address: 123 Business Ave
+        apt: Suite 500
+        city: San Francisco
+        country: US
+        state: CA
+        zip: '94105'
+        plan_base: monthly
+        plan_zoom_rooms: zroom_monthly
+        plan_webinar: webinar100_monthly
+    SubscribeToPlanSuccessResponse:
+      summary: Successful plan subscription response
+      value:
+        email: owner@example.com
+        first_name: Jane
+        last_name: Doe
+        phone_number: +1-555-123-4567
+        address: 123 Business Ave
+        apt: Suite 500
+        city: San Francisco
+        state: CA
+        zip: '94105'
+        country: US
+        plan_base:
+          type: monthly
+          hosts: 9
+        plan_zoom_rooms:
+          type: zroom_monthly
+          hosts: 9
+        plan_room_connector:
+          type: roomconnector_yearly
+          hosts: 9
+        plan_large_meeting:
+          - type: large200_monthly
+            hosts: 9
+          - type: large300_yearly
+            hosts: 9
+        plan_webinar:
+          - type: webinar100_monthly
+            hosts: 9
+          - type: webinar500_yearly
+            hosts: 9
+        plan_recording: cmr_monthly_commitment_500
+        plan_audio:
+          type: tollfree_monthly_commitment_100
+          tollfree_country: AT
+          premium_country: TW
+          callout: 1
+          ddi_numbers: 66
+    AddAdditionalPlanRequestExample:
+      summary: Example request for adding an additional plan
+      value:
+        account_id: abc123def456
+        plan: webinar500_monthly
+    AddAdditionalPlanSuccessResponse:
+      summary: Successful additional plan added response
+      value:
+        id: abc123def456
+        updated_at: '2024-01-19T16:30:00.000Z'
+    GetPlanInformationSuccessResponse:
+      summary: Successful get plan information response
+      value:
+        email: owner@example.com
+        first_name: Jane
+        last_name: Doe
+        phone_number: +1-555-123-4567
+        address: 123 Business Ave
+        apt: Suite 500
+        city: San Francisco
+        state: CA
+        zip: '94105'
+        country: US
+        plan_base:
+          type: monthly
+          hosts: 9
+        plan_zoom_rooms:
+          type: zroom_monthly
+          hosts: 9
+        plan_room_connector:
+          type: roomconnector_yearly
+          hosts: 9
+        plan_large_meeting:
+          - type: large100_monthly
+            hosts: 9
+          - type: large200_monthly
+            hosts: 9
+          - type: large300_yearly
+            hosts: 9
+        plan_webinar:
+          - type: webinar100_monthly
+            hosts: 9
+          - type: webinar500_yearly
+            hosts: 9
+          - type: webinar1000_yearly
+            hosts: 9
+        plan_recording: cmr_monthly_commitment_500
+        plan_audio:
+          type: tollfree_monthly_commitment_100
+          tollfree_country: AT
+          premium_country: TW
+          callout: 1
+          ddi_numbers: 66
+    UpdatePlanRequestExample:
+      summary: Example request for updating a plan
+      value:
+        account_id: abc123def456
+        type: '1'
+        plan: yearly
+    UpdatePlanSuccessResponse:
+      summary: Successful plan update response
+      value:
+        id: w40hUJRpRmmkx4uPXczdHg
+        updated_at: '2024-01-20T08:15:00.000Z'

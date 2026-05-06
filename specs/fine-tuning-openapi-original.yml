@@ -1,0 +1,530 @@
+openapi: 3.1.0
+info:
+  title: openai-fine-tuning-api
+  description: >
+    The Fine-Tuning API allows you to customize OpenAI models by training them
+    on your specific dataset. 
+
+
+    Fine-tuning lets you create specialized models tailored to your use case by
+    providing training examples. You can create fine-tuning jobs, monitor their
+    progress, list events, and manage completed fine-tuned models.
+
+
+    Related guide: [Fine-tune
+    models](https://platform.openai.com/docs/guides/fine-tuning)
+  version: 1.0.0
+  termsOfService: https://openai.com/policies/terms-of-use
+  contact:
+    name: OpenAI Support
+    url: https://help.openai.com/
+  license:
+    name: MIT
+    url: https://github.com/openai/openai-openapi/blob/master/LICENSE
+servers:
+  - url: https://api.openai.com/v1
+    description: OpenAI API Production Server
+  - url: http://localhost:8080/rest/openai-fine-tuning-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Fine-Tuning Jobs
+    description: >-
+      Operations for creating and managing fine-tuning jobs to train custom
+      models.
+  - name: Fine-Tuning Events
+    description: Operations for monitoring the progress and events of fine-tuning jobs.
+paths:
+  /fine_tuning/jobs:
+    post:
+      operationId: createFineTuningJob
+      tags:
+        - Fine-Tuning Jobs
+      summary: Create Fine-Tuning Job
+      description: >
+        Creates a fine-tuning job which begins the process of creating a new
+        model from a given dataset.
+
+
+        Response includes details of the enqueued job including job status and
+        the name of the fine-tuned model once complete.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFineTuningJobRequest'
+            examples:
+              CreateJobExample:
+                $ref: '#/components/examples/CreateFineTuningJobRequestExample'
+      responses:
+        '200':
+          description: Successfully created the fine-tuning job.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FineTuningJob'
+              examples:
+                CreateJobExample:
+                  $ref: '#/components/examples/FineTuningJobCreatedExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "CreateJobExample"
+    get:
+      operationId: listFineTuningJobs
+      tags:
+        - Fine-Tuning Jobs
+      summary: List Fine-Tuning Jobs
+      description: Lists your organization's fine-tuning jobs with pagination support.
+      parameters:
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Identifier for the last job from the previous pagination request.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Number of fine-tuning jobs to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved the list of fine-tuning jobs.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFineTuningJobsResponse'
+              examples:
+                ListJobsExample:
+                  $ref: '#/components/examples/ListFineTuningJobsResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListJobsExample"
+  /fine_tuning/jobs/{fine_tuning_job_id}:
+    get:
+      operationId: retrieveFineTuningJob
+      tags:
+        - Fine-Tuning Jobs
+      summary: Retrieve Fine-Tuning Job
+      description: >-
+        Get detailed information about a specific fine-tuning job including its
+        status, hyperparameters, and results.
+      parameters:
+        - name: fine_tuning_job_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the fine-tuning job to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved the fine-tuning job details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FineTuningJob'
+              examples:
+                RetrieveJobExample:
+                  $ref: '#/components/examples/FineTuningJobSucceededExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "RetrieveJobExample"
+  /fine_tuning/jobs/{fine_tuning_job_id}/events:
+    get:
+      operationId: listFineTuningJobEvents
+      tags:
+        - Fine-Tuning Events
+      summary: List Fine-Tuning Job Events
+      description: >-
+        Get status updates and events for a specific fine-tuning job to monitor
+        its progress.
+      parameters:
+        - name: fine_tuning_job_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the fine-tuning job to get events for.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Identifier for the last event from the previous pagination request.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Number of events to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved the fine-tuning job events.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFineTuningJobEventsResponse'
+              examples:
+                ListEventsExample:
+                  $ref: '#/components/examples/ListFineTuningJobEventsResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListEventsExample"
+  /fine_tuning/jobs/{fine_tuning_job_id}/cancel:
+    post:
+      operationId: cancelFineTuningJob
+      tags:
+        - Fine-Tuning Jobs
+      summary: Cancel Fine-Tuning Job
+      description: >-
+        Immediately cancel a fine-tuning job that is currently running or
+        queued.
+      parameters:
+        - name: fine_tuning_job_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the fine-tuning job to cancel.
+      responses:
+        '200':
+          description: Successfully cancelled the fine-tuning job.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FineTuningJob'
+              examples:
+                CancelJobExample:
+                  $ref: '#/components/examples/FineTuningJobCancelledExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "CancelJobExample"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+      description: Use your OpenAI API key as the bearer token.
+  schemas:
+    FineTuningJob:
+      type: object
+      title: FineTuningJob
+      description: >-
+        The fine_tuning.job object represents a fine-tuning job that has been
+        created through the API.
+      properties:
+        id:
+          type: string
+          description: The object identifier, which can be referenced in the API endpoints.
+        object:
+          type: string
+          enum:
+            - fine_tuning.job
+          description: The object type, which is always "fine_tuning.job".
+        created_at:
+          type: integer
+          description: >-
+            The Unix timestamp (in seconds) for when the fine-tuning job was
+            created.
+        finished_at:
+          type:
+            - integer
+            - 'null'
+          description: >-
+            The Unix timestamp (in seconds) for when the fine-tuning job was
+            finished. Null if still running.
+        model:
+          type: string
+          description: The base model that is being fine-tuned.
+        fine_tuned_model:
+          type:
+            - string
+            - 'null'
+          description: >-
+            The name of the fine-tuned model that is being created. Null if
+            still running.
+        organization_id:
+          type: string
+          description: The organization that owns the fine-tuning job.
+        status:
+          type: string
+          enum:
+            - validating_files
+            - queued
+            - running
+            - succeeded
+            - failed
+            - cancelled
+          description: The current status of the fine-tuning job.
+        hyperparameters:
+          $ref: '#/components/schemas/FineTuningHyperparameters'
+        training_file:
+          type: string
+          description: The file ID used for training.
+        validation_file:
+          type:
+            - string
+            - 'null'
+          description: The file ID used for validation, if provided.
+        result_files:
+          type: array
+          items:
+            type: string
+          description: The compiled results file ID(s) for the fine-tuning job.
+        trained_tokens:
+          type:
+            - integer
+            - 'null'
+          description: >-
+            The total number of billable tokens processed. Null if still
+            running.
+        error:
+          type:
+            - object
+            - 'null'
+          description: Error information for failed jobs.
+          properties:
+            code:
+              type: string
+              description: A machine-readable error code.
+            message:
+              type: string
+              description: A human-readable error message.
+            param:
+              type:
+                - string
+                - 'null'
+              description: The parameter that was invalid.
+      required:
+        - id
+        - object
+        - created_at
+        - model
+        - status
+        - hyperparameters
+        - training_file
+        - result_files
+        - organization_id
+    FineTuningHyperparameters:
+      type: object
+      title: FineTuningHyperparameters
+      description: The hyperparameters used for the fine-tuning job.
+      properties:
+        n_epochs:
+          oneOf:
+            - type: string
+              enum:
+                - auto
+            - type: integer
+              minimum: 1
+              maximum: 50
+          default: auto
+          description: The number of epochs to train the model for.
+    FineTuningJobEvent:
+      type: object
+      title: FineTuningJobEvent
+      description: An event representing a status update for a fine-tuning job.
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the event.
+        object:
+          type: string
+          enum:
+            - fine_tuning.job.event
+          description: The object type, which is always "fine_tuning.job.event".
+        created_at:
+          type: integer
+          description: The Unix timestamp (in seconds) for when the event was created.
+        level:
+          type: string
+          enum:
+            - info
+            - warn
+            - error
+          description: The severity level of the event.
+        message:
+          type: string
+          description: A human-readable message describing the event.
+        type:
+          type: string
+          description: The type of event.
+      required:
+        - id
+        - object
+        - created_at
+        - level
+        - message
+    CreateFineTuningJobRequest:
+      type: object
+      title: CreateFineTuningJobRequest
+      description: Request body for creating a new fine-tuning job.
+      properties:
+        training_file:
+          type: string
+          description: The ID of the uploaded file that contains training data.
+        validation_file:
+          type: string
+          description: The ID of the uploaded file that contains validation data.
+        model:
+          type: string
+          description: The name of the model to fine-tune.
+        hyperparameters:
+          $ref: '#/components/schemas/FineTuningHyperparameters'
+        suffix:
+          type: string
+          maxLength: 40
+          description: >-
+            A string of up to 40 characters that will be added to your
+            fine-tuned model name.
+      required:
+        - training_file
+        - model
+    ListFineTuningJobsResponse:
+      type: object
+      title: ListFineTuningJobsResponse
+      description: Response containing a paginated list of fine-tuning jobs.
+      properties:
+        object:
+          type: string
+          enum:
+            - list
+          description: The object type, which is always "list".
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FineTuningJob'
+          description: An array of fine-tuning job objects.
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+      required:
+        - object
+        - data
+        - has_more
+    ListFineTuningJobEventsResponse:
+      type: object
+      title: ListFineTuningJobEventsResponse
+      description: Response containing a list of fine-tuning job events.
+      properties:
+        object:
+          type: string
+          enum:
+            - list
+          description: The object type, which is always "list".
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FineTuningJobEvent'
+          description: An array of fine-tuning job event objects.
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+      required:
+        - object
+        - data
+  examples:
+    CreateFineTuningJobRequestExample:
+      summary: Example create fine-tuning job request
+      value:
+        training_file: file-abc123
+        model: gpt-3.5-turbo
+        hyperparameters:
+          n_epochs: 2
+    FineTuningJobCreatedExample:
+      summary: Example newly created fine-tuning job
+      value:
+        object: fine_tuning.job
+        id: ftjob-abc123
+        model: gpt-3.5-turbo-0613
+        created_at: 1614807352
+        fine_tuned_model: null
+        organization_id: org-123
+        result_files: []
+        status: queued
+        validation_file: null
+        training_file: file-abc123
+        hyperparameters:
+          n_epochs: 2
+    FineTuningJobSucceededExample:
+      summary: Example succeeded fine-tuning job
+      value:
+        object: fine_tuning.job
+        id: ftjob-abc123
+        model: davinci-002
+        created_at: 1692661014
+        finished_at: 1692661190
+        fine_tuned_model: ft:davinci-002:my-org:custom_suffix:7q8mpxmy
+        organization_id: org-123
+        result_files:
+          - file-abc123
+        status: succeeded
+        validation_file: null
+        training_file: file-abc123
+        hyperparameters:
+          n_epochs: 4
+        trained_tokens: 5768
+    FineTuningJobCancelledExample:
+      summary: Example cancelled fine-tuning job
+      value:
+        object: fine_tuning.job
+        id: ftjob-abc123
+        model: gpt-3.5-turbo-0613
+        created_at: 1689376978
+        fine_tuned_model: null
+        organization_id: org-123
+        result_files: []
+        hyperparameters:
+          n_epochs: auto
+        status: cancelled
+        validation_file: file-abc123
+        training_file: file-abc123
+    ListFineTuningJobsResponseExample:
+      summary: Example list fine-tuning jobs response
+      value:
+        object: list
+        data:
+          - object: fine_tuning.job
+            id: ftjob-abc123
+            model: gpt-3.5-turbo-0613
+            created_at: 1614807352
+            fine_tuned_model: ft:gpt-3.5-turbo:my-org::abc123
+            organization_id: org-123
+            result_files:
+              - file-result123
+            status: succeeded
+            validation_file: null
+            training_file: file-abc123
+            hyperparameters:
+              n_epochs: 4
+            trained_tokens: 12000
+        has_more: false
+    ListFineTuningJobEventsResponseExample:
+      summary: Example list fine-tuning job events response
+      value:
+        object: list
+        data:
+          - object: fine_tuning.job.event
+            id: ft-event-ddTJfwuMVpfLXseO0Am0Gqjm
+            created_at: 1692407401
+            level: info
+            message: Fine tuning job successfully completed
+            type: message
+          - object: fine_tuning.job.event
+            id: ft-event-tyiGuB72evQncpH87xe505Sv
+            created_at: 1692407400
+            level: info
+            message: 'New fine-tuned model created: ft:gpt-3.5-turbo:openai::7p4lURel'
+            type: message
+        has_more: true
+security:
+  - BearerAuth: []

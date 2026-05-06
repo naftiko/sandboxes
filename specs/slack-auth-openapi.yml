@@ -1,0 +1,381 @@
+openapi: 3.1.0
+info:
+  title: slack-auth-api
+  version: 1.0.0
+  description: >-
+    Slack's Auth API covers the authentication and authorization pieces that let
+    apps securely identify users and workspaces and manage access. It includes
+    OAuth 2.0 endpoints used during app installation to request scopes and
+    exchange authorization codes for tokens (with optional token rotation), plus
+    OpenID Connect for "Sign in with Slack" so you can authenticate users and
+    retrieve standard identity claims. Within the Web API, methods like
+    auth.test let you verify a token and learn which user and workspace it
+    belongs to, auth.revoke allows you to invalidate tokens, and auth.teams.list
+    helps enumerate the workspaces a user can use with your app (useful for
+    multi-workspace and Enterprise Grid scenarios). Together, these capabilities
+    ensure your app knows who is calling, what it's allowed to do, and where,
+    before invoking other Slack APIs.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-auth-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Authentication
+    description: Operations for verifying and managing authentication tokens
+  - name: Token Management
+    description: Operations for revoking and managing token lifecycle
+paths:
+  /auth.revoke:
+    get:
+      operationId: authRevoke
+      summary: Revoke Authentication Token
+      description: Revokes a token.
+      tags:
+        - Token Management
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/auth.revoke
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQueryRequired'
+        - $ref: '#/components/parameters/TestModeParam'
+      responses:
+        '200':
+          description: Successful token revocation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthRevokeResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AuthRevokeSuccessExample'
+                TestMode:
+                  $ref: '#/components/examples/AuthRevokeTestModeExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthRevokeErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - none
+  /auth.test:
+    get:
+      operationId: authTest
+      summary: Test Authentication
+      description: Checks authentication & identity.
+      tags:
+        - Authentication
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/auth.test
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+      responses:
+        '200':
+          description: Successful authentication test
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTestResponse'
+              examples:
+                UserToken:
+                  $ref: '#/components/examples/AuthTestUserTokenSuccessExample'
+                BotToken:
+                  $ref: '#/components/examples/AuthTestBotTokenSuccessExample'
+                EnterpriseInstall:
+                  $ref: >-
+                    #/components/examples/AuthTestEnterpriseInstallSuccessExample
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTestErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+                TokenRevoked:
+                  $ref: '#/components/examples/TokenRevokedErrorExample'
+      security:
+        - SlackAuth:
+            - none
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            none: No specific scope required
+  parameters:
+    TokenHeader:
+      name: token
+      in: header
+      description: Authentication token with required scopes
+      required: true
+      schema:
+        type: string
+    TokenQueryRequired:
+      name: token
+      in: query
+      description: Authentication token with required scopes
+      required: true
+      schema:
+        type: string
+    TestModeParam:
+      name: test
+      in: query
+      description: >-
+        Setting this parameter to 1 triggers a testing mode where the specified
+        token will not actually be revoked.
+      schema:
+        type: boolean
+  schemas:
+    DefaultSuccessResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+      additionalProperties: true
+    DefaultErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: true
+    TeamId:
+      type: string
+      pattern: ^[T][A-Z0-9]+$
+      description: A Slack team/workspace ID
+      examples:
+        - T12345678
+    UserId:
+      type: string
+      pattern: ^[UW][A-Z0-9]+$
+      description: A Slack user ID
+      examples:
+        - U12345678
+        - W12345678
+    BotId:
+      type: string
+      pattern: ^B[A-Z0-9]+$
+      description: A Slack bot ID
+      examples:
+        - B12345678
+    AuthRevokeResponse:
+      type: object
+      required:
+        - ok
+        - revoked
+      properties:
+        ok:
+          type: boolean
+          const: true
+        revoked:
+          type: boolean
+          description: Indicates whether the token was revoked
+      additionalProperties: false
+    AuthRevokeErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    AuthTestResponse:
+      type: object
+      required:
+        - ok
+        - url
+        - team
+        - user
+        - team_id
+        - user_id
+      properties:
+        ok:
+          type: boolean
+          const: true
+        url:
+          type: string
+          format: uri
+          description: The URL of the Slack workspace
+        team:
+          type: string
+          description: The name of the team/workspace
+        user:
+          type: string
+          description: The username of the authenticated user
+        team_id:
+          $ref: '#/components/schemas/TeamId'
+        user_id:
+          $ref: '#/components/schemas/UserId'
+        bot_id:
+          $ref: '#/components/schemas/BotId'
+        is_enterprise_install:
+          type: boolean
+          description: >-
+            Indicates whether the app is installed across an entire Enterprise
+            Grid organization
+        enterprise_id:
+          type: string
+          description: The enterprise ID if this is an enterprise install
+      additionalProperties: false
+    AuthTestErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - not_authed
+            - invalid_auth
+            - token_revoked
+            - account_inactive
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+  examples:
+    InvalidAuthErrorExample:
+      summary: Invalid authentication error
+      value:
+        ok: false
+        error: invalid_auth
+    TokenRevokedErrorExample:
+      summary: Token revoked error
+      value:
+        ok: false
+        error: token_revoked
+    NotAuthedErrorExample:
+      summary: Not authenticated error
+      value:
+        ok: false
+        error: not_authed
+    AccountInactiveErrorExample:
+      summary: Account inactive error
+      value:
+        ok: false
+        error: account_inactive
+    AuthRevokeSuccessExample:
+      summary: Successful token revocation
+      value:
+        ok: true
+        revoked: true
+    AuthRevokeTestModeExample:
+      summary: Test mode response (token not actually revoked)
+      value:
+        ok: true
+        revoked: false
+    AuthTestUserTokenSuccessExample:
+      summary: Successful auth test with user token
+      value:
+        ok: true
+        url: https://subarachnoid.slack.com/
+        team: Subarachnoid Workspace
+        user: grace
+        team_id: T12345678
+        user_id: W12345678
+    AuthTestBotTokenSuccessExample:
+      summary: Successful auth test with bot token
+      value:
+        ok: true
+        url: https://subarachnoid.slack.com/
+        team: Subarachnoid Workspace
+        user: mybot
+        team_id: T12345678
+        user_id: U87654321
+        bot_id: B12345678
+    AuthTestEnterpriseInstallSuccessExample:
+      summary: Successful auth test with enterprise install
+      value:
+        ok: true
+        url: https://subarachnoid.slack.com/
+        team: Subarachnoid Workspace
+        user: grace
+        team_id: T12345678
+        user_id: W12345678
+        is_enterprise_install: true
+        enterprise_id: E12345678

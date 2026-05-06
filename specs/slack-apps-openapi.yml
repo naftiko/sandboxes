@@ -1,0 +1,1027 @@
+openapi: 3.1.0
+info:
+  title: slack-apps-api
+  description: >-
+    The Slack Apps API is a set of platform APIs and tools that let developers
+    build apps to extend Slack and automate work. With it, you can read and
+    write data via the Web API (messages, channels, files, reactions), receive
+    real-time events using the Events API or Socket Mode, and create interactive
+    experiences with Block Kit, modals, buttons, shortcuts, and slash commands.
+    Apps can post messages, run workflows, add custom steps to Workflow Builder,
+    manage conversations, and act as bot users. Installation uses OAuth 2.0 with
+    granular permission scopes and token types, and enterprise features are
+    supported through admin APIs.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  version: 1.0.0
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-apps-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Events
+    description: Operations for managing event authorizations and contexts
+  - name: Permissions
+    description: Operations for managing app permissions and scopes
+  - name: Resources
+    description: Operations for managing resource grants
+  - name: Users
+    description: Operations for managing user-level permissions
+  - name: Installation
+    description: Operations for managing app installation lifecycle
+paths:
+  /apps.event.authorizations.list:
+    get:
+      operationId: appsEventAuthorizationsList
+      summary: List Event Authorizations
+      description: >-
+        Get a list of authorizations for the given event context. Each
+        authorization represents an app installation that the event is visible
+        to.
+      tags:
+        - Events
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/apps.event.authorizations.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenHeader'
+        - $ref: '#/components/parameters/EventContextParam'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful response with list of authorizations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppsEventAuthorizationsListResponse'
+              examples:
+                Success:
+                  $ref: >-
+                    #/components/examples/AppsEventAuthorizationsListSuccessExample
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - authorizations:read
+  /apps.permissions.info:
+    get:
+      operationId: appsPermissionsInfo
+      summary: Get App Permissions Info
+      description: Returns list of permissions this app has on a team.
+      tags:
+        - Permissions
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/apps.permissions.info
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+      responses:
+        '200':
+          description: Successful response with permissions info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppsPermissionsInfoResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AppsPermissionsInfoSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppsPermissionsInfoErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - none
+  /apps.permissions.request:
+    get:
+      operationId: appsPermissionsRequest
+      summary: Request Additional Permissions
+      description: Allows an app to request additional scopes.
+      tags:
+        - Permissions
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/apps.permissions.request
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQueryRequired'
+        - $ref: '#/components/parameters/ScopesParam'
+        - $ref: '#/components/parameters/TriggerIdParam'
+      responses:
+        '200':
+          description: Successful permissions request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppsPermissionsRequestErrorResponse'
+              examples:
+                InvalidTrigger:
+                  $ref: '#/components/examples/InvalidTriggerErrorExample'
+      security:
+        - SlackAuth:
+            - none
+  /apps.permissions.resources.list:
+    get:
+      operationId: appsPermissionsResourcesList
+      summary: List Resource Grants
+      description: Returns list of resource grants this app has on a team.
+      tags:
+        - Resources
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/apps.permissions.resources.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQueryRequired'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful response with resource grants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppsPermissionsResourcesListResponse'
+              examples:
+                Success:
+                  $ref: >-
+                    #/components/examples/AppsPermissionsResourcesListSuccessExample
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppsPermissionsResourcesListErrorResponse'
+              examples:
+                InvalidCursor:
+                  $ref: '#/components/examples/InvalidCursorErrorExample'
+      security:
+        - SlackAuth:
+            - none
+  /apps.permissions.scopes.list:
+    get:
+      operationId: appsPermissionsScopesList
+      summary: List App Scopes
+      description: Returns list of scopes this app has on a team.
+      tags:
+        - Permissions
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/apps.permissions.scopes.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQueryRequired'
+      responses:
+        '200':
+          description: Successful response with scopes list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppsPermissionsScopesListResponse'
+              examples:
+                Success:
+                  $ref: >-
+                    #/components/examples/AppsPermissionsScopesListSuccessExample
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppsPermissionsScopesListErrorResponse'
+              examples:
+                InvalidAuth:
+                  $ref: '#/components/examples/InvalidAuthErrorExample'
+      security:
+        - SlackAuth:
+            - none
+  /apps.permissions.users.list:
+    get:
+      operationId: appsPermissionsUsersList
+      summary: List User Grants
+      description: >-
+        Returns list of user grants and corresponding scopes this app has on a
+        team.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/apps.permissions.users.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQueryRequired'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful response with user grants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppsPermissionsUsersListResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/AppsPermissionsUsersListSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidCursor:
+                  $ref: '#/components/examples/InvalidCursorErrorExample'
+      security:
+        - SlackAuth:
+            - none
+  /apps.permissions.users.request:
+    get:
+      operationId: appsPermissionsUsersRequest
+      summary: Request User Permissions
+      description: >-
+        Enables an app to trigger a permissions modal to grant an app access to
+        a user access scope.
+      tags:
+        - Users
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/apps.permissions.users.request
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQueryRequired'
+        - $ref: '#/components/parameters/UserScopesParam'
+        - $ref: '#/components/parameters/TriggerIdParam'
+        - $ref: '#/components/parameters/UserParam'
+      responses:
+        '200':
+          description: Successful user permissions request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                InvalidTrigger:
+                  $ref: '#/components/examples/InvalidTriggerIdErrorExample'
+      security:
+        - SlackAuth:
+            - none
+  /apps.uninstall:
+    get:
+      operationId: appsUninstall
+      summary: Uninstall App
+      description: Uninstalls your app from a workspace.
+      tags:
+        - Installation
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/apps.uninstall
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": ""
+          }
+        delay: 100
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+        - $ref: '#/components/parameters/ClientIdParam'
+        - $ref: '#/components/parameters/ClientSecretParam'
+      responses:
+        '200':
+          description: Successful app uninstall
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultSuccessResponse'
+              examples:
+                Success:
+                  $ref: '#/components/examples/DefaultSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppsUninstallErrorResponse'
+              examples:
+                InvalidClientId:
+                  $ref: '#/components/examples/InvalidClientIdErrorExample'
+      security:
+        - SlackAuth:
+            - none
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            none: No specific scope required
+            authorizations:read: Read access to event authorizations
+  parameters:
+    TokenHeader:
+      name: token
+      in: header
+      description: Authentication token with required scopes
+      required: true
+      schema:
+        type: string
+    TokenQuery:
+      name: token
+      in: query
+      description: Authentication token with required scopes
+      schema:
+        type: string
+    TokenQueryRequired:
+      name: token
+      in: query
+      description: Authentication token with required scopes
+      required: true
+      schema:
+        type: string
+    EventContextParam:
+      name: event_context
+      in: query
+      description: The event context identifier
+      required: true
+      schema:
+        type: string
+    CursorParam:
+      name: cursor
+      in: query
+      description: >-
+        Paginate through collections of data by setting the cursor parameter to
+        a next_cursor attribute returned by a previous request's
+        response_metadata.
+      schema:
+        type: string
+    LimitParam:
+      name: limit
+      in: query
+      description: The maximum number of items to return.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+    ScopesParam:
+      name: scopes
+      in: query
+      description: A comma separated list of scopes to request for
+      required: true
+      schema:
+        type: string
+    UserScopesParam:
+      name: scopes
+      in: query
+      description: A comma separated list of user scopes to request for
+      required: true
+      schema:
+        type: string
+    TriggerIdParam:
+      name: trigger_id
+      in: query
+      description: Token used to trigger the permissions API
+      required: true
+      schema:
+        type: string
+    UserParam:
+      name: user
+      in: query
+      description: The user this scope is being requested for
+      required: true
+      schema:
+        type: string
+    ClientIdParam:
+      name: client_id
+      in: query
+      description: Issued when you created your application.
+      schema:
+        type: string
+    ClientSecretParam:
+      name: client_secret
+      in: query
+      description: Issued when you created your application.
+      schema:
+        type: string
+  schemas:
+    DefaultSuccessResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+      additionalProperties: true
+    DefaultErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: true
+    ResponseMetadata:
+      type: object
+      properties:
+        next_cursor:
+          type: string
+      additionalProperties: false
+    EventAuthorization:
+      type: object
+      properties:
+        enterprise_id:
+          type: string
+          description: The enterprise ID if applicable
+        team_id:
+          type: string
+          description: The team/workspace ID
+        user_id:
+          type: string
+          description: The user ID associated with this authorization
+        is_bot:
+          type: boolean
+          description: Whether this authorization is for a bot
+    ResourceInfo:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+          description: List of resource IDs
+        excluded_ids:
+          type: array
+          items:
+            type: string
+          description: List of excluded resource IDs
+        wildcard:
+          type: boolean
+          description: Whether wildcard access is granted
+    ScopeInfo:
+      type: array
+      items:
+        type: string
+      description: List of scope names
+    PermissionContext:
+      type: object
+      properties:
+        resources:
+          $ref: '#/components/schemas/ResourceInfo'
+        scopes:
+          $ref: '#/components/schemas/ScopeInfo'
+    PermissionsInfo:
+      type: object
+      required:
+        - app_home
+        - channel
+        - group
+        - im
+        - mpim
+        - team
+      properties:
+        app_home:
+          $ref: '#/components/schemas/PermissionContext'
+        channel:
+          $ref: '#/components/schemas/PermissionContext'
+        group:
+          $ref: '#/components/schemas/PermissionContext'
+        im:
+          $ref: '#/components/schemas/PermissionContext'
+        mpim:
+          $ref: '#/components/schemas/PermissionContext'
+        team:
+          $ref: '#/components/schemas/PermissionContext'
+    ResourceGrant:
+      type: object
+      properties:
+        id:
+          type: string
+          description: An ID for a resource
+        type:
+          type: string
+          description: The type of resource the id corresponds to
+          enum:
+            - team
+            - app_home
+            - channel
+            - group
+            - im
+            - mpim
+    ScopesCollection:
+      type: object
+      properties:
+        app_home:
+          type: array
+          items:
+            type: string
+        channel:
+          type: array
+          items:
+            type: string
+        group:
+          type: array
+          items:
+            type: string
+        im:
+          type: array
+          items:
+            type: string
+        mpim:
+          type: array
+          items:
+            type: string
+        team:
+          type: array
+          items:
+            type: string
+        user:
+          type: array
+          items:
+            type: string
+      additionalProperties: true
+    UserGrant:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user ID
+        scopes:
+          type: array
+          items:
+            type: string
+          description: List of scopes granted to this user
+    AppsEventAuthorizationsListResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        authorizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventAuthorization'
+    AppsPermissionsInfoResponse:
+      type: object
+      required:
+        - ok
+        - info
+      properties:
+        ok:
+          type: boolean
+          const: true
+        info:
+          $ref: '#/components/schemas/PermissionsInfo'
+      additionalProperties: false
+    AppsPermissionsInfoErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    AppsPermissionsRequestErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - invalid_trigger
+            - trigger_exchanged
+            - invalid_scope
+            - invalid_user
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    AppsPermissionsResourcesListResponse:
+      type: object
+      required:
+        - ok
+        - resources
+      properties:
+        ok:
+          type: boolean
+          const: true
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceGrant'
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+      additionalProperties: true
+    AppsPermissionsResourcesListErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - invalid_cursor
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    AppsPermissionsScopesListResponse:
+      type: object
+      required:
+        - ok
+        - scopes
+      properties:
+        ok:
+          type: boolean
+          const: true
+        scopes:
+          $ref: '#/components/schemas/ScopesCollection'
+      additionalProperties: true
+    AppsPermissionsScopesListErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    AppsPermissionsUsersListResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserGrant'
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+      additionalProperties: true
+    AppsUninstallErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - invalid_client_id
+            - bad_client_secret
+            - client_id_token_mismatch
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+  examples:
+    DefaultSuccessExample:
+      summary: Successful response
+      value:
+        ok: true
+    InvalidAuthErrorExample:
+      summary: Invalid authentication error
+      value:
+        ok: false
+        error: invalid_auth
+    InvalidCursorErrorExample:
+      summary: Invalid cursor error
+      value:
+        ok: false
+        error: invalid_cursor
+    InvalidTriggerErrorExample:
+      summary: Invalid trigger error
+      value:
+        ok: false
+        error: invalid_trigger
+    InvalidTriggerIdErrorExample:
+      summary: Invalid trigger ID error
+      value:
+        ok: false
+        error: invalid_trigger_id
+    InvalidClientIdErrorExample:
+      summary: Invalid client ID error
+      value:
+        ok: false
+        error: invalid_client_id
+    AppsEventAuthorizationsListSuccessExample:
+      summary: Successful event authorizations list response
+      value:
+        ok: true
+        authorizations:
+          - enterprise_id: E1234A12AB
+            team_id: T1234A12AB
+            user_id: U1234A12AB
+            is_bot: true
+          - enterprise_id: E1234A12AB
+            team_id: T5678B56BC
+            user_id: U5678B56BC
+            is_bot: false
+    AppsPermissionsInfoSuccessExample:
+      summary: Successful permissions info response
+      value:
+        ok: true
+        info:
+          app_home:
+            resources:
+              ids:
+                - D0C0NU1Q8
+                - D0BH95DLH
+            scopes:
+              - chat:write
+              - im:history
+              - im:read
+          channel:
+            resources:
+              excluded_ids: []
+              ids:
+                - C061FA5PB
+              wildcard: false
+            scopes:
+              - channels:read
+          group:
+            resources:
+              ids: []
+            scopes: []
+          im:
+            resources:
+              ids: []
+            scopes: []
+          mpim:
+            resources:
+              ids: []
+            scopes: []
+          team:
+            resources:
+              ids: []
+            scopes: []
+    AppsPermissionsResourcesListSuccessExample:
+      summary: Successful resources list response
+      value:
+        ok: true
+        resources:
+          - id: T0DES3UAN
+            type: team
+          - id: D024BFF1M
+            type: app_home
+          - id: C024BE91L
+            type: channel
+        response_metadata:
+          next_cursor: dGVhbTpDMUg5UkVTR0w=
+    AppsPermissionsScopesListSuccessExample:
+      summary: Successful scopes list response
+      value:
+        ok: true
+        scopes:
+          app_home:
+            - chat:write
+            - im:history
+            - im:read
+          channel:
+            - channels:history
+            - chat:write
+          group:
+            - chat:write
+          im:
+            - chat:write
+          mpim:
+            - chat:write
+          team:
+            - users:read
+          user: []
+    AppsPermissionsUsersListSuccessExample:
+      summary: Successful user grants list response
+      value:
+        ok: true
+        resources:
+          - id: U0DES3UAN
+            scopes:
+              - dnd:write:user
+              - reminders:write:user
+          - id: U024BFF1M
+            scopes:
+              - reminders:write:user
+        response_metadata:
+          next_cursor: dGVhbTdPMUg5UkFTT0w=

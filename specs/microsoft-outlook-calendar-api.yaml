@@ -1,0 +1,1829 @@
+openapi: 3.1.0
+info:
+  title: microsoft-outlook-calendar-api
+  description: |
+    API for managing calendar resources in Microsoft Graph. Supports user calendars
+    and default calendars of Microsoft 365 groups.
+
+    **Key differences between user and group calendars:**
+    - Only user calendars can be organized in a calendarGroup.
+    - Outlook automatically accepts all meeting requests on behalf of groups;
+      user calendars support accept, tentatively accept, or decline.
+    - Outlook doesn't support reminders for group events.
+  version: 1.0.0
+  contact:
+    name: Microsoft Graph
+    url: https://learn.microsoft.com/en-us/graph/
+
+servers:
+
+  - url: http://localhost:8080/rest/microsoft-outlook-calendar-api/1.0.0
+    description: Sandbox  
+  - url: https://graph.microsoft.com/v1.0
+    description: Microsoft Graph v1.0
+
+security:
+  - OAuth2: []
+
+tags:
+  - name: Calendars
+    description: User and group calendar resources including creation, retrieval, modification, and removal.
+  - name: CalendarGroups
+    description: Calendars organized within user-defined calendar groups.
+  - name: GroupCalendars
+    description: Default calendar resources for Microsoft 365 groups.
+  - name: CalendarViews
+    description: Time-range-based views of calendar event occurrences, exceptions, and single instances.
+  - name: Events
+    description: Calendar event resources including single-instance meetings and recurring series masters.
+  - name: Schedules
+    description: Free/busy availability information and meeting time suggestions.
+  - name: ExtendedProperties
+    description: Single-value and multi-value extended properties on calendar resources.
+
+paths:
+  # ════════════════════════════════════════════════════════════════════
+  #  Calendars
+  # ════════════════════════════════════════════════════════════════════
+  /me/calendars:
+    get:
+      tags: [Calendars]
+      operationId: listUserCalendars
+      summary: List calendars
+      description: Get all the user's calendars, or the calendars in the default or other specific calendar group.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/Top"
+        - $ref: "#/components/parameters/Skip"
+        - $ref: "#/components/parameters/Filter"
+        - $ref: "#/components/parameters/Select"
+        - $ref: "#/components/parameters/OrderBy"
+      responses:
+        "200":
+          description: A collection of calendars.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarCollection"
+              examples:
+                Default:
+                  summary: A list of user calendars
+                  value:
+                    value:
+                      - id: "AAMkAGI2TGuLAAA="
+                        name: "Calendar"
+                        color: "auto"
+                        hexColor: ""
+                        changeKey: "nfZyf7VcrEKLNoU37KWlkQAAA0x0+w=="
+                        canEdit: true
+                        canShare: true
+                        canViewPrivateItems: true
+                        isDefaultCalendar: true
+                        isRemovable: false
+                        isTallyingResponses: true
+                        allowedOnlineMeetingProviders:
+                          - "teamsForBusiness"
+                        defaultOnlineMeetingProvider: "teamsForBusiness"
+                        owner:
+                          name: "Adele Vance"
+                          address: "adelev@contoso.com"
+                      - id: "AAMkAGI2TGuMAAA="
+                        name: "Personal"
+                        color: "lightBlue"
+                        hexColor: "#4BA3FB"
+                        changeKey: "nfZyf7VcrEKLNoU37KWlkQAAA0x0/A=="
+                        canEdit: true
+                        canShare: true
+                        canViewPrivateItems: true
+                        isDefaultCalendar: false
+                        isRemovable: true
+                        isTallyingResponses: false
+                        allowedOnlineMeetingProviders:
+                          - "teamsForBusiness"
+                        defaultOnlineMeetingProvider: "teamsForBusiness"
+                        owner:
+                          name: "Adele Vance"
+                          address: "adelev@contoso.com"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+    post:
+      tags: [Calendars]
+      operationId: createUserCalendar
+      summary: Create calendar
+      description: Create a new calendar in the default calendar group or specified calendar group for a user.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalendarCreate"
+      responses:
+        "201":
+          description: The newly created calendar.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Calendar"
+              examples:
+                Default:
+                  summary: A newly created calendar
+                  value:
+                    id: "AAMkAGI2AAAt4AHjAAA="
+                    name: "Volunteer Work"
+                    color: "auto"
+                    hexColor: ""
+                    changeKey: "DxYSthXJXEWwAQSYQnXvIgAAIxGttg=="
+                    canEdit: true
+                    canShare: true
+                    canViewPrivateItems: true
+                    isDefaultCalendar: false
+                    isRemovable: true
+                    isTallyingResponses: false
+                    allowedOnlineMeetingProviders:
+                      - "teamsForBusiness"
+                    defaultOnlineMeetingProvider: "teamsForBusiness"
+                    owner:
+                      name: "Adele Vance"
+                      address: "adelev@contoso.com"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ════════════════════════════════════════════════════════════════════
+  #  Calendar Groups
+  # ════════════════════════════════════════════════════════════════════
+  /me/calendarGroups/{calendarGroupId}/calendars:
+    get:
+      tags: [CalendarGroups]
+      operationId: listCalendarGroupCalendars
+      summary: List calendars in a calendar group
+      description: Get the calendars in a specific calendar group.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/CalendarGroupId"
+        - $ref: "#/components/parameters/Top"
+        - $ref: "#/components/parameters/Skip"
+        - $ref: "#/components/parameters/Select"
+      responses:
+        "200":
+          description: A collection of calendars in the group.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarCollection"
+              examples:
+                Default:
+                  summary: Calendars within a calendar group
+                  value:
+                    value:
+                      - id: "AAMkAGI2TGuLAAA="
+                        name: "Calendar"
+                        color: "auto"
+                        hexColor: ""
+                        changeKey: "nfZyf7VcrEKLNoU37KWlkQAAA0x0+w=="
+                        canEdit: true
+                        canShare: true
+                        canViewPrivateItems: true
+                        isDefaultCalendar: true
+                        isRemovable: false
+                        isTallyingResponses: true
+                        allowedOnlineMeetingProviders:
+                          - "teamsForBusiness"
+                        defaultOnlineMeetingProvider: "teamsForBusiness"
+                        owner:
+                          name: "Adele Vance"
+                          address: "adelev@contoso.com"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    post:
+      tags: [CalendarGroups]
+      operationId: createCalendarGroupCalendar
+      summary: Create calendar in a calendar group
+      description: Create a new calendar in the specified calendar group for a user.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/CalendarGroupId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalendarCreate"
+      responses:
+        "201":
+          description: The newly created calendar in the group.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Calendar"
+              examples:
+                Default:
+                  summary: A newly created calendar in a group
+                  value:
+                    id: "AAMkAGI2AAAt4AHjAAA="
+                    name: "Work Projects"
+                    color: "lightGreen"
+                    hexColor: "#4BA34B"
+                    changeKey: "DxYSthXJXEWwAQSYQnXvIgAAIxGttg=="
+                    canEdit: true
+                    canShare: true
+                    canViewPrivateItems: true
+                    isDefaultCalendar: false
+                    isRemovable: true
+                    isTallyingResponses: false
+                    allowedOnlineMeetingProviders:
+                      - "teamsForBusiness"
+                    defaultOnlineMeetingProvider: "teamsForBusiness"
+                    owner:
+                      name: "Adele Vance"
+                      address: "adelev@contoso.com"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ════════════════════════════════════════════════════════════════════
+  #  Single Calendar Operations
+  # ════════════════════════════════════════════════════════════════════
+  /me/calendars/{calendarId}:
+    get:
+      tags: [Calendars]
+      operationId: getUserCalendar
+      summary: Get calendar
+      description: Get the properties and relationships of a calendar object.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/CalendarId"
+        - $ref: "#/components/parameters/Select"
+        - $ref: "#/components/parameters/Expand"
+      responses:
+        "200":
+          description: The requested calendar.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Calendar"
+              examples:
+                Default:
+                  summary: A single user calendar
+                  value:
+                    id: "AAMkAGI2TGuLAAA="
+                    name: "Calendar"
+                    color: "auto"
+                    hexColor: ""
+                    changeKey: "nfZyf7VcrEKLNoU37KWlkQAAA0x0+w=="
+                    canEdit: true
+                    canShare: true
+                    canViewPrivateItems: true
+                    isDefaultCalendar: true
+                    isRemovable: false
+                    isTallyingResponses: true
+                    allowedOnlineMeetingProviders:
+                      - "teamsForBusiness"
+                    defaultOnlineMeetingProvider: "teamsForBusiness"
+                    owner:
+                      name: "Adele Vance"
+                      address: "adelev@contoso.com"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [Calendars]
+      operationId: patchUserCalendar
+      summary: Update calendar
+      description: Update the properties of a calendar object.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/CalendarId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalendarUpdate"
+      responses:
+        "200":
+          description: The updated calendar.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Calendar"
+              examples:
+                Default:
+                  summary: An updated calendar
+                  value:
+                    id: "AAMkAGI2TGuLAAA="
+                    name: "Social Events"
+                    color: "lightPink"
+                    hexColor: "#E6A09E"
+                    changeKey: "DxYSthXJXEWwAQSYQnXvIgAAIxGuug=="
+                    canEdit: true
+                    canShare: true
+                    canViewPrivateItems: true
+                    isDefaultCalendar: false
+                    isRemovable: true
+                    isTallyingResponses: false
+                    allowedOnlineMeetingProviders:
+                      - "teamsForBusiness"
+                    defaultOnlineMeetingProvider: "teamsForBusiness"
+                    owner:
+                      name: "Adele Vance"
+                      address: "adelev@contoso.com"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [Calendars]
+      operationId: deleteUserCalendar
+      summary: Delete calendar
+      description: Delete a calendar object.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/CalendarId"
+      responses:
+        "204":
+          description: Calendar deleted successfully.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ════════════════════════════════════════════════════════════════════
+  #  Permanent Deletion
+  # ════════════════════════════════════════════════════════════════════
+  /me/calendars/{calendarId}/permanentDelete:
+    post:
+      tags: [Calendars]
+      operationId: permanentDeleteUserCalendar
+      summary: Permanently delete calendar
+      description: Permanently delete the calendar folder and remove it from the mailbox.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/CalendarId"
+      responses:
+        "204":
+          description: Calendar permanently deleted.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ════════════════════════════════════════════════════════════════════
+  #  Group Calendars
+  # ════════════════════════════════════════════════════════════════════
+  /groups/{groupId}/calendar:
+    get:
+      tags: [GroupCalendars]
+      operationId: getGroupCalendar
+      summary: Get group calendar
+      description: Get the properties and relationships of the default calendar of a Microsoft 365 group.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/GroupId"
+        - $ref: "#/components/parameters/Select"
+      responses:
+        "200":
+          description: The group's default calendar.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Calendar"
+              examples:
+                Default:
+                  summary: A Microsoft 365 group default calendar
+                  value:
+                    id: "AAMkAGRmGxhY7EAAA="
+                    name: "Calendar"
+                    color: "auto"
+                    hexColor: ""
+                    changeKey: "NEXywgsVrkeNsFsyVyRrtAAAAAACOg=="
+                    canEdit: true
+                    canShare: false
+                    canViewPrivateItems: false
+                    isDefaultCalendar: true
+                    isRemovable: false
+                    isTallyingResponses: false
+                    allowedOnlineMeetingProviders:
+                      - "teamsForBusiness"
+                    defaultOnlineMeetingProvider: "teamsForBusiness"
+                    owner:
+                      name: "Engineering Team"
+                      address: "engineering@contoso.com"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [GroupCalendars]
+      operationId: patchGroupCalendar
+      summary: Update group calendar
+      description: Update the properties of the default calendar of a Microsoft 365 group.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/GroupId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalendarUpdate"
+      responses:
+        "200":
+          description: The updated group calendar.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Calendar"
+              examples:
+                Default:
+                  summary: An updated group calendar
+                  value:
+                    id: "AAMkAGRmGxhY7EAAA="
+                    name: "Engineering Calendar"
+                    color: "lightTeal"
+                    hexColor: "#2DA2BF"
+                    changeKey: "NEXywgsVrkeNsFsyVyRrtAAAAAACPg=="
+                    canEdit: true
+                    canShare: false
+                    canViewPrivateItems: false
+                    isDefaultCalendar: true
+                    isRemovable: false
+                    isTallyingResponses: false
+                    allowedOnlineMeetingProviders:
+                      - "teamsForBusiness"
+                    defaultOnlineMeetingProvider: "teamsForBusiness"
+                    owner:
+                      name: "Engineering Team"
+                      address: "engineering@contoso.com"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ════════════════════════════════════════════════════════════════════
+  #  Calendar Views
+  # ════════════════════════════════════════════════════════════════════
+  /me/calendarView:
+    get:
+      tags: [CalendarViews]
+      operationId: listPrimaryCalendarView
+      summary: List primary calendar view
+      description: >
+        Get the occurrences, exceptions, and single instances of events in the
+        user's primary calendar, defined by a time range.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/StartDateTime"
+        - $ref: "#/components/parameters/EndDateTime"
+        - $ref: "#/components/parameters/Top"
+        - $ref: "#/components/parameters/Skip"
+        - $ref: "#/components/parameters/Select"
+        - $ref: "#/components/parameters/Filter"
+      responses:
+        "200":
+          description: A collection of events in the specified time range.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventCollection"
+              examples:
+                Default:
+                  summary: Events in the primary calendar view
+                  value:
+                    value:
+                      - id: "AAMkAGI2AAA7xCUAAA="
+                        subject: "Team Standup"
+                        start:
+                          dateTime: "2025-06-15T09:00:00.0000000"
+                          timeZone: "UTC"
+                        end:
+                          dateTime: "2025-06-15T09:30:00.0000000"
+                          timeZone: "UTC"
+                        isAllDay: false
+                        isCancelled: false
+                        isOnlineMeeting: true
+                        onlineMeetingProvider: "teamsForBusiness"
+                        sensitivity: "normal"
+                        showAs: "busy"
+                        importance: "normal"
+                        organizer:
+                          emailAddress:
+                            name: "Adele Vance"
+                            address: "adelev@contoso.com"
+                      - id: "AAMkAGI2AAA7xCVAAA="
+                        subject: "Quarterly Review"
+                        start:
+                          dateTime: "2025-06-15T14:00:00.0000000"
+                          timeZone: "UTC"
+                        end:
+                          dateTime: "2025-06-15T15:00:00.0000000"
+                          timeZone: "UTC"
+                        isAllDay: false
+                        isCancelled: false
+                        isOnlineMeeting: true
+                        onlineMeetingProvider: "teamsForBusiness"
+                        sensitivity: "normal"
+                        showAs: "busy"
+                        importance: "high"
+                        organizer:
+                          emailAddress:
+                            name: "Megan Bowen"
+                            address: "meganb@contoso.com"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /me/calendars/{calendarId}/calendarView:
+    get:
+      tags: [CalendarViews]
+      operationId: listCalendarViewByCalendar
+      summary: List calendar view for a specific calendar
+      description: >
+        Get the occurrences, exceptions, and single instances of events in a
+        specified calendar, defined by a time range.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/CalendarId"
+        - $ref: "#/components/parameters/StartDateTime"
+        - $ref: "#/components/parameters/EndDateTime"
+        - $ref: "#/components/parameters/Top"
+        - $ref: "#/components/parameters/Skip"
+        - $ref: "#/components/parameters/Select"
+        - $ref: "#/components/parameters/Filter"
+      responses:
+        "200":
+          description: A collection of events in the specified time range.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventCollection"
+              examples:
+                Default:
+                  summary: Events in a specific calendar view
+                  value:
+                    value:
+                      - id: "AAMkAGI2AAA9xDEAAA="
+                        subject: "Sprint Planning"
+                        start:
+                          dateTime: "2025-06-16T10:00:00.0000000"
+                          timeZone: "UTC"
+                        end:
+                          dateTime: "2025-06-16T11:00:00.0000000"
+                          timeZone: "UTC"
+                        isAllDay: false
+                        isCancelled: false
+                        isOnlineMeeting: true
+                        onlineMeetingProvider: "teamsForBusiness"
+                        sensitivity: "normal"
+                        showAs: "busy"
+                        importance: "normal"
+                        organizer:
+                          emailAddress:
+                            name: "Adele Vance"
+                            address: "adelev@contoso.com"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ════════════════════════════════════════════════════════════════════
+  #  Events
+  # ════════════════════════════════════════════════════════════════════
+  /me/calendars/{calendarId}/events:
+    get:
+      tags: [Events]
+      operationId: listCalendarEvents
+      summary: List events in a calendar
+      description: >
+        Retrieve a list of events in a calendar. The list contains single
+        instance meetings and series masters.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/CalendarId"
+        - $ref: "#/components/parameters/Top"
+        - $ref: "#/components/parameters/Skip"
+        - $ref: "#/components/parameters/Select"
+        - $ref: "#/components/parameters/Filter"
+        - $ref: "#/components/parameters/OrderBy"
+      responses:
+        "200":
+          description: A collection of events.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventCollection"
+              examples:
+                Default:
+                  summary: Events in a calendar
+                  value:
+                    value:
+                      - id: "AAMkAGI2AAA7xCUAAA="
+                        subject: "Team Standup"
+                        body:
+                          contentType: "html"
+                          content: "<html><body><p>Daily standup meeting</p></body></html>"
+                        start:
+                          dateTime: "2025-06-15T09:00:00.0000000"
+                          timeZone: "UTC"
+                        end:
+                          dateTime: "2025-06-15T09:30:00.0000000"
+                          timeZone: "UTC"
+                        location:
+                          displayName: "Conference Room A"
+                        attendees:
+                          - emailAddress:
+                              name: "Megan Bowen"
+                              address: "meganb@contoso.com"
+                            type: "required"
+                        isAllDay: false
+                        isCancelled: false
+                        isOnlineMeeting: true
+                        onlineMeetingProvider: "teamsForBusiness"
+                        sensitivity: "normal"
+                        showAs: "busy"
+                        importance: "normal"
+                        organizer:
+                          emailAddress:
+                            name: "Adele Vance"
+                            address: "adelev@contoso.com"
+                        createdDateTime: "2025-06-01T12:00:00Z"
+                        lastModifiedDateTime: "2025-06-10T08:30:00Z"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    post:
+      tags: [Events]
+      operationId: createCalendarEvent
+      summary: Create event in a calendar
+      description: Create a new event in the specified calendar.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/CalendarId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventCreate"
+      responses:
+        "201":
+          description: The newly created event.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+              examples:
+                Default:
+                  summary: A newly created event
+                  value:
+                    id: "AAMkAGI2AAA7xCWAAA="
+                    subject: "Design Review"
+                    body:
+                      contentType: "html"
+                      content: "<html><body><p>Review new wireframes</p></body></html>"
+                    start:
+                      dateTime: "2025-06-20T13:00:00.0000000"
+                      timeZone: "UTC"
+                    end:
+                      dateTime: "2025-06-20T14:00:00.0000000"
+                      timeZone: "UTC"
+                    location:
+                      displayName: "Conference Room B"
+                    attendees:
+                      - emailAddress:
+                          name: "Alex Wilber"
+                          address: "alexw@contoso.com"
+                        type: "required"
+                    isAllDay: false
+                    isCancelled: false
+                    isOnlineMeeting: true
+                    onlineMeetingProvider: "teamsForBusiness"
+                    sensitivity: "normal"
+                    showAs: "busy"
+                    importance: "normal"
+                    organizer:
+                      emailAddress:
+                        name: "Adele Vance"
+                        address: "adelev@contoso.com"
+                    createdDateTime: "2025-06-14T10:00:00Z"
+                    lastModifiedDateTime: "2025-06-14T10:00:00Z"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /me/events:
+    post:
+      tags: [Events]
+      operationId: createDefaultCalendarEvent
+      summary: Create event in default calendar
+      description: Create a new event in the user's default calendar.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventCreate"
+      responses:
+        "201":
+          description: The newly created event.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+              examples:
+                Default:
+                  summary: An event created in the default calendar
+                  value:
+                    id: "AAMkAGI2AAA7xCXAAA="
+                    subject: "Lunch with Partner"
+                    body:
+                      contentType: "text"
+                      content: "Discuss partnership opportunities."
+                    start:
+                      dateTime: "2025-06-21T12:00:00.0000000"
+                      timeZone: "UTC"
+                    end:
+                      dateTime: "2025-06-21T13:00:00.0000000"
+                      timeZone: "UTC"
+                    location:
+                      displayName: "Downtown Cafe"
+                      address:
+                        street: "123 Main Street"
+                        city: "Seattle"
+                        state: "WA"
+                        countryOrRegion: "US"
+                        postalCode: "98101"
+                    attendees:
+                      - emailAddress:
+                          name: "Grady Archie"
+                          address: "gradya@contoso.com"
+                        type: "required"
+                    isAllDay: false
+                    isCancelled: false
+                    isOnlineMeeting: false
+                    sensitivity: "normal"
+                    showAs: "busy"
+                    importance: "normal"
+                    organizer:
+                      emailAddress:
+                        name: "Adele Vance"
+                        address: "adelev@contoso.com"
+                    createdDateTime: "2025-06-14T11:00:00Z"
+                    lastModifiedDateTime: "2025-06-14T11:00:00Z"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ════════════════════════════════════════════════════════════════════
+  #  Schedules
+  # ════════════════════════════════════════════════════════════════════
+  /me/calendar/getSchedule:
+    post:
+      tags: [Schedules]
+      operationId: getFreeBusySchedule
+      summary: Free/busy schedule
+      description: >
+        Get the free/busy availability information for a collection of users,
+        distribution lists, or resources for a specified time period.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetScheduleRequest"
+      responses:
+        "200":
+          description: Free/busy schedule information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ScheduleInformation"
+              examples:
+                Default:
+                  summary: Free/busy availability for requested users
+                  value:
+                    value:
+                      - scheduleId: "adelev@contoso.com"
+                        availabilityView: "0010200020"
+                        scheduleItems:
+                          - status: "busy"
+                            start:
+                              dateTime: "2025-06-15T09:00:00.0000000"
+                              timeZone: "UTC"
+                            end:
+                              dateTime: "2025-06-15T09:30:00.0000000"
+                              timeZone: "UTC"
+                            subject: "Team Standup"
+                            location: "Conference Room A"
+                          - status: "busy"
+                            start:
+                              dateTime: "2025-06-15T14:00:00.0000000"
+                              timeZone: "UTC"
+                            end:
+                              dateTime: "2025-06-15T15:00:00.0000000"
+                              timeZone: "UTC"
+                            subject: "Quarterly Review"
+                            location: "Board Room"
+                      - scheduleId: "meganb@contoso.com"
+                        availabilityView: "0000200000"
+                        scheduleItems:
+                          - status: "busy"
+                            start:
+                              dateTime: "2025-06-15T14:00:00.0000000"
+                              timeZone: "UTC"
+                            end:
+                              dateTime: "2025-06-15T15:00:00.0000000"
+                              timeZone: "UTC"
+                            subject: "Quarterly Review"
+                            location: "Board Room"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /me/findMeetingTimes:
+    post:
+      tags: [Schedules]
+      operationId: findMeetingTimeSuggestions
+      summary: Meeting time suggestions
+      description: >
+        Suggest meeting times and locations based on organizer and attendee
+        availability, and time or location constraints.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FindMeetingTimesRequest"
+      responses:
+        "200":
+          description: Meeting time suggestions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeetingTimeSuggestionsResult"
+              examples:
+                Default:
+                  summary: Suggested meeting times
+                  value:
+                    meetingTimeSuggestions:
+                      - confidence: 100.0
+                        meetingTimeSlot:
+                          start:
+                            dateTime: "2025-06-17T10:00:00.0000000"
+                            timeZone: "UTC"
+                          end:
+                            dateTime: "2025-06-17T11:00:00.0000000"
+                            timeZone: "UTC"
+                        organizerAvailability: "free"
+                        attendeeAvailability:
+                          - attendee:
+                              emailAddress:
+                                name: "Megan Bowen"
+                                address: "meganb@contoso.com"
+                              type: "required"
+                            availability: "free"
+                        locations:
+                          - displayName: "Conference Room A"
+                      - confidence: 75.0
+                        meetingTimeSlot:
+                          start:
+                            dateTime: "2025-06-17T14:00:00.0000000"
+                            timeZone: "UTC"
+                          end:
+                            dateTime: "2025-06-17T15:00:00.0000000"
+                            timeZone: "UTC"
+                        organizerAvailability: "free"
+                        attendeeAvailability:
+                          - attendee:
+                              emailAddress:
+                                name: "Megan Bowen"
+                                address: "meganb@contoso.com"
+                              type: "required"
+                            availability: "tentative"
+                        locations:
+                          - displayName: "Conference Room B"
+                    emptySuggestionsReason: ""
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ════════════════════════════════════════════════════════════════════
+  #  Extended Properties
+  # ════════════════════════════════════════════════════════════════════
+  /me/calendars/{calendarId}/singleValueExtendedProperties:
+    post:
+      tags: [ExtendedProperties]
+      operationId: createCalendarSingleValueProperty
+      summary: Single-value extended property
+      description: Create one or more single-value extended properties in a new or existing calendar.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/CalendarId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SingleValueExtendedProperty"
+      responses:
+        "201":
+          description: The created extended property.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleValueExtendedProperty"
+              examples:
+                Default:
+                  summary: A created single-value extended property
+                  value:
+                    id: "String {66f5a359-4659-4830-9070-00047ec6ac6e} Name Color"
+                    value: "Blue"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /me/calendars/{calendarId}/multiValueExtendedProperties:
+    post:
+      tags: [ExtendedProperties]
+      operationId: createCalendarMultiValueProperty
+      summary: Multi-value extended property
+      description: Create one or more multi-value extended properties in a new or existing calendar.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Default"
+      parameters:
+        - $ref: "#/components/parameters/CalendarId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MultiValueExtendedProperty"
+      responses:
+        "201":
+          description: The created extended property.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MultiValueExtendedProperty"
+              examples:
+                Default:
+                  summary: A created multi-value extended property
+                  value:
+                    id: "StringArray {66f5a359-4659-4830-9070-00047ec6ac6e} Name Tags"
+                    value:
+                      - "important"
+                      - "work"
+                      - "project-alpha"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+# ════════════════════════════════════════════════════════════════════════
+#  Components
+# ════════════════════════════════════════════════════════════════════════
+components:
+
+  # ── Security ─────────────────────────────────────────────────────────
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: OAuth 2.0 authorization with Microsoft Identity Platform.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+          tokenUrl: https://login.microsoftonline.com/common/oauth2/v2.0/token
+          scopes:
+            Calendars.Read: Read user calendars
+            Calendars.ReadWrite: Read and write user calendars
+            Calendars.Read.Shared: Read shared calendars
+            Calendars.ReadWrite.Shared: Read and write shared calendars
+            Group.Read.All: Read group calendars
+            Group.ReadWrite.All: Read and write group calendars
+
+  # ── Parameters ───────────────────────────────────────────────────────
+  parameters:
+    CalendarId:
+      name: calendarId
+      in: path
+      required: true
+      description: The unique identifier of the calendar.
+      schema:
+        type: string
+
+    CalendarGroupId:
+      name: calendarGroupId
+      in: path
+      required: true
+      description: The unique identifier of the calendar group.
+      schema:
+        type: string
+
+    GroupId:
+      name: groupId
+      in: path
+      required: true
+      description: The unique identifier of the Microsoft 365 group.
+      schema:
+        type: string
+
+    StartDateTime:
+      name: startDateTime
+      in: query
+      required: true
+      description: Start date and time of the time range (ISO 8601 format).
+      schema:
+        type: string
+        format: date-time
+
+    EndDateTime:
+      name: endDateTime
+      in: query
+      required: true
+      description: End date and time of the time range (ISO 8601 format).
+      schema:
+        type: string
+        format: date-time
+
+    Top:
+      name: $top
+      in: query
+      description: Maximum number of items to return.
+      schema:
+        type: integer
+        minimum: 1
+
+    Skip:
+      name: $skip
+      in: query
+      description: Number of items to skip.
+      schema:
+        type: integer
+        minimum: 0
+
+    Filter:
+      name: $filter
+      in: query
+      description: OData filter expression.
+      schema:
+        type: string
+
+    Select:
+      name: $select
+      in: query
+      description: Comma-separated list of properties to include in the response.
+      schema:
+        type: string
+
+    OrderBy:
+      name: $orderby
+      in: query
+      description: Comma-separated list of properties to sort by.
+      schema:
+        type: string
+
+    Expand:
+      name: $expand
+      in: query
+      description: Comma-separated list of relationships to expand.
+      schema:
+        type: string
+
+  # ── Responses ────────────────────────────────────────────────────────
+  responses:
+    BadRequest:
+      description: Bad request – invalid parameters or malformed body.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ODataError"
+          examples:
+            BadRequest:
+              summary: Bad request error
+              value:
+                error:
+                  code: "BadRequest"
+                  message: "The request is invalid. Check the request body and parameters."
+                  innerError:
+                    request-id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    date: "2025-06-15T10:00:00Z"
+
+    Unauthorized:
+      description: Unauthorized – missing or invalid authentication token.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ODataError"
+          examples:
+            Unauthorized:
+              summary: Unauthorized error
+              value:
+                error:
+                  code: "InvalidAuthenticationToken"
+                  message: "Access token is empty or invalid."
+                  innerError:
+                    request-id: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+                    date: "2025-06-15T10:00:00Z"
+
+    Forbidden:
+      description: Forbidden – insufficient permissions.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ODataError"
+          examples:
+            Forbidden:
+              summary: Forbidden error
+              value:
+                error:
+                  code: "Authorization_RequestDenied"
+                  message: "Insufficient privileges to complete the operation."
+                  innerError:
+                    request-id: "c3d4e5f6-a7b8-9012-cdef-123456789012"
+                    date: "2025-06-15T10:00:00Z"
+
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ODataError"
+          examples:
+            NotFound:
+              summary: Not found error
+              value:
+                error:
+                  code: "ResourceNotFound"
+                  message: "The specified resource was not found."
+                  innerError:
+                    request-id: "d4e5f6a7-b8c9-0123-defa-234567890123"
+                    date: "2025-06-15T10:00:00Z"
+
+  # ── Schemas ──────────────────────────────────────────────────────────
+  schemas:
+
+    # ─── Calendar ────────────────────────────────────────────────────
+    Calendar:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          description: The calendar's unique identifier.
+        name:
+          type: string
+          description: The calendar name.
+        color:
+          $ref: "#/components/schemas/CalendarColor"
+        hexColor:
+          type: string
+          readOnly: true
+          description: >
+            Hex color code (#RRGGBB) of the calendar. Empty if never
+            explicitly set by the user.
+        changeKey:
+          type: string
+          readOnly: true
+          description: Identifies the version of the calendar object.
+        canEdit:
+          type: boolean
+          readOnly: true
+          description: Whether the current user can write to the calendar.
+        canShare:
+          type: boolean
+          readOnly: true
+          description: Whether the current user can share the calendar.
+        canViewPrivateItems:
+          type: boolean
+          readOnly: true
+          description: Whether the user can read private calendar items.
+        isDefaultCalendar:
+          type: boolean
+          description: Whether this is the default calendar for new events.
+        isRemovable:
+          type: boolean
+          readOnly: true
+          description: Whether this calendar can be deleted from the user mailbox.
+        isTallyingResponses:
+          type: boolean
+          readOnly: true
+          description: Whether this calendar supports tracking of meeting responses.
+        allowedOnlineMeetingProviders:
+          type: array
+          items:
+            $ref: "#/components/schemas/OnlineMeetingProviderType"
+          description: Online meeting providers available for this calendar.
+        defaultOnlineMeetingProvider:
+          $ref: "#/components/schemas/OnlineMeetingProviderType"
+        owner:
+          $ref: "#/components/schemas/EmailAddress"
+        calendarPermissions:
+          type: array
+          items:
+            $ref: "#/components/schemas/CalendarPermission"
+          readOnly: true
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+          readOnly: true
+        calendarView:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+          readOnly: true
+        singleValueExtendedProperties:
+          type: array
+          items:
+            $ref: "#/components/schemas/SingleValueExtendedProperty"
+          readOnly: true
+        multiValueExtendedProperties:
+          type: array
+          items:
+            $ref: "#/components/schemas/MultiValueExtendedProperty"
+          readOnly: true
+
+    CalendarCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          description: The calendar name.
+        color:
+          $ref: "#/components/schemas/CalendarColor"
+        isDefaultCalendar:
+          type: boolean
+        defaultOnlineMeetingProvider:
+          $ref: "#/components/schemas/OnlineMeetingProviderType"
+
+    CalendarUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          $ref: "#/components/schemas/CalendarColor"
+        isDefaultCalendar:
+          type: boolean
+        defaultOnlineMeetingProvider:
+          $ref: "#/components/schemas/OnlineMeetingProviderType"
+
+    CalendarCollection:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: "#/components/schemas/Calendar"
+        "@odata.nextLink":
+          type: string
+          format: uri
+          description: URL to the next page of results.
+
+    # ─── Enums / Value Types ─────────────────────────────────────────
+    CalendarColor:
+      type: string
+      enum:
+        - auto
+        - lightBlue
+        - lightGreen
+        - lightOrange
+        - lightGray
+        - lightYellow
+        - lightTeal
+        - lightPink
+        - lightBrown
+        - lightRed
+        - maxColor
+
+    OnlineMeetingProviderType:
+      type: string
+      enum:
+        - unknown
+        - skypeForBusiness
+        - skypeForConsumer
+        - teamsForBusiness
+
+    EmailAddress:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Display name of the person or entity.
+        address:
+          type: string
+          format: email
+          description: Email address.
+
+    # ─── Event ───────────────────────────────────────────────────────
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        subject:
+          type: string
+        body:
+          $ref: "#/components/schemas/ItemBody"
+        start:
+          $ref: "#/components/schemas/DateTimeTimeZone"
+        end:
+          $ref: "#/components/schemas/DateTimeTimeZone"
+        location:
+          $ref: "#/components/schemas/Location"
+        attendees:
+          type: array
+          items:
+            $ref: "#/components/schemas/Attendee"
+        organizer:
+          $ref: "#/components/schemas/Recipient"
+        isAllDay:
+          type: boolean
+        isCancelled:
+          type: boolean
+          readOnly: true
+        isOnlineMeeting:
+          type: boolean
+        onlineMeetingProvider:
+          $ref: "#/components/schemas/OnlineMeetingProviderType"
+        recurrence:
+          $ref: "#/components/schemas/PatternedRecurrence"
+        sensitivity:
+          type: string
+          enum: [normal, personal, private, confidential]
+        showAs:
+          type: string
+          enum: [free, tentative, busy, oof, workingElsewhere, unknown]
+        importance:
+          type: string
+          enum: [low, normal, high]
+        webLink:
+          type: string
+          format: uri
+          readOnly: true
+        createdDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+
+    EventCreate:
+      type: object
+      required: [subject]
+      properties:
+        subject:
+          type: string
+        body:
+          $ref: "#/components/schemas/ItemBody"
+        start:
+          $ref: "#/components/schemas/DateTimeTimeZone"
+        end:
+          $ref: "#/components/schemas/DateTimeTimeZone"
+        location:
+          $ref: "#/components/schemas/Location"
+        attendees:
+          type: array
+          items:
+            $ref: "#/components/schemas/Attendee"
+        isAllDay:
+          type: boolean
+        isOnlineMeeting:
+          type: boolean
+        onlineMeetingProvider:
+          $ref: "#/components/schemas/OnlineMeetingProviderType"
+        recurrence:
+          $ref: "#/components/schemas/PatternedRecurrence"
+        sensitivity:
+          type: string
+          enum: [normal, personal, private, confidential]
+        showAs:
+          type: string
+          enum: [free, tentative, busy, oof, workingElsewhere, unknown]
+        importance:
+          type: string
+          enum: [low, normal, high]
+
+    EventCollection:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+        "@odata.nextLink":
+          type: string
+          format: uri
+
+    # ─── Supporting Types ────────────────────────────────────────────
+    ItemBody:
+      type: object
+      properties:
+        contentType:
+          type: string
+          enum: [text, html]
+        content:
+          type: string
+
+    DateTimeTimeZone:
+      type: object
+      properties:
+        dateTime:
+          type: string
+          description: Date-time value in ISO 8601 format.
+        timeZone:
+          type: string
+          description: IANA time zone name (e.g., "America/New_York").
+
+    Location:
+      type: object
+      properties:
+        displayName:
+          type: string
+        address:
+          $ref: "#/components/schemas/PhysicalAddress"
+
+    PhysicalAddress:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        countryOrRegion:
+          type: string
+        postalCode:
+          type: string
+
+    Attendee:
+      type: object
+      properties:
+        emailAddress:
+          $ref: "#/components/schemas/EmailAddress"
+        type:
+          type: string
+          enum: [required, optional, resource]
+
+    Recipient:
+      type: object
+      properties:
+        emailAddress:
+          $ref: "#/components/schemas/EmailAddress"
+
+    PatternedRecurrence:
+      type: object
+      description: Recurrence pattern and range for a recurring event.
+      properties:
+        pattern:
+          $ref: "#/components/schemas/RecurrencePattern"
+        range:
+          $ref: "#/components/schemas/RecurrenceRange"
+
+    RecurrencePattern:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [daily, weekly, absoluteMonthly, relativeMonthly, absoluteYearly, relativeYearly]
+        interval:
+          type: integer
+        daysOfWeek:
+          type: array
+          items:
+            type: string
+            enum: [sunday, monday, tuesday, wednesday, thursday, friday, saturday]
+
+    RecurrenceRange:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [endDate, noEnd, numbered]
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        numberOfOccurrences:
+          type: integer
+
+    # ─── Scheduling ──────────────────────────────────────────────────
+    GetScheduleRequest:
+      type: object
+      required: [schedules, startTime, endTime]
+      properties:
+        schedules:
+          type: array
+          items:
+            type: string
+          description: Email addresses of users, distribution lists, or resources.
+        startTime:
+          $ref: "#/components/schemas/DateTimeTimeZone"
+        endTime:
+          $ref: "#/components/schemas/DateTimeTimeZone"
+        availabilityViewInterval:
+          type: integer
+          description: Duration of each time slot in minutes (default 30).
+
+    ScheduleInformation:
+      type: object
+      properties:
+        scheduleId:
+          type: string
+          description: SMTP address of the user, distribution list, or resource.
+        availabilityView:
+          type: string
+          description: >
+            Merged view of availability. Each character represents a time slot:
+            0=free, 1=tentative, 2=busy, 3=oof, 4=workingElsewhere.
+        scheduleItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScheduleItem"
+        error:
+          $ref: "#/components/schemas/ODataError"
+
+    ScheduleItem:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [free, tentative, busy, oof, workingElsewhere, unknown]
+        start:
+          $ref: "#/components/schemas/DateTimeTimeZone"
+        end:
+          $ref: "#/components/schemas/DateTimeTimeZone"
+        subject:
+          type: string
+        location:
+          type: string
+
+    FindMeetingTimesRequest:
+      type: object
+      properties:
+        attendees:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttendeeBase"
+        timeConstraint:
+          $ref: "#/components/schemas/TimeConstraint"
+        locationConstraint:
+          $ref: "#/components/schemas/LocationConstraint"
+        meetingDuration:
+          type: string
+          description: Meeting duration in ISO 8601 format (e.g., "PT1H").
+        maxCandidates:
+          type: integer
+        isOrganizerOptional:
+          type: boolean
+        minimumAttendeePercentage:
+          type: number
+          format: double
+
+    TimeConstraint:
+      type: object
+      properties:
+        timeslots:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimeSlot"
+
+    TimeSlot:
+      type: object
+      properties:
+        start:
+          $ref: "#/components/schemas/DateTimeTimeZone"
+        end:
+          $ref: "#/components/schemas/DateTimeTimeZone"
+
+    LocationConstraint:
+      type: object
+      properties:
+        isRequired:
+          type: boolean
+        suggestLocation:
+          type: boolean
+        locations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Location"
+
+    AttendeeBase:
+      type: object
+      properties:
+        emailAddress:
+          $ref: "#/components/schemas/EmailAddress"
+        type:
+          type: string
+          enum: [required, optional, resource]
+
+    MeetingTimeSuggestionsResult:
+      type: object
+      properties:
+        meetingTimeSuggestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/MeetingTimeSuggestion"
+        emptySuggestionsReason:
+          type: string
+
+    MeetingTimeSuggestion:
+      type: object
+      properties:
+        confidence:
+          type: number
+          format: double
+        meetingTimeSlot:
+          $ref: "#/components/schemas/TimeSlot"
+        organizerAvailability:
+          type: string
+          enum: [free, tentative, busy, oof, workingElsewhere, unknown]
+        attendeeAvailability:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttendeeAvailability"
+        locations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Location"
+
+    AttendeeAvailability:
+      type: object
+      properties:
+        attendee:
+          $ref: "#/components/schemas/AttendeeBase"
+        availability:
+          type: string
+          enum: [free, tentative, busy, oof, workingElsewhere, unknown]
+
+    # ─── Extended Properties ─────────────────────────────────────────
+    SingleValueExtendedProperty:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Property identifier (tag or named property format).
+        value:
+          type: string
+          description: The property value.
+
+    MultiValueExtendedProperty:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Property identifier.
+        value:
+          type: array
+          items:
+            type: string
+          description: A collection of property values.
+
+    # ─── Permissions ─────────────────────────────────────────────────
+    CalendarPermission:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        emailAddress:
+          $ref: "#/components/schemas/EmailAddress"
+        isInsideOrganization:
+          type: boolean
+        isRemovable:
+          type: boolean
+        role:
+          type: string
+          enum:
+            - none
+            - freeBusyRead
+            - limitedRead
+            - read
+            - write
+            - delegateWithoutPrivateEventAccess
+            - delegateWithPrivateEventAccess
+        allowedRoles:
+          type: array
+          items:
+            type: string
+
+    # ─── Error ───────────────────────────────────────────────────────
+    ODataError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            innerError:
+              $ref: "#/components/schemas/InnerError"
+
+    InnerError:
+      type: object
+      properties:
+        request-id:
+          type: string
+        date:
+          type: string
+          format: date-time

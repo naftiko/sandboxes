@@ -1,0 +1,347 @@
+openapi: 3.1.0
+info:
+  title: openai-files-api
+  description: >
+    The Files API allows you to upload, list, retrieve, and delete files that
+    can be used with various OpenAI features such as Fine-tuning and Assistants.
+
+
+    Files are used to upload documents that can be processed by OpenAI's models.
+    The API supports various file formats and purposes including training data
+    for fine-tuning and documents for the Assistants API.
+  version: 1.0.0
+  termsOfService: https://openai.com/policies/terms-of-use
+  contact:
+    name: OpenAI Support
+    url: https://help.openai.com/
+  license:
+    name: MIT
+    url: https://github.com/openai/openai-openapi/blob/master/LICENSE
+servers:
+  - url: https://api.openai.com/v1
+    description: OpenAI API Production Server
+  - url: http://localhost:8080/rest/openai-files-api/1.0.0
+    description: Sandbox
+tags:
+  - name: File Management
+    description: >-
+      Operations for uploading, listing, retrieving, and deleting files used
+      with OpenAI features.
+  - name: File Content
+    description: Operations for retrieving the contents of uploaded files.
+paths:
+  /files:
+    get:
+      operationId: listFiles
+      tags:
+        - File Management
+      summary: List All Files
+      description: >-
+        Returns a list of files that belong to the user's organization. You can
+        optionally filter by the intended purpose of the files.
+      parameters:
+        - name: purpose
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            Only return files with the given purpose (e.g., fine-tune,
+            assistants).
+      responses:
+        '200':
+          description: Successfully retrieved the list of files.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFilesResponse'
+              examples:
+                ListFilesExample:
+                  $ref: '#/components/examples/ListFilesResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListFilesExample"
+    post:
+      operationId: uploadFile
+      tags:
+        - File Management
+      summary: Upload A File
+      description: >
+        Upload a file that can be used across various endpoints. The size of all
+        files uploaded by one organization can be up to 100 GB.
+
+
+        The size of individual files can be a maximum of 512 MB or 2 million
+        tokens for Assistants. The Fine-tuning API only supports `.jsonl` files.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateFileRequest'
+            examples:
+              UploadFileExample:
+                $ref: '#/components/examples/CreateFileRequestExample'
+      responses:
+        '200':
+          description: Successfully uploaded the file.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileObject'
+              examples:
+                UploadFileExample:
+                  $ref: '#/components/examples/FileObjectExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "UploadFileExample"
+  /files/{file_id}:
+    get:
+      operationId: retrieveFile
+      tags:
+        - File Management
+      summary: Retrieve File Metadata
+      description: >-
+        Returns information about a specific file including its ID, size,
+        filename, and purpose.
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the file to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved the file metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileObject'
+              examples:
+                RetrieveFileExample:
+                  $ref: '#/components/examples/FileObjectExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "RetrieveFileExample"
+    delete:
+      operationId: deleteFile
+      tags:
+        - File Management
+      summary: Delete A File
+      description: >-
+        Permanently deletes a file. The file will no longer be available for use
+        with Fine-tuning or Assistants.
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the file to delete.
+      responses:
+        '200':
+          description: Successfully deleted the file.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteFileResponse'
+              examples:
+                DeleteFileExample:
+                  $ref: '#/components/examples/DeleteFileResponseExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "DeleteFileExample"
+  /files/{file_id}/content:
+    get:
+      operationId: downloadFileContent
+      tags:
+        - File Content
+      summary: Download File Content
+      description: >-
+        Returns the contents of the specified file. This endpoint is useful for
+        retrieving training data or results from fine-tuning jobs.
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the file whose content to download.
+      responses:
+        '200':
+          description: Successfully retrieved the file content.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+              examples:
+                DownloadContentExample:
+                  $ref: '#/components/examples/FileContentExample'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "DownloadContentExample"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+      description: Use your OpenAI API key as the bearer token.
+  schemas:
+    FileObject:
+      type: object
+      title: FileObject
+      description: The File object represents a document that has been uploaded to OpenAI.
+      properties:
+        id:
+          type: string
+          description: >-
+            The unique identifier for the file, which can be referenced in API
+            endpoints.
+        object:
+          type: string
+          enum:
+            - file
+          description: The object type, which is always "file".
+        bytes:
+          type: integer
+          description: The size of the file in bytes.
+        created_at:
+          type: integer
+          description: The Unix timestamp (in seconds) for when the file was created.
+        filename:
+          type: string
+          description: The name of the file.
+        purpose:
+          type: string
+          enum:
+            - fine-tune
+            - fine-tune-results
+            - assistants
+            - assistants_output
+          description: The intended purpose of the file.
+        status:
+          type: string
+          enum:
+            - uploaded
+            - processed
+            - error
+          description: The current status of the file (deprecated).
+          deprecated: true
+        status_details:
+          type: string
+          description: Details about the file status for fine-tuning failures (deprecated).
+          deprecated: true
+      required:
+        - id
+        - object
+        - bytes
+        - created_at
+        - filename
+        - purpose
+    ListFilesResponse:
+      type: object
+      title: ListFilesResponse
+      description: Response containing a list of file objects.
+      properties:
+        object:
+          type: string
+          enum:
+            - list
+          description: The object type, which is always "list".
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileObject'
+          description: An array of file objects.
+      required:
+        - object
+        - data
+    CreateFileRequest:
+      type: object
+      title: CreateFileRequest
+      description: Request body for uploading a new file.
+      properties:
+        file:
+          type: string
+          format: binary
+          description: The file to be uploaded.
+        purpose:
+          type: string
+          enum:
+            - fine-tune
+            - assistants
+          description: The intended purpose of the uploaded file.
+      required:
+        - file
+        - purpose
+    DeleteFileResponse:
+      type: object
+      title: DeleteFileResponse
+      description: Response confirming the deletion of a file.
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the deleted file.
+        object:
+          type: string
+          enum:
+            - file
+          description: The object type, which is always "file".
+        deleted:
+          type: boolean
+          description: Indicates whether the file was successfully deleted.
+      required:
+        - id
+        - object
+        - deleted
+  examples:
+    FileObjectExample:
+      summary: Example file object
+      value:
+        id: file-abc123
+        object: file
+        bytes: 120000
+        created_at: 1677610602
+        filename: mydata.jsonl
+        purpose: fine-tune
+    ListFilesResponseExample:
+      summary: Example list files response
+      value:
+        object: list
+        data:
+          - id: file-abc123
+            object: file
+            bytes: 175
+            created_at: 1613677385
+            filename: salesOverview.pdf
+            purpose: assistants
+          - id: file-def456
+            object: file
+            bytes: 140
+            created_at: 1613779121
+            filename: puppy.jsonl
+            purpose: fine-tune
+    CreateFileRequestExample:
+      summary: Example upload file request
+      value:
+        file: '@mydata.jsonl'
+        purpose: fine-tune
+    DeleteFileResponseExample:
+      summary: Example delete file response
+      value:
+        id: file-abc123
+        object: file
+        deleted: true
+    FileContentExample:
+      summary: Example file content
+      value: '{"prompt": "Example prompt", "completion": "Example completion"}'
+security:
+  - BearerAuth: []

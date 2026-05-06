@@ -1,0 +1,480 @@
+openapi: 3.1.0
+info:
+  title: zoom-h323sip-device-management-api
+  description: >
+    The Zoom H.323/SIP Device Management API enables administrators to manage
+    video conferencing 
+
+    devices within their Zoom organization. This API provides complete CRUD
+    (Create, Read, Update, Delete) 
+
+    operations for H.323 and SIP protocol devices.
+
+
+    **Key Features:**
+
+    - Register new H.323 and SIP devices
+
+    - List all configured devices with pagination support
+
+    - Update device settings including name, IP address, protocol, and
+    encryption
+
+    - Remove devices from your Zoom account
+
+
+    **Supported Protocols:**
+
+    - H.323: Standard protocol for video conferencing equipment
+
+    - SIP: Session Initiation Protocol for IP-based communications
+
+
+    **Encryption Options:**
+
+    - No encryption
+
+    - Required encryption
+
+    - Auto-negotiate encryption
+  contact:
+    name: Zoom Developers
+    url: https://zoom.us/developer
+    email: developer@zoom.us
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+externalDocs:
+  description: Zoom REST API Documentation
+  url: https://zoom.github.io/api
+servers:
+  - url: https://api.zoom.us/v1
+    description: Zoom Production API Server
+  - url: http://localhost:8080/rest/zoom-h323sip-device-management-api/1.0.0
+    description: Sandbox
+security:
+  - ApiKeyAuth: []
+  - ApiSecretAuth: []
+tags:
+  - name: Device Management
+    description: Operations for managing H.323 and SIP video conferencing devices
+paths:
+  /h323/device/create:
+    post:
+      tags:
+        - Device Management
+      summary: Create a new device
+      description: >
+        Registers a new H.323 or SIP device on your Zoom account.
+
+
+        **Protocol Types:**
+
+        - `1`: H.323 protocol
+
+        - `2`: SIP protocol
+
+
+        **Encryption Types:**
+
+        - `0`: No encryption
+
+        - `1`: Yes (encryption required)
+
+        - `2`: Auto (negotiate encryption)
+
+
+        The device will be immediately available for use in Zoom meetings after
+        creation.
+      operationId: createDevice
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.name && requestBody.ip) {
+            return "CreateDeviceSuccessResponse"
+          }
+
+          return "CreateDeviceSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateDeviceRequest'
+            examples:
+              CreateDeviceRequestExample:
+                $ref: '#/components/examples/CreateDeviceRequestExample'
+      responses:
+        '200':
+          description: Device created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceDetails'
+              examples:
+                CreateDeviceSuccessResponse:
+                  $ref: '#/components/examples/CreateDeviceSuccessResponse'
+  /h323/device/list:
+    post:
+      tags:
+        - Device Management
+      summary: List all devices
+      description: >
+        Retrieves a paginated list of all H.323 and SIP devices registered on
+        your Zoom account.
+
+
+        The response includes complete device details such as:
+
+        - Device name and IP address
+
+        - Protocol type (H.323 or SIP)
+
+        - Encryption settings
+
+
+        Use pagination parameters to navigate through large device lists.
+      operationId: listDevices
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListDevicesSuccessResponse"
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListDevicesRequest'
+            examples:
+              ListDevicesRequestExample:
+                $ref: '#/components/examples/ListDevicesRequestExample'
+      responses:
+        '200':
+          description: Device list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDevicesResponse'
+              examples:
+                ListDevicesSuccessResponse:
+                  $ref: '#/components/examples/ListDevicesSuccessResponse'
+  /h323/device/update:
+    post:
+      tags:
+        - Device Management
+      summary: Update a device
+      description: >
+        Updates the configuration of an existing H.323 or SIP device on your
+        Zoom account.
+
+
+        You can update any of the following device properties:
+
+        - Display name
+
+        - IP address or H.323 extension
+
+        - Protocol type (H.323 or SIP)
+
+        - Encryption settings
+
+
+        Only the fields provided in the request will be updated; other fields
+        retain their current values.
+      operationId: updateDevice
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.id) {
+            return "UpdateDeviceSuccessResponse"
+          }
+
+          return "UpdateDeviceSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateDeviceRequest'
+            examples:
+              UpdateDeviceRequestExample:
+                $ref: '#/components/examples/UpdateDeviceRequestExample'
+      responses:
+        '200':
+          description: Device updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateDeviceResponse'
+              examples:
+                UpdateDeviceSuccessResponse:
+                  $ref: '#/components/examples/UpdateDeviceSuccessResponse'
+  /h323/device/delete:
+    post:
+      tags:
+        - Device Management
+      summary: Delete a device
+      description: >
+        Permanently removes an H.323 or SIP device from your Zoom account.
+
+
+        **Warning:** This action cannot be undone. The device will immediately
+        lose access 
+
+        to Zoom meetings and will need to be re-registered if access is needed
+        again.
+      operationId: deleteDevice
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: >
+          def requestBody = new
+          groovy.json.JsonSlurper().parseText(mockRequest.requestContent)
+
+          if (requestBody.id) {
+            return "DeleteDeviceSuccessResponse"
+          }
+
+          return "DeleteDeviceSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteDeviceRequest'
+            examples:
+              DeleteDeviceRequestExample:
+                $ref: '#/components/examples/DeleteDeviceRequestExample'
+      responses:
+        '200':
+          description: Device deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteDeviceResponse'
+              examples:
+                DeleteDeviceSuccessResponse:
+                  $ref: '#/components/examples/DeleteDeviceSuccessResponse'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: query
+      name: api_key
+    ApiSecretAuth:
+      type: apiKey
+      in: query
+      name: api_secret
+  schemas:
+    CreateDeviceRequest:
+      type: object
+      required:
+        - name
+        - ip
+      properties:
+        name:
+          type: string
+          description: Display name for the device.
+        ip:
+          type: string
+          description: IP address or H.323 extension of the device.
+        protocol_type:
+          type: string
+          description: Protocol type. 1 = H.323, 2 = SIP.
+          enum:
+            - '1'
+            - '2'
+          default: '1'
+        encryption_type:
+          type: string
+          description: Encryption type. 0 = No, 1 = Yes, 2 = Auto.
+          enum:
+            - '0'
+            - '1'
+            - '2'
+          default: '2'
+    DeviceDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the device.
+        name:
+          type: string
+          description: Display name of the device.
+        ip:
+          type: string
+          description: IP address or H.323 extension of the device.
+        protocol_type:
+          type: integer
+          description: Protocol type. 1 = H.323, 2 = SIP.
+          enum:
+            - 1
+            - 2
+        encryption_type:
+          type: integer
+          description: Encryption type. 0 = No, 1 = Yes, 2 = Auto.
+          enum:
+            - 0
+            - 1
+            - 2
+    ListDevicesRequest:
+      type: object
+      properties:
+        page_size:
+          type: string
+          description: Number of records per page. Defaults to 30.
+          default: '30'
+        page_number:
+          type: string
+          description: Page number to retrieve. Defaults to 1.
+          default: '1'
+    ListDevicesResponse:
+      type: object
+      properties:
+        page_count:
+          type: integer
+          description: Total number of pages available.
+        page_number:
+          type: integer
+          description: Current page number.
+        page_size:
+          type: integer
+          description: Number of records per page.
+        total_records:
+          type: integer
+          description: Total number of devices registered.
+        devices:
+          type: array
+          description: List of registered devices.
+          items:
+            $ref: '#/components/schemas/DeviceDetails'
+    UpdateDeviceRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: Device ID to update.
+        name:
+          type: string
+          description: New display name for the device.
+        ip:
+          type: string
+          description: New IP address or H.323 extension.
+        protocol_type:
+          type: string
+          description: Protocol type. 1 = H.323, 2 = SIP.
+          enum:
+            - '1'
+            - '2'
+          default: '1'
+        encryption_type:
+          type: string
+          description: Encryption type. 0 = No, 1 = Yes, 2 = Auto.
+          enum:
+            - '0'
+            - '1'
+            - '2'
+          default: '2'
+    UpdateDeviceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The updated device ID.
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the device was updated.
+    DeleteDeviceRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: Device ID to delete.
+    DeleteDeviceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The deleted device ID.
+        deleted_at:
+          type: string
+          format: date-time
+          description: Timestamp when the device was deleted.
+  examples:
+    CreateDeviceRequestExample:
+      summary: Example request for creating a device
+      value:
+        name: Conference Room A - Polycom
+        ip: 192.168.1.100
+        protocol_type: '1'
+        encryption_type: '2'
+    CreateDeviceSuccessResponse:
+      summary: Successful device creation response
+      value:
+        id: dev_abc123def456
+        name: Conference Room A - Polycom
+        ip: 192.168.1.100
+        protocol_type: 1
+        encryption_type: 2
+    ListDevicesRequestExample:
+      summary: Example request for listing devices
+      value:
+        page_size: '30'
+        page_number: '1'
+    ListDevicesSuccessResponse:
+      summary: Successful list devices response
+      value:
+        page_count: 1
+        page_number: 1
+        page_size: 30
+        total_records: 3
+        devices:
+          - id: dev_abc123def456
+            name: Conference Room A - Polycom
+            ip: 192.168.1.100
+            protocol_type: 1
+            encryption_type: 2
+          - id: dev_ghi789jkl012
+            name: Executive Boardroom - Cisco
+            ip: 192.168.1.101
+            protocol_type: 2
+            encryption_type: 1
+          - id: dev_mno345pqr678
+            name: Training Room - Lifesize
+            ip: 192.168.1.102
+            protocol_type: 1
+            encryption_type: 0
+    UpdateDeviceRequestExample:
+      summary: Example request for updating a device
+      value:
+        id: dev_abc123def456
+        name: Conference Room A - Polycom (Updated)
+        ip: 192.168.1.150
+        protocol_type: '1'
+        encryption_type: '1'
+    UpdateDeviceSuccessResponse:
+      summary: Successful device update response
+      value:
+        id: dev_abc123def456
+        updated_at: '2024-03-14T09:27:03.000Z'
+    DeleteDeviceRequestExample:
+      summary: Example request for deleting a device
+      value:
+        id: dev_abc123def456
+    DeleteDeviceSuccessResponse:
+      summary: Successful device deletion response
+      value:
+        id: dev_abc123def456
+        deleted_at: '2024-03-14T09:27:15.000Z'

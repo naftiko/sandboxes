@@ -1,0 +1,773 @@
+openapi: 3.1.0
+info:
+  title: slack-stars-api
+  version: 1.0.0
+  description: >-
+    The Slack Stars API is a set of Web API methods that let apps manage a
+    user's starred items -  Slack's legacy personal bookmarking feature. It
+    allows adding or removing a star on items such  as messages (via channel and
+    timestamp), files, and file comments, and listing all items a user  has
+    starred, typically with pagination and basic metadata. Stars are
+    user-specific and don't  alter the underlying content; they simply mark
+    things for quick reference. Note that Slack has  moved toward Saved items
+    and other mechanisms in the client, and the stars.* methods have been 
+    deprecated, so availability and support may be limited.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Slack API Terms of Service
+    url: https://slack.com/terms-of-service/api
+servers:
+  - url: https://slack.com/api
+    description: Slack Web API Production Server
+  - url: http://localhost:8080/rest/slack-stars-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Stars
+    description: Operations for managing starred items in Slack
+paths:
+  /stars.add:
+    post:
+      tags:
+        - Stars
+      summary: Add Star
+      description: Adds a star to an item such as a message, file, or file comment.
+      operationId: addStar
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/stars.add
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": "AddStarSuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/TokenHeaderParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddStarRequest'
+            examples:
+              AddStarMessageRequest:
+                $ref: '#/components/examples/AddStarMessageRequestExample'
+              AddStarFileRequest:
+                $ref: '#/components/examples/AddStarFileRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AddStarRequest'
+            examples:
+              AddStarMessageRequest:
+                $ref: '#/components/examples/AddStarMessageRequestExample'
+      responses:
+        '200':
+          description: Star successfully added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddStarSuccessResponse'
+              examples:
+                AddStarSuccessResponse:
+                  $ref: '#/components/examples/AddStarSuccessResponseExample'
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddStarErrorResponse'
+              examples:
+                AddStarNoItemError:
+                  $ref: '#/components/examples/AddStarNoItemErrorExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddStarErrorResponse'
+              examples:
+                AddStarAlreadyStarredError:
+                  $ref: '#/components/examples/AddStarAlreadyStarredErrorExample'
+                AddStarInvalidAuthError:
+                  $ref: '#/components/examples/AddStarInvalidAuthErrorExample'
+      security:
+        - SlackOAuth:
+            - stars:write
+  /stars.list:
+    get:
+      tags:
+        - Stars
+      summary: List Stars
+      description: Lists all starred items for the authenticated user.
+      operationId: listStars
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/stars.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": "ListStarsSuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/TokenQueryParam'
+        - $ref: '#/components/parameters/CountParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful response containing starred items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListStarsSuccessResponse'
+              examples:
+                ListStarsSuccessResponse:
+                  $ref: '#/components/examples/ListStarsSuccessResponseExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListStarsErrorResponse'
+              examples:
+                ListStarsInvalidAuthError:
+                  $ref: '#/components/examples/ListStarsInvalidAuthErrorExample'
+      security:
+        - SlackOAuth:
+            - stars:read
+  /stars.remove:
+    post:
+      tags:
+        - Stars
+      summary: Remove Star
+      description: Removes a star from an item such as a message, file, or file comment.
+      operationId: removeStar
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/stars.remove
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "dispatcherRules": "RemoveStarSuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/TokenHeaderParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemoveStarRequest'
+            examples:
+              RemoveStarMessageRequest:
+                $ref: '#/components/examples/RemoveStarMessageRequestExample'
+              RemoveStarFileRequest:
+                $ref: '#/components/examples/RemoveStarFileRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RemoveStarRequest'
+            examples:
+              RemoveStarMessageRequest:
+                $ref: '#/components/examples/RemoveStarMessageRequestExample'
+      responses:
+        '200':
+          description: Star successfully removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveStarSuccessResponse'
+              examples:
+                RemoveStarSuccessResponse:
+                  $ref: '#/components/examples/RemoveStarSuccessResponseExample'
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveStarErrorResponse'
+              examples:
+                RemoveStarNoItemError:
+                  $ref: '#/components/examples/RemoveStarNoItemErrorExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveStarErrorResponse'
+              examples:
+                RemoveStarNotStarredError:
+                  $ref: '#/components/examples/RemoveStarNotStarredErrorExample'
+                RemoveStarInvalidAuthError:
+                  $ref: '#/components/examples/RemoveStarInvalidAuthErrorExample'
+      security:
+        - SlackOAuth:
+            - stars:write
+components:
+  securitySchemes:
+    SlackOAuth:
+      type: oauth2
+      description: Slack OAuth 2.0 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            stars:read: View starred items in the workspace
+            stars:write: Add or remove stars from items
+  parameters:
+    TokenHeaderParam:
+      name: token
+      in: header
+      description: 'Authentication token. Requires scope: `stars:write`'
+      required: true
+      schema:
+        type: string
+      example: example-123456789012-1234567890123-key
+    TokenQueryParam:
+      name: token
+      in: query
+      description: 'Authentication token. Requires scope: `stars:read`'
+      required: true
+      schema:
+        type: string
+      example: example-123456789012-1234567890123-key
+    CountParam:
+      name: count
+      in: query
+      description: Number of items to return per page (deprecated, use limit instead).
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 100
+      example: 100
+    PageParam:
+      name: page
+      in: query
+      description: Page number of results to return (deprecated, use cursor instead).
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      example: 1
+    CursorParam:
+      name: cursor
+      in: query
+      description: >-
+        Parameter for pagination. Set cursor equal to the next_cursor attribute 
+        returned by the previous request's response_metadata. This parameter is 
+        optional, but pagination is mandatory: the default value simply fetches 
+        the first page of the collection.
+      required: false
+      schema:
+        type: string
+      example: dXNlcjpVMDYxTkZUVDI=
+    LimitParam:
+      name: limit
+      in: query
+      description: >-
+        The maximum number of items to return. Fewer than the requested number 
+        of items may be returned, even if the end of the list hasn't been
+        reached.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 100
+      example: 20
+  schemas:
+    OkTrue:
+      type: boolean
+      enum:
+        - true
+      description: Indicates the request was successful
+    OkFalse:
+      type: boolean
+      enum:
+        - false
+      description: Indicates the request failed
+    AddStarRequest:
+      type: object
+      description: Request body for adding a star to an item
+      properties:
+        channel:
+          type: string
+          description: >-
+            Channel to add star to, or channel where the message to add star to 
+            was posted (used with timestamp).
+          example: C1234567890
+        file:
+          type: string
+          description: File ID to add star to.
+          example: F1234567890
+        file_comment:
+          type: string
+          description: File comment ID to add star to.
+          example: Fc1234567890
+        timestamp:
+          type: string
+          description: Timestamp of the message to add star to.
+          example: '1234567890.123456'
+    RemoveStarRequest:
+      type: object
+      description: Request body for removing a star from an item
+      properties:
+        channel:
+          type: string
+          description: >-
+            Channel to remove star from, or channel where the message to remove 
+            star from was posted (used with timestamp).
+          example: C1234567890
+        file:
+          type: string
+          description: File ID to remove star from.
+          example: F1234567890
+        file_comment:
+          type: string
+          description: File comment ID to remove star from.
+          example: Fc1234567890
+        timestamp:
+          type: string
+          description: Timestamp of the message to remove star from.
+          example: '1234567890.123456'
+    StarredMessageItem:
+      type: object
+      description: A starred message item
+      required:
+        - type
+        - channel
+        - message
+      properties:
+        type:
+          type: string
+          enum:
+            - message
+          description: Type of the starred item
+          example: message
+        channel:
+          type: string
+          description: Channel ID where the message was posted
+          example: C1234567890
+        message:
+          $ref: '#/components/schemas/MessageInfo'
+        date_create:
+          type: integer
+          description: Unix timestamp when the star was added
+          example: 1609459200
+    StarredFileItem:
+      type: object
+      description: A starred file item
+      required:
+        - type
+        - file
+      properties:
+        type:
+          type: string
+          enum:
+            - file
+          description: Type of the starred item
+          example: file
+        file:
+          $ref: '#/components/schemas/FileInfo'
+        date_create:
+          type: integer
+          description: Unix timestamp when the star was added
+          example: 1609459200
+    StarredChannelItem:
+      type: object
+      description: A starred channel item
+      required:
+        - type
+        - channel
+      properties:
+        type:
+          type: string
+          enum:
+            - channel
+          description: Type of the starred item
+          example: channel
+        channel:
+          type: string
+          description: Channel ID that was starred
+          example: C1234567890
+        date_create:
+          type: integer
+          description: Unix timestamp when the star was added
+          example: 1609459200
+    MessageInfo:
+      type: object
+      description: Information about a message
+      required:
+        - type
+        - text
+        - ts
+      properties:
+        type:
+          type: string
+          description: Type of the item
+          example: message
+        text:
+          type: string
+          description: Text content of the message
+          example: Remember to check the quarterly report
+        user:
+          type: string
+          description: User ID who posted the message
+          example: U1234567890
+        ts:
+          type: string
+          description: Timestamp of the message
+          example: '1609459200.000100'
+        permalink:
+          type: string
+          format: uri
+          description: Permanent link to the message
+          example: https://myteam.slack.com/archives/C1234567890/p1609459200000100
+    FileInfo:
+      type: object
+      description: Information about a file
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the file
+          example: F1234567890
+        name:
+          type: string
+          description: Name of the file
+          example: quarterly_report.pdf
+        title:
+          type: string
+          description: Title of the file
+          example: Q4 2024 Quarterly Report
+        mimetype:
+          type: string
+          description: MIME type of the file
+          example: application/pdf
+        filetype:
+          type: string
+          description: File type extension
+          example: pdf
+        permalink:
+          type: string
+          format: uri
+          description: Permanent link to the file
+          example: >-
+            https://myteam.slack.com/files/U1234567890/F1234567890/quarterly_report.pdf
+        user:
+          type: string
+          description: User ID who uploaded the file
+          example: U1234567890
+        timestamp:
+          type: integer
+          description: Unix timestamp when the file was uploaded
+          example: 1609459200
+    PagingInfo:
+      type: object
+      description: Pagination information
+      required:
+        - count
+        - page
+        - pages
+        - total
+      properties:
+        count:
+          type: integer
+          description: Number of items per page
+          example: 100
+        page:
+          type: integer
+          description: Current page number
+          example: 1
+        pages:
+          type: integer
+          description: Total number of pages
+          example: 1
+        total:
+          type: integer
+          description: Total number of items
+          example: 3
+    AddStarSuccessResponse:
+      type: object
+      description: Successful response from stars.add method
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+      additionalProperties: false
+    AddStarErrorResponse:
+      type: object
+      description: Error response from stars.add method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          description: Error code describing what went wrong
+          enum:
+            - bad_timestamp
+            - message_not_found
+            - file_not_found
+            - file_comment_not_found
+            - channel_not_found
+            - no_item_specified
+            - already_starred
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+          example: already_starred
+        callstack:
+          type: string
+          description: Debugging callstack (only visible in dev/qa environments)
+      additionalProperties: false
+    ListStarsSuccessResponse:
+      type: object
+      description: Successful response from stars.list method
+      required:
+        - ok
+        - items
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        items:
+          type: array
+          description: Array of starred items
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/StarredMessageItem'
+              - $ref: '#/components/schemas/StarredFileItem'
+              - $ref: '#/components/schemas/StarredChannelItem'
+        paging:
+          $ref: '#/components/schemas/PagingInfo'
+      additionalProperties: false
+    ListStarsErrorResponse:
+      type: object
+      description: Error response from stars.list method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          description: Error code describing what went wrong
+          enum:
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - user_is_bot
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+          example: invalid_auth
+        callstack:
+          type: string
+          description: Debugging callstack (only visible in dev/qa environments)
+      additionalProperties: false
+    RemoveStarSuccessResponse:
+      type: object
+      description: Successful response from stars.remove method
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+      additionalProperties: false
+    RemoveStarErrorResponse:
+      type: object
+      description: Error response from stars.remove method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          description: Error code describing what went wrong
+          enum:
+            - bad_timestamp
+            - message_not_found
+            - file_not_found
+            - file_comment_not_found
+            - channel_not_found
+            - no_item_specified
+            - not_starred
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - token_revoked
+            - no_permission
+            - org_login_required
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+          example: not_starred
+        callstack:
+          type: string
+          description: Debugging callstack (only visible in dev/qa environments)
+      additionalProperties: false
+  examples:
+    AddStarMessageRequestExample:
+      summary: Add star to a message
+      description: Example request to star a message by channel and timestamp
+      value:
+        channel: C1234567890
+        timestamp: '1234567890.123456'
+    AddStarFileRequestExample:
+      summary: Add star to a file
+      description: Example request to star a file by file ID
+      value:
+        file: F1234567890
+    AddStarSuccessResponseExample:
+      summary: Star added successfully
+      description: Example of a successful star addition
+      value:
+        ok: true
+    AddStarNoItemErrorExample:
+      summary: No item specified error
+      description: Error when no item is specified to star
+      value:
+        ok: false
+        error: no_item_specified
+    AddStarAlreadyStarredErrorExample:
+      summary: Already starred error
+      description: Error when the item is already starred
+      value:
+        ok: false
+        error: already_starred
+    AddStarInvalidAuthErrorExample:
+      summary: Invalid authentication error
+      description: Error when the authentication token is invalid
+      value:
+        ok: false
+        error: invalid_auth
+    ListStarsSuccessResponseExample:
+      summary: Successful starred items list
+      description: Example of a successful response with starred items
+      value:
+        ok: true
+        items:
+          - type: message
+            channel: C1234567890
+            message:
+              type: message
+              text: Remember to check the quarterly report
+              user: U1234567890
+              ts: '1609459200.000100'
+              permalink: https://myteam.slack.com/archives/C1234567890/p1609459200000100
+            date_create: 1609459200
+          - type: file
+            file:
+              id: F1234567890
+              name: quarterly_report.pdf
+              title: Q4 2024 Quarterly Report
+              mimetype: application/pdf
+              filetype: pdf
+              permalink: >-
+                https://myteam.slack.com/files/U1234567890/F1234567890/quarterly_report.pdf
+              user: U1234567890
+              timestamp: 1609459200
+            date_create: 1609459300
+          - type: channel
+            channel: C0987654321
+            date_create: 1609459400
+        paging:
+          count: 100
+          page: 1
+          pages: 1
+          total: 3
+    ListStarsInvalidAuthErrorExample:
+      summary: Invalid authentication error
+      description: Error when the authentication token is invalid
+      value:
+        ok: false
+        error: invalid_auth
+    RemoveStarMessageRequestExample:
+      summary: Remove star from a message
+      description: Example request to remove a star from a message
+      value:
+        channel: C1234567890
+        timestamp: '1234567890.123456'
+    RemoveStarFileRequestExample:
+      summary: Remove star from a file
+      description: Example request to remove a star from a file
+      value:
+        file: F1234567890
+    RemoveStarSuccessResponseExample:
+      summary: Star removed successfully
+      description: Example of a successful star removal
+      value:
+        ok: true
+    RemoveStarNoItemErrorExample:
+      summary: No item specified error
+      description: Error when no item is specified to unstar
+      value:
+        ok: false
+        error: no_item_specified
+    RemoveStarNotStarredErrorExample:
+      summary: Not starred error
+      description: Error when the item is not currently starred
+      value:
+        ok: false
+        error: not_starred
+    RemoveStarInvalidAuthErrorExample:
+      summary: Invalid authentication error
+      description: Error when the authentication token is invalid
+      value:
+        ok: false
+        error: invalid_auth

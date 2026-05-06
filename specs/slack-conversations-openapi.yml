@@ -1,0 +1,2488 @@
+openapi: 3.1.0
+info:
+  title: slack-conversations-api
+  description: >-
+    The Slack Conversations API is the unified Web API for working with all
+    types of Slack  conversations—public and private channels, direct messages,
+    and multi-person DMs. It lets  apps discover and inspect conversations, list
+    members, and read message history and threads,  as well as create, join,
+    invite, leave, and archive channels where permissions allow. By 
+    consolidating the legacy channels.*, groups.*, im.*, and mpim.* endpoints
+    into conversations.*,  it provides consistent IDs and behavior across
+    conversation types. It supports cursor-based  pagination, filtering by
+    conversation type, and granular OAuth scopes to ensure apps only  access
+    authorized data. Developers use it to find the right place to post, fetch
+    context for  workflows, manage membership, and build features that traverse
+    messages and threads across a  workspace (including Slack Connect channels
+    when permitted).
+  version: 1.0.0
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-conversations-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Conversation Management
+    description: Operations for creating, archiving, and managing conversations
+  - name: Conversation Membership
+    description: Operations for joining, leaving, inviting, and removing members
+  - name: Conversation Info
+    description: Operations for retrieving conversation information and listings
+  - name: Conversation History
+    description: Operations for fetching message history and threads
+  - name: Conversation Settings
+    description: Operations for configuring conversation settings like topic and purpose
+paths:
+  /conversations.archive:
+    post:
+      tags:
+        - Conversation Management
+      summary: Archive a conversation
+      description: Archives a conversation.
+      operationId: conversationsArchive
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.archive
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsArchiveRequest'
+            examples:
+              ConversationsArchiveRequestExample:
+                $ref: '#/components/examples/ConversationsArchiveRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsArchiveRequest'
+            examples:
+              ConversationsArchiveRequestExample:
+                $ref: '#/components/examples/ConversationsArchiveRequestExample'
+      responses:
+        '200':
+          description: Successful response when a conversation is archived
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsArchiveErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsArchiveErrorResponseExample
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+  /conversations.close:
+    post:
+      tags:
+        - Conversation Management
+      summary: Close a direct message
+      description: Closes a direct message or multi-person direct message.
+      operationId: conversationsClose
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.close
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsCloseRequest'
+            examples:
+              ConversationsCloseRequestExample:
+                $ref: '#/components/examples/ConversationsCloseRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsCloseRequest'
+            examples:
+              ConversationsCloseRequestExample:
+                $ref: '#/components/examples/ConversationsCloseRequestExample'
+      responses:
+        '200':
+          description: Successful response when a conversation is closed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsCloseResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsCloseSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsCloseErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ConversationsCloseErrorResponseExample'
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+  /conversations.create:
+    post:
+      tags:
+        - Conversation Management
+      summary: Create a conversation
+      description: Initiates a public or private channel-based conversation.
+      operationId: conversationsCreate
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.create
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsCreateRequest'
+            examples:
+              ConversationsCreateRequestExample:
+                $ref: '#/components/examples/ConversationsCreateRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsCreateRequest'
+            examples:
+              ConversationsCreateRequestExample:
+                $ref: '#/components/examples/ConversationsCreateRequestExample'
+      responses:
+        '200':
+          description: Successful response with the created conversation object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsCreateResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsCreateSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsCreateErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsCreateErrorResponseExample
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+  /conversations.history:
+    get:
+      tags:
+        - Conversation History
+      summary: Get conversation history
+      description: Fetches a conversation's history of messages and events.
+      operationId: conversationsHistory
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.history
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/ChannelIdQuery'
+        - $ref: '#/components/parameters/LatestTimestamp'
+        - $ref: '#/components/parameters/OldestTimestamp'
+        - $ref: '#/components/parameters/Inclusive'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Successful response containing a channel's messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsHistoryResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsHistorySuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsHistoryErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsHistoryErrorResponseExample
+      security:
+        - SlackAuth:
+            - channels:history
+            - groups:history
+            - im:history
+            - mpim:history
+  /conversations.info:
+    get:
+      tags:
+        - Conversation Info
+      summary: Get conversation info
+      description: Retrieve information about a conversation.
+      operationId: conversationsInfo
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.info
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/ChannelIdQuery'
+        - $ref: '#/components/parameters/IncludeLocale'
+        - $ref: '#/components/parameters/IncludeNumMembers'
+      responses:
+        '200':
+          description: Successful response with conversation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsInfoResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsInfoSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsInfoErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ConversationsInfoErrorResponseExample'
+      security:
+        - SlackAuth:
+            - channels:read
+            - groups:read
+            - im:read
+            - mpim:read
+  /conversations.invite:
+    post:
+      tags:
+        - Conversation Membership
+      summary: Invite users to a conversation
+      description: Invites users to a channel.
+      operationId: conversationsInvite
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.invite
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsInviteRequest'
+            examples:
+              ConversationsInviteRequestExample:
+                $ref: '#/components/examples/ConversationsInviteRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsInviteRequest'
+            examples:
+              ConversationsInviteRequestExample:
+                $ref: '#/components/examples/ConversationsInviteRequestExample'
+      responses:
+        '200':
+          description: Successful response when users are invited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsInviteResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsInviteSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsInviteErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsInviteErrorResponseExample
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+  /conversations.join:
+    post:
+      tags:
+        - Conversation Membership
+      summary: Join a conversation
+      description: Joins an existing conversation.
+      operationId: conversationsJoin
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.join
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsJoinRequest'
+            examples:
+              ConversationsJoinRequestExample:
+                $ref: '#/components/examples/ConversationsJoinRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsJoinRequest'
+            examples:
+              ConversationsJoinRequestExample:
+                $ref: '#/components/examples/ConversationsJoinRequestExample'
+      responses:
+        '200':
+          description: Successful response when joining a conversation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsJoinResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsJoinSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsJoinErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ConversationsJoinErrorResponseExample'
+      security:
+        - SlackAuth:
+            - channels:write
+  /conversations.kick:
+    post:
+      tags:
+        - Conversation Membership
+      summary: Remove a user from a conversation
+      description: Removes a user from a conversation.
+      operationId: conversationsKick
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.kick
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsKickRequest'
+            examples:
+              ConversationsKickRequestExample:
+                $ref: '#/components/examples/ConversationsKickRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsKickRequest'
+            examples:
+              ConversationsKickRequestExample:
+                $ref: '#/components/examples/ConversationsKickRequestExample'
+      responses:
+        '200':
+          description: Successful response when a user is removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsKickErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ConversationsKickErrorResponseExample'
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+  /conversations.leave:
+    post:
+      tags:
+        - Conversation Membership
+      summary: Leave a conversation
+      description: Leaves a conversation.
+      operationId: conversationsLeave
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.leave
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsLeaveRequest'
+            examples:
+              ConversationsLeaveRequestExample:
+                $ref: '#/components/examples/ConversationsLeaveRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsLeaveRequest'
+            examples:
+              ConversationsLeaveRequestExample:
+                $ref: '#/components/examples/ConversationsLeaveRequestExample'
+      responses:
+        '200':
+          description: Successful response when leaving a conversation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsLeaveResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsLeaveSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsLeaveErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ConversationsLeaveErrorResponseExample'
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+  /conversations.list:
+    get:
+      tags:
+        - Conversation Info
+      summary: List conversations
+      description: Lists all channels in a Slack team.
+      operationId: conversationsList
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.list
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/ExcludeArchived'
+        - $ref: '#/components/parameters/ConversationTypes'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Successful response with list of conversations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsListResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsListSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsListErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ConversationsListErrorResponseExample'
+      security:
+        - SlackAuth:
+            - channels:read
+            - groups:read
+            - im:read
+            - mpim:read
+  /conversations.mark:
+    post:
+      tags:
+        - Conversation Settings
+      summary: Set read cursor
+      description: Sets the read cursor in a channel.
+      operationId: conversationsMark
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.mark
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsMarkRequest'
+            examples:
+              ConversationsMarkRequestExample:
+                $ref: '#/components/examples/ConversationsMarkRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsMarkRequest'
+            examples:
+              ConversationsMarkRequestExample:
+                $ref: '#/components/examples/ConversationsMarkRequestExample'
+      responses:
+        '200':
+          description: Successful response when read cursor is set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsMarkErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ConversationsMarkErrorResponseExample'
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+  /conversations.members:
+    get:
+      tags:
+        - Conversation Info
+      summary: Get conversation members
+      description: Retrieve members of a conversation.
+      operationId: conversationsMembers
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.members
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/ChannelIdQuery'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Successful response with list of member IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsMembersResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsMembersSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsMembersErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsMembersErrorResponseExample
+      security:
+        - SlackAuth:
+            - channels:read
+            - groups:read
+            - im:read
+            - mpim:read
+  /conversations.open:
+    post:
+      tags:
+        - Conversation Management
+      summary: Open a conversation
+      description: Opens or resumes a direct message or multi-person direct message.
+      operationId: conversationsOpen
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.open
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsOpenRequest'
+            examples:
+              ConversationsOpenRequestExample:
+                $ref: '#/components/examples/ConversationsOpenRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsOpenRequest'
+            examples:
+              ConversationsOpenRequestExample:
+                $ref: '#/components/examples/ConversationsOpenRequestExample'
+      responses:
+        '200':
+          description: Successful response when a conversation is opened
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsOpenResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsOpenSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsOpenErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ConversationsOpenErrorResponseExample'
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+  /conversations.rename:
+    post:
+      tags:
+        - Conversation Settings
+      summary: Rename a conversation
+      description: Renames a conversation.
+      operationId: conversationsRename
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.rename
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsRenameRequest'
+            examples:
+              ConversationsRenameRequestExample:
+                $ref: '#/components/examples/ConversationsRenameRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsRenameRequest'
+            examples:
+              ConversationsRenameRequestExample:
+                $ref: '#/components/examples/ConversationsRenameRequestExample'
+      responses:
+        '200':
+          description: Successful response when a conversation is renamed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsRenameResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsRenameSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsRenameErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsRenameErrorResponseExample
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+  /conversations.replies:
+    get:
+      tags:
+        - Conversation History
+      summary: Get thread replies
+      description: Retrieve a thread of messages posted to a conversation.
+      operationId: conversationsReplies
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.replies
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenQuery'
+        - $ref: '#/components/parameters/ChannelIdQuery'
+        - $ref: '#/components/parameters/ThreadTimestamp'
+        - $ref: '#/components/parameters/LatestTimestamp'
+        - $ref: '#/components/parameters/OldestTimestamp'
+        - $ref: '#/components/parameters/Inclusive'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Successful response with thread messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsRepliesResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsRepliesSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsRepliesErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsRepliesErrorResponseExample
+      security:
+        - SlackAuth:
+            - channels:history
+            - groups:history
+            - im:history
+            - mpim:history
+  /conversations.setPurpose:
+    post:
+      tags:
+        - Conversation Settings
+      summary: Set conversation purpose
+      description: Sets the purpose for a conversation.
+      operationId: conversationsSetPurpose
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.setPurpose
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsSetPurposeRequest'
+            examples:
+              ConversationsSetPurposeRequestExample:
+                $ref: '#/components/examples/ConversationsSetPurposeRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsSetPurposeRequest'
+            examples:
+              ConversationsSetPurposeRequestExample:
+                $ref: '#/components/examples/ConversationsSetPurposeRequestExample'
+      responses:
+        '200':
+          description: Successful response when purpose is set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsSetPurposeResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsSetPurposeSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsSetPurposeErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsSetPurposeErrorResponseExample
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+  /conversations.setTopic:
+    post:
+      tags:
+        - Conversation Settings
+      summary: Set conversation topic
+      description: Sets the topic for a conversation.
+      operationId: conversationsSetTopic
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.setTopic
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsSetTopicRequest'
+            examples:
+              ConversationsSetTopicRequestExample:
+                $ref: '#/components/examples/ConversationsSetTopicRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsSetTopicRequest'
+            examples:
+              ConversationsSetTopicRequestExample:
+                $ref: '#/components/examples/ConversationsSetTopicRequestExample'
+      responses:
+        '200':
+          description: Successful response when topic is set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsSetTopicResponse'
+              examples:
+                SuccessResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsSetTopicSuccessResponseExample
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsSetTopicErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsSetTopicErrorResponseExample
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+  /conversations.unarchive:
+    post:
+      tags:
+        - Conversation Management
+      summary: Unarchive a conversation
+      description: Reverses conversation archival.
+      operationId: conversationsUnarchive
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/conversations.unarchive
+      x-microcks-operation:
+        delay: 100
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "FALLBACK",
+            "fallback": "SuccessResponse"
+          }
+      parameters:
+        - $ref: '#/components/parameters/AuthTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationsUnarchiveRequest'
+            examples:
+              ConversationsUnarchiveRequestExample:
+                $ref: '#/components/examples/ConversationsUnarchiveRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConversationsUnarchiveRequest'
+            examples:
+              ConversationsUnarchiveRequestExample:
+                $ref: '#/components/examples/ConversationsUnarchiveRequestExample'
+      responses:
+        '200':
+          description: Successful response when a conversation is unarchived
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/SuccessResponseExample'
+        default:
+          description: Error response when the request fails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsUnarchiveErrorResponse'
+              examples:
+                ErrorResponse:
+                  $ref: >-
+                    #/components/examples/ConversationsUnarchiveErrorResponseExample
+      security:
+        - SlackAuth:
+            - channels:write
+            - groups:write
+            - im:write
+            - mpim:write
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      description: Slack OAuth2 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            channels:read: Read public channel information
+            channels:write: Manage public channels
+            channels:history: Read public channel message history
+            groups:read: Read private channel information
+            groups:write: Manage private channels
+            groups:history: Read private channel message history
+            im:read: Read direct message information
+            im:write: Manage direct messages
+            im:history: Read direct message history
+            mpim:read: Read multi-person DM information
+            mpim:write: Manage multi-person DMs
+            mpim:history: Read multi-person DM history
+  parameters:
+    AuthTokenHeader:
+      name: token
+      in: header
+      description: 'Authentication token. Requires scope: `conversations:write`'
+      required: false
+      schema:
+        type: string
+      example: example-key1234567890-abcdefghijklmnop
+    AuthTokenQuery:
+      name: token
+      in: query
+      description: Authentication token
+      required: false
+      schema:
+        type: string
+      example: example-key1234567890-abcdefghijklmnop
+    ChannelIdQuery:
+      name: channel
+      in: query
+      description: Conversation ID
+      required: false
+      schema:
+        type: string
+      example: C012AB3CD
+    LatestTimestamp:
+      name: latest
+      in: query
+      description: End of time range of messages to include in results
+      required: false
+      schema:
+        type: number
+      example: 1562180400
+    OldestTimestamp:
+      name: oldest
+      in: query
+      description: Start of time range of messages to include in results
+      required: false
+      schema:
+        type: number
+      example: 1562094000
+    Inclusive:
+      name: inclusive
+      in: query
+      description: Include messages with latest or oldest timestamp in results
+      required: false
+      schema:
+        type: boolean
+      example: true
+    Limit:
+      name: limit
+      in: query
+      description: The maximum number of items to return
+      required: false
+      schema:
+        type: integer
+      example: 100
+    Cursor:
+      name: cursor
+      in: query
+      description: Paginate through collections of data by setting the cursor parameter
+      required: false
+      schema:
+        type: string
+      example: dXNlcjpVMDYxTkZUVDI=
+    IncludeLocale:
+      name: include_locale
+      in: query
+      description: Set to true to receive the locale for this conversation
+      required: false
+      schema:
+        type: boolean
+      example: true
+    IncludeNumMembers:
+      name: include_num_members
+      in: query
+      description: Set to true to include the member count for the conversation
+      required: false
+      schema:
+        type: boolean
+      example: true
+    ExcludeArchived:
+      name: exclude_archived
+      in: query
+      description: Set to true to exclude archived channels from the list
+      required: false
+      schema:
+        type: boolean
+      example: true
+    ConversationTypes:
+      name: types
+      in: query
+      description: Mix and match channel types (public_channel, private_channel, mpim, im)
+      required: false
+      schema:
+        type: string
+      example: public_channel,private_channel
+    ThreadTimestamp:
+      name: ts
+      in: query
+      description: Unique identifier of a thread's parent message
+      required: false
+      schema:
+        type: number
+      example: 1482960137.003543
+  schemas:
+    OkTrue:
+      type: boolean
+      const: true
+      description: Indicates a successful operation
+    OkFalse:
+      type: boolean
+      const: false
+      description: Indicates a failed operation
+    ChannelId:
+      type: string
+      description: A channel ID
+      pattern: ^[CDG][A-Z0-9]{8,}$
+      example: C012AB3CD
+    UserId:
+      type: string
+      description: A Slack user ID
+      pattern: ^[UW][A-Z0-9]{8,}$
+      example: U012A3CDE
+    Timestamp:
+      type: string
+      description: A message timestamp
+      pattern: ^\d+\.\d+$
+      example: '1503435956.000247'
+    TopicOrPurpose:
+      type: object
+      description: Topic or purpose information
+      properties:
+        Value:
+          type: string
+          description: The topic or purpose text
+          example: Company-wide announcements
+        Creator:
+          type: string
+          description: User ID who set the topic/purpose
+          example: W012A3BCD
+        LastSet:
+          type: integer
+          format: int64
+          description: Unix timestamp when last set
+          example: 1449709364
+    ConversationObject:
+      type: object
+      description: A Slack conversation object
+      properties:
+        Id:
+          $ref: '#/components/schemas/ChannelId'
+        Name:
+          type: string
+          description: The name of the conversation
+          example: general
+        NameNormalized:
+          type: string
+          description: Normalized name of the conversation
+          example: general
+        IsChannel:
+          type: boolean
+          description: Whether this is a channel
+          example: true
+        IsGroup:
+          type: boolean
+          description: Whether this is a private channel
+          example: false
+        IsIm:
+          type: boolean
+          description: Whether this is a direct message
+          example: false
+        IsMpim:
+          type: boolean
+          description: Whether this is a multi-person direct message
+          example: false
+        IsPrivate:
+          type: boolean
+          description: Whether this is a private conversation
+          example: false
+        IsArchived:
+          type: boolean
+          description: Whether this conversation is archived
+          example: false
+        IsGeneral:
+          type: boolean
+          description: Whether this is the general channel
+          example: true
+        IsMember:
+          type: boolean
+          description: Whether the calling user is a member
+          example: true
+        IsShared:
+          type: boolean
+          description: Whether this is a shared channel
+          example: false
+        IsExtShared:
+          type: boolean
+          description: Whether this is externally shared
+          example: false
+        IsOrgShared:
+          type: boolean
+          description: Whether this is shared across the organization
+          example: false
+        IsPendingExtShared:
+          type: boolean
+          description: Whether there is a pending external share
+          example: false
+        IsReadOnly:
+          type: boolean
+          description: Whether this is a read-only channel
+          example: false
+        Created:
+          type: integer
+          format: int64
+          description: Unix timestamp of creation
+          example: 1449252889
+        Creator:
+          $ref: '#/components/schemas/UserId'
+        Unlinked:
+          type: integer
+          description: Number of unlinked items
+          example: 0
+        NumMembers:
+          type: integer
+          description: Number of members in the conversation
+          example: 23
+        Locale:
+          type: string
+          description: Locale of the conversation
+          example: en-US
+        LastRead:
+          type: string
+          description: Timestamp of last read message
+          example: '1502126650.228446'
+        Topic:
+          $ref: '#/components/schemas/TopicOrPurpose'
+        Purpose:
+          $ref: '#/components/schemas/TopicOrPurpose'
+        PreviousNames:
+          type: array
+          description: Previous names of this conversation
+          items:
+            type: string
+          example:
+            - specifics
+            - abstractions
+        PendingShared:
+          type: array
+          description: Pending shared teams
+          items:
+            type: string
+          example: []
+    MessageObject:
+      type: object
+      description: A Slack message object
+      properties:
+        Type:
+          type: string
+          description: The type of message
+          example: message
+        User:
+          $ref: '#/components/schemas/UserId'
+        Text:
+          type: string
+          description: The message text
+          example: Hello, world!
+        Ts:
+          $ref: '#/components/schemas/Timestamp'
+        ThreadTs:
+          type: string
+          description: Thread timestamp if this is a threaded message
+          example: '1482960137.003543'
+        ParentUserId:
+          type: string
+          description: Parent user ID for thread replies
+          example: U061F7AUR
+        ReplyCount:
+          type: integer
+          description: Number of replies in thread
+          example: 3
+        Subscribed:
+          type: boolean
+          description: Whether the user is subscribed to the thread
+          example: true
+        LastRead:
+          type: string
+          description: Last read timestamp in thread
+          example: '1484678597.521003'
+        UnreadCount:
+          type: integer
+          description: Unread count in thread
+          example: 0
+    ResponseMetadata:
+      type: object
+      description: Response metadata for pagination
+      properties:
+        NextCursor:
+          type: string
+          description: Cursor for the next page of results
+          example: dXNlcjpVMDYxTkZUVDI=
+        Warnings:
+          type: array
+          description: Any warnings returned
+          items:
+            type: string
+          example:
+            - already_in_channel
+    ConversationsArchiveRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: ID of conversation to archive
+          example: C012AB3CD
+    ConversationsCloseRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: Conversation to close
+          example: D012AB3CD
+    ConversationsCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the public or private channel to create
+          example: my-new-channel
+        is_private:
+          type: boolean
+          description: Create a private channel instead of a public one
+          example: false
+    ConversationsInviteRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: The ID of the public or private channel to invite user(s) to
+          example: C012AB3CD
+        users:
+          type: string
+          description: A comma separated list of user IDs
+          example: U012A3CDE,U023BECGF
+    ConversationsJoinRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: ID of conversation to join
+          example: C012AB3CD
+    ConversationsKickRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: ID of conversation to remove user from
+          example: C012AB3CD
+        user:
+          type: string
+          description: User ID to be removed
+          example: U012A3CDE
+    ConversationsLeaveRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: Conversation to leave
+          example: C012AB3CD
+    ConversationsMarkRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: Channel or conversation to set the read cursor for
+          example: C012AB3CD
+        ts:
+          type: number
+          description: Unique identifier of message to mark as most recently seen
+          example: 1593473566.0002
+    ConversationsOpenRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: Resume a conversation by supplying an im or mpim's ID
+          example: D012AB3CD
+        users:
+          type: string
+          description: Comma separated lists of users
+          example: U012A3CDE,U023BECGF
+        return_im:
+          type: boolean
+          description: Return the full IM channel definition in the response
+          example: true
+    ConversationsRenameRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: ID of conversation to rename
+          example: C012AB3CD
+        name:
+          type: string
+          description: New name for conversation
+          example: new-channel-name
+    ConversationsSetPurposeRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: Conversation to set the purpose of
+          example: C012AB3CD
+        purpose:
+          type: string
+          description: A new, specialer purpose
+          example: This channel is for team announcements
+    ConversationsSetTopicRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: Conversation to set the topic of
+          example: C012AB3CD
+        topic:
+          type: string
+          description: The new topic string
+          example: Discuss project updates here
+    ConversationsUnarchiveRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: ID of conversation to unarchive
+          example: C012AB3CD
+    SuccessResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+      additionalProperties: false
+    ConversationsCloseResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        no_op:
+          type: boolean
+          description: Whether the operation was a no-op
+          example: false
+        already_closed:
+          type: boolean
+          description: Whether the conversation was already closed
+          example: false
+      additionalProperties: false
+    ConversationsCreateResponse:
+      type: object
+      required:
+        - ok
+        - channel
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ConversationObject'
+      additionalProperties: false
+    ConversationsHistoryResponse:
+      type: object
+      required:
+        - ok
+        - messages
+        - has_more
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageObject'
+        has_more:
+          type: boolean
+          description: Whether there are more messages
+          example: true
+        pin_count:
+          type: integer
+          description: Number of pinned items
+          example: 0
+        channel_actions_count:
+          type: integer
+          description: Number of channel actions
+          example: 0
+        channel_actions_ts:
+          type: object
+          description: Channel actions timestamps
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+      additionalProperties: false
+    ConversationsInfoResponse:
+      type: object
+      required:
+        - ok
+        - channel
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ConversationObject'
+      additionalProperties: false
+    ConversationsInviteResponse:
+      type: object
+      required:
+        - ok
+        - channel
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ConversationObject'
+      additionalProperties: false
+    ConversationsJoinResponse:
+      type: object
+      required:
+        - ok
+        - channel
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ConversationObject'
+        warning:
+          type: string
+          description: Any warnings
+          example: already_in_channel
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+      additionalProperties: false
+    ConversationsLeaveResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        not_in_channel:
+          type: boolean
+          description: Whether the user was not in the channel
+          example: false
+      additionalProperties: false
+    ConversationsListResponse:
+      type: object
+      required:
+        - ok
+        - channels
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConversationObject'
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+      additionalProperties: false
+    ConversationsMembersResponse:
+      type: object
+      required:
+        - ok
+        - members
+        - response_metadata
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserId'
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+      additionalProperties: false
+    ConversationsOpenResponse:
+      type: object
+      required:
+        - ok
+        - channel
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The conversation ID
+              example: D069C7QFK
+        no_op:
+          type: boolean
+          description: Whether the operation was a no-op
+          example: false
+        already_open:
+          type: boolean
+          description: Whether the conversation was already open
+          example: false
+      additionalProperties: false
+    ConversationsRenameResponse:
+      type: object
+      required:
+        - ok
+        - channel
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ConversationObject'
+      additionalProperties: false
+    ConversationsRepliesResponse:
+      type: object
+      required:
+        - ok
+        - messages
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageObject'
+        has_more:
+          type: boolean
+          description: Whether there are more replies
+          example: true
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+      additionalProperties: false
+    ConversationsSetPurposeResponse:
+      type: object
+      required:
+        - ok
+        - channel
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ConversationObject'
+      additionalProperties: false
+    ConversationsSetTopicResponse:
+      type: object
+      required:
+        - ok
+        - channel
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+        channel:
+          $ref: '#/components/schemas/ConversationObject'
+      additionalProperties: false
+    BaseErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          description: Error code
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+        needed:
+          type: string
+          description: The missing scope
+        provided:
+          type: string
+          description: The provided scopes
+    ConversationsArchiveErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - missing_scope
+                - not_supported
+                - channel_not_found
+                - already_archived
+                - cant_archive_general
+                - restricted_action
+                - not_authed
+                - invalid_auth
+                - account_inactive
+    ConversationsCloseErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - channel_not_found
+                - user_does_not_own_channel
+                - missing_scope
+                - not_authed
+                - invalid_auth
+                - account_inactive
+    ConversationsCreateErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - missing_scope
+                - name_taken
+                - restricted_action
+                - no_channel
+                - invalid_name_required
+                - invalid_name_punctuation
+                - invalid_name_maxlength
+                - invalid_name_specials
+                - invalid_name
+                - not_authed
+                - invalid_auth
+    ConversationsHistoryErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - missing_scope
+                - channel_not_found
+                - invalid_ts_latest
+                - invalid_ts_oldest
+                - not_authed
+                - invalid_auth
+                - account_inactive
+    ConversationsInfoErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - missing_scope
+                - channel_not_found
+                - team_added_to_org
+                - not_authed
+                - invalid_auth
+                - account_inactive
+    ConversationsInviteErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - missing_scope
+                - channel_not_found
+                - user_not_found
+                - no_user
+                - cant_invite_self
+                - not_in_channel
+                - already_in_channel
+                - is_archived
+                - cant_invite
+                - too_many_users
+            errors:
+              type: array
+              description: Errors associated with specific users
+              items:
+                type: object
+    ConversationsJoinErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - missing_scope
+                - channel_not_found
+                - is_archived
+                - not_authed
+                - invalid_auth
+                - account_inactive
+    ConversationsKickErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - missing_scope
+                - channel_not_found
+                - user_not_found
+                - cant_kick_self
+                - not_in_channel
+                - cant_kick_from_general
+                - restricted_action
+    ConversationsLeaveErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - last_member
+                - missing_scope
+                - channel_not_found
+                - is_archived
+                - cant_leave_general
+                - not_authed
+                - invalid_auth
+    ConversationsListErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - missing_scope
+                - not_authed
+                - invalid_auth
+                - account_inactive
+    ConversationsMarkErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - missing_scope
+                - channel_not_found
+                - invalid_timestamp
+                - not_in_channel
+                - not_authed
+                - invalid_auth
+    ConversationsMembersErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - channel_not_found
+                - invalid_limit
+                - invalid_cursor
+                - fetch_members_failed
+                - not_authed
+                - invalid_auth
+    ConversationsOpenErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - user_not_found
+                - user_not_visible
+                - user_disabled
+                - users_list_not_supplied
+                - not_enough_users
+                - too_many_users
+                - invalid_user_combination
+                - channel_not_found
+    ConversationsRenameErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - user_is_restricted
+                - method_not_supported_for_channel_type
+                - missing_scope
+                - channel_not_found
+                - not_in_channel
+                - not_authorized
+                - invalid_name
+                - name_taken
+    ConversationsRepliesErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - missing_scope
+                - channel_not_found
+                - thread_not_found
+                - not_authed
+                - invalid_auth
+    ConversationsSetPurposeErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - missing_scope
+                - channel_not_found
+                - not_in_channel
+                - is_archived
+                - too_long
+                - user_is_restricted
+    ConversationsSetTopicErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - missing_scope
+                - channel_not_found
+                - not_in_channel
+                - is_archived
+                - too_long
+                - user_is_restricted
+    ConversationsUnarchiveErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+              enum:
+                - method_not_supported_for_channel_type
+                - missing_scope
+                - channel_not_found
+                - not_archived
+                - not_authed
+                - invalid_auth
+  examples:
+    ConversationsArchiveRequestExample:
+      summary: Example request to archive a conversation
+      value:
+        channel: C012AB3CD
+    ConversationsCloseRequestExample:
+      summary: Example request to close a DM
+      value:
+        channel: D012AB3CD
+    ConversationsCreateRequestExample:
+      summary: Example request to create a channel
+      value:
+        name: my-new-channel
+        is_private: false
+    ConversationsInviteRequestExample:
+      summary: Example request to invite users
+      value:
+        channel: C012AB3CD
+        users: U012A3CDE,U023BECGF
+    ConversationsJoinRequestExample:
+      summary: Example request to join a conversation
+      value:
+        channel: C012AB3CD
+    ConversationsKickRequestExample:
+      summary: Example request to remove a user
+      value:
+        channel: C012AB3CD
+        user: U012A3CDE
+    ConversationsLeaveRequestExample:
+      summary: Example request to leave a conversation
+      value:
+        channel: C012AB3CD
+    ConversationsMarkRequestExample:
+      summary: Example request to mark a conversation
+      value:
+        channel: C012AB3CD
+        ts: 1593473566.0002
+    ConversationsOpenRequestExample:
+      summary: Example request to open a DM
+      value:
+        users: U012A3CDE
+        return_im: true
+    ConversationsRenameRequestExample:
+      summary: Example request to rename a conversation
+      value:
+        channel: C012AB3CD
+        name: new-channel-name
+    ConversationsSetPurposeRequestExample:
+      summary: Example request to set conversation purpose
+      value:
+        channel: C012AB3CD
+        purpose: This channel is for team announcements
+    ConversationsSetTopicRequestExample:
+      summary: Example request to set conversation topic
+      value:
+        channel: C012AB3CD
+        topic: Discuss project updates here
+    ConversationsUnarchiveRequestExample:
+      summary: Example request to unarchive a conversation
+      value:
+        channel: C012AB3CD
+    SuccessResponseExample:
+      summary: Example of a successful response
+      value:
+        ok: true
+    ConversationsCloseSuccessResponseExample:
+      summary: Example of a successful close response
+      value:
+        ok: true
+        no_op: false
+        already_closed: false
+    ConversationsCreateSuccessResponseExample:
+      summary: Example of a successful create response
+      value:
+        ok: true
+        channel:
+          Id: C0EAQDV4Z
+          Name: endeavor
+          NameNormalized: endeavor
+          IsChannel: true
+          IsGroup: false
+          IsIm: false
+          IsMpim: false
+          IsPrivate: false
+          IsArchived: false
+          IsGeneral: false
+          IsMember: true
+          IsShared: false
+          IsExtShared: false
+          IsOrgShared: false
+          IsPendingExtShared: false
+          Created: 1504554479
+          Creator: U0123456
+          Unlinked: 0
+          LastRead: '0000000000.000000'
+          Topic:
+            Value: ''
+            Creator: ''
+            LastSet: 0
+          Purpose:
+            Value: ''
+            Creator: ''
+            LastSet: 0
+          PreviousNames: []
+          PendingShared: []
+    ConversationsHistorySuccessResponseExample:
+      summary: Example of a successful history response
+      value:
+        ok: true
+        messages:
+          - Type: message
+            User: U012AB3CDE
+            Text: I find you punny and would like to smell your nose letter
+            Ts: '1512085950.000216'
+          - Type: message
+            User: U061F7AUR
+            Text: What, you want to smell my shoes better?
+            Ts: '1512104434.000490'
+        has_more: true
+        pin_count: 0
+        response_metadata:
+          NextCursor: bmV4dF90czoxNTEyMDg1ODYxMDAwNTQz
+    ConversationsInfoSuccessResponseExample:
+      summary: Example of a successful info response
+      value:
+        ok: true
+        channel:
+          Id: C012AB3CD
+          Name: general
+          NameNormalized: general
+          IsChannel: true
+          IsGroup: false
+          IsIm: false
+          IsMpim: false
+          IsPrivate: false
+          IsArchived: false
+          IsGeneral: true
+          IsMember: true
+          IsShared: false
+          IsExtShared: false
+          IsOrgShared: false
+          IsPendingExtShared: false
+          IsReadOnly: false
+          Created: 1449252889
+          Creator: W012A3BCD
+          Unlinked: 0
+          LastRead: '1502126650.228446'
+          Locale: en-US
+          Topic:
+            Value: For public discussion of generalities
+            Creator: W012A3BCD
+            LastSet: 1449709364
+          Purpose:
+            Value: This part of the workspace is for fun. Make fun here.
+            Creator: W012A3BCD
+            LastSet: 1449709364
+          PreviousNames:
+            - specifics
+            - abstractions
+            - etc
+          PendingShared: []
+    ConversationsInviteSuccessResponseExample:
+      summary: Example of a successful invite response
+      value:
+        ok: true
+        channel:
+          Id: C012AB3CD
+          Name: general
+          NameNormalized: general
+          IsChannel: true
+          IsGroup: false
+          IsIm: false
+          IsMpim: false
+          IsPrivate: false
+          IsArchived: false
+          IsGeneral: true
+          IsMember: true
+          NumMembers: 23
+    ConversationsJoinSuccessResponseExample:
+      summary: Example of a successful join response
+      value:
+        ok: true
+        channel:
+          Id: C061EG9SL
+          Name: general
+          NameNormalized: general
+          IsChannel: true
+          IsGroup: false
+          IsIm: false
+          IsMpim: false
+          IsPrivate: false
+          IsArchived: false
+          IsGeneral: true
+          IsMember: true
+          Created: 1449252889
+          Creator: U061F7AUR
+        warning: already_in_channel
+        response_metadata:
+          Warnings:
+            - already_in_channel
+    ConversationsLeaveSuccessResponseExample:
+      summary: Example of a successful leave response
+      value:
+        ok: true
+        not_in_channel: false
+    ConversationsListSuccessResponseExample:
+      summary: Example of a successful list response
+      value:
+        ok: true
+        channels:
+          - Id: C012AB3CD
+            Name: general
+            NameNormalized: general
+            IsChannel: true
+            IsGroup: false
+            IsIm: false
+            IsMpim: false
+            IsPrivate: false
+            IsArchived: false
+            IsGeneral: true
+            IsMember: true
+            NumMembers: 4
+            Topic:
+              Value: Company-wide announcements and work-based matters
+              Creator: ''
+              LastSet: 0
+            Purpose:
+              Value: This channel is for team-wide communication
+              Creator: ''
+              LastSet: 0
+          - Id: C061EG9T2
+            Name: random
+            NameNormalized: random
+            IsChannel: true
+            IsGroup: false
+            IsIm: false
+            IsMpim: false
+            IsPrivate: false
+            IsArchived: false
+            IsGeneral: false
+            IsMember: true
+            NumMembers: 4
+        response_metadata:
+          NextCursor: dGVhbTpDMDYxRkE1UEI=
+    ConversationsMembersSuccessResponseExample:
+      summary: Example of a successful members response
+      value:
+        ok: true
+        members:
+          - U023BECGF
+          - U061F7AUR
+          - W012A3CDE
+        response_metadata:
+          NextCursor: e3VzZXJfaWQ6IFcxMjM0NTY3fQ==
+    ConversationsOpenSuccessResponseExample:
+      summary: Example of a successful open response
+      value:
+        ok: true
+        channel:
+          id: D069C7QFK
+        no_op: false
+        already_open: false
+    ConversationsRenameSuccessResponseExample:
+      summary: Example of a successful rename response
+      value:
+        ok: true
+        channel:
+          Id: C012AB3CD
+          Name: new-channel-name
+          NameNormalized: new-channel-name
+          IsChannel: true
+          IsMember: true
+    ConversationsRepliesSuccessResponseExample:
+      summary: Example of a successful replies response
+      value:
+        ok: true
+        messages:
+          - Type: message
+            User: U061F7AUR
+            Text: island
+            Ts: '1482960137.003543'
+            ThreadTs: '1482960137.003543'
+            ReplyCount: 3
+            Subscribed: true
+            LastRead: '1484678597.521003'
+            UnreadCount: 0
+          - Type: message
+            User: U061F7AUR
+            Text: one island
+            Ts: '1483037603.017503'
+            ThreadTs: '1482960137.003543'
+            ParentUserId: U061F7AUR
+          - Type: message
+            User: U061F7AUR
+            Text: two island
+            Ts: '1483051909.018632'
+            ThreadTs: '1482960137.003543'
+            ParentUserId: U061F7AUR
+        has_more: true
+        response_metadata:
+          NextCursor: bmV4dF90czoxNDg0Njc4MjkwNTE3MDkx
+    ConversationsSetPurposeSuccessResponseExample:
+      summary: Example of a successful setPurpose response
+      value:
+        ok: true
+        channel:
+          Id: C012AB3CD
+          Name: general
+          Purpose:
+            Value: This channel is for team announcements
+            Creator: U012A3CDE
+            LastSet: 1593473566
+    ConversationsSetTopicSuccessResponseExample:
+      summary: Example of a successful setTopic response
+      value:
+        ok: true
+        channel:
+          Id: C012AB3CD
+          Name: general
+          Topic:
+            Value: Discuss project updates here
+            Creator: U012A3CDE
+            LastSet: 1593473566
+    ConversationsArchiveErrorResponseExample:
+      summary: Example error response for archive
+      value:
+        ok: false
+        error: channel_not_found
+    ConversationsCloseErrorResponseExample:
+      summary: Example error response for close
+      value:
+        ok: false
+        error: channel_not_found
+    ConversationsCreateErrorResponseExample:
+      summary: Example error response for create
+      value:
+        ok: false
+        error: name_taken
+    ConversationsHistoryErrorResponseExample:
+      summary: Example error response for history
+      value:
+        ok: false
+        error: channel_not_found
+    ConversationsInfoErrorResponseExample:
+      summary: Example error response for info
+      value:
+        ok: false
+        error: channel_not_found
+    ConversationsInviteErrorResponseExample:
+      summary: Example error response for invite
+      value:
+        ok: false
+        error: method_not_supported_for_channel_type
+    ConversationsJoinErrorResponseExample:
+      summary: Example error response for join
+      value:
+        ok: false
+        error: is_archived
+    ConversationsKickErrorResponseExample:
+      summary: Example error response for kick
+      value:
+        ok: false
+        error: cant_kick_self
+    ConversationsLeaveErrorResponseExample:
+      summary: Example error response for leave
+      value:
+        ok: false
+        error: cant_leave_general
+    ConversationsListErrorResponseExample:
+      summary: Example error response for list
+      value:
+        ok: false
+        error: invalid_auth
+    ConversationsMarkErrorResponseExample:
+      summary: Example error response for mark
+      value:
+        ok: false
+        error: invalid_auth
+    ConversationsMembersErrorResponseExample:
+      summary: Example error response for members
+      value:
+        ok: false
+        error: invalid_cursor
+    ConversationsOpenErrorResponseExample:
+      summary: Example error response for open
+      value:
+        ok: false
+        error: channel_not_found
+    ConversationsRenameErrorResponseExample:
+      summary: Example error response for rename
+      value:
+        ok: false
+        error: not_in_channel
+    ConversationsRepliesErrorResponseExample:
+      summary: Example error response for replies
+      value:
+        ok: false
+        error: thread_not_found
+    ConversationsSetPurposeErrorResponseExample:
+      summary: Example error response for setPurpose
+      value:
+        ok: false
+        error: invalid_auth
+    ConversationsSetTopicErrorResponseExample:
+      summary: Example error response for setTopic
+      value:
+        ok: false
+        error: invalid_auth
+    ConversationsUnarchiveErrorResponseExample:
+      summary: Example error response for unarchive
+      value:
+        ok: false
+        error: channel_not_found

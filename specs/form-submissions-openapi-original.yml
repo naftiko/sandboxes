@@ -1,0 +1,893 @@
+openapi: 3.1.0
+info:
+  title: webflow-form-submissions-api
+  description: >
+    API for managing form submissions in Webflow. This API allows you to
+    retrieve, update, 
+
+    and delete form submissions collected from your Webflow sites. Form
+    submissions contain 
+
+    user-entered data from forms on your published sites.
+  version: 1.0.0
+servers:
+  - url: https://api.webflow.com/v2
+    description: Webflow API v2
+  - url: http://localhost:8080/rest/webflow-form-submissions-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Form Submissions
+    description: Operations for managing individual form submission records
+  - name: Site Form Submissions
+    description: Operations for managing form submissions within a specific site context
+paths:
+  /form_submissions/{form_submission_id}:
+    get:
+      operationId: getFormSubmission
+      summary: Get Form Submission
+      description: >
+        Retrieve detailed information about a specific form submission by its
+        unique identifier.
+
+
+        Required scope: `forms:read`
+      tags:
+        - Form Submissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GetFormSubmissionSuccess"
+      security:
+        - OAuth2:
+            - forms:read
+      parameters:
+        - $ref: '#/components/parameters/FormSubmissionId'
+      responses:
+        '200':
+          description: Form submission retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormSubmission'
+              examples:
+                GetFormSubmissionSuccess:
+                  $ref: '#/components/examples/FormSubmissionExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+    patch:
+      operationId: updateFormSubmission
+      summary: Update Form Submission
+      description: >
+        Update the read status or other modifiable properties of a specific form
+        submission.
+
+
+        Required scope: `forms:write`
+      tags:
+        - Form Submissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "UpdateFormSubmissionSuccess"
+      security:
+        - OAuth2:
+            - forms:write
+      parameters:
+        - $ref: '#/components/parameters/FormSubmissionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormSubmissionUpdateRequest'
+            examples:
+              UpdateFormSubmissionRequest:
+                $ref: '#/components/examples/FormSubmissionUpdateRequestExample'
+      responses:
+        '200':
+          description: Form submission updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormSubmission'
+              examples:
+                UpdateFormSubmissionSuccess:
+                  $ref: '#/components/examples/FormSubmissionUpdatedExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+    delete:
+      operationId: deleteFormSubmission
+      summary: Delete Form Submission
+      description: >
+        Permanently delete a specific form submission. This action cannot be
+        undone.
+
+
+        Required scope: `forms:write`
+      tags:
+        - Form Submissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "DeleteFormSubmissionSuccess"
+      security:
+        - OAuth2:
+            - forms:write
+      parameters:
+        - $ref: '#/components/parameters/FormSubmissionId'
+      responses:
+        '204':
+          description: Form submission deleted successfully
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+  /sites/{site_id}/form_submissions:
+    get:
+      operationId: listFormSubmissionsBySite
+      summary: List Form Submissions By Site
+      description: |
+        Retrieve a paginated list of all form submissions for a specific site.
+
+        Required scope: `forms:read`
+      tags:
+        - Site Form Submissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListFormSubmissionsBySiteSuccess"
+      security:
+        - OAuth2:
+            - forms:read
+      parameters:
+        - $ref: '#/components/parameters/SiteId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Form submissions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormSubmissionList'
+              examples:
+                ListFormSubmissionsBySiteSuccess:
+                  $ref: '#/components/examples/FormSubmissionListExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+  /sites/{site_id}/form_submissions/{form_submission_id}:
+    get:
+      operationId: getFormSubmissionBySite
+      summary: Get Form Submission By Site
+      description: >
+        Retrieve detailed information about a specific form submission within a
+        site context.
+
+
+        Required scope: `forms:read`
+      tags:
+        - Site Form Submissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GetFormSubmissionBySiteSuccess"
+      security:
+        - OAuth2:
+            - forms:read
+      parameters:
+        - $ref: '#/components/parameters/SiteId'
+        - $ref: '#/components/parameters/FormSubmissionId'
+      responses:
+        '200':
+          description: Form submission retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormSubmission'
+              examples:
+                GetFormSubmissionBySiteSuccess:
+                  $ref: '#/components/examples/FormSubmissionExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+    patch:
+      operationId: updateFormSubmissionBySite
+      summary: Update Form Submission By Site
+      description: >
+        Update the read status or other modifiable properties of a form
+        submission within a site context.
+
+
+        Required scope: `forms:write`
+      tags:
+        - Site Form Submissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "UpdateFormSubmissionBySiteSuccess"
+      security:
+        - OAuth2:
+            - forms:write
+      parameters:
+        - $ref: '#/components/parameters/SiteId'
+        - $ref: '#/components/parameters/FormSubmissionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormSubmissionUpdateRequest'
+            examples:
+              UpdateFormSubmissionRequest:
+                $ref: '#/components/examples/FormSubmissionUpdateRequestExample'
+      responses:
+        '200':
+          description: Form submission updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormSubmission'
+              examples:
+                UpdateFormSubmissionBySiteSuccess:
+                  $ref: '#/components/examples/FormSubmissionUpdatedExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+    delete:
+      operationId: deleteFormSubmissionBySite
+      summary: Delete Form Submission By Site
+      description: >
+        Permanently delete a specific form submission within a site context.
+        This action cannot be undone.
+
+
+        Required scope: `forms:write`
+      tags:
+        - Site Form Submissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "DeleteFormSubmissionBySiteSuccess"
+      security:
+        - OAuth2:
+            - forms:write
+      parameters:
+        - $ref: '#/components/parameters/SiteId'
+        - $ref: '#/components/parameters/FormSubmissionId'
+      responses:
+        '204':
+          description: Form submission deleted successfully
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+components:
+  parameters:
+    FormSubmissionId:
+      name: form_submission_id
+      in: path
+      description: Unique identifier for a form submission
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 580e63e98c9a982ac9b8b741
+    SiteId:
+      name: site_id
+      in: path
+      description: Unique identifier for a site
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 580e63e98c9a982ac9b8b741
+    Limit:
+      name: limit
+      in: query
+      description: Maximum number of records to be returned (max limit is 100)
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 100
+      example: 100
+    Offset:
+      name: offset
+      in: query
+      description: Offset used for pagination if the results have more than limit records
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      example: 0
+  schemas:
+    FormSubmission:
+      type: object
+      description: A form submission containing user-entered data from a Webflow form
+      required:
+        - id
+        - formId
+        - siteId
+        - workspaceId
+        - dateSubmitted
+      properties:
+        id:
+          type: string
+          format: objectid
+          description: The unique identifier of the form submission
+        formId:
+          type: string
+          format: objectid
+          description: The unique identifier of the form
+        displayName:
+          type: string
+          description: The form name displayed on the site
+        siteId:
+          type: string
+          format: objectid
+          description: The unique identifier of the site the form belongs to
+        workspaceId:
+          type: string
+          format: objectid
+          description: The unique identifier of the workspace the site belongs to
+        dateSubmitted:
+          type: string
+          format: date-time
+          description: Date and time when the form was submitted
+        formResponse:
+          type: object
+          description: The data submitted in the form as key-value pairs
+          additionalProperties: true
+    FormSubmissionList:
+      type: object
+      description: A paginated list of form submissions
+      required:
+        - formSubmissions
+        - pagination
+      properties:
+        formSubmissions:
+          type: array
+          description: Array of form submission objects
+          items:
+            $ref: '#/components/schemas/FormSubmission'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    FormSubmissionUpdateRequest:
+      type: object
+      description: Request body for updating a form submission
+      properties:
+        isRead:
+          type: boolean
+          description: Whether the form submission has been read
+    Pagination:
+      type: object
+      description: Pagination information for list responses
+      required:
+        - limit
+        - offset
+        - total
+      properties:
+        limit:
+          type: integer
+          description: The limit used for pagination
+        offset:
+          type: integer
+          description: The offset used for pagination
+        total:
+          type: integer
+          description: The total number of records
+    Error:
+      type: object
+      description: Error response object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code identifier
+          enum:
+            - bad_request
+            - not_authorized
+            - forbidden
+            - resource_not_found
+            - too_many_requests
+            - internal_error
+            - validation_error
+        message:
+          type: string
+          description: Human-readable error message
+        externalReference:
+          type: string
+          nullable: true
+          description: Link to more information about the error
+        details:
+          type: array
+          description: Array of detailed error information
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field that caused the error
+              message:
+                type: string
+                description: Error message for the field
+  examples:
+    FormSubmissionExample:
+      summary: Example form submission
+      value:
+        id: 6321ca84df3949bfc6752327
+        formId: 6321ca84df3949bfc6752328
+        displayName: Contact Form
+        siteId: 62749158efef318abc8d5a0f
+        workspaceId: 62749158efef318abc8d5a10
+        dateSubmitted: '2022-09-14T12:35:16.117Z'
+        formResponse:
+          firstName: Arthur
+          lastName: Dent
+          email: arthur.dent@example.com
+    FormSubmissionUpdatedExample:
+      summary: Example updated form submission
+      value:
+        id: 6321ca84df3949bfc6752327
+        formId: 6321ca84df3949bfc6752328
+        displayName: Contact Form
+        siteId: 62749158efef318abc8d5a0f
+        workspaceId: 62749158efef318abc8d5a10
+        dateSubmitted: '2022-09-14T12:35:16.117Z'
+        formResponse:
+          firstName: Arthur
+          lastName: Dent
+          email: arthur.dent@example.com
+    FormSubmissionListExample:
+      summary: Example list of form submissions
+      value:
+        formSubmissions:
+          - id: 6321ca84df3949bfc6752327
+            formId: 6321ca84df3949bfc6752328
+            displayName: Contact Form
+            siteId: 62749158efef318abc8d5a0f
+            workspaceId: 62749158efef318abc8d5a10
+            dateSubmitted: '2022-09-14T12:35:16.117Z'
+            formResponse:
+              firstName: Arthur
+              lastName: Dent
+              email: arthur.dent@example.com
+          - id: 6321ca84df3949bfc6752329
+            formId: 6321ca84df3949bfc6752328
+            displayName: Contact Form
+            siteId: 62749158efef318abc8d5a0f
+            workspaceId: 62749158efef318abc8d5a10
+            dateSubmitted: '2022-09-15T09:22:45.000Z'
+            formResponse:
+              firstName: Ford
+              lastName: Prefect
+              email: ford.prefect@example.com
+        pagination:
+          limit: 100
+          offset: 0
+          total: 2
+    FormSubmissionUpdateRequestExample:
+      summary: Example update request
+      value:
+        isRead: true
+    BadRequestErrorExample:
+      summary: Bad request error
+      value:
+        code: bad_request
+        message: 'Bad Request: Request is malformed'
+        externalReference: null
+        details: []
+    UnauthorizedErrorExample:
+      summary: Unauthorized error
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    NotFoundErrorExample:
+      summary: Not found error
+      value:
+        code: resource_not_found
+        message: Resource not found
+        externalReference: null
+        details: []
+    RateLimitErrorExample:
+      summary: Rate limit error
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    InternalErrorExample:
+      summary: Internal server error
+      value:
+        code: internal_error
+        message: An internal error occurred
+        externalReference: null
+        details: []
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://webflow.com/oauth/authorize
+          tokenUrl: https://api.webflow.com/oauth/token
+          scopes:
+            forms:read: Read form data
+            forms:write: Write form data

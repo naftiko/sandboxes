@@ -1,0 +1,839 @@
+openapi: 3.1.0
+info:
+  title: slack-reactions-api
+  version: 1.0.0
+  description: >
+    Slack's Reactions API lets apps programmatically manage emoji reactions on
+    messages and files, 
+
+    making it easy to capture lightweight feedback like approvals,
+    acknowledgments, or votes. Through 
+
+    Web API methods (reactions.add, reactions.remove, reactions.get,
+    reactions.list) and the Events API 
+
+    (reaction_added and reaction_removed), apps can add or delete reactions,
+    read which reactions are 
+
+    on an item, and monitor reaction activity in real time. It works with
+    messages (including threads), 
+
+    files, and file comments in channels, DMs, and group DMs where the app has
+    access. Responses include 
+
+    reaction names, counts, and user IDs, and support both standard and custom
+    emoji. Proper scopes 
+
+    (reactions:read and reactions:write, plus relevant conversation/file scopes)
+    and channel visibility 
+
+    rules apply, rate limits are enforced, and each user can apply at most one
+    instance of a given emoji 
+
+    per item.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-reactions-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Reactions
+    description: Operations for managing emoji reactions on messages and files
+paths:
+  /reactions.add:
+    post:
+      tags:
+        - Reactions
+      summary: Add Reaction
+      description: Adds a reaction to an item (message, file, or file comment).
+      operationId: reactionsAdd
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/reactions.add
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - name: token
+          in: header
+          description: 'Authentication token. Requires scope: `reactions:write`'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactionsAddRequest'
+            examples:
+              addReaction:
+                $ref: '#/components/examples/ReactionsAddRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReactionsAddRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionsAddSuccessResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/ReactionsAddSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionsAddErrorResponse'
+              examples:
+                error:
+                  $ref: '#/components/examples/ReactionsAddErrorExample'
+      security:
+        - slackAuth:
+            - reactions:write
+  /reactions.get:
+    get:
+      tags:
+        - Reactions
+      summary: Get Reactions
+      description: Gets reactions for an item (message, file, or file comment).
+      operationId: reactionsGet
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/reactions.get
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - name: token
+          in: query
+          description: 'Authentication token. Requires scope: `reactions:read`'
+          required: true
+          schema:
+            type: string
+        - name: channel
+          in: query
+          description: Channel where the message to get reactions for was posted.
+          schema:
+            type: string
+        - name: file
+          in: query
+          description: File to get reactions for.
+          schema:
+            type: string
+        - name: file_comment
+          in: query
+          description: File comment to get reactions for.
+          schema:
+            type: string
+        - name: full
+          in: query
+          description: If true always return the complete reaction list.
+          schema:
+            type: boolean
+        - name: timestamp
+          in: query
+          description: Timestamp of the message to get reactions for.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with reactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionsGetSuccessResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/ReactionsGetSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionsGetErrorResponse'
+              examples:
+                error:
+                  $ref: '#/components/examples/ReactionsGetErrorExample'
+      security:
+        - slackAuth:
+            - reactions:read
+  /reactions.list:
+    get:
+      tags:
+        - Reactions
+      summary: List Reactions
+      description: Lists reactions made by a user.
+      operationId: reactionsList
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/reactions.list
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - name: token
+          in: query
+          description: 'Authentication token. Requires scope: `reactions:read`'
+          required: true
+          schema:
+            type: string
+        - name: user
+          in: query
+          description: Show reactions made by this user. Defaults to the authed user.
+          schema:
+            type: string
+        - name: full
+          in: query
+          description: If true always return the complete reaction list.
+          schema:
+            type: boolean
+        - name: count
+          in: query
+          description: Number of items to return per page.
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Page number of results to return.
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          description: >
+            Parameter for pagination. Set `cursor` equal to the `next_cursor`
+            attribute 
+
+            returned by the previous request's `response_metadata`. This
+            parameter is optional, 
+
+            but pagination is mandatory: the default value simply fetches the
+            first "page" of 
+
+            the collection.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: >
+            The maximum number of items to return. Fewer than the requested
+            number of items 
+
+            may be returned, even if the end of the list hasn't been reached.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response with list of reactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionsListSuccessResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/ReactionsListSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionsListErrorResponse'
+              examples:
+                error:
+                  $ref: '#/components/examples/ReactionsListErrorExample'
+      security:
+        - slackAuth:
+            - reactions:read
+  /reactions.remove:
+    post:
+      tags:
+        - Reactions
+      summary: Remove Reaction
+      description: Removes a reaction from an item (message, file, or file comment).
+      operationId: reactionsRemove
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/reactions.remove
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - name: token
+          in: header
+          description: 'Authentication token. Requires scope: `reactions:write`'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactionsRemoveRequest'
+            examples:
+              removeReaction:
+                $ref: '#/components/examples/ReactionsRemoveRequestExample'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReactionsRemoveRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionsRemoveSuccessResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/ReactionsRemoveSuccessExample'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionsRemoveErrorResponse'
+              examples:
+                error:
+                  $ref: '#/components/examples/ReactionsRemoveErrorExample'
+      security:
+        - slackAuth:
+            - reactions:write
+components:
+  securitySchemes:
+    slackAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            reactions:read: View reactions in channels and DMs
+            reactions:write: Add and remove reactions
+  schemas:
+    DefsOkTrue:
+      type: boolean
+      enum:
+        - true
+      description: Indicates successful operation
+    DefsOkFalse:
+      type: boolean
+      enum:
+        - false
+      description: Indicates failed operation
+    ReactionObject:
+      type: object
+      description: A reaction with emoji name, count, and users
+      properties:
+        name:
+          type: string
+          description: Emoji name (without colons)
+        count:
+          type: integer
+          description: Number of users who reacted with this emoji
+        users:
+          type: array
+          items:
+            type: string
+          description: List of user IDs who reacted with this emoji
+    MessageObject:
+      type: object
+      description: A message with reactions
+      properties:
+        type:
+          type: string
+          description: Message type
+        ts:
+          type: string
+          description: Message timestamp
+        text:
+          type: string
+          description: Message text
+        bot_id:
+          type: string
+          description: Bot ID if sent by a bot
+        username:
+          type: string
+          description: Username of sender
+        subtype:
+          type: string
+          description: Message subtype
+        reactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReactionObject'
+          description: Reactions on this message
+    FileObject:
+      type: object
+      description: A file with reactions
+      properties:
+        id:
+          type: string
+          description: File ID
+        name:
+          type: string
+          description: File name
+        title:
+          type: string
+          description: File title
+        user:
+          type: string
+          description: User ID who uploaded the file
+        username:
+          type: string
+          description: Username who uploaded the file
+        created:
+          type: integer
+          description: Unix timestamp of file creation
+        timestamp:
+          type: integer
+          description: Unix timestamp
+        size:
+          type: integer
+          description: File size in bytes
+        channels:
+          type: array
+          items:
+            type: string
+          description: Channels where file is shared
+        groups:
+          type: array
+          items:
+            type: string
+          description: Private channels where file is shared
+        ims:
+          type: array
+          items:
+            type: string
+          description: DMs where file is shared
+        comments_count:
+          type: integer
+          description: Number of comments on the file
+        reactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReactionObject'
+          description: Reactions on this file
+    FileCommentObject:
+      type: object
+      description: A file comment with reactions
+      properties:
+        id:
+          type: string
+          description: Comment ID
+        type:
+          type: string
+          description: Object type (file_comment)
+        comment:
+          type: string
+          description: Comment text
+        user:
+          type: string
+          description: User ID who made the comment
+        created:
+          type: integer
+          description: Unix timestamp of comment creation
+        timestamp:
+          type: integer
+          description: Unix timestamp
+        reactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReactionObject'
+          description: Reactions on this comment
+    ReactionItemObject:
+      type: object
+      description: An item (message, file, or file comment) with reactions
+      properties:
+        type:
+          type: string
+          description: Item type (message, file, or file_comment)
+        channel:
+          type: string
+          description: Channel ID (for messages)
+        message:
+          $ref: '#/components/schemas/MessageObject'
+        file:
+          $ref: '#/components/schemas/FileObject'
+        comment:
+          $ref: '#/components/schemas/FileCommentObject'
+    PagingObject:
+      type: object
+      description: Pagination information
+      properties:
+        count:
+          type: integer
+          description: Number of items per page
+        total:
+          type: integer
+          description: Total number of items
+        page:
+          type: integer
+          description: Current page number
+        pages:
+          type: integer
+          description: Total number of pages
+    ResponseMetadataObject:
+      type: object
+      description: Cursor-based pagination metadata
+      properties:
+        next_cursor:
+          type: string
+          description: Cursor for the next page of results
+    ReactionsAddRequest:
+      type: object
+      description: Request body for adding a reaction
+      required:
+        - channel
+        - name
+        - timestamp
+      properties:
+        channel:
+          type: string
+          description: Channel where the message to add reaction to was posted.
+        name:
+          type: string
+          description: Reaction (emoji) name without colons.
+        timestamp:
+          type: string
+          description: Timestamp of the message to add reaction to.
+    ReactionsAddSuccessResponse:
+      type: object
+      description: Schema for successful response from reactions.add method
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkTrue'
+      additionalProperties: false
+    ReactionsAddErrorResponse:
+      type: object
+      description: Schema for error response from reactions.add method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkFalse'
+        error:
+          type: string
+          description: Error code
+          enum:
+            - bad_timestamp
+            - message_not_found
+            - no_item_specified
+            - invalid_name
+            - already_reacted
+            - too_many_emoji
+            - too_many_reactions
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - no_permission
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ReactionsGetSuccessResponse:
+      type: object
+      description: Schema for successful response from reactions.get method
+      required:
+        - ok
+        - type
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkTrue'
+        type:
+          type: string
+          description: Type of item (message, file, or file_comment)
+        channel:
+          type: string
+          description: Channel ID (for message type)
+        message:
+          $ref: '#/components/schemas/MessageObject'
+        file:
+          $ref: '#/components/schemas/FileObject'
+        comment:
+          $ref: '#/components/schemas/FileCommentObject'
+      additionalProperties: false
+    ReactionsGetErrorResponse:
+      type: object
+      description: Schema for error response from reactions.get method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkFalse'
+        error:
+          type: string
+          description: Error code
+          enum:
+            - bad_timestamp
+            - file_not_found
+            - file_comment_not_found
+            - message_not_found
+            - no_item_specified
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - no_permission
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ReactionsListSuccessResponse:
+      type: object
+      description: Schema for successful response from reactions.list method
+      required:
+        - ok
+        - items
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkTrue'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReactionItemObject'
+          description: List of items with reactions
+        paging:
+          $ref: '#/components/schemas/PagingObject'
+        response_metadata:
+          $ref: '#/components/schemas/ResponseMetadataObject'
+      additionalProperties: false
+    ReactionsListErrorResponse:
+      type: object
+      description: Schema for error response from reactions.list method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkFalse'
+        error:
+          type: string
+          description: Error code
+          enum:
+            - user_not_found
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - no_permission
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+    ReactionsRemoveRequest:
+      type: object
+      description: Request body for removing a reaction
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Reaction (emoji) name without colons.
+        file:
+          type: string
+          description: File to remove reaction from.
+        file_comment:
+          type: string
+          description: File comment to remove reaction from.
+        channel:
+          type: string
+          description: Channel where the message to remove reaction from was posted.
+        timestamp:
+          type: string
+          description: Timestamp of the message to remove reaction from.
+    ReactionsRemoveSuccessResponse:
+      type: object
+      description: Schema for successful response from reactions.remove method
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkTrue'
+      additionalProperties: false
+    ReactionsRemoveErrorResponse:
+      type: object
+      description: Schema for error response from reactions.remove method
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/DefsOkFalse'
+        error:
+          type: string
+          description: Error code
+          enum:
+            - bad_timestamp
+            - file_not_found
+            - file_comment_not_found
+            - message_not_found
+            - no_item_specified
+            - invalid_name
+            - no_reaction
+            - not_authed
+            - invalid_auth
+            - account_inactive
+            - no_permission
+            - invalid_arg_name
+            - invalid_array_arg
+            - invalid_charset
+            - invalid_form_data
+            - invalid_post_type
+            - missing_post_type
+            - team_added_to_org
+            - invalid_json
+            - json_not_object
+            - request_timeout
+            - upgrade_required
+            - fatal_error
+        callstack:
+          type: string
+          description: 'Note: PHP callstack is only visible in dev/qa'
+      additionalProperties: false
+  examples:
+    ReactionsAddRequestExample:
+      summary: Add thumbsup reaction to a message
+      value:
+        channel: C1234567890
+        name: thumbsup
+        timestamp: '1234567890.123456'
+    ReactionsAddSuccessExample:
+      summary: Successful reaction added
+      value:
+        ok: true
+    ReactionsAddErrorExample:
+      summary: Already reacted error
+      value:
+        ok: false
+        error: already_reacted
+    ReactionsGetSuccessExample:
+      summary: Successful get reactions for a file
+      value:
+        ok: true
+        type: file
+        file:
+          id: F7H0D7ZA4
+          name: computer.gif
+          title: computer.gif
+          user: U2U85N1RV
+          created: 1507850315
+          timestamp: 1507850315
+          channels:
+            - C2U7V2YA2
+          groups: []
+          ims: []
+          comments_count: 1
+          reactions:
+            - name: stuck_out_tongue_winking_eye
+              count: 1
+              users:
+                - U2U85N1RV
+    ReactionsGetErrorExample:
+      summary: Authentication error
+      value:
+        ok: false
+        error: invalid_auth
+    ReactionsListSuccessExample:
+      summary: Successful list of reactions
+      value:
+        ok: true
+        items:
+          - type: message
+            channel: C3UKJTQAC
+            message:
+              bot_id: B4VLRLMKJ
+              text: 'Hello from Python! :tada:'
+              ts: '1507849573.000090'
+              username: Shipit Notifications
+              subtype: bot_message
+              reactions:
+                - name: robot_face
+                  count: 1
+                  users:
+                    - U2U85N1RV
+          - type: file
+            file:
+              id: F7H0D7ZA4
+              name: computer.gif
+              title: computer.gif
+              user: U2U85N1RV
+              username: ''
+              created: 1507850315
+              channels:
+                - C2U7V2YA2
+              comments_count: 1
+              reactions:
+                - name: stuck_out_tongue_winking_eye
+                  count: 1
+                  users:
+                    - U2U85N1RV
+        response_metadata:
+          next_cursor: dGVhbTpDMUg5UkVTR0w=
+    ReactionsListErrorExample:
+      summary: Authentication error
+      value:
+        ok: false
+        error: invalid_auth
+    ReactionsRemoveRequestExample:
+      summary: Remove thumbsup reaction from a message
+      value:
+        name: thumbsup
+        channel: C1234567890
+        timestamp: '1234567890.123456'
+    ReactionsRemoveSuccessExample:
+      summary: Successful reaction removed
+      value:
+        ok: true
+    ReactionsRemoveErrorExample:
+      summary: No reaction to remove
+      value:
+        ok: false
+        error: no_reaction

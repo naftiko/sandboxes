@@ -1,0 +1,792 @@
+openapi: 3.1.0
+info:
+  title: webflow-forms-api
+  description: >
+    API for managing forms in Webflow. This API allows you to retrieve form
+    definitions, 
+
+    schemas, and submissions from your Webflow sites. Forms are used to collect
+    user input 
+
+    on your published websites.
+  version: 1.0.0
+servers:
+  - url: https://api.webflow.com/v2
+    description: Webflow API v2
+  - url: http://localhost:8080/rest/webflow-forms-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Site Forms
+    description: Operations for listing forms within a specific site
+  - name: Form Details
+    description: Operations for retrieving form schema and details
+  - name: Form Submissions
+    description: Operations for listing submissions for a specific form
+paths:
+  /sites/{site_id}/forms:
+    get:
+      operationId: listSiteForms
+      summary: List Site Forms
+      description: |
+        Retrieve a paginated list of all forms configured for a specific site.
+
+        Required scope: `forms:read`
+      tags:
+        - Site Forms
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListSiteFormsSuccess"
+      security:
+        - OAuth2:
+            - forms:read
+      parameters:
+        - $ref: '#/components/parameters/SiteId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Forms retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormList'
+              examples:
+                ListSiteFormsSuccess:
+                  $ref: '#/components/examples/FormListExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+  /forms/{form_id}:
+    get:
+      operationId: getFormSchema
+      summary: Get Form Schema
+      description: >
+        Retrieve detailed information about a specific form including its field
+        definitions and response settings.
+
+
+        Required scope: `forms:read`
+      tags:
+        - Form Details
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GetFormSchemaSuccess"
+      security:
+        - OAuth2:
+            - forms:read
+      parameters:
+        - $ref: '#/components/parameters/FormId'
+      responses:
+        '200':
+          description: Form schema retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+              examples:
+                GetFormSchemaSuccess:
+                  $ref: '#/components/examples/FormExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+  /forms/{form_id}/submissions:
+    get:
+      operationId: listFormSubmissions
+      summary: List Form Submissions
+      description: >
+        Retrieve a paginated list of submissions for a specific form.
+
+
+        When a form is used in a component definition, each instance of the form
+        is considered a unique form.
+
+        To get a combined list of submissions for a form that appears across
+        multiple component instances, 
+
+        use the List Form Submissions by Site endpoint.
+
+
+        Required scope: `forms:read`
+      tags:
+        - Form Submissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListFormSubmissionsSuccess"
+      security:
+        - OAuth2:
+            - forms:read
+      parameters:
+        - $ref: '#/components/parameters/FormId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Form submissions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormSubmissionList'
+              examples:
+                ListFormSubmissionsSuccess:
+                  $ref: '#/components/examples/FormSubmissionListExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+  /sites/{site_id}/forms/{form_id}/submissions:
+    get:
+      operationId: listSiteFormSubmissions
+      summary: List Site Form Submissions
+      description: >
+        Retrieve a paginated list of submissions for a specific form within a
+        site context.
+
+
+        Use the List Form Submissions by Site endpoint to list form submissions
+        for a given site 
+
+        with the ability to filter by a formElementId.
+
+
+        Required scope: `forms:read`
+      tags:
+        - Form Submissions
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListSiteFormSubmissionsSuccess"
+      security:
+        - OAuth2:
+            - forms:read
+      parameters:
+        - $ref: '#/components/parameters/SiteId'
+        - $ref: '#/components/parameters/FormId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Form submissions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormSubmissionList'
+              examples:
+                ListSiteFormSubmissionsSuccess:
+                  $ref: '#/components/examples/FormSubmissionListExample'
+        '400':
+          description: Request body was incorrectly formatted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                BadRequestError:
+                  $ref: '#/components/examples/BadRequestErrorExample'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedError:
+                  $ref: '#/components/examples/UnauthorizedErrorExample'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/NotFoundErrorExample'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              description: Number of available requests remaining in the current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                RateLimitError:
+                  $ref: '#/components/examples/RateLimitErrorExample'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InternalError:
+                  $ref: '#/components/examples/InternalErrorExample'
+components:
+  parameters:
+    SiteId:
+      name: site_id
+      in: path
+      description: Unique identifier for a site
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 580e63e98c9a982ac9b8b741
+    FormId:
+      name: form_id
+      in: path
+      description: Unique identifier for a form
+      required: true
+      schema:
+        type: string
+        format: objectid
+      example: 580e63e98c9a982ac9b8b741
+    Limit:
+      name: limit
+      in: query
+      description: Maximum number of records to be returned (max limit is 100)
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 100
+      example: 100
+    Offset:
+      name: offset
+      in: query
+      description: Offset used for pagination if the results have more than limit records
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      example: 0
+  schemas:
+    Form:
+      type: object
+      description: A Webflow form definition with field schema and response settings
+      properties:
+        id:
+          type: string
+          format: objectid
+          description: The unique identifier for the form
+        displayName:
+          type: string
+          description: The form name displayed on the site
+        createdOn:
+          type: string
+          format: date-time
+          description: Date and time when the form was created
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Date and time when the form was last updated
+        fields:
+          type: object
+          description: A collection of form field objects keyed by field ID
+          additionalProperties:
+            $ref: '#/components/schemas/FormField'
+        responseSettings:
+          $ref: '#/components/schemas/FormResponseSettings'
+        siteId:
+          type: string
+          format: objectid
+          description: The unique identifier of the site the form belongs to
+        siteDomainId:
+          type: string
+          format: objectid
+          description: The unique identifier corresponding to the site's domain name
+        pageId:
+          type: string
+          format: objectid
+          description: The unique identifier for the page on which the form is placed
+        pageName:
+          type: string
+          description: The user-visible name of the page where the form is placed
+        formElementId:
+          type: string
+          nullable: true
+          description: The unique identifier of the form element
+        workspaceId:
+          type: string
+          format: objectid
+          description: The unique identifier of the workspace the site belongs to
+    FormField:
+      type: object
+      description: Form field definition with display and validation properties
+      properties:
+        displayName:
+          type: string
+          description: The field name displayed on the site
+        type:
+          type: string
+          description: The field input type
+          enum:
+            - Plain
+            - Email
+            - Password
+            - Phone
+            - Number
+        placeholder:
+          type: string
+          nullable: true
+          description: The placeholder text for the field
+        userVisible:
+          type: boolean
+          description: Whether the field is visible to the user
+    FormResponseSettings:
+      type: object
+      description: Settings for form submission responses
+      properties:
+        redirectUrl:
+          type: string
+          description: The URL or path to redirect the user to after form submission
+        redirectMethod:
+          type: string
+          nullable: true
+          description: The HTTP request method to use for the redirect URL (GET or POST)
+        redirectAction:
+          type: string
+          nullable: true
+          description: The action to take after form submission
+        sendEmailConfirmation:
+          type: boolean
+          description: Whether to send an email confirmation to the user
+    FormList:
+      type: object
+      description: A paginated list of forms
+      required:
+        - forms
+        - pagination
+      properties:
+        forms:
+          type: array
+          description: Array of form objects
+          items:
+            $ref: '#/components/schemas/Form'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    FormSubmission:
+      type: object
+      description: A form submission containing user-entered data
+      properties:
+        id:
+          type: string
+          format: objectid
+          description: The unique identifier of the form submission
+        formId:
+          type: string
+          format: objectid
+          description: The unique identifier of the form
+        displayName:
+          type: string
+          description: The form name displayed on the site
+        siteId:
+          type: string
+          format: objectid
+          description: The unique identifier of the site the form belongs to
+        workspaceId:
+          type: string
+          format: objectid
+          description: The unique identifier of the workspace the site belongs to
+        dateSubmitted:
+          type: string
+          format: date-time
+          description: Date and time when the form was submitted
+        formResponse:
+          type: object
+          description: The data submitted in the form as key-value pairs
+          additionalProperties: true
+    FormSubmissionList:
+      type: object
+      description: A paginated list of form submissions
+      required:
+        - formSubmissions
+        - pagination
+      properties:
+        formSubmissions:
+          type: array
+          description: Array of form submission objects
+          items:
+            $ref: '#/components/schemas/FormSubmission'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    Pagination:
+      type: object
+      description: Pagination information for list responses
+      required:
+        - limit
+        - offset
+        - total
+      properties:
+        limit:
+          type: integer
+          description: The limit used for pagination
+        offset:
+          type: integer
+          description: The offset used for pagination
+        total:
+          type: integer
+          description: The total number of records
+    Error:
+      type: object
+      description: Error response object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code identifier
+          enum:
+            - bad_request
+            - not_authorized
+            - forbidden
+            - resource_not_found
+            - too_many_requests
+            - internal_error
+            - validation_error
+        message:
+          type: string
+          description: Human-readable error message
+        externalReference:
+          type: string
+          nullable: true
+          description: Link to more information about the error
+        details:
+          type: array
+          description: Array of detailed error information
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field that caused the error
+              message:
+                type: string
+                description: Error message for the field
+  examples:
+    FormExample:
+      summary: Example form definition
+      value:
+        id: 589a331aa51e760df7ccb89e
+        displayName: Email Form
+        createdOn: '2016-10-24T19:41:29.156Z'
+        lastUpdated: '2016-10-24T19:43:17.271Z'
+        fields:
+          660d5bcc9c0772150459dfb1:
+            displayName: Name
+            type: Plain
+            placeholder: null
+            userVisible: true
+          589a331aa51e760df7ccb89d:
+            displayName: Email
+            type: Email
+            placeholder: Enter your email
+            userVisible: true
+        responseSettings:
+          redirectUrl: https://example.com
+          redirectMethod: GET
+          redirectAction: null
+          sendEmailConfirmation: true
+        siteId: 580e63e98c9a982ac9b8b741
+        siteDomainId: 6419db964a9c436a4baf6248
+        pageId: 6419db964a9c43f6a3af6348
+        pageName: Home
+        formElementId: 4e038d2c-6a1e-4953-7be9-a59a2b453177
+        workspaceId: 580e63fc8c9a982ac9b8b744
+    FormListExample:
+      summary: Example list of forms
+      value:
+        forms:
+          - id: 589a331aa51e760df7ccb89e
+            displayName: Email Form
+            createdOn: '2016-10-24T19:41:29.156Z'
+            lastUpdated: '2016-10-24T19:43:17.271Z'
+            fields:
+              660d5bcc9c0772150459dfb1:
+                displayName: Name
+                type: Plain
+                placeholder: null
+                userVisible: true
+              589a331aa51e760df7ccb89d:
+                displayName: Email
+                type: Email
+                placeholder: Enter your email
+                userVisible: true
+            responseSettings:
+              redirectUrl: https://example.com
+              redirectMethod: GET
+              redirectAction: null
+              sendEmailConfirmation: true
+            siteId: 580e63e98c9a982ac9b8b741
+            siteDomainId: 6419db964a9c436a4baf6248
+            pageId: 6419db964a9c43f6a3af6348
+            pageName: Home
+            workspaceId: 580e63fc8c9a982ac9b8b744
+          - id: 580ff8d7ba3e45ba9fe588e9
+            displayName: Name Form
+            createdOn: '2016-10-24T19:41:29.156Z'
+            lastUpdated: '2016-10-24T19:43:17.271Z'
+            fields:
+              589a331aa51e760df7ccb89d:
+                displayName: Name
+                type: Plain
+                placeholder: Enter your name
+                userVisible: true
+            responseSettings:
+              redirectUrl: https://example.com
+              redirectMethod: GET
+              redirectAction: null
+              sendEmailConfirmation: false
+            siteId: 580e63e98c9a982ac9b8b741
+            siteDomainId: 6419db964a9c436a4baf6248
+            pageId: 6419db964a9c43f6a3af6348
+            pageName: Home
+            formElementId: 4e038d2c-6a1e-4953-7be9-a59a2b453177
+            workspaceId: 580e63fc8c9a982ac9b8b744
+        pagination:
+          limit: 25
+          offset: 0
+          total: 2
+    FormSubmissionListExample:
+      summary: Example list of form submissions
+      value:
+        formSubmissions:
+          - id: 6321ca84df3949bfc6752327
+            formId: 6321ca84df3949bfc6752328
+            displayName: Sample Form
+            siteId: 62749158efef318abc8d5a0f
+            workspaceId: 62749158efef318abc8d5a10
+            dateSubmitted: '2022-09-14T12:35:16.117Z'
+            formResponse:
+              firstName: Arthur
+              lastName: Dent
+          - id: 660d64fabf6e0a0d4edab981
+            formId: 6321ca84df3949bfc6752328
+            displayName: Sample Form
+            siteId: 62749158efef318abc8d5a0f
+            workspaceId: 62749158efef318abc8d5a10
+            dateSubmitted: '2022-09-14T12:35:16.117Z'
+            formResponse:
+              firstName: Ford
+              lastName: Prefect
+        pagination:
+          limit: 25
+          offset: 0
+          total: 2
+    BadRequestErrorExample:
+      summary: Bad request error
+      value:
+        code: bad_request
+        message: 'Bad Request: Request is malformed'
+        externalReference: null
+        details: []
+    UnauthorizedErrorExample:
+      summary: Unauthorized error
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    NotFoundErrorExample:
+      summary: Not found error
+      value:
+        code: resource_not_found
+        message: Resource not found
+        externalReference: null
+        details: []
+    RateLimitErrorExample:
+      summary: Rate limit error
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    InternalErrorExample:
+      summary: Internal server error
+      value:
+        code: internal_error
+        message: An internal error occurred
+        externalReference: null
+        details: []
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://webflow.com/oauth/authorize
+          tokenUrl: https://api.webflow.com/oauth/token
+          scopes:
+            forms:read: Read form data
+            forms:write: Write form data

@@ -1,0 +1,3458 @@
+openapi: 3.1.0
+info:
+  title: microsoft-outlook-mail-api
+  description: |-
+    RESTful API for managing Outlook mail, folders, attachments, settings, and related resources.
+    Covers user-centric messaging actions, mail/folder management, notifications, synchronization,
+    and extensibility via custom data and MAPI properties.
+  version: 1.0.0
+  contact:
+    name: API Support
+servers:
+  - url: http://localhost:8080/rest/microsoft-outlook-mail-api/1.0.0
+    description: Sandbox  
+  - url: https://graph.microsoft.com/v1.0
+    description: Microsoft Graph v1.0
+security:
+- oauth2: []
+tags:
+- name: Messages
+  description: User mailbox messages, drafts, replies, forwards, and delegation
+- name: MimeContent
+  description: MIME format representations of messages and attachments
+- name: Attachments
+  description: File, item, and reference attachments on messages
+- name: MailFolders
+  description: Mail folder hierarchy and folder operations
+- name: MailSearchFolders
+  description: Search folders for filtered message queries
+- name: Categories
+  description: Outlook color categories for message classification
+- name: InboxRules
+  description: Message rules for automated inbox actions
+- name: FocusedInbox
+  description: Inference classification overrides for Focused Inbox
+- name: MailboxSettings
+  description: User mailbox configuration, automatic replies, locale, time zone, and working hours
+- name: MailTips
+  description: Recipient status information such as out-of-office and delivery restrictions
+- name: Subscriptions
+  description: Webhook subscriptions for change notifications
+- name: Synchronization
+  description: Delta queries for incremental message and folder synchronization
+- name: MessageTrace
+  description: Exchange Online message routing and delivery trace data
+- name: LocaleAndTimeZone
+  description: Supported languages and time zone choices for a user
+- name: Extensions
+  description: Open type and schema extensions for custom app data on messages
+- name: ExtendedProperties
+  description: Single-value and multi-value legacy MAPI extended properties
+paths:
+  /me/messages:
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Messages
+      operationId: listMessages
+      summary: List messages
+      description: Get the messages in the signed-in user's mailbox. Supports $filter, $search, $select, $top, $skip, $orderby,
+        and $count query parameters.
+      parameters:
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Skip'
+      - $ref: '#/components/parameters/Select'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Search'
+      - $ref: '#/components/parameters/Orderby'
+      - $ref: '#/components/parameters/Count'
+      responses:
+        '200':
+          description: Collection of messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageCollectionResponse'
+              examples:
+                Default:
+                  value:
+                    '@odata.context': https://graph.microsoft.com/v1.0/$metadata#users('user-id')/messages
+                    '@odata.count': 1
+                    value:
+                    - id: AAMkAGI1AAAGB1rUAAA=
+                      createdDateTime: '2024-01-15T10:30:00Z'
+                      lastModifiedDateTime: '2024-01-15T10:35:00Z'
+                      receivedDateTime: '2024-01-15T10:30:00Z'
+                      sentDateTime: '2024-01-15T10:29:00Z'
+                      subject: Quarterly Review Meeting
+                      bodyPreview: Please join us for the quarterly review...
+                      body:
+                        contentType: html
+                        content: <html><body>Please join us for the quarterly review...</body></html>
+                      importance: normal
+                      inferenceClassification: focused
+                      isRead: false
+                      isDraft: false
+                      hasAttachments: false
+                      conversationId: AAQkAGI1AAA=
+                      internetMessageId: <msg001@contoso.com>
+                      internetMessageHeaders:
+                      - name: X-Custom-Header
+                        value: custom-value-001
+                      parentFolderId: AAMkAGI1AAAEJAAA=
+                      categories:
+                      - Blue Category
+                      from:
+                        emailAddress:
+                          name: Alex Wilber
+                          address: alex@contoso.com
+                      sender:
+                        emailAddress:
+                          name: Alex Wilber
+                          address: alex@contoso.com
+                      toRecipients:
+                      - emailAddress:
+                          name: Megan Bowen
+                          address: megan@contoso.com
+                      ccRecipients: []
+                      bccRecipients: []
+                      replyTo: []
+                      flag:
+                        flagStatus: notFlagged
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Messages
+      operationId: createMessage
+      summary: Create a draft message
+      description: Create a draft of a new message. Set the from and sender properties to delegate another user to send messages
+        on behalf of the mailbox owner.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '201':
+          description: The created draft message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1AAAGB1rUAAA=
+                    createdDateTime: '2024-01-15T10:30:00Z'
+                    lastModifiedDateTime: '2024-01-15T10:35:00Z'
+                    receivedDateTime: '2024-01-15T10:30:00Z'
+                    sentDateTime: '2024-01-15T10:29:00Z'
+                    subject: Quarterly Review Meeting
+                    bodyPreview: Please join us for the quarterly review...
+                    body:
+                      contentType: html
+                      content: <html><body>Please join us for the quarterly review...</body></html>
+                    importance: normal
+                    inferenceClassification: focused
+                    isRead: false
+                    isDraft: false
+                    hasAttachments: false
+                    conversationId: AAQkAGI1AAA=
+                    internetMessageId: <msg001@contoso.com>
+                    internetMessageHeaders:
+                    - name: X-Custom-Header
+                      value: custom-value-001
+                    parentFolderId: AAMkAGI1AAAEJAAA=
+                    categories:
+                    - Blue Category
+                    from:
+                      emailAddress:
+                        name: Alex Wilber
+                        address: alex@contoso.com
+                    sender:
+                      emailAddress:
+                        name: Alex Wilber
+                        address: alex@contoso.com
+                    toRecipients:
+                    - emailAddress:
+                        name: Megan Bowen
+                        address: megan@contoso.com
+                    ccRecipients: []
+                    bccRecipients: []
+                    replyTo: []
+                    flag:
+                      flagStatus: notFlagged
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me/messages/{message-id}:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Messages
+      operationId: getMessage
+      summary: Get a message
+      description: Get the properties and relationships of a message object, including internetMessageHeaders.
+      parameters:
+      - $ref: '#/components/parameters/Select'
+      responses:
+        '200':
+          description: The requested message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1AAAGB1rUAAA=
+                    createdDateTime: '2024-01-15T10:30:00Z'
+                    lastModifiedDateTime: '2024-01-15T10:35:00Z'
+                    receivedDateTime: '2024-01-15T10:30:00Z'
+                    sentDateTime: '2024-01-15T10:29:00Z'
+                    subject: Quarterly Review Meeting
+                    bodyPreview: Please join us for the quarterly review...
+                    body:
+                      contentType: html
+                      content: <html><body>Please join us for the quarterly review...</body></html>
+                    importance: normal
+                    inferenceClassification: focused
+                    isRead: false
+                    isDraft: false
+                    hasAttachments: false
+                    conversationId: AAQkAGI1AAA=
+                    internetMessageId: <msg001@contoso.com>
+                    internetMessageHeaders:
+                    - name: X-Custom-Header
+                      value: custom-value-001
+                    parentFolderId: AAMkAGI1AAAEJAAA=
+                    categories:
+                    - Blue Category
+                    from:
+                      emailAddress:
+                        name: Alex Wilber
+                        address: alex@contoso.com
+                    sender:
+                      emailAddress:
+                        name: Alex Wilber
+                        address: alex@contoso.com
+                    toRecipients:
+                    - emailAddress:
+                        name: Megan Bowen
+                        address: megan@contoso.com
+                    ccRecipients: []
+                    bccRecipients: []
+                    replyTo: []
+                    flag:
+                      flagStatus: notFlagged
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Messages
+      operationId: updateMessage
+      summary: Update a message
+      description: Update the properties of a message object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          description: The updated message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1AAAGB1rUAAA=
+                    createdDateTime: '2024-01-15T10:30:00Z'
+                    lastModifiedDateTime: '2024-01-15T10:35:00Z'
+                    receivedDateTime: '2024-01-15T10:30:00Z'
+                    sentDateTime: '2024-01-15T10:29:00Z'
+                    subject: Quarterly Review Meeting
+                    bodyPreview: Please join us for the quarterly review...
+                    body:
+                      contentType: html
+                      content: <html><body>Please join us for the quarterly review...</body></html>
+                    importance: normal
+                    inferenceClassification: focused
+                    isRead: false
+                    isDraft: false
+                    hasAttachments: false
+                    conversationId: AAQkAGI1AAA=
+                    internetMessageId: <msg001@contoso.com>
+                    internetMessageHeaders:
+                    - name: X-Custom-Header
+                      value: custom-value-001
+                    parentFolderId: AAMkAGI1AAAEJAAA=
+                    categories:
+                    - Blue Category
+                    from:
+                      emailAddress:
+                        name: Alex Wilber
+                        address: alex@contoso.com
+                    sender:
+                      emailAddress:
+                        name: Alex Wilber
+                        address: alex@contoso.com
+                    toRecipients:
+                    - emailAddress:
+                        name: Megan Bowen
+                        address: megan@contoso.com
+                    ccRecipients: []
+                    bccRecipients: []
+                    replyTo: []
+                    flag:
+                      flagStatus: notFlagged
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Messages
+      operationId: deleteMessage
+      summary: Delete a message
+      responses:
+        '204':
+          description: No content
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/$value:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MimeContent
+      operationId: getMessageMimeContent
+      summary: Get MIME content of a message
+      description: Get the MIME representation of a message, including any attachments.
+      responses:
+        '200':
+          description: MIME content stream
+          content:
+            text/plain:
+              schema:
+                type: string
+                format: binary
+              examples:
+                Default:
+                  value: "MIME-Version: 1.0\r\nContent-Type: text/plain\r\n\r\nExample MIME body"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/reply:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Messages
+      operationId: replyToMessage
+      summary: Reply to a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  $ref: '#/components/schemas/Message'
+                comment:
+                  type: string
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                Default:
+                  value: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/replyAll:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Messages
+      operationId: replyAllToMessage
+      summary: Reply all to a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  $ref: '#/components/schemas/Message'
+                comment:
+                  type: string
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                Default:
+                  value: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/forward:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Messages
+      operationId: forwardMessage
+      summary: Forward a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - toRecipients
+              properties:
+                toRecipients:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Recipient'
+                message:
+                  $ref: '#/components/schemas/Message'
+                comment:
+                  type: string
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                Default:
+                  value: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/sendMail:
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Messages
+      operationId: sendMail
+      summary: Send a new message
+      description: Send the message specified in the request body. Supports JSON and MIME content. Set from/sender for delegation.
+        Add custom internet message headers.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - message
+              properties:
+                message:
+                  $ref: '#/components/schemas/Message'
+                saveToSentItems:
+                  type: boolean
+                  default: true
+          text/plain:
+            schema:
+              type: string
+              format: binary
+              description: Raw MIME content
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                Default:
+                  value: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me/messages/{message-id}/send:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Messages
+      operationId: sendDraftMessage
+      summary: Send an existing draft message
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                Default:
+                  value: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/attachments:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Attachments
+      operationId: listAttachments
+      summary: List attachments of a message
+      responses:
+        '200':
+          description: Collection of attachments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentCollectionResponse'
+              examples:
+                Default:
+                  value:
+                    value:
+                    - '@odata.type': '#microsoft.graph.fileAttachment'
+                      id: AAMkAGI1AAABEgAQAA==
+                      name: report.pdf
+                      contentType: application/pdf
+                      size: 35684
+                      isInline: false
+                      lastModifiedDateTime: '2024-01-15T10:30:00Z'
+                      contentBytes: SGVsbG8gV29ybGQ=
+                      contentId: null
+                      contentLocation: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Attachments
+      operationId: createAttachment
+      summary: Add an attachment to a message
+      description: Add a file, item, or reference attachment to a message.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Attachment'
+      responses:
+        '201':
+          description: The created attachment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+              examples:
+                Default:
+                  value:
+                    '@odata.type': '#microsoft.graph.fileAttachment'
+                    id: AAMkAGI1AAABEgAQAA==
+                    name: report.pdf
+                    contentType: application/pdf
+                    size: 35684
+                    isInline: false
+                    lastModifiedDateTime: '2024-01-15T10:30:00Z'
+                    contentBytes: SGVsbG8gV29ybGQ=
+                    contentId: null
+                    contentLocation: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/attachments/{attachment-id}:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    - $ref: '#/components/parameters/AttachmentId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Attachments
+      operationId: getAttachment
+      summary: Get an attachment
+      responses:
+        '200':
+          description: The requested attachment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+              examples:
+                Default:
+                  value:
+                    '@odata.type': '#microsoft.graph.fileAttachment'
+                    id: AAMkAGI1AAABEgAQAA==
+                    name: report.pdf
+                    contentType: application/pdf
+                    size: 35684
+                    isInline: false
+                    lastModifiedDateTime: '2024-01-15T10:30:00Z'
+                    contentBytes: SGVsbG8gV29ybGQ=
+                    contentId: null
+                    contentLocation: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Attachments
+      operationId: deleteAttachment
+      summary: Delete an attachment
+      responses:
+        '204':
+          description: No content
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/attachments/{attachment-id}/$value:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    - $ref: '#/components/parameters/AttachmentId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MimeContent
+      operationId: getAttachmentContent
+      summary: Get raw content of an attachment
+      responses:
+        '200':
+          description: Raw attachment content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+              examples:
+                Default:
+                  value: "MIME-Version: 1.0\r\nContent-Type: text/plain\r\n\r\nExample MIME body"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/mailFolders:
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailFolders
+      operationId: listMailFolders
+      summary: List mail folders
+      parameters:
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Skip'
+      - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          description: Collection of mail folders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailFolderCollectionResponse'
+              examples:
+                Default:
+                  value:
+                    '@odata.context': https://graph.microsoft.com/v1.0/$metadata#users('user-id')/mailFolders
+                    value:
+                    - id: AAMkAGI1AAAEJAAA=
+                      displayName: Inbox
+                      parentFolderId: AAMkAGI1AAAAAA=
+                      childFolderCount: 2
+                      totalItemCount: 147
+                      unreadItemCount: 12
+                      isHidden: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailFolders
+      operationId: createMailFolder
+      summary: Create a mail folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MailFolder'
+      responses:
+        '201':
+          description: The created mail folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailFolder'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1AAAEJAAA=
+                    displayName: Inbox
+                    parentFolderId: AAMkAGI1AAAAAA=
+                    childFolderCount: 2
+                    totalItemCount: 147
+                    unreadItemCount: 12
+                    isHidden: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me/mailFolders/{mailFolder-id}:
+    parameters:
+    - $ref: '#/components/parameters/MailFolderId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailFolders
+      operationId: getMailFolder
+      summary: Get a mail folder
+      responses:
+        '200':
+          description: The requested mail folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailFolder'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1AAAEJAAA=
+                    displayName: Inbox
+                    parentFolderId: AAMkAGI1AAAAAA=
+                    childFolderCount: 2
+                    totalItemCount: 147
+                    unreadItemCount: 12
+                    isHidden: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailFolders
+      operationId: updateMailFolder
+      summary: Update a mail folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MailFolder'
+      responses:
+        '200':
+          description: The updated mail folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailFolder'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1AAAEJAAA=
+                    displayName: Inbox
+                    parentFolderId: AAMkAGI1AAAAAA=
+                    childFolderCount: 2
+                    totalItemCount: 147
+                    unreadItemCount: 12
+                    isHidden: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailFolders
+      operationId: deleteMailFolder
+      summary: Delete a mail folder
+      responses:
+        '204':
+          description: No content
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/mailFolders/{mailFolder-id}/messages:
+    parameters:
+    - $ref: '#/components/parameters/MailFolderId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailFolders
+      operationId: listMailFolderMessages
+      summary: List messages in a mail folder
+      parameters:
+      - $ref: '#/components/parameters/Top'
+      - $ref: '#/components/parameters/Skip'
+      - $ref: '#/components/parameters/Select'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Search'
+      - $ref: '#/components/parameters/Orderby'
+      responses:
+        '200':
+          description: Collection of messages in the folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageCollectionResponse'
+              examples:
+                Default:
+                  value:
+                    '@odata.context': https://graph.microsoft.com/v1.0/$metadata#users('user-id')/messages
+                    '@odata.count': 1
+                    value:
+                    - id: AAMkAGI1AAAGB1rUAAA=
+                      createdDateTime: '2024-01-15T10:30:00Z'
+                      lastModifiedDateTime: '2024-01-15T10:35:00Z'
+                      receivedDateTime: '2024-01-15T10:30:00Z'
+                      sentDateTime: '2024-01-15T10:29:00Z'
+                      subject: Quarterly Review Meeting
+                      bodyPreview: Please join us for the quarterly review...
+                      body:
+                        contentType: html
+                        content: <html><body>Please join us for the quarterly review...</body></html>
+                      importance: normal
+                      inferenceClassification: focused
+                      isRead: false
+                      isDraft: false
+                      hasAttachments: false
+                      conversationId: AAQkAGI1AAA=
+                      internetMessageId: <msg001@contoso.com>
+                      internetMessageHeaders:
+                      - name: X-Custom-Header
+                        value: custom-value-001
+                      parentFolderId: AAMkAGI1AAAEJAAA=
+                      categories:
+                      - Blue Category
+                      from:
+                        emailAddress:
+                          name: Alex Wilber
+                          address: alex@contoso.com
+                      sender:
+                        emailAddress:
+                          name: Alex Wilber
+                          address: alex@contoso.com
+                      toRecipients:
+                      - emailAddress:
+                          name: Megan Bowen
+                          address: megan@contoso.com
+                      ccRecipients: []
+                      bccRecipients: []
+                      replyTo: []
+                      flag:
+                        flagStatus: notFlagged
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/mailFolders/{mailFolder-id}/childFolders:
+    parameters:
+    - $ref: '#/components/parameters/MailFolderId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailFolders
+      operationId: listChildFolders
+      summary: List child folders
+      responses:
+        '200':
+          description: Collection of child folders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailFolderCollectionResponse'
+              examples:
+                Default:
+                  value:
+                    '@odata.context': https://graph.microsoft.com/v1.0/$metadata#users('user-id')/mailFolders
+                    value:
+                    - id: AAMkAGI1AAAEJAAA=
+                      displayName: Inbox
+                      parentFolderId: AAMkAGI1AAAAAA=
+                      childFolderCount: 2
+                      totalItemCount: 147
+                      unreadItemCount: 12
+                      isHidden: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailFolders
+      operationId: createChildFolder
+      summary: Create a child folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MailFolder'
+      responses:
+        '201':
+          description: The created child folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailFolder'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1AAAEJAAA=
+                    displayName: Inbox
+                    parentFolderId: AAMkAGI1AAAAAA=
+                    childFolderCount: 2
+                    totalItemCount: 147
+                    unreadItemCount: 12
+                    isHidden: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/mailFolders/{mailFolder-id}/copy:
+    parameters:
+    - $ref: '#/components/parameters/MailFolderId'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailFolders
+      operationId: copyMailFolder
+      summary: Copy a mail folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - destinationId
+              properties:
+                destinationId:
+                  type: string
+      responses:
+        '200':
+          description: The copied mail folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailFolder'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1AAAEJAAA=
+                    displayName: Inbox
+                    parentFolderId: AAMkAGI1AAAAAA=
+                    childFolderCount: 2
+                    totalItemCount: 147
+                    unreadItemCount: 12
+                    isHidden: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/mailFolders/{mailFolder-id}/move:
+    parameters:
+    - $ref: '#/components/parameters/MailFolderId'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailFolders
+      operationId: moveMailFolder
+      summary: Move a mail folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - destinationId
+              properties:
+                destinationId:
+                  type: string
+      responses:
+        '200':
+          description: The moved mail folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailFolder'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1AAAEJAAA=
+                    displayName: Inbox
+                    parentFolderId: AAMkAGI1AAAAAA=
+                    childFolderCount: 2
+                    totalItemCount: 147
+                    unreadItemCount: 12
+                    isHidden: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/mailFolders/{mailFolder-id}/childFolders/mailSearchFolder:
+    parameters:
+    - $ref: '#/components/parameters/MailFolderId'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailSearchFolders
+      operationId: createMailSearchFolder
+      summary: Create a mail search folder
+      description: Create a search folder in the specified parent folder to query for messages.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MailSearchFolder'
+      responses:
+        '201':
+          description: The created search folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailSearchFolder'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1SEARCH01=
+                    displayName: Unread Priority Mail
+                    parentFolderId: AAMkAGI1AAAAAA=
+                    childFolderCount: 2
+                    totalItemCount: 147
+                    unreadItemCount: 12
+                    isHidden: false
+                    '@odata.type': '#microsoft.graph.mailSearchFolder'
+                    filterQuery: isRead eq false and importance eq 'high'
+                    sourceFolderIds:
+                    - AAMkAGI1AAAEJAAA=
+                    includeNestedFolders: true
+                    isSupported: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/mailFolders/{mailFolder-id}/childFolders/{childFolder-id}:
+    parameters:
+    - $ref: '#/components/parameters/MailFolderId'
+    - name: childFolder-id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailSearchFolders
+      operationId: getMailSearchFolder
+      summary: Get a mail search folder
+      responses:
+        '200':
+          description: The requested search folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailSearchFolder'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1SEARCH01=
+                    displayName: Unread Priority Mail
+                    parentFolderId: AAMkAGI1AAAAAA=
+                    childFolderCount: 2
+                    totalItemCount: 147
+                    unreadItemCount: 12
+                    isHidden: false
+                    '@odata.type': '#microsoft.graph.mailSearchFolder'
+                    filterQuery: isRead eq false and importance eq 'high'
+                    sourceFolderIds:
+                    - AAMkAGI1AAAEJAAA=
+                    includeNestedFolders: true
+                    isSupported: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailSearchFolders
+      operationId: updateMailSearchFolder
+      summary: Update a mail search folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MailSearchFolder'
+      responses:
+        '200':
+          description: The updated search folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailSearchFolder'
+              examples:
+                Default:
+                  value:
+                    id: AAMkAGI1SEARCH01=
+                    displayName: Unread Priority Mail
+                    parentFolderId: AAMkAGI1AAAAAA=
+                    childFolderCount: 2
+                    totalItemCount: 147
+                    unreadItemCount: 12
+                    isHidden: false
+                    '@odata.type': '#microsoft.graph.mailSearchFolder'
+                    filterQuery: isRead eq false and importance eq 'high'
+                    sourceFolderIds:
+                    - AAMkAGI1AAAEJAAA=
+                    includeNestedFolders: true
+                    isSupported: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailSearchFolders
+      operationId: deleteMailSearchFolder
+      summary: Delete a mail search folder
+      responses:
+        '204':
+          description: No content
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/outlook/masterCategories:
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Categories
+      operationId: listCategories
+      summary: List Outlook categories
+      responses:
+        '200':
+          description: Collection of categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OutlookCategory'
+              examples:
+                Default:
+                  value:
+                    value:
+                    - id: afc97c36-af15-4e96-bf52-e228c84d4567
+                      displayName: Blue Category
+                      color: preset7
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Categories
+      operationId: createCategory
+      summary: Create an Outlook category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OutlookCategory'
+      responses:
+        '201':
+          description: The created category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutlookCategory'
+              examples:
+                Default:
+                  value:
+                    id: afc97c36-af15-4e96-bf52-e228c84d4567
+                    displayName: Blue Category
+                    color: preset7
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me/outlook/masterCategories/{category-id}:
+    parameters:
+    - name: category-id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Categories
+      operationId: getCategory
+      summary: Get an Outlook category
+      responses:
+        '200':
+          description: The requested category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutlookCategory'
+              examples:
+                Default:
+                  value:
+                    id: afc97c36-af15-4e96-bf52-e228c84d4567
+                    displayName: Blue Category
+                    color: preset7
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Categories
+      operationId: updateCategory
+      summary: Update an Outlook category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OutlookCategory'
+      responses:
+        '200':
+          description: The updated category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutlookCategory'
+              examples:
+                Default:
+                  value:
+                    id: afc97c36-af15-4e96-bf52-e228c84d4567
+                    displayName: Blue Category
+                    color: preset7
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Categories
+      operationId: deleteCategory
+      summary: Delete an Outlook category
+      responses:
+        '204':
+          description: No content
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/mailFolders/inbox/messageRules:
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - InboxRules
+      operationId: listMessageRules
+      summary: List inbox rules
+      description: Get all messageRule objects defined for the user's inbox.
+      responses:
+        '200':
+          description: Collection of message rules
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MessageRule'
+              examples:
+                Default:
+                  value:
+                    value:
+                    - id: AQAAAJ5dZqA=
+                      displayName: Forward from manager
+                      sequence: 1
+                      isEnabled: true
+                      isReadOnly: false
+                      hasError: false
+                      conditions:
+                        fromAddresses:
+                        - emailAddress:
+                            name: Manager
+                            address: manager@contoso.com
+                      exceptions: {}
+                      actions:
+                        forwardTo:
+                        - emailAddress:
+                            name: Archive
+                            address: archive@contoso.com
+                        stopProcessingRules: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - InboxRules
+      operationId: createMessageRule
+      summary: Create an inbox rule
+      description: Create a rule to automate actions such as forwarding specific incoming messages.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRule'
+      responses:
+        '201':
+          description: The created message rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageRule'
+              examples:
+                Default:
+                  value:
+                    id: AQAAAJ5dZqA=
+                    displayName: Forward from manager
+                    sequence: 1
+                    isEnabled: true
+                    isReadOnly: false
+                    hasError: false
+                    conditions:
+                      fromAddresses:
+                      - emailAddress:
+                          name: Manager
+                          address: manager@contoso.com
+                    exceptions: {}
+                    actions:
+                      forwardTo:
+                      - emailAddress:
+                          name: Archive
+                          address: archive@contoso.com
+                      stopProcessingRules: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me/mailFolders/inbox/messageRules/{messageRule-id}:
+    parameters:
+    - name: messageRule-id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - InboxRules
+      operationId: getMessageRule
+      summary: Get an inbox rule
+      responses:
+        '200':
+          description: The requested message rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageRule'
+              examples:
+                Default:
+                  value:
+                    id: AQAAAJ5dZqA=
+                    displayName: Forward from manager
+                    sequence: 1
+                    isEnabled: true
+                    isReadOnly: false
+                    hasError: false
+                    conditions:
+                      fromAddresses:
+                      - emailAddress:
+                          name: Manager
+                          address: manager@contoso.com
+                    exceptions: {}
+                    actions:
+                      forwardTo:
+                      - emailAddress:
+                          name: Archive
+                          address: archive@contoso.com
+                      stopProcessingRules: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - InboxRules
+      operationId: updateMessageRule
+      summary: Update an inbox rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRule'
+      responses:
+        '200':
+          description: The updated message rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageRule'
+              examples:
+                Default:
+                  value:
+                    id: AQAAAJ5dZqA=
+                    displayName: Forward from manager
+                    sequence: 1
+                    isEnabled: true
+                    isReadOnly: false
+                    hasError: false
+                    conditions:
+                      fromAddresses:
+                      - emailAddress:
+                          name: Manager
+                          address: manager@contoso.com
+                    exceptions: {}
+                    actions:
+                      forwardTo:
+                      - emailAddress:
+                          name: Archive
+                          address: archive@contoso.com
+                      stopProcessingRules: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - InboxRules
+      operationId: deleteMessageRule
+      summary: Delete an inbox rule
+      responses:
+        '204':
+          description: No content
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/inferenceClassification/overrides:
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - FocusedInbox
+      operationId: listInferenceClassificationOverrides
+      summary: List Focused Inbox overrides
+      description: Get the overrides that a user has set up to classify messages from certain senders.
+      responses:
+        '200':
+          description: Collection of overrides
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InferenceClassificationOverride'
+              examples:
+                Default:
+                  value:
+                    value:
+                    - id: abc123
+                      classifyAs: focused
+                      senderEmailAddress:
+                        name: Important Sender
+                        address: important@contoso.com
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - FocusedInbox
+      operationId: createInferenceClassificationOverride
+      summary: Create a Focused Inbox override
+      description: Create an override for a sender to always classify messages as focused or other.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InferenceClassificationOverride'
+      responses:
+        '201':
+          description: The created override
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InferenceClassificationOverride'
+              examples:
+                Default:
+                  value:
+                    id: abc123
+                    classifyAs: focused
+                    senderEmailAddress:
+                      name: Important Sender
+                      address: important@contoso.com
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me/inferenceClassification/overrides/{override-id}:
+    parameters:
+    - name: override-id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - FocusedInbox
+      operationId: getInferenceClassificationOverride
+      summary: Get a Focused Inbox override
+      responses:
+        '200':
+          description: The requested override
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InferenceClassificationOverride'
+              examples:
+                Default:
+                  value:
+                    id: abc123
+                    classifyAs: focused
+                    senderEmailAddress:
+                      name: Important Sender
+                      address: important@contoso.com
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - FocusedInbox
+      operationId: updateInferenceClassificationOverride
+      summary: Update a Focused Inbox override
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InferenceClassificationOverride'
+      responses:
+        '200':
+          description: The updated override
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InferenceClassificationOverride'
+              examples:
+                Default:
+                  value:
+                    id: abc123
+                    classifyAs: focused
+                    senderEmailAddress:
+                      name: Important Sender
+                      address: important@contoso.com
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - FocusedInbox
+      operationId: deleteInferenceClassificationOverride
+      summary: Delete a Focused Inbox override
+      responses:
+        '204':
+          description: No content
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/mailboxSettings:
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailboxSettings
+      operationId: getMailboxSettings
+      summary: Get user's mailbox settings
+      description: Get the user's mailbox settings including automatic replies, locale, time zone, and working hours.
+      parameters:
+      - $ref: '#/components/parameters/Select'
+      responses:
+        '200':
+          description: The user's mailbox settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailboxSettings'
+              examples:
+                Default:
+                  value:
+                    automaticRepliesSetting:
+                      status: scheduled
+                      externalAudience: contactsOnly
+                      externalReplyMessage: I am currently out of office.
+                      internalReplyMessage: I am currently out of office. Back on Monday.
+                      scheduledStartDateTime:
+                        dateTime: '2024-01-20T17:00:00'
+                        timeZone: UTC
+                      scheduledEndDateTime:
+                        dateTime: '2024-01-22T08:00:00'
+                        timeZone: UTC
+                    language:
+                      locale: en-US
+                      displayName: English (United States)
+                    timeZone: Pacific Standard Time
+                    workingHours:
+                      daysOfWeek:
+                      - monday
+                      - tuesday
+                      - wednesday
+                      - thursday
+                      - friday
+                      startTime: 08:00:00
+                      endTime: '17:00:00'
+                      timeZone:
+                        name: Pacific Standard Time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailboxSettings
+      operationId: updateMailboxSettings
+      summary: Update user's mailbox settings
+      description: Update one or more settings for the user's mailbox.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MailboxSettings'
+      responses:
+        '200':
+          description: The updated mailbox settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailboxSettings'
+              examples:
+                Default:
+                  value:
+                    automaticRepliesSetting:
+                      status: scheduled
+                      externalAudience: contactsOnly
+                      externalReplyMessage: I am currently out of office.
+                      internalReplyMessage: I am currently out of office. Back on Monday.
+                      scheduledStartDateTime:
+                        dateTime: '2024-01-20T17:00:00'
+                        timeZone: UTC
+                      scheduledEndDateTime:
+                        dateTime: '2024-01-22T08:00:00'
+                        timeZone: UTC
+                    language:
+                      locale: en-US
+                      displayName: English (United States)
+                    timeZone: Pacific Standard Time
+                    workingHours:
+                      daysOfWeek:
+                      - monday
+                      - tuesday
+                      - wednesday
+                      - thursday
+                      - friday
+                      startTime: 08:00:00
+                      endTime: '17:00:00'
+                      timeZone:
+                        name: Pacific Standard Time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me/outlook/supportedLanguages:
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - LocaleAndTimeZone
+      operationId: listSupportedLanguages
+      summary: Get supported languages
+      description: Get the list of locales and languages supported for the user.
+      responses:
+        '200':
+          description: Collection of locale information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LocaleInfo'
+              examples:
+                Default:
+                  value:
+                    value:
+                    - locale: en-US
+                      displayName: English (United States)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me/outlook/supportedTimeZones:
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - LocaleAndTimeZone
+      operationId: listSupportedTimeZones
+      summary: Get supported time zones
+      description: Get the list of time zones supported for the user.
+      parameters:
+      - name: TimeZoneStandard
+        in: query
+        schema:
+          type: string
+          enum:
+          - windows
+          - iana
+      responses:
+        '200':
+          description: Collection of time zone information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TimeZoneInformation'
+              examples:
+                Default:
+                  value:
+                    value:
+                    - alias: Pacific Standard Time
+                      displayName: (UTC-08:00) Pacific Time (US & Canada)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me/getMailTips:
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MailTips
+      operationId: getMailTips
+      summary: Get MailTips
+      description: Get the MailTips of one or more recipients including out-of-office status and delivery restrictions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - emailAddresses
+              - mailTipsOptions
+              properties:
+                emailAddresses:
+                  type: array
+                  items:
+                    type: string
+                    format: email
+                mailTipsOptions:
+                  type: string
+                  enum:
+                  - automaticReplies
+                  - customMailTip
+                  - deliveryRestriction
+                  - externalMemberCount
+                  - mailboxFullStatus
+                  - maxMessageSize
+                  - moderationStatus
+                  - recipientScope
+                  - recipientSuggestions
+                  - totalMemberCount
+      responses:
+        '200':
+          description: Collection of MailTips
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MailTips'
+              examples:
+                Default:
+                  value:
+                    value:
+                    - emailAddress:
+                        name: Megan Bowen
+                        address: megan@contoso.com
+                      automaticReplies:
+                        message: I am out of office until January 22.
+                      mailboxFull: false
+                      customMailTip: null
+                      externalMemberCount: 0
+                      totalMemberCount: 1
+                      deliveryRestricted: false
+                      isModerated: false
+                      recipientScope: internal
+                      recipientSuggestions: []
+                      maxMessageSize: 37748736
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /subscriptions:
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Subscriptions
+      operationId: listSubscriptions
+      summary: List subscriptions
+      responses:
+        '200':
+          description: Collection of subscriptions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Subscription'
+              examples:
+                Default:
+                  value:
+                    value:
+                    - id: 7f105c7d-2dc5-4530-97cd-4e7ae6534c07
+                      resource: me/mailFolders('Inbox')/messages
+                      changeType: created,updated
+                      clientState: secretClientValue
+                      notificationUrl: https://webhook.contoso.com/api/notifications
+                      expirationDateTime: '2024-02-15T11:00:00Z'
+                      includeResourceData: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Subscriptions
+      operationId: createSubscription
+      summary: Create a subscription
+      description: Subscribe to change notifications for messages in a folder.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+      responses:
+        '201':
+          description: The created subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+              examples:
+                Default:
+                  value:
+                    id: 7f105c7d-2dc5-4530-97cd-4e7ae6534c07
+                    resource: me/mailFolders('Inbox')/messages
+                    changeType: created,updated
+                    clientState: secretClientValue
+                    notificationUrl: https://webhook.contoso.com/api/notifications
+                    expirationDateTime: '2024-02-15T11:00:00Z'
+                    includeResourceData: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /subscriptions/{subscription-id}:
+    parameters:
+    - name: subscription-id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Subscriptions
+      operationId: getSubscription
+      summary: Get a subscription
+      responses:
+        '200':
+          description: The requested subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+              examples:
+                Default:
+                  value:
+                    id: 7f105c7d-2dc5-4530-97cd-4e7ae6534c07
+                    resource: me/mailFolders('Inbox')/messages
+                    changeType: created,updated
+                    clientState: secretClientValue
+                    notificationUrl: https://webhook.contoso.com/api/notifications
+                    expirationDateTime: '2024-02-15T11:00:00Z'
+                    includeResourceData: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Subscriptions
+      operationId: renewSubscription
+      summary: Renew a subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+      responses:
+        '200':
+          description: The renewed subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+              examples:
+                Default:
+                  value:
+                    id: 7f105c7d-2dc5-4530-97cd-4e7ae6534c07
+                    resource: me/mailFolders('Inbox')/messages
+                    changeType: created,updated
+                    clientState: secretClientValue
+                    notificationUrl: https://webhook.contoso.com/api/notifications
+                    expirationDateTime: '2024-02-15T11:00:00Z'
+                    includeResourceData: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Subscriptions
+      operationId: deleteSubscription
+      summary: Delete a subscription
+      responses:
+        '204':
+          description: No content
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/mailFolders/delta:
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Synchronization
+      operationId: getMailFolderDelta
+      summary: Get incremental changes to mail folders
+      parameters:
+      - name: $deltatoken
+        in: query
+        schema:
+          type: string
+      - name: $skiptoken
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Incremental changes to mail folders
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/MailFolderCollectionResponse'
+                - type: object
+                  properties:
+                    '@odata.deltaLink':
+                      type: string
+                      format: uri
+                    '@odata.nextLink':
+                      type: string
+                      format: uri
+              examples:
+                Default:
+                  value:
+                    '@odata.context': https://graph.microsoft.com/v1.0/$metadata#users('user-id')/mailFolders
+                    value:
+                    - id: AAMkAGI1AAAEJAAA=
+                      displayName: Inbox
+                      parentFolderId: AAMkAGI1AAAAAA=
+                      childFolderCount: 2
+                      totalItemCount: 147
+                      unreadItemCount: 12
+                      isHidden: false
+                    '@odata.deltaLink': https://graph.microsoft.com/v1.0/me/mailFolders/delta?$deltatoken=abc123
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me/mailFolders/{mailFolder-id}/messages/delta:
+    parameters:
+    - $ref: '#/components/parameters/MailFolderId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Synchronization
+      operationId: getMessageDelta
+      summary: Get incremental changes to messages in a folder
+      parameters:
+      - name: $deltatoken
+        in: query
+        schema:
+          type: string
+      - name: $skiptoken
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Incremental changes to messages
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/MessageCollectionResponse'
+                - type: object
+                  properties:
+                    '@odata.deltaLink':
+                      type: string
+                      format: uri
+                    '@odata.nextLink':
+                      type: string
+                      format: uri
+              examples:
+                Default:
+                  value:
+                    '@odata.context': https://graph.microsoft.com/v1.0/$metadata#users('user-id')/messages
+                    '@odata.count': 1
+                    value:
+                    - id: AAMkAGI1AAAGB1rUAAA=
+                      createdDateTime: '2024-01-15T10:30:00Z'
+                      lastModifiedDateTime: '2024-01-15T10:35:00Z'
+                      receivedDateTime: '2024-01-15T10:30:00Z'
+                      sentDateTime: '2024-01-15T10:29:00Z'
+                      subject: Quarterly Review Meeting
+                      bodyPreview: Please join us for the quarterly review...
+                      body:
+                        contentType: html
+                        content: <html><body>Please join us for the quarterly review...</body></html>
+                      importance: normal
+                      inferenceClassification: focused
+                      isRead: false
+                      isDraft: false
+                      hasAttachments: false
+                      conversationId: AAQkAGI1AAA=
+                      internetMessageId: <msg001@contoso.com>
+                      internetMessageHeaders:
+                      - name: X-Custom-Header
+                        value: custom-value-001
+                      parentFolderId: AAMkAGI1AAAEJAAA=
+                      categories:
+                      - Blue Category
+                      from:
+                        emailAddress:
+                          name: Alex Wilber
+                          address: alex@contoso.com
+                      sender:
+                        emailAddress:
+                          name: Alex Wilber
+                          address: alex@contoso.com
+                      toRecipients:
+                      - emailAddress:
+                          name: Megan Bowen
+                          address: megan@contoso.com
+                      ccRecipients: []
+                      bccRecipients: []
+                      replyTo: []
+                      flag:
+                        flagStatus: notFlagged
+                    '@odata.deltaLink': https://graph.microsoft.com/v1.0/me/mailFolders('Inbox')/messages/delta?$deltatoken=xyz789
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/messageTrace:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - MessageTrace
+      operationId: getMessageTrace
+      summary: Get message trace
+      description: Trace a message through the Exchange Online organization.
+      responses:
+        '200':
+          description: Message trace details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageTrace'
+              examples:
+                Default:
+                  value:
+                    messageId: <msg001@contoso.com>
+                    messageTraceId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                    senderAddress: alex@contoso.com
+                    recipientAddress: megan@contoso.com
+                    subject: Quarterly Review Meeting
+                    status: delivered
+                    size: 15234
+                    received: '2024-01-15T10:30:00Z'
+                    events:
+                    - date: '2024-01-15T10:29:58Z'
+                      action: Send
+                      detail: Message submitted
+                    - date: '2024-01-15T10:30:00Z'
+                      action: Deliver
+                      detail: Message delivered to mailbox
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/extensions:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Extensions
+      operationId: listExtensions
+      summary: List extensions on a message
+      responses:
+        '200':
+          description: Collection of extensions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Extension'
+              examples:
+                Default:
+                  value:
+                    value:
+                    - id: com.contoso.roamingSettings
+                      '@odata.type': '#microsoft.graph.openTypeExtension'
+                      extensionName: com.contoso.roamingSettings
+                      theme: dark
+                      language: en-US
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Extensions
+      operationId: createOpenExtension
+      summary: Create an open extension on a message
+      description: Add custom app data to a message by using open type extensions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpenTypeExtension'
+      responses:
+        '201':
+          description: The created extension
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpenTypeExtension'
+              examples:
+                Default:
+                  value:
+                    id: com.contoso.roamingSettings
+                    '@odata.type': '#microsoft.graph.openTypeExtension'
+                    extensionName: com.contoso.roamingSettings
+                    theme: dark
+                    language: en-US
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/extensions/{extension-id}:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    - name: extension-id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Extensions
+      operationId: getExtension
+      summary: Get an extension
+      responses:
+        '200':
+          description: The requested extension
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Extension'
+              examples:
+                Default:
+                  value:
+                    id: com.contoso.roamingSettings
+                    '@odata.type': '#microsoft.graph.openTypeExtension'
+                    extensionName: com.contoso.roamingSettings
+                    theme: dark
+                    language: en-US
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Extensions
+      operationId: updateOpenExtension
+      summary: Update an open extension
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpenTypeExtension'
+      responses:
+        '200':
+          description: The updated extension
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpenTypeExtension'
+              examples:
+                Default:
+                  value:
+                    id: com.contoso.roamingSettings
+                    '@odata.type': '#microsoft.graph.openTypeExtension'
+                    extensionName: com.contoso.roamingSettings
+                    theme: dark
+                    language: en-US
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - Extensions
+      operationId: deleteExtension
+      summary: Delete an extension
+      responses:
+        '204':
+          description: No content
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/singleValueExtendedProperties:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - ExtendedProperties
+      operationId: listSingleValueExtendedProperties
+      summary: List single-value extended properties on a message
+      parameters:
+      - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          description: Collection of single-value extended properties
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SingleValueLegacyExtendedProperty'
+              examples:
+                Default:
+                  value:
+                    value:
+                    - id: String {66f5a359-4659-4830-9070-00047ec6ac6e} Name CustomProp
+                      value: custom-value-123
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - ExtendedProperties
+      operationId: createSingleValueExtendedProperty
+      summary: Create a single-value extended property
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SingleValueLegacyExtendedProperty'
+      responses:
+        '201':
+          description: The created property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleValueLegacyExtendedProperty'
+              examples:
+                Default:
+                  value:
+                    id: String {66f5a359-4659-4830-9070-00047ec6ac6e} Name CustomProp
+                    value: custom-value-123
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /me/messages/{message-id}/multiValueExtendedProperties:
+    parameters:
+    - $ref: '#/components/parameters/MessageId'
+    get:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - ExtendedProperties
+      operationId: listMultiValueExtendedProperties
+      summary: List multi-value extended properties on a message
+      parameters:
+      - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          description: Collection of multi-value extended properties
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MultiValueLegacyExtendedProperty'
+              examples:
+                Default:
+                  value:
+                    value:
+                    - id: StringArray {66f5a359-4659-4830-9070-00047ec6ac6e} Name Categories
+                      value:
+                      - Red
+                      - Blue
+                      - Green
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: return "Default";
+      tags:
+      - ExtendedProperties
+      operationId: createMultiValueExtendedProperty
+      summary: Create a multi-value extended property
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultiValueLegacyExtendedProperty'
+      responses:
+        '201':
+          description: The created property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultiValueLegacyExtendedProperty'
+              examples:
+                Default:
+                  value:
+                    id: StringArray {66f5a359-4659-4830-9070-00047ec6ac6e} Name Categories
+                    value:
+                    - Red
+                    - Blue
+                    - Green
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+          tokenUrl: https://login.microsoftonline.com/common/oauth2/v2.0/token
+          scopes:
+            Mail.Read: Read user mail
+            Mail.ReadWrite: Read and write user mail
+            Mail.Send: Send mail as user
+            MailboxSettings.Read: Read user mailbox settings
+            MailboxSettings.ReadWrite: Read and write user mailbox settings
+  parameters:
+    Messageid:
+      name: message-id
+      in: path
+      required: true
+      schema:
+        type: string
+    Attachmentid:
+      name: attachment-id
+      in: path
+      required: true
+      schema:
+        type: string
+    Mailfolderid:
+      name: mailFolder-id
+      in: path
+      required: true
+      schema:
+        type: string
+    Top:
+      name: $top
+      in: query
+      description: Number of items to return
+      schema:
+        type: integer
+    Skip:
+      name: $skip
+      in: query
+      description: Number of items to skip
+      schema:
+        type: integer
+    Select:
+      name: $select
+      in: query
+      description: Comma-separated list of properties to include
+      schema:
+        type: string
+    Filter:
+      name: $filter
+      in: query
+      description: OData filter expression
+      schema:
+        type: string
+    Search:
+      name: $search
+      in: query
+      description: Search expression
+      schema:
+        type: string
+    Orderby:
+      name: $orderby
+      in: query
+      description: Order results by a property
+      schema:
+        type: string
+    Count:
+      name: $count
+      in: query
+      description: Include count of items
+      schema:
+        type: boolean
+  responses:
+    Unauthorized:
+      description: Authentication required or token expired
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ODataError'
+          examples:
+            Unauthorized:
+              value:
+                error:
+                  code: ErrorAccessDenied
+                  message: Access is denied. Check credentials and try again.
+                  innerError:
+                    request-id: b1c2d3e4-f5a6-7890-abcd-1234567890ef
+                    date: '2024-01-15T10:30:00Z'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ODataError'
+          examples:
+            NotFound:
+              value:
+                error:
+                  code: ErrorItemNotFound
+                  message: The specified object was not found in the store.
+                  innerError:
+                    request-id: c3d4e5f6-a7b8-9012-cdef-3456789012ab
+                    date: '2024-01-15T10:31:00Z'
+  schemas:
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        createdDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        receivedDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        sentDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+        subject:
+          type: string
+        body:
+          $ref: '#/components/schemas/ItemBody'
+        bodyPreview:
+          type: string
+          readOnly: true
+        importance:
+          type: string
+          enum:
+          - low
+          - normal
+          - high
+        inferenceClassification:
+          type: string
+          enum:
+          - focused
+          - other
+        isDeliveryReceiptRequested:
+          type: boolean
+        isReadReceiptRequested:
+          type: boolean
+        isRead:
+          type: boolean
+        isDraft:
+          type: boolean
+          readOnly: true
+        hasAttachments:
+          type: boolean
+          readOnly: true
+        conversationId:
+          type: string
+          readOnly: true
+        conversationIndex:
+          type: string
+          format: byte
+          readOnly: true
+        internetMessageId:
+          type: string
+          readOnly: true
+        internetMessageHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/InternetMessageHeader'
+          description: Collection of message headers. Includes custom app headers added via the X- header convention.
+        webLink:
+          type: string
+          format: uri
+          readOnly: true
+        parentFolderId:
+          type: string
+          readOnly: true
+        categories:
+          type: array
+          items:
+            type: string
+        flag:
+          $ref: '#/components/schemas/FollowupFlag'
+        from:
+          allOf:
+          - $ref: '#/components/schemas/Recipient'
+          description: The mailbox owner and sender. Use to delegate sending on behalf of another user.
+        sender:
+          allOf:
+          - $ref: '#/components/schemas/Recipient'
+          description: The account actually used to generate the message when delegating.
+        toRecipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+        ccRecipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+        bccRecipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+        replyTo:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        extensions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Extension'
+        singleValueExtendedProperties:
+          type: array
+          items:
+            $ref: '#/components/schemas/SingleValueLegacyExtendedProperty'
+        multiValueExtendedProperties:
+          type: array
+          items:
+            $ref: '#/components/schemas/MultiValueLegacyExtendedProperty'
+    MessageCollectionResponse:
+      type: object
+      properties:
+        '@odata.context':
+          type: string
+        '@odata.count':
+          type: integer
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+    ItemBody:
+      type: object
+      properties:
+        contentType:
+          type: string
+          enum:
+          - text
+          - html
+        content:
+          type: string
+    Recipient:
+      type: object
+      properties:
+        emailAddress:
+          $ref: '#/components/schemas/EmailAddress'
+    EmailAddress:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+          format: email
+    InternetMessageHeader:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    FollowupFlag:
+      type: object
+      properties:
+        flagStatus:
+          type: string
+          enum:
+          - notFlagged
+          - complete
+          - flagged
+        completedDateTime:
+          $ref: '#/components/schemas/DateTimeTimeZone'
+        dueDateTime:
+          $ref: '#/components/schemas/DateTimeTimeZone'
+        startDateTime:
+          $ref: '#/components/schemas/DateTimeTimeZone'
+    DateTimeTimeZone:
+      type: object
+      properties:
+        dateTime:
+          type: string
+          format: date-time
+        timeZone:
+          type: string
+    Attachment:
+      type: object
+      discriminator:
+        propertyName: '@odata.type'
+        mapping:
+          '#microsoft.graph.fileAttachment': '#/components/schemas/FileAttachment'
+          '#microsoft.graph.itemAttachment': '#/components/schemas/ItemAttachment'
+          '#microsoft.graph.referenceAttachment': '#/components/schemas/ReferenceAttachment'
+      properties:
+        '@odata.type':
+          type: string
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        contentType:
+          type: string
+        size:
+          type: integer
+          readOnly: true
+        isInline:
+          type: boolean
+        lastModifiedDateTime:
+          type: string
+          format: date-time
+          readOnly: true
+    FileAttachment:
+      allOf:
+      - $ref: '#/components/schemas/Attachment'
+      - type: object
+        properties:
+          contentBytes:
+            type: string
+            format: byte
+          contentId:
+            type: string
+          contentLocation:
+            type: string
+            format: uri
+    ItemAttachment:
+      allOf:
+      - $ref: '#/components/schemas/Attachment'
+      - type: object
+        properties:
+          item:
+            type: object
+            description: The attached message, event, or contact.
+    ReferenceAttachment:
+      allOf:
+      - $ref: '#/components/schemas/Attachment'
+      - type: object
+        properties:
+          sourceUrl:
+            type: string
+            format: uri
+          providerType:
+            type: string
+            enum:
+            - oneDriveBusiness
+            - oneDriveConsumer
+            - dropbox
+            - other
+          permission:
+            type: string
+            enum:
+            - other
+            - view
+            - edit
+            - anonymousView
+            - anonymousEdit
+            - organizationView
+            - organizationEdit
+          isFolder:
+            type: boolean
+    AttachmentCollectionResponse:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+    MailFolder:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        parentFolderId:
+          type: string
+        childFolderCount:
+          type: integer
+          readOnly: true
+        totalItemCount:
+          type: integer
+          readOnly: true
+        unreadItemCount:
+          type: integer
+          readOnly: true
+        isHidden:
+          type: boolean
+    MailFolderCollectionResponse:
+      type: object
+      properties:
+        '@odata.context':
+          type: string
+        '@odata.nextLink':
+          type: string
+          format: uri
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/MailFolder'
+    MailSearchFolder:
+      allOf:
+      - $ref: '#/components/schemas/MailFolder'
+      - type: object
+        properties:
+          '@odata.type':
+            type: string
+            const: '#microsoft.graph.mailSearchFolder'
+          filterQuery:
+            type: string
+            description: OData query to filter the messages.
+          sourceFolderIds:
+            type: array
+            items:
+              type: string
+            description: The mailbox folders that should be mined.
+          includeNestedFolders:
+            type: boolean
+          isSupported:
+            type: boolean
+            readOnly: true
+    OutlookCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        color:
+          type: string
+          enum:
+          - none
+          - preset0
+          - preset1
+          - preset2
+          - preset3
+          - preset4
+          - preset5
+          - preset6
+          - preset7
+          - preset8
+          - preset9
+          - preset10
+          - preset11
+          - preset12
+          - preset13
+          - preset14
+          - preset15
+          - preset16
+          - preset17
+          - preset18
+          - preset19
+          - preset20
+          - preset21
+          - preset22
+          - preset23
+          - preset24
+    MessageRule:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        sequence:
+          type: integer
+        isEnabled:
+          type: boolean
+        isReadOnly:
+          type: boolean
+          readOnly: true
+        hasError:
+          type: boolean
+          readOnly: true
+        conditions:
+          $ref: '#/components/schemas/MessageRulePredicates'
+        exceptions:
+          $ref: '#/components/schemas/MessageRulePredicates'
+        actions:
+          $ref: '#/components/schemas/MessageRuleActions'
+    MessageRulePredicates:
+      type: object
+      properties:
+        bodyContains:
+          type: array
+          items:
+            type: string
+        bodyOrSubjectContains:
+          type: array
+          items:
+            type: string
+        subjectContains:
+          type: array
+          items:
+            type: string
+        fromAddresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+        sentToAddresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+        hasAttachments:
+          type: boolean
+        importance:
+          type: string
+          enum:
+          - low
+          - normal
+          - high
+        isApprovalRequest:
+          type: boolean
+        isAutomaticForward:
+          type: boolean
+        isAutomaticReply:
+          type: boolean
+        isEncrypted:
+          type: boolean
+        isMeetingRequest:
+          type: boolean
+        isMeetingResponse:
+          type: boolean
+        isReadReceipt:
+          type: boolean
+        isSigned:
+          type: boolean
+        headerContains:
+          type: array
+          items:
+            type: string
+        messageActionFlag:
+          type: string
+          enum:
+          - any
+          - call
+          - doNotForward
+          - followUp
+          - fyi
+          - forward
+          - noResponseNecessary
+          - read
+          - reply
+          - replyToAll
+          - review
+        senderContains:
+          type: array
+          items:
+            type: string
+        sensitivity:
+          type: string
+          enum:
+          - normal
+          - personal
+          - private
+          - confidential
+        withinSizeRange:
+          type: object
+          properties:
+            minimumSize:
+              type: integer
+            maximumSize:
+              type: integer
+    MessageRuleActions:
+      type: object
+      properties:
+        assignCategories:
+          type: array
+          items:
+            type: string
+        copyToFolder:
+          type: string
+        delete:
+          type: boolean
+        forwardAsAttachmentTo:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+        forwardTo:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+        markAsRead:
+          type: boolean
+        markImportance:
+          type: string
+          enum:
+          - low
+          - normal
+          - high
+        moveToFolder:
+          type: string
+        permanentDelete:
+          type: boolean
+        redirectTo:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+        stopProcessingRules:
+          type: boolean
+    InferenceClassificationOverride:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        classifyAs:
+          type: string
+          enum:
+          - focused
+          - other
+        senderEmailAddress:
+          $ref: '#/components/schemas/EmailAddress'
+    MailboxSettings:
+      type: object
+      properties:
+        automaticRepliesSetting:
+          $ref: '#/components/schemas/AutomaticRepliesSetting'
+        language:
+          $ref: '#/components/schemas/LocaleInfo'
+        timeZone:
+          type: string
+        workingHours:
+          $ref: '#/components/schemas/WorkingHours'
+        dateFormat:
+          type: string
+        timeFormat:
+          type: string
+        delegateMeetingMessageDeliveryOptions:
+          type: string
+          enum:
+          - sendToDelegateAndInformationToPrincipal
+          - sendToDelegateAndPrincipal
+          - sendToDelegateOnly
+        userPurpose:
+          type: string
+          enum:
+          - user
+          - linked
+          - shared
+          - room
+          - equipment
+          - others
+          readOnly: true
+    AutomaticRepliesSetting:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - disabled
+          - alwaysEnabled
+          - scheduled
+        externalAudience:
+          type: string
+          enum:
+          - none
+          - contactsOnly
+          - all
+        externalReplyMessage:
+          type: string
+        internalReplyMessage:
+          type: string
+        scheduledStartDateTime:
+          $ref: '#/components/schemas/DateTimeTimeZone'
+        scheduledEndDateTime:
+          $ref: '#/components/schemas/DateTimeTimeZone'
+    WorkingHours:
+      type: object
+      properties:
+        daysOfWeek:
+          type: array
+          items:
+            type: string
+            enum:
+            - sunday
+            - monday
+            - tuesday
+            - wednesday
+            - thursday
+            - friday
+            - saturday
+        startTime:
+          type: string
+          format: time
+        endTime:
+          type: string
+          format: time
+        timeZone:
+          $ref: '#/components/schemas/TimeZoneBase'
+    TimeZoneBase:
+      type: object
+      properties:
+        name:
+          type: string
+    LocaleInfo:
+      type: object
+      properties:
+        locale:
+          type: string
+        displayName:
+          type: string
+    TimeZoneInformation:
+      type: object
+      properties:
+        alias:
+          type: string
+        displayName:
+          type: string
+    MailTips:
+      type: object
+      properties:
+        emailAddress:
+          $ref: '#/components/schemas/EmailAddress'
+        automaticReplies:
+          type: object
+          properties:
+            message:
+              type: string
+        mailboxFull:
+          type: boolean
+        customMailTip:
+          type: string
+        externalMemberCount:
+          type: integer
+        totalMemberCount:
+          type: integer
+        deliveryRestricted:
+          type: boolean
+        isModerated:
+          type: boolean
+        recipientScope:
+          type: string
+          enum:
+          - none
+          - internal
+          - external
+          - externalPartner
+          - externalNonPartner
+        recipientSuggestions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+        maxMessageSize:
+          type: integer
+        error:
+          $ref: '#/components/schemas/ODataError'
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        resource:
+          type: string
+          description: The resource to monitor (e.g., me/mailFolders('Inbox')/messages).
+        changeType:
+          type: string
+          description: Comma-separated change types (created, updated, deleted).
+        clientState:
+          type: string
+          description: Value sent back in each notification for validation.
+        notificationUrl:
+          type: string
+          format: uri
+          description: The URL to receive notifications.
+        expirationDateTime:
+          type: string
+          format: date-time
+        includeResourceData:
+          type: boolean
+        encryptionCertificate:
+          type: string
+          description: Base64-encoded public key certificate for encrypting resource data.
+        encryptionCertificateId:
+          type: string
+        latestSupportedTlsVersion:
+          type: string
+          readOnly: true
+    MessageTrace:
+      type: object
+      properties:
+        messageId:
+          type: string
+        messageTraceId:
+          type: string
+        senderAddress:
+          type: string
+          format: email
+        recipientAddress:
+          type: string
+          format: email
+        subject:
+          type: string
+        status:
+          type: string
+          enum:
+          - none
+          - failed
+          - pending
+          - delivered
+          - expanded
+          - quarantined
+          - filteredAsSpam
+        size:
+          type: integer
+        received:
+          type: string
+          format: date-time
+        events:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date-time
+              action:
+                type: string
+              detail:
+                type: string
+    Extension:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        '@odata.type':
+          type: string
+    OpenTypeExtension:
+      allOf:
+      - $ref: '#/components/schemas/Extension'
+      - type: object
+        properties:
+          extensionName:
+            type: string
+            description: Unique text identifier for an open type extension.
+        additionalProperties: true
+    SingleValueLegacyExtendedProperty:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 'Property identifier in the format: {type} {guid} Name {name} or {type} {guid} Id {id}.'
+        value:
+          type: string
+    MultiValueLegacyExtendedProperty:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 'Property identifier in the format: {type} {guid} Name {name} or {type} {guid} Id {id}.'
+        value:
+          type: array
+          items:
+            type: string
+    ODataError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            innerError:
+              type: object
+              properties:
+                request-id:
+                  type: string
+                date:
+                  type: string
+                  format: date-time

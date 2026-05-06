@@ -1,0 +1,1588 @@
+openapi: 3.1.0
+info:
+  title: hubspot-commerce-payments-api
+  description: >
+    The HubSpot Commerce Payments API enables developers to manage commerce
+    payment objects within 
+
+    the HubSpot CRM. This API provides comprehensive functionality for creating,
+    reading, updating, 
+
+    archiving, and searching commerce payment records. It supports both
+    individual and batch operations, 
+
+    allowing for efficient management of payment data at scale.
+
+
+    Key features include:
+
+    - CRUD operations for individual commerce payments
+
+    - Batch operations for processing multiple payments simultaneously
+
+    - Advanced search capabilities with filtering and sorting
+
+    - Property history tracking for audit purposes
+
+    - Association management with other CRM objects
+  version: 3.0.0
+  contact:
+    name: HubSpot Developer Support
+    url: https://developers.hubspot.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot Production API
+  - url: http://localhost:8080/rest/hubspot-commerce-payments-api/3.0.0
+    description: Sandbox
+tags:
+  - name: Batch Operations
+    description: Operations for processing multiple commerce payments in a single request
+  - name: Single Payment Operations
+    description: CRUD operations for individual commerce payment records
+  - name: Payment Search
+    description: Advanced search operations for finding and filtering commerce payments
+paths:
+  /crm/v3/objects/commerce_payments/batch/read:
+    post:
+      tags:
+        - Batch Operations
+      summary: Read a batch of commerce payments
+      description: >
+        Retrieves multiple commerce payment records by their internal IDs or
+        unique property values 
+
+        in a single request. This operation is optimized for bulk data retrieval
+        and supports 
+
+        fetching property history.
+      operationId: batchReadCommercePayments
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "BatchReadCommercePaymentsSuccessExample"
+      security:
+        - oauth2Auth: []
+      parameters:
+        - $ref: '#/components/parameters/ArchivedQuery'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchReadRequest'
+            examples:
+              BatchReadCommercePaymentsRequestExample:
+                $ref: '#/components/examples/BatchReadCommercePaymentsRequestExample'
+      responses:
+        '200':
+          description: Successfully retrieved commerce payments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchReadResponse'
+              examples:
+                BatchReadCommercePaymentsSuccessExample:
+                  $ref: >-
+                    #/components/examples/BatchReadCommercePaymentsSuccessExample
+        '207':
+          description: >-
+            Multi-status response - some payments retrieved successfully, some
+            failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchReadResponse'
+              examples:
+                BatchReadCommercePaymentsPartialExample:
+                  $ref: >-
+                    #/components/examples/BatchReadCommercePaymentsPartialExample
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorBadRequestExample:
+                  $ref: '#/components/examples/ErrorBadRequestExample'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /crm/v3/objects/commerce_payments/batch/archive:
+    post:
+      tags:
+        - Batch Operations
+      summary: Archive a batch of commerce payments
+      description: >
+        Archives multiple commerce payment records by their IDs in a single
+        request. 
+
+        Archived payments can be restored later if needed.
+      operationId: batchArchiveCommercePayments
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "BatchArchiveCommercePaymentsSuccessExample"
+      security:
+        - oauth2Auth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchArchiveRequest'
+            examples:
+              BatchArchiveCommercePaymentsRequestExample:
+                $ref: >-
+                  #/components/examples/BatchArchiveCommercePaymentsRequestExample
+      responses:
+        '204':
+          description: Successfully archived commerce payments
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /crm/v3/objects/commerce_payments/batch/create:
+    post:
+      tags:
+        - Batch Operations
+      summary: Create a batch of commerce payments
+      description: >
+        Creates multiple commerce payment records in a single request. Each
+        payment can include 
+
+        properties and associations with other CRM objects.
+      operationId: batchCreateCommercePayments
+      x-microcks-operation:
+        delay: 150
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "BatchCreateCommercePaymentsSuccessExample"
+      security:
+        - oauth2Auth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateRequest'
+            examples:
+              BatchCreateCommercePaymentsRequestExample:
+                $ref: >-
+                  #/components/examples/BatchCreateCommercePaymentsRequestExample
+      responses:
+        '201':
+          description: Successfully created commerce payments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCreateResponse'
+              examples:
+                BatchCreateCommercePaymentsSuccessExample:
+                  $ref: >-
+                    #/components/examples/BatchCreateCommercePaymentsSuccessExample
+        '207':
+          description: >-
+            Multi-status response - some payments created successfully, some
+            failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCreateResponse'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /crm/v3/objects/commerce_payments/batch/update:
+    post:
+      tags:
+        - Batch Operations
+      summary: Update a batch of commerce payments
+      description: >
+        Updates multiple commerce payment records in a single request. Only the
+        specified 
+
+        properties will be updated; other properties remain unchanged.
+      operationId: batchUpdateCommercePayments
+      x-microcks-operation:
+        delay: 150
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "BatchUpdateCommercePaymentsSuccessExample"
+      security:
+        - oauth2Auth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpdateRequest'
+            examples:
+              BatchUpdateCommercePaymentsRequestExample:
+                $ref: >-
+                  #/components/examples/BatchUpdateCommercePaymentsRequestExample
+      responses:
+        '200':
+          description: Successfully updated commerce payments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchUpdateResponse'
+              examples:
+                BatchUpdateCommercePaymentsSuccessExample:
+                  $ref: >-
+                    #/components/examples/BatchUpdateCommercePaymentsSuccessExample
+        '207':
+          description: >-
+            Multi-status response - some payments updated successfully, some
+            failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchUpdateResponse'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /crm/v3/objects/commerce_payments:
+    get:
+      tags:
+        - Single Payment Operations
+      summary: List commerce payments
+      description: >
+        Retrieves a paginated list of all commerce payments. Use query
+        parameters to control 
+
+        which properties are returned and to filter results.
+      operationId: listCommercePayments
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ListCommercePaymentsSuccessExample"
+      security:
+        - oauth2Auth: []
+      parameters:
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/AfterQuery'
+        - $ref: '#/components/parameters/PropertiesQuery'
+        - $ref: '#/components/parameters/PropertiesWithHistoryQuery'
+        - $ref: '#/components/parameters/AssociationsQuery'
+        - $ref: '#/components/parameters/ArchivedQuery'
+      responses:
+        '200':
+          description: Successfully retrieved commerce payments list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommercePaymentCollection'
+              examples:
+                ListCommercePaymentsSuccessExample:
+                  $ref: '#/components/examples/ListCommercePaymentsSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Single Payment Operations
+      summary: Create a commerce payment
+      description: >
+        Creates a new commerce payment record with the specified properties.
+        Optionally, 
+
+        associations with other CRM objects can be established at creation time.
+      operationId: createCommercePayment
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "CreateCommercePaymentSuccessExample"
+      security:
+        - oauth2Auth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommercePaymentInput'
+            examples:
+              CreateCommercePaymentRequestExample:
+                $ref: '#/components/examples/CreateCommercePaymentRequestExample'
+      responses:
+        '201':
+          description: Successfully created commerce payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommercePayment'
+              examples:
+                CreateCommercePaymentSuccessExample:
+                  $ref: '#/components/examples/CreateCommercePaymentSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /crm/v3/objects/commerce_payments/{commercePaymentId}:
+    get:
+      tags:
+        - Single Payment Operations
+      summary: Retrieve a commerce payment
+      description: >
+        Retrieves a specific commerce payment by its ID. Include optional query
+        parameters 
+
+        to control which properties are returned.
+      operationId: getCommercePaymentById
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "GetCommercePaymentSuccessExample"
+      security:
+        - oauth2Auth: []
+      parameters:
+        - $ref: '#/components/parameters/CommercePaymentIdPath'
+        - $ref: '#/components/parameters/PropertiesQuery'
+        - $ref: '#/components/parameters/PropertiesWithHistoryQuery'
+        - $ref: '#/components/parameters/AssociationsQuery'
+        - $ref: '#/components/parameters/ArchivedQuery'
+        - $ref: '#/components/parameters/IdPropertyQuery'
+      responses:
+        '200':
+          description: Successfully retrieved commerce payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommercePayment'
+              examples:
+                GetCommercePaymentSuccessExample:
+                  $ref: '#/components/examples/GetCommercePaymentSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Commerce payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - Single Payment Operations
+      summary: Update a commerce payment
+      description: >
+        Performs a partial update of a commerce payment identified by its ID.
+        Only the 
+
+        specified properties will be updated. Read-only and non-existent
+        properties are ignored.
+      operationId: updateCommercePaymentById
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "UpdateCommercePaymentSuccessExample"
+      security:
+        - oauth2Auth: []
+      parameters:
+        - $ref: '#/components/parameters/CommercePaymentIdPath'
+        - $ref: '#/components/parameters/IdPropertyQuery'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommercePaymentPatch'
+            examples:
+              UpdateCommercePaymentRequestExample:
+                $ref: '#/components/examples/UpdateCommercePaymentRequestExample'
+      responses:
+        '200':
+          description: Successfully updated commerce payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommercePayment'
+              examples:
+                UpdateCommercePaymentSuccessExample:
+                  $ref: '#/components/examples/UpdateCommercePaymentSuccessExample'
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Commerce payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Single Payment Operations
+      summary: Archive a commerce payment
+      description: >
+        Archives (soft deletes) a commerce payment by its ID. Archived payments
+        can be 
+
+        restored by updating their archived status.
+      operationId: archiveCommercePaymentById
+      x-microcks-operation:
+        delay: 100
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "ArchiveCommercePaymentSuccessExample"
+      security:
+        - oauth2Auth: []
+      parameters:
+        - $ref: '#/components/parameters/CommercePaymentIdPath'
+      responses:
+        '204':
+          description: Successfully archived commerce payment
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Commerce payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /crm/v3/objects/commerce_payments/search:
+    post:
+      tags:
+        - Payment Search
+      summary: Search commerce payments
+      description: >
+        Searches for commerce payments using filters, sorting, and query
+        parameters. 
+
+        Supports complex search criteria with multiple filter groups.
+      operationId: searchCommercePayments
+      x-microcks-operation:
+        delay: 150
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          def response = mockRequest.requestContent
+          return "SearchCommercePaymentsSuccessExample"
+      security:
+        - oauth2Auth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+            examples:
+              SearchCommercePaymentsRequestExample:
+                $ref: '#/components/examples/SearchCommercePaymentsRequestExample'
+      responses:
+        '200':
+          description: Successfully executed search
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+              examples:
+                SearchCommercePaymentsSuccessExample:
+                  $ref: '#/components/examples/SearchCommercePaymentsSuccessExample'
+        '400':
+          description: Bad request - Invalid search parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    oauth2Auth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.objects.commerce_payments.read: Read commerce payments
+            crm.objects.commerce_payments.write: Write commerce payments
+  parameters:
+    CommercePaymentIdPath:
+      name: commercePaymentId
+      in: path
+      required: true
+      description: The unique identifier of the commerce payment
+      schema:
+        type: string
+      example: '12345678901'
+    ArchivedQuery:
+      name: archived
+      in: query
+      description: Whether to return only archived results
+      schema:
+        type: boolean
+        default: false
+      example: false
+    LimitQuery:
+      name: limit
+      in: query
+      description: Maximum number of results to return per page
+      schema:
+        type: integer
+        default: 10
+        maximum: 100
+      example: 10
+    AfterQuery:
+      name: after
+      in: query
+      description: Pagination cursor for the next page of results
+      schema:
+        type: string
+      example: MjAyNC0wMS0xNVQxMDozMDowMFo=
+    PropertiesQuery:
+      name: properties
+      in: query
+      description: Comma-separated list of properties to include in the response
+      schema:
+        type: string
+      example: hs_payment_status,hs_amount,hs_currency
+    PropertiesWithHistoryQuery:
+      name: propertiesWithHistory
+      in: query
+      description: Comma-separated list of properties to include with their value history
+      schema:
+        type: string
+      example: hs_payment_status
+    AssociationsQuery:
+      name: associations
+      in: query
+      description: Comma-separated list of object types to retrieve associated IDs for
+      schema:
+        type: string
+      example: contacts,deals
+    IdPropertyQuery:
+      name: idProperty
+      in: query
+      description: The name of a property with unique values to use as an identifier
+      schema:
+        type: string
+      example: hs_external_payment_id
+  schemas:
+    CommercePayment:
+      type: object
+      description: A commerce payment object representing a payment transaction
+      required:
+        - id
+        - properties
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the commerce payment
+        properties:
+          type: object
+          description: The properties of the commerce payment
+          additionalProperties:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+          description: When the commerce payment was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the commerce payment was last updated
+        archived:
+          type: boolean
+          description: Whether the commerce payment is archived
+        archivedAt:
+          type: string
+          format: date-time
+          description: When the commerce payment was archived
+        associations:
+          type: object
+          description: Associated objects
+          additionalProperties:
+            $ref: '#/components/schemas/AssociationResult'
+        propertiesWithHistory:
+          type: object
+          description: Properties with their value history
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/PropertyHistory'
+    CommercePaymentInput:
+      type: object
+      description: Input for creating a new commerce payment
+      required:
+        - properties
+      properties:
+        properties:
+          type: object
+          description: The properties to set on the commerce payment
+          additionalProperties:
+            type: string
+        associations:
+          type: array
+          description: Associations to create with other objects
+          items:
+            $ref: '#/components/schemas/AssociationInput'
+    CommercePaymentPatch:
+      type: object
+      description: Input for updating a commerce payment
+      required:
+        - properties
+      properties:
+        properties:
+          type: object
+          description: The properties to update on the commerce payment
+          additionalProperties:
+            type: string
+    CommercePaymentCollection:
+      type: object
+      description: A paginated collection of commerce payments
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          description: The list of commerce payments
+          items:
+            $ref: '#/components/schemas/CommercePayment'
+        paging:
+          $ref: '#/components/schemas/Paging'
+    BatchReadRequest:
+      type: object
+      description: Request body for batch reading commerce payments
+      required:
+        - inputs
+        - properties
+      properties:
+        inputs:
+          type: array
+          description: List of payment identifiers to read
+          items:
+            $ref: '#/components/schemas/BatchReadInputItem'
+        properties:
+          type: array
+          description: Properties to return for each payment
+          items:
+            type: string
+        propertiesWithHistory:
+          type: array
+          description: Properties to return with history
+          items:
+            type: string
+        idProperty:
+          type: string
+          description: The property to use as the identifier
+    BatchReadInputItem:
+      type: object
+      description: A single input item for batch read
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: The ID of the payment to read
+    BatchReadResponse:
+      type: object
+      description: Response from a batch read operation
+      required:
+        - status
+        - results
+        - startedAt
+        - completedAt
+      properties:
+        status:
+          type: string
+          enum:
+            - PENDING
+            - PROCESSING
+            - CANCELED
+            - COMPLETE
+          description: The status of the batch operation
+        results:
+          type: array
+          description: The retrieved commerce payments
+          items:
+            $ref: '#/components/schemas/CommercePayment'
+        requestedAt:
+          type: string
+          format: date-time
+          description: When the request was received
+        startedAt:
+          type: string
+          format: date-time
+          description: When processing started
+        completedAt:
+          type: string
+          format: date-time
+          description: When processing completed
+        numErrors:
+          type: integer
+          description: Number of errors encountered
+        errors:
+          type: array
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/BatchError'
+        links:
+          type: object
+          additionalProperties:
+            type: string
+    BatchArchiveRequest:
+      type: object
+      description: Request body for batch archiving commerce payments
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: List of payment identifiers to archive
+          items:
+            $ref: '#/components/schemas/BatchReadInputItem'
+    BatchCreateRequest:
+      type: object
+      description: Request body for batch creating commerce payments
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: List of payments to create
+          items:
+            $ref: '#/components/schemas/CommercePaymentInput'
+    BatchCreateResponse:
+      type: object
+      description: Response from a batch create operation
+      required:
+        - status
+        - results
+        - startedAt
+        - completedAt
+      properties:
+        status:
+          type: string
+          enum:
+            - PENDING
+            - PROCESSING
+            - CANCELED
+            - COMPLETE
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommercePayment'
+        requestedAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        numErrors:
+          type: integer
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchError'
+        links:
+          type: object
+          additionalProperties:
+            type: string
+    BatchUpdateRequest:
+      type: object
+      description: Request body for batch updating commerce payments
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: List of payments to update
+          items:
+            $ref: '#/components/schemas/BatchUpdateInputItem'
+    BatchUpdateInputItem:
+      type: object
+      description: A single input item for batch update
+      required:
+        - id
+        - properties
+      properties:
+        id:
+          type: string
+          description: The ID of the payment to update
+        properties:
+          type: object
+          description: The properties to update
+          additionalProperties:
+            type: string
+        idProperty:
+          type: string
+          description: The property to use as the identifier
+    BatchUpdateResponse:
+      type: object
+      description: Response from a batch update operation
+      required:
+        - status
+        - results
+        - startedAt
+        - completedAt
+      properties:
+        status:
+          type: string
+          enum:
+            - PENDING
+            - PROCESSING
+            - CANCELED
+            - COMPLETE
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommercePayment'
+        requestedAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        numErrors:
+          type: integer
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchError'
+        links:
+          type: object
+          additionalProperties:
+            type: string
+    SearchRequest:
+      type: object
+      description: Request body for searching commerce payments
+      properties:
+        query:
+          type: string
+          description: Search query string
+        limit:
+          type: integer
+          description: Maximum number of results
+          default: 10
+        after:
+          type: string
+          description: Pagination cursor
+        sorts:
+          type: array
+          description: Sort order for results
+          items:
+            $ref: '#/components/schemas/SortOption'
+        properties:
+          type: array
+          description: Properties to return
+          items:
+            type: string
+        filterGroups:
+          type: array
+          description: Filter groups for the search
+          items:
+            $ref: '#/components/schemas/FilterGroup'
+    SearchResponse:
+      type: object
+      description: Response from a search operation
+      required:
+        - total
+        - results
+      properties:
+        total:
+          type: integer
+          description: Total number of matching results
+        results:
+          type: array
+          description: The matching commerce payments
+          items:
+            $ref: '#/components/schemas/CommercePayment'
+        paging:
+          $ref: '#/components/schemas/Paging'
+    FilterGroup:
+      type: object
+      description: A group of filters combined with AND logic
+      required:
+        - filters
+      properties:
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+    Filter:
+      type: object
+      description: A single filter criterion
+      required:
+        - propertyName
+        - operator
+      properties:
+        propertyName:
+          type: string
+          description: The property to filter on
+        operator:
+          type: string
+          enum:
+            - EQ
+            - NEQ
+            - LT
+            - LTE
+            - GT
+            - GTE
+            - BETWEEN
+            - IN
+            - NOT_IN
+            - HAS_PROPERTY
+            - NOT_HAS_PROPERTY
+            - CONTAINS_TOKEN
+            - NOT_CONTAINS_TOKEN
+          description: The comparison operator
+        value:
+          type: string
+          description: The value to compare against
+        values:
+          type: array
+          description: Values for IN/NOT_IN operators
+          items:
+            type: string
+        highValue:
+          type: string
+          description: Upper bound for BETWEEN operator
+    SortOption:
+      type: object
+      description: A sort option for ordering results
+      required:
+        - propertyName
+        - direction
+      properties:
+        propertyName:
+          type: string
+          description: The property to sort by
+        direction:
+          type: string
+          enum:
+            - ASCENDING
+            - DESCENDING
+          description: The sort direction
+    AssociationInput:
+      type: object
+      description: Input for creating an association
+      required:
+        - to
+        - types
+      properties:
+        to:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: The ID of the object to associate with
+        types:
+          type: array
+          description: The association types
+          items:
+            $ref: '#/components/schemas/AssociationType'
+    AssociationType:
+      type: object
+      description: An association type definition
+      required:
+        - associationCategory
+        - associationTypeId
+      properties:
+        associationCategory:
+          type: string
+          enum:
+            - HUBSPOT_DEFINED
+            - USER_DEFINED
+            - INTEGRATOR_DEFINED
+          description: The category of the association
+        associationTypeId:
+          type: integer
+          description: The numeric ID of the association type
+    AssociationResult:
+      type: object
+      description: Association results for an object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              type:
+                type: string
+        paging:
+          $ref: '#/components/schemas/Paging'
+    PropertyHistory:
+      type: object
+      description: A historical property value
+      required:
+        - value
+        - timestamp
+        - sourceType
+      properties:
+        value:
+          type: string
+          description: The property value
+        timestamp:
+          type: string
+          format: date-time
+          description: When this value was set
+        sourceType:
+          type: string
+          description: The source that set this value
+        sourceId:
+          type: string
+          description: The identifier of the source
+        sourceLabel:
+          type: string
+          description: A human-readable label for the source
+        updatedByUserId:
+          type: integer
+          description: The user ID that made the change
+    Paging:
+      type: object
+      description: Pagination information
+      properties:
+        next:
+          type: object
+          properties:
+            after:
+              type: string
+              description: Cursor for the next page
+            link:
+              type: string
+              description: Link to the next page
+        prev:
+          type: object
+          properties:
+            before:
+              type: string
+              description: Cursor for the previous page
+            link:
+              type: string
+              description: Link to the previous page
+    BatchError:
+      type: object
+      description: An error from a batch operation
+      required:
+        - category
+        - message
+      properties:
+        status:
+          type: string
+        id:
+          type: string
+        category:
+          type: string
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+        subCategory:
+          type: string
+    Error:
+      type: object
+      description: An error response
+      required:
+        - category
+        - correlationId
+        - message
+      properties:
+        category:
+          type: string
+          description: The error category
+        correlationId:
+          type: string
+          format: uuid
+          description: A unique identifier for this error instance
+        message:
+          type: string
+          description: A human-readable error message
+        subCategory:
+          type: string
+          description: A more specific error category
+        errors:
+          type: array
+          description: Detailed error information
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+        context:
+          type: object
+          description: Additional context about the error
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        links:
+          type: object
+          description: Related links
+          additionalProperties:
+            type: string
+    ErrorDetail:
+      type: object
+      description: Detailed error information
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: The error message
+        code:
+          type: string
+          description: An error code
+        in:
+          type: string
+          description: The location of the error
+        subCategory:
+          type: string
+          description: A specific error subcategory
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+  examples:
+    BatchReadCommercePaymentsRequestExample:
+      summary: Example batch read request
+      value:
+        inputs:
+          - id: '12345678901'
+          - id: '12345678902'
+        properties:
+          - hs_payment_status
+          - hs_amount
+          - hs_currency
+        propertiesWithHistory:
+          - hs_payment_status
+    BatchReadCommercePaymentsSuccessExample:
+      summary: Successful batch read response
+      value:
+        status: COMPLETE
+        results:
+          - id: '12345678901'
+            properties:
+              hs_payment_status: completed
+              hs_amount: '150.00'
+              hs_currency: USD
+            createdAt: '2024-01-15T10:30:00Z'
+            updatedAt: '2024-01-15T14:45:00Z'
+            archived: false
+          - id: '12345678902'
+            properties:
+              hs_payment_status: pending
+              hs_amount: '275.50'
+              hs_currency: USD
+            createdAt: '2024-01-16T09:00:00Z'
+            updatedAt: '2024-01-16T09:00:00Z'
+            archived: false
+        startedAt: '2024-01-20T08:00:00Z'
+        completedAt: '2024-01-20T08:00:01Z'
+    BatchReadCommercePaymentsPartialExample:
+      summary: Partial success batch read response
+      value:
+        status: COMPLETE
+        results:
+          - id: '12345678901'
+            properties:
+              hs_payment_status: completed
+              hs_amount: '150.00'
+              hs_currency: USD
+            createdAt: '2024-01-15T10:30:00Z'
+            updatedAt: '2024-01-15T14:45:00Z'
+            archived: false
+        numErrors: 1
+        errors:
+          - status: '404'
+            id: '12345678999'
+            category: OBJECT_NOT_FOUND
+            message: Commerce payment with id 12345678999 not found
+        startedAt: '2024-01-20T08:00:00Z'
+        completedAt: '2024-01-20T08:00:01Z'
+    BatchArchiveCommercePaymentsRequestExample:
+      summary: Example batch archive request
+      value:
+        inputs:
+          - id: '12345678901'
+          - id: '12345678902'
+    BatchCreateCommercePaymentsRequestExample:
+      summary: Example batch create request
+      value:
+        inputs:
+          - properties:
+              hs_payment_status: pending
+              hs_amount: '150.00'
+              hs_currency: USD
+              hs_payment_method: credit_card
+            associations:
+              - to:
+                  id: '501'
+                types:
+                  - associationCategory: HUBSPOT_DEFINED
+                    associationTypeId: 187
+          - properties:
+              hs_payment_status: pending
+              hs_amount: '275.50'
+              hs_currency: USD
+              hs_payment_method: bank_transfer
+    BatchCreateCommercePaymentsSuccessExample:
+      summary: Successful batch create response
+      value:
+        status: COMPLETE
+        results:
+          - id: '12345678903'
+            properties:
+              hs_payment_status: pending
+              hs_amount: '150.00'
+              hs_currency: USD
+              hs_payment_method: credit_card
+            createdAt: '2024-01-20T10:00:00Z'
+            updatedAt: '2024-01-20T10:00:00Z'
+            archived: false
+          - id: '12345678904'
+            properties:
+              hs_payment_status: pending
+              hs_amount: '275.50'
+              hs_currency: USD
+              hs_payment_method: bank_transfer
+            createdAt: '2024-01-20T10:00:00Z'
+            updatedAt: '2024-01-20T10:00:00Z'
+            archived: false
+        startedAt: '2024-01-20T10:00:00Z'
+        completedAt: '2024-01-20T10:00:01Z'
+    BatchUpdateCommercePaymentsRequestExample:
+      summary: Example batch update request
+      value:
+        inputs:
+          - id: '12345678901'
+            properties:
+              hs_payment_status: completed
+          - id: '12345678902'
+            properties:
+              hs_payment_status: refunded
+    BatchUpdateCommercePaymentsSuccessExample:
+      summary: Successful batch update response
+      value:
+        status: COMPLETE
+        results:
+          - id: '12345678901'
+            properties:
+              hs_payment_status: completed
+              hs_amount: '150.00'
+              hs_currency: USD
+            createdAt: '2024-01-15T10:30:00Z'
+            updatedAt: '2024-01-20T11:00:00Z'
+            archived: false
+          - id: '12345678902'
+            properties:
+              hs_payment_status: refunded
+              hs_amount: '275.50'
+              hs_currency: USD
+            createdAt: '2024-01-16T09:00:00Z'
+            updatedAt: '2024-01-20T11:00:00Z'
+            archived: false
+        startedAt: '2024-01-20T11:00:00Z'
+        completedAt: '2024-01-20T11:00:01Z'
+    ListCommercePaymentsSuccessExample:
+      summary: Successful list payments response
+      value:
+        results:
+          - id: '12345678901'
+            properties:
+              hs_payment_status: completed
+              hs_amount: '150.00'
+              hs_currency: USD
+            createdAt: '2024-01-15T10:30:00Z'
+            updatedAt: '2024-01-15T14:45:00Z'
+            archived: false
+          - id: '12345678902'
+            properties:
+              hs_payment_status: pending
+              hs_amount: '275.50'
+              hs_currency: USD
+            createdAt: '2024-01-16T09:00:00Z'
+            updatedAt: '2024-01-16T09:00:00Z'
+            archived: false
+        paging:
+          next:
+            after: MTIzNDU2Nzg5MDI=
+    CreateCommercePaymentRequestExample:
+      summary: Example create payment request
+      value:
+        properties:
+          hs_payment_status: pending
+          hs_amount: '350.00'
+          hs_currency: USD
+          hs_payment_method: credit_card
+          hs_external_payment_id: ext-pay-12345
+        associations:
+          - to:
+              id: '501'
+            types:
+              - associationCategory: HUBSPOT_DEFINED
+                associationTypeId: 187
+    CreateCommercePaymentSuccessExample:
+      summary: Successful create payment response
+      value:
+        id: '12345678905'
+        properties:
+          hs_payment_status: pending
+          hs_amount: '350.00'
+          hs_currency: USD
+          hs_payment_method: credit_card
+          hs_external_payment_id: ext-pay-12345
+        createdAt: '2024-01-20T12:00:00Z'
+        updatedAt: '2024-01-20T12:00:00Z'
+        archived: false
+    GetCommercePaymentSuccessExample:
+      summary: Successful get payment response
+      value:
+        id: '12345678901'
+        properties:
+          hs_payment_status: completed
+          hs_amount: '150.00'
+          hs_currency: USD
+          hs_payment_method: credit_card
+        createdAt: '2024-01-15T10:30:00Z'
+        updatedAt: '2024-01-15T14:45:00Z'
+        archived: false
+        associations:
+          contacts:
+            results:
+              - id: '501'
+                type: commerce_payment_to_contact
+    UpdateCommercePaymentRequestExample:
+      summary: Example update payment request
+      value:
+        properties:
+          hs_payment_status: completed
+          hs_notes: Payment processed successfully
+    UpdateCommercePaymentSuccessExample:
+      summary: Successful update payment response
+      value:
+        id: '12345678901'
+        properties:
+          hs_payment_status: completed
+          hs_amount: '150.00'
+          hs_currency: USD
+          hs_notes: Payment processed successfully
+        createdAt: '2024-01-15T10:30:00Z'
+        updatedAt: '2024-01-20T13:00:00Z'
+        archived: false
+    SearchCommercePaymentsRequestExample:
+      summary: Example search request
+      value:
+        filterGroups:
+          - filters:
+              - propertyName: hs_payment_status
+                operator: EQ
+                value: completed
+              - propertyName: hs_amount
+                operator: GTE
+                value: '100'
+        sorts:
+          - propertyName: hs_amount
+            direction: DESCENDING
+        properties:
+          - hs_payment_status
+          - hs_amount
+          - hs_currency
+        limit: 20
+    SearchCommercePaymentsSuccessExample:
+      summary: Successful search response
+      value:
+        total: 2
+        results:
+          - id: '12345678901'
+            properties:
+              hs_payment_status: completed
+              hs_amount: '500.00'
+              hs_currency: USD
+            createdAt: '2024-01-10T08:00:00Z'
+            updatedAt: '2024-01-10T10:00:00Z'
+            archived: false
+          - id: '12345678903'
+            properties:
+              hs_payment_status: completed
+              hs_amount: '150.00'
+              hs_currency: USD
+            createdAt: '2024-01-15T10:30:00Z'
+            updatedAt: '2024-01-15T14:45:00Z'
+            archived: false
+        paging:
+          next:
+            after: MTIzNDU2Nzg5MDM=
+    ErrorBadRequestExample:
+      summary: Bad request error response
+      value:
+        category: VALIDATION_ERROR
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: Invalid input JSON
+        subCategory: INVALID_PARAMETER
+        errors:
+          - message: properties is required
+            code: REQUIRED_FIELD
+            in: body

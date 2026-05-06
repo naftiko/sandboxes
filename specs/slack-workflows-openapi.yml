@@ -1,0 +1,290 @@
+openapi: 3.1.0
+info:
+  title: slack-workflows-api
+  version: 1.0.0
+  description: >-
+    The Slack Workflows API enables apps to build custom workflow steps that
+    integrate with Slack's Workflow Builder. Apps can indicate when steps
+    complete or fail execution, and update step configurations including inputs,
+    outputs, and display properties.
+  contact:
+    name: Slack API Support
+    url: https://api.slack.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://slack.com/api
+    description: Slack API Production Server
+  - url: http://localhost:8080/rest/slack-workflows-api/1.0.0
+    description: Sandbox
+tags:
+  - name: Workflows
+    description: Operations for managing workflow step execution and configuration
+paths:
+  /workflows.stepCompleted:
+    get:
+      tags:
+        - Workflows
+      summary: Complete Workflow Step
+      description: Indicate that an app's step in a workflow completed execution.
+      operationId: completeWorkflowStep
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/workflows.stepCompleted
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/WorkflowTokenHeader'
+        - $ref: '#/components/parameters/WorkflowStepExecuteId'
+        - $ref: '#/components/parameters/Outputs'
+      responses:
+        '200':
+          description: Typical success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSuccessResponse'
+              examples:
+                StepCompletedSuccessExample:
+                  $ref: '#/components/examples/StepCompletedSuccessExample'
+        default:
+          description: Typical error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowErrorResponse'
+              examples:
+                InvalidAuthError:
+                  $ref: '#/components/examples/InvalidAuthError'
+      security:
+        - SlackAuth:
+            - workflow.steps:execute
+  /workflows.stepFailed:
+    get:
+      tags:
+        - Workflows
+      summary: Fail Workflow Step
+      description: Indicate that an app's step in a workflow failed to execute.
+      operationId: failWorkflowStep
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/workflows.stepFailed
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/WorkflowTokenHeader'
+        - $ref: '#/components/parameters/WorkflowStepExecuteId'
+        - $ref: '#/components/parameters/WorkflowError'
+      responses:
+        '200':
+          description: Typical success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSuccessResponse'
+              examples:
+                StepFailedSuccessExample:
+                  $ref: '#/components/examples/StepFailedSuccessExample'
+        default:
+          description: Typical error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowErrorResponse'
+              examples:
+                InvalidAuthError:
+                  $ref: '#/components/examples/InvalidAuthError'
+      security:
+        - SlackAuth:
+            - workflow.steps:execute
+  /workflows.updateStep:
+    get:
+      tags:
+        - Workflows
+      summary: Update Workflow Step
+      description: Update the configuration for a workflow extension step.
+      operationId: updateWorkflowStep
+      externalDocs:
+        description: API method documentation
+        url: https://api.slack.com/methods/workflows.updateStep
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: ''
+        delay: 0
+      parameters:
+        - $ref: '#/components/parameters/WorkflowTokenHeader'
+        - $ref: '#/components/parameters/WorkflowStepEditId'
+        - $ref: '#/components/parameters/Inputs'
+        - $ref: '#/components/parameters/Outputs'
+        - $ref: '#/components/parameters/StepName'
+        - $ref: '#/components/parameters/StepImageUrl'
+      responses:
+        '200':
+          description: Typical success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSuccessResponse'
+              examples:
+                UpdateStepSuccessExample:
+                  $ref: '#/components/examples/UpdateStepSuccessExample'
+        default:
+          description: Typical error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowErrorResponse'
+              examples:
+                InvalidAuthError:
+                  $ref: '#/components/examples/InvalidAuthError'
+      security:
+        - SlackAuth:
+            - workflow.steps:execute
+components:
+  securitySchemes:
+    SlackAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://slack.com/oauth/v2/authorize
+          tokenUrl: https://slack.com/api/oauth.v2.access
+          scopes:
+            workflow.steps:execute: Execute workflow steps
+  parameters:
+    WorkflowTokenHeader:
+      name: token
+      in: header
+      description: 'Authentication token. Requires scope: `workflow.steps:execute`'
+      required: true
+      schema:
+        type: string
+      example: example-123456789012-1234567890123-key
+    WorkflowStepExecuteId:
+      name: workflow_step_execute_id
+      in: query
+      description: Context identifier that maps to the correct workflow step execution.
+      required: true
+      schema:
+        type: string
+      example: '1234567890.123456'
+    WorkflowStepEditId:
+      name: workflow_step_edit_id
+      in: query
+      description: >-
+        A context identifier provided with view_submission payloads used to call
+        back to workflows.updateStep.
+      required: true
+      schema:
+        type: string
+      example: '9876543210.654321'
+    WorkflowError:
+      name: error
+      in: query
+      description: >-
+        A JSON-based object with a message property that should contain a human
+        readable error message.
+      required: true
+      schema:
+        type: string
+      example: '{"message":"The step failed due to an invalid input value."}'
+    Inputs:
+      name: inputs
+      in: query
+      description: >-
+        A JSON key-value map of inputs required from a user during
+        configuration. This is the data your app expects to receive when the
+        workflow step starts.
+      required: false
+      schema:
+        type: string
+      example: '{"channel":{"value":"{{channel}}","skip_variable_replacement":false}}'
+    Outputs:
+      name: outputs
+      in: query
+      description: >-
+        Key-value object of outputs from your step. Keys of this object reflect
+        the configured key properties of your outputs array from your
+        workflow_step object.
+      required: false
+      schema:
+        type: string
+      example: '{"result_message":"Step completed successfully","result_code":"200"}'
+    StepName:
+      name: step_name
+      in: query
+      description: >-
+        An optional field that can be used to override the step name that is
+        shown in the Workflow Builder.
+      required: false
+      schema:
+        type: string
+      example: Custom Step Name
+    StepImageUrl:
+      name: step_image_url
+      in: query
+      description: >-
+        An optional field that can be used to override app image that is shown
+        in the Workflow Builder.
+      required: false
+      schema:
+        type: string
+        format: uri
+      example: https://example.com/images/workflow-step-icon.png
+  schemas:
+    OkTrue:
+      type: boolean
+      enum:
+        - true
+      description: Indicates successful operation
+    OkFalse:
+      type: boolean
+      enum:
+        - false
+      description: Indicates failed operation
+    WorkflowSuccessResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkTrue'
+      additionalProperties: true
+      description: >-
+        This method returns a brief OK response indicating the operation was
+        successful.
+    WorkflowErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          $ref: '#/components/schemas/OkFalse'
+        error:
+          type: string
+          description: A short machine-readable error code
+      additionalProperties: true
+      description: This method returns an error response when the operation fails.
+  examples:
+    StepCompletedSuccessExample:
+      summary: Successful step completed response
+      value:
+        ok: true
+    StepFailedSuccessExample:
+      summary: Successful step failed acknowledgment response
+      value:
+        ok: true
+    UpdateStepSuccessExample:
+      summary: Successful step update response
+      value:
+        ok: true
+    InvalidAuthError:
+      summary: Invalid authentication error response
+      value:
+        ok: false
+        error: invalid_auth

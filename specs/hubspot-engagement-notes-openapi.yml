@@ -1,0 +1,1397 @@
+openapi: 3.1.0
+info:
+  title: hubspot-crm-engagement-notes-api
+  description: >
+    The HubSpot CRM Engagement Notes API enables you to manage note engagements
+    within your HubSpot CRM.
+
+
+    Use this API to:
+
+    - Create, read, update, and delete note records
+
+    - Perform batch operations on multiple notes
+
+    - Search for notes using filters and queries
+
+    - Associate notes with contacts, companies, deals, and other CRM objects
+
+    - Manage note properties and track note history
+
+    - Handle GDPR-compliant data purging
+
+
+    Note engagements represent text notes logged in your CRM and can be
+    associated with any CRM record.
+  version: 3.0.0
+  contact:
+    name: HubSpot Developer Support
+    url: https://developers.hubspot.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot Production API Server
+  - url: http://localhost:8080/rest/hubspot-crm-engagement-notes-api/3.0.0
+    description: Sandbox
+tags:
+  - name: Basic Operations
+    description: Create, read, update, and delete individual note records
+  - name: Batch Operations
+    description: Perform bulk operations on multiple note records
+  - name: Search
+    description: Search and filter note records
+  - name: GDPR Compliance
+    description: GDPR-compliant data management operations
+paths:
+  /crm/v3/objects/notes:
+    get:
+      tags:
+        - Basic Operations
+      summary: List all notes
+      description: >
+        Returns a paginated list of all note engagements in the CRM.
+
+        Use query parameters to filter by properties, limit results, and
+        paginate through records.
+      operationId: listNotes
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ListNotesSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/AfterParam'
+        - $ref: '#/components/parameters/PropertiesParam'
+        - $ref: '#/components/parameters/PropertiesWithHistoryParam'
+        - $ref: '#/components/parameters/AssociationsParam'
+        - $ref: '#/components/parameters/ArchivedParam'
+      responses:
+        '200':
+          description: Successfully retrieved the list of notes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteCollectionResponse'
+              examples:
+                ListNotesSuccessResponse:
+                  $ref: '#/components/examples/ListNotesSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateApp:
+            - crm.objects.contacts.read
+    post:
+      tags:
+        - Basic Operations
+      summary: Create a note
+      description: >
+        Creates a new note engagement in the CRM.
+
+        You can specify note properties and optionally associate the note with
+        other CRM objects.
+      operationId: createNote
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "CreateNoteSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteCreateRequest'
+            examples:
+              CreateNoteRequest:
+                $ref: '#/components/examples/CreateNoteRequest'
+      responses:
+        '201':
+          description: Successfully created the note
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+              examples:
+                CreateNoteSuccessResponse:
+                  $ref: '#/components/examples/CreateNoteSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+  /crm/v3/objects/notes/{noteId}:
+    get:
+      tags:
+        - Basic Operations
+      summary: Get a note by ID
+      description: >
+        Retrieves a single note engagement by its unique identifier.
+
+        Optionally include specific properties, property history, and
+        associations.
+      operationId: getNoteById
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GetNoteSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/NoteIdParam'
+        - $ref: '#/components/parameters/PropertiesParam'
+        - $ref: '#/components/parameters/PropertiesWithHistoryParam'
+        - $ref: '#/components/parameters/AssociationsParam'
+        - $ref: '#/components/parameters/ArchivedParam'
+      responses:
+        '200':
+          description: Successfully retrieved the note
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+              examples:
+                GetNoteSuccessResponse:
+                  $ref: '#/components/examples/GetNoteSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateApp:
+            - crm.objects.contacts.read
+    patch:
+      tags:
+        - Basic Operations
+      summary: Update a note
+      description: |
+        Updates an existing note engagement with new property values.
+        Only the properties specified in the request body will be updated.
+      operationId: updateNote
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "UpdateNoteSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/NoteIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteUpdateRequest'
+            examples:
+              UpdateNoteRequest:
+                $ref: '#/components/examples/UpdateNoteRequest'
+      responses:
+        '200':
+          description: Successfully updated the note
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+              examples:
+                UpdateNoteSuccessResponse:
+                  $ref: '#/components/examples/UpdateNoteSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+    delete:
+      tags:
+        - Basic Operations
+      summary: Archive a note
+      description: >
+        Archives (soft deletes) a note engagement by moving it to the recycling
+        bin.
+
+        Archived notes can be restored within 90 days.
+      operationId: archiveNote
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "ArchiveNoteSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/NoteIdParam'
+      responses:
+        '204':
+          description: Successfully archived the note (no content returned)
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+  /crm/v3/objects/notes/batch/create:
+    post:
+      tags:
+        - Batch Operations
+      summary: Create a batch of notes
+      description: |
+        Creates multiple note engagements in a single request.
+        Each note can have its own properties and associations.
+        Maximum of 100 notes per batch request.
+      operationId: batchCreateNotes
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "BatchCreateNotesSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateNotesRequest'
+            examples:
+              BatchCreateNotesRequest:
+                $ref: '#/components/examples/BatchCreateNotesRequest'
+      responses:
+        '201':
+          description: Successfully created the batch of notes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchNotesResponse'
+              examples:
+                BatchCreateNotesSuccessResponse:
+                  $ref: '#/components/examples/BatchCreateNotesSuccessResponse'
+        '207':
+          description: Multi-status response (some operations succeeded, some failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchNotesResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+  /crm/v3/objects/notes/batch/read:
+    post:
+      tags:
+        - Batch Operations
+      summary: Read a batch of notes
+      description: >
+        Retrieves multiple note engagements by their IDs or a unique property
+        value.
+
+        Maximum of 100 notes per batch request.
+      operationId: batchReadNotes
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "BatchReadNotesSuccessResponse"
+      parameters:
+        - $ref: '#/components/parameters/ArchivedParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchReadNotesRequest'
+            examples:
+              BatchReadNotesRequest:
+                $ref: '#/components/examples/BatchReadNotesRequest'
+      responses:
+        '200':
+          description: Successfully retrieved the batch of notes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchNotesResponse'
+              examples:
+                BatchReadNotesSuccessResponse:
+                  $ref: '#/components/examples/BatchReadNotesSuccessResponse'
+        '207':
+          description: Multi-status response (some operations succeeded, some failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchNotesResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateApp:
+            - crm.objects.contacts.read
+  /crm/v3/objects/notes/batch/update:
+    post:
+      tags:
+        - Batch Operations
+      summary: Update a batch of notes
+      description: |
+        Updates multiple note engagements in a single request.
+        Each note update must include the note ID and the properties to update.
+        Maximum of 100 notes per batch request.
+      operationId: batchUpdateNotes
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "BatchUpdateNotesSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpdateNotesRequest'
+            examples:
+              BatchUpdateNotesRequest:
+                $ref: '#/components/examples/BatchUpdateNotesRequest'
+      responses:
+        '200':
+          description: Successfully updated the batch of notes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchNotesResponse'
+              examples:
+                BatchUpdateNotesSuccessResponse:
+                  $ref: '#/components/examples/BatchUpdateNotesSuccessResponse'
+        '207':
+          description: Multi-status response (some operations succeeded, some failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchNotesResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+  /crm/v3/objects/notes/batch/archive:
+    post:
+      tags:
+        - Batch Operations
+      summary: Archive a batch of notes
+      description: |
+        Archives (soft deletes) multiple note engagements in a single request.
+        Maximum of 100 notes per batch request.
+      operationId: batchArchiveNotes
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "BatchArchiveNotesSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchArchiveNotesRequest'
+            examples:
+              BatchArchiveNotesRequest:
+                $ref: '#/components/examples/BatchArchiveNotesRequest'
+      responses:
+        '204':
+          description: Successfully archived the batch of notes (no content returned)
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+  /crm/v3/objects/notes/search:
+    post:
+      tags:
+        - Search
+      summary: Search notes
+      description: >
+        Searches for note engagements using filters, property values, and
+        full-text search.
+
+        Supports complex filter groups with AND/OR logic.
+      operationId: searchNotes
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "SearchNotesSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteSearchRequest'
+            examples:
+              SearchNotesRequest:
+                $ref: '#/components/examples/SearchNotesRequest'
+      responses:
+        '200':
+          description: Successfully searched notes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteSearchResponse'
+              examples:
+                SearchNotesSuccessResponse:
+                  $ref: '#/components/examples/SearchNotesSuccessResponse'
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.read
+        - PrivateApp:
+            - crm.objects.contacts.read
+  /crm/v3/objects/notes/gdpr-delete:
+    post:
+      tags:
+        - GDPR Compliance
+      summary: Permanently delete a note for GDPR compliance
+      description: >
+        Permanently deletes a note engagement for GDPR compliance.
+
+        This action cannot be undone. Use this endpoint when you need to comply
+        with a data subject's right to erasure request.
+      operationId: gdprDeleteNote
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "GdprDeleteNoteSuccessResponse"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GdprDeleteRequest'
+            examples:
+              GdprDeleteRequest:
+                $ref: '#/components/examples/GdprDeleteRequest'
+      responses:
+        '204':
+          description: Successfully deleted the note (no content returned)
+        default:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ErrorResponse:
+                  $ref: '#/components/examples/ErrorResponse'
+      security:
+        - OAuth2:
+            - crm.objects.contacts.write
+        - PrivateApp:
+            - crm.objects.contacts.write
+components:
+  schemas:
+    Note:
+      type: object
+      description: Represents a note engagement in the CRM
+      required:
+        - id
+        - properties
+        - createdAt
+        - updatedAt
+        - archived
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the note
+          example: '1024'
+        properties:
+          type: object
+          description: The note properties
+          additionalProperties:
+            type: string
+          example:
+            hs_note_body: >-
+              Met with client to discuss Q1 goals. They are interested in
+              expanding their subscription.
+            hs_timestamp: '2024-01-15T10:30:00.000Z'
+            hubspot_owner_id: '12345'
+        propertiesWithHistory:
+          type: object
+          description: Properties with their change history
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/PropertyHistory'
+        createdAt:
+          type: string
+          format: date-time
+          description: When the note was created
+          example: '2024-01-15T10:30:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the note was last updated
+          example: '2024-01-15T11:00:00.000Z'
+        archived:
+          type: boolean
+          description: Whether the note is archived
+          example: false
+        archivedAt:
+          type: string
+          format: date-time
+          description: When the note was archived (if archived)
+    PropertyHistory:
+      type: object
+      description: Historical value of a property
+      properties:
+        value:
+          type: string
+          description: The historical value
+          example: Initial meeting notes
+        timestamp:
+          type: string
+          format: date-time
+          description: When the value was set
+          example: '2024-01-15T10:30:00.000Z'
+        sourceType:
+          type: string
+          description: The source type that set this value
+          example: CRM_UI
+        sourceId:
+          type: string
+          description: The source identifier
+          example: userId:12345
+        sourceLabel:
+          type: string
+          description: Human-readable source label
+          example: John Doe
+        updatedByUserId:
+          type: integer
+          description: The user ID who made the change
+          example: 12345
+    NoteCollectionResponse:
+      type: object
+      description: A paginated collection of notes
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          description: The list of notes
+          items:
+            $ref: '#/components/schemas/Note'
+        paging:
+          $ref: '#/components/schemas/Paging'
+    NoteSearchResponse:
+      type: object
+      description: Search results for notes
+      required:
+        - total
+        - results
+      properties:
+        total:
+          type: integer
+          description: Total number of matching notes
+          example: 42
+        results:
+          type: array
+          description: The matching notes
+          items:
+            $ref: '#/components/schemas/Note'
+        paging:
+          $ref: '#/components/schemas/Paging'
+    BatchNotesResponse:
+      type: object
+      description: Response for batch note operations
+      required:
+        - status
+        - results
+        - startedAt
+        - completedAt
+      properties:
+        status:
+          type: string
+          enum:
+            - PENDING
+            - PROCESSING
+            - CANCELED
+            - COMPLETE
+          description: The status of the batch operation
+          example: COMPLETE
+        results:
+          type: array
+          description: The results of the batch operation
+          items:
+            $ref: '#/components/schemas/Note'
+        requestedAt:
+          type: string
+          format: date-time
+          description: When the batch was requested
+        startedAt:
+          type: string
+          format: date-time
+          description: When the batch processing started
+          example: '2024-01-15T10:30:00.000Z'
+        completedAt:
+          type: string
+          format: date-time
+          description: When the batch processing completed
+          example: '2024-01-15T10:30:05.000Z'
+        errors:
+          type: array
+          description: Any errors that occurred during batch processing
+          items:
+            $ref: '#/components/schemas/BatchError'
+        links:
+          type: object
+          additionalProperties:
+            type: string
+    BatchError:
+      type: object
+      description: Error information for a batch operation item
+      properties:
+        status:
+          type: string
+          description: The error status
+          example: error
+        category:
+          type: string
+          description: The error category
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: The error message
+          example: Property value is invalid
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    NoteCreateRequest:
+      type: object
+      description: Request body for creating a note
+      required:
+        - properties
+      properties:
+        properties:
+          type: object
+          description: The note properties to set
+          additionalProperties:
+            type: string
+          example:
+            hs_note_body: >-
+              Met with client to discuss Q1 goals. They are interested in
+              expanding their subscription.
+            hs_timestamp: '2024-01-15T10:30:00.000Z'
+            hubspot_owner_id: '12345'
+        associations:
+          type: array
+          description: Associations to create with other objects
+          items:
+            $ref: '#/components/schemas/AssociationInput'
+    NoteUpdateRequest:
+      type: object
+      description: Request body for updating a note
+      required:
+        - properties
+      properties:
+        properties:
+          type: object
+          description: The note properties to update
+          additionalProperties:
+            type: string
+          example:
+            hs_note_body: Updated meeting notes - client confirmed interest in premium tier.
+    BatchCreateNotesRequest:
+      type: object
+      description: Request body for batch creating notes
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: Array of notes to create
+          items:
+            $ref: '#/components/schemas/NoteCreateRequest'
+          maxItems: 100
+    BatchReadNotesRequest:
+      type: object
+      description: Request body for batch reading notes
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: Array of note identifiers
+          items:
+            $ref: '#/components/schemas/BatchReadInput'
+          maxItems: 100
+        properties:
+          type: array
+          description: Properties to return
+          items:
+            type: string
+        propertiesWithHistory:
+          type: array
+          description: Properties to return with history
+          items:
+            type: string
+        idProperty:
+          type: string
+          description: The property to use as the identifier
+    BatchReadInput:
+      type: object
+      description: Input for reading a single item in a batch
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: The note identifier
+          example: '1024'
+    BatchUpdateNotesRequest:
+      type: object
+      description: Request body for batch updating notes
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: Array of note updates
+          items:
+            $ref: '#/components/schemas/BatchUpdateInput'
+          maxItems: 100
+    BatchUpdateInput:
+      type: object
+      description: Input for updating a single item in a batch
+      required:
+        - id
+        - properties
+      properties:
+        id:
+          type: string
+          description: The note identifier
+          example: '1024'
+        properties:
+          type: object
+          description: The properties to update
+          additionalProperties:
+            type: string
+    BatchArchiveNotesRequest:
+      type: object
+      description: Request body for batch archiving notes
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          description: Array of note identifiers to archive
+          items:
+            $ref: '#/components/schemas/BatchReadInput'
+          maxItems: 100
+    NoteSearchRequest:
+      type: object
+      description: Request body for searching notes
+      properties:
+        filterGroups:
+          type: array
+          description: Filter groups for the search (OR logic between groups)
+          items:
+            $ref: '#/components/schemas/FilterGroup'
+        sorts:
+          type: array
+          description: Sort order for results
+          items:
+            $ref: '#/components/schemas/SortOption'
+        query:
+          type: string
+          description: Full-text search query
+          example: meeting client
+        properties:
+          type: array
+          description: Properties to return
+          items:
+            type: string
+        limit:
+          type: integer
+          description: Maximum results to return
+          default: 10
+          maximum: 100
+        after:
+          type: string
+          description: Pagination cursor
+    FilterGroup:
+      type: object
+      description: A group of filters (AND logic within group)
+      properties:
+        filters:
+          type: array
+          description: The filters in this group
+          items:
+            $ref: '#/components/schemas/Filter'
+    Filter:
+      type: object
+      description: A single search filter
+      required:
+        - propertyName
+        - operator
+      properties:
+        propertyName:
+          type: string
+          description: The property to filter on
+          example: hubspot_owner_id
+        operator:
+          type: string
+          description: The filter operator
+          enum:
+            - EQ
+            - NEQ
+            - LT
+            - LTE
+            - GT
+            - GTE
+            - BETWEEN
+            - IN
+            - NOT_IN
+            - HAS_PROPERTY
+            - NOT_HAS_PROPERTY
+            - CONTAINS_TOKEN
+            - NOT_CONTAINS_TOKEN
+          example: EQ
+        value:
+          type: string
+          description: The value to filter by
+          example: '12345'
+        values:
+          type: array
+          description: Values for IN/NOT_IN operators
+          items:
+            type: string
+        highValue:
+          type: string
+          description: High value for BETWEEN operator
+    SortOption:
+      type: object
+      description: Sort option for search results
+      required:
+        - propertyName
+      properties:
+        propertyName:
+          type: string
+          description: The property to sort by
+          example: hs_timestamp
+        direction:
+          type: string
+          enum:
+            - ASCENDING
+            - DESCENDING
+          description: Sort direction
+          default: DESCENDING
+    AssociationInput:
+      type: object
+      description: Association to create with another object
+      required:
+        - to
+        - types
+      properties:
+        to:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: The ID of the object to associate with
+              example: '101'
+        types:
+          type: array
+          description: The association types
+          items:
+            $ref: '#/components/schemas/AssociationType'
+    AssociationType:
+      type: object
+      description: Type of association
+      required:
+        - associationCategory
+        - associationTypeId
+      properties:
+        associationCategory:
+          type: string
+          enum:
+            - HUBSPOT_DEFINED
+            - USER_DEFINED
+            - INTEGRATOR_DEFINED
+          description: The category of association
+          example: HUBSPOT_DEFINED
+        associationTypeId:
+          type: integer
+          description: The association type ID
+          example: 202
+    GdprDeleteRequest:
+      type: object
+      description: Request body for GDPR deletion
+      required:
+        - objectId
+      properties:
+        objectId:
+          type: string
+          description: The ID of the note to permanently delete
+          example: '1024'
+        idProperty:
+          type: string
+          description: The property used as the identifier
+    Paging:
+      type: object
+      description: Pagination information
+      properties:
+        next:
+          $ref: '#/components/schemas/NextPage'
+    NextPage:
+      type: object
+      description: Information about the next page
+      required:
+        - after
+      properties:
+        after:
+          type: string
+          description: Cursor for the next page
+          example: MTAyNA%3D%3D
+        link:
+          type: string
+          description: Link to the next page
+    Error:
+      type: object
+      description: Error response
+      required:
+        - category
+        - correlationId
+        - message
+      properties:
+        category:
+          type: string
+          description: The error category
+          example: VALIDATION_ERROR
+        correlationId:
+          type: string
+          format: uuid
+          description: Unique request identifier for debugging
+          example: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid input (details will vary based on the error)
+        subCategory:
+          type: string
+          description: More specific error category
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    ErrorDetail:
+      type: object
+      description: Detailed error information
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        in:
+          type: string
+          description: Field where error occurred
+        subCategory:
+          type: string
+          description: Error subcategory
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+  parameters:
+    NoteIdParam:
+      name: noteId
+      in: path
+      description: The unique identifier of the note
+      required: true
+      schema:
+        type: string
+      example: '1024'
+    LimitParam:
+      name: limit
+      in: query
+      description: Maximum number of results per page
+      required: false
+      schema:
+        type: integer
+        default: 10
+        maximum: 100
+    AfterParam:
+      name: after
+      in: query
+      description: Pagination cursor from previous response
+      required: false
+      schema:
+        type: string
+    PropertiesParam:
+      name: properties
+      in: query
+      description: Comma-separated list of properties to return
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+    PropertiesWithHistoryParam:
+      name: propertiesWithHistory
+      in: query
+      description: Comma-separated list of properties to return with history
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+    AssociationsParam:
+      name: associations
+      in: query
+      description: Comma-separated list of association types to retrieve
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+    ArchivedParam:
+      name: archived
+      in: query
+      description: Whether to include archived notes
+      required: false
+      schema:
+        type: boolean
+        default: false
+  examples:
+    ListNotesSuccessResponse:
+      summary: Successful response listing notes
+      value:
+        results:
+          - id: '1024'
+            properties:
+              hs_note_body: >-
+                Met with client to discuss Q1 goals. They are interested in
+                expanding their subscription.
+              hs_timestamp: '2024-01-15T10:30:00.000Z'
+              hubspot_owner_id: '12345'
+            createdAt: '2024-01-15T10:30:00.000Z'
+            updatedAt: '2024-01-15T11:00:00.000Z'
+            archived: false
+          - id: '1025'
+            properties:
+              hs_note_body: Follow-up call scheduled for next week.
+              hs_timestamp: '2024-01-16T14:00:00.000Z'
+              hubspot_owner_id: '12345'
+            createdAt: '2024-01-16T14:00:00.000Z'
+            updatedAt: '2024-01-16T14:30:00.000Z'
+            archived: false
+        paging:
+          next:
+            after: MTAyNg%3D%3D
+    GetNoteSuccessResponse:
+      summary: Successful response for a single note
+      value:
+        id: '1024'
+        properties:
+          hs_note_body: >-
+            Met with client to discuss Q1 goals. They are interested in
+            expanding their subscription.
+          hs_timestamp: '2024-01-15T10:30:00.000Z'
+          hubspot_owner_id: '12345'
+        createdAt: '2024-01-15T10:30:00.000Z'
+        updatedAt: '2024-01-15T11:00:00.000Z'
+        archived: false
+    CreateNoteRequest:
+      summary: Request to create a note
+      value:
+        properties:
+          hs_note_body: >-
+            Met with client to discuss Q1 goals. They are interested in
+            expanding their subscription.
+          hs_timestamp: '2024-01-15T10:30:00.000Z'
+          hubspot_owner_id: '12345'
+        associations:
+          - to:
+              id: '101'
+            types:
+              - associationCategory: HUBSPOT_DEFINED
+                associationTypeId: 202
+    CreateNoteSuccessResponse:
+      summary: Successful response after creating a note
+      value:
+        id: '1024'
+        properties:
+          hs_note_body: >-
+            Met with client to discuss Q1 goals. They are interested in
+            expanding their subscription.
+          hs_timestamp: '2024-01-15T10:30:00.000Z'
+          hubspot_owner_id: '12345'
+        createdAt: '2024-01-15T10:30:00.000Z'
+        updatedAt: '2024-01-15T10:30:00.000Z'
+        archived: false
+    UpdateNoteRequest:
+      summary: Request to update a note
+      value:
+        properties:
+          hs_note_body: Updated meeting notes - client confirmed interest in premium tier.
+    UpdateNoteSuccessResponse:
+      summary: Successful response after updating a note
+      value:
+        id: '1024'
+        properties:
+          hs_note_body: Updated meeting notes - client confirmed interest in premium tier.
+          hs_timestamp: '2024-01-15T10:30:00.000Z'
+          hubspot_owner_id: '12345'
+        createdAt: '2024-01-15T10:30:00.000Z'
+        updatedAt: '2024-01-15T12:00:00.000Z'
+        archived: false
+    BatchCreateNotesRequest:
+      summary: Request to batch create notes
+      value:
+        inputs:
+          - properties:
+              hs_note_body: Note 1 - Initial contact made
+              hs_timestamp: '2024-01-15T10:30:00.000Z'
+          - properties:
+              hs_note_body: Note 2 - Follow-up scheduled
+              hs_timestamp: '2024-01-15T11:30:00.000Z'
+    BatchCreateNotesSuccessResponse:
+      summary: Successful response after batch creating notes
+      value:
+        status: COMPLETE
+        results:
+          - id: '1024'
+            properties:
+              hs_note_body: Note 1 - Initial contact made
+              hs_timestamp: '2024-01-15T10:30:00.000Z'
+            createdAt: '2024-01-15T10:30:00.000Z'
+            updatedAt: '2024-01-15T10:30:00.000Z'
+            archived: false
+          - id: '1025'
+            properties:
+              hs_note_body: Note 2 - Follow-up scheduled
+              hs_timestamp: '2024-01-15T11:30:00.000Z'
+            createdAt: '2024-01-15T11:30:00.000Z'
+            updatedAt: '2024-01-15T11:30:00.000Z'
+            archived: false
+        startedAt: '2024-01-15T10:30:00.000Z'
+        completedAt: '2024-01-15T10:30:05.000Z'
+    BatchReadNotesRequest:
+      summary: Request to batch read notes
+      value:
+        inputs:
+          - id: '1024'
+          - id: '1025'
+        properties:
+          - hs_note_body
+          - hs_timestamp
+    BatchReadNotesSuccessResponse:
+      summary: Successful response after batch reading notes
+      value:
+        status: COMPLETE
+        results:
+          - id: '1024'
+            properties:
+              hs_note_body: Met with client to discuss Q1 goals.
+              hs_timestamp: '2024-01-15T10:30:00.000Z'
+            createdAt: '2024-01-15T10:30:00.000Z'
+            updatedAt: '2024-01-15T11:00:00.000Z'
+            archived: false
+          - id: '1025'
+            properties:
+              hs_note_body: Follow-up call scheduled.
+              hs_timestamp: '2024-01-16T14:00:00.000Z'
+            createdAt: '2024-01-16T14:00:00.000Z'
+            updatedAt: '2024-01-16T14:30:00.000Z'
+            archived: false
+        startedAt: '2024-01-15T10:30:00.000Z'
+        completedAt: '2024-01-15T10:30:01.000Z'
+    BatchUpdateNotesRequest:
+      summary: Request to batch update notes
+      value:
+        inputs:
+          - id: '1024'
+            properties:
+              hs_note_body: Updated Note 1
+          - id: '1025'
+            properties:
+              hs_note_body: Updated Note 2
+    BatchUpdateNotesSuccessResponse:
+      summary: Successful response after batch updating notes
+      value:
+        status: COMPLETE
+        results:
+          - id: '1024'
+            properties:
+              hs_note_body: Updated Note 1
+              hs_timestamp: '2024-01-15T10:30:00.000Z'
+            createdAt: '2024-01-15T10:30:00.000Z'
+            updatedAt: '2024-01-15T12:00:00.000Z'
+            archived: false
+          - id: '1025'
+            properties:
+              hs_note_body: Updated Note 2
+              hs_timestamp: '2024-01-16T14:00:00.000Z'
+            createdAt: '2024-01-16T14:00:00.000Z'
+            updatedAt: '2024-01-15T12:00:00.000Z'
+            archived: false
+        startedAt: '2024-01-15T12:00:00.000Z'
+        completedAt: '2024-01-15T12:00:02.000Z'
+    BatchArchiveNotesRequest:
+      summary: Request to batch archive notes
+      value:
+        inputs:
+          - id: '1024'
+          - id: '1025'
+    SearchNotesRequest:
+      summary: Request to search notes
+      value:
+        filterGroups:
+          - filters:
+              - propertyName: hubspot_owner_id
+                operator: EQ
+                value: '12345'
+        sorts:
+          - propertyName: hs_timestamp
+            direction: DESCENDING
+        properties:
+          - hs_note_body
+          - hs_timestamp
+        limit: 10
+    SearchNotesSuccessResponse:
+      summary: Successful response for note search
+      value:
+        total: 42
+        results:
+          - id: '1024'
+            properties:
+              hs_note_body: Met with client to discuss Q1 goals.
+              hs_timestamp: '2024-01-15T10:30:00.000Z'
+            createdAt: '2024-01-15T10:30:00.000Z'
+            updatedAt: '2024-01-15T11:00:00.000Z'
+            archived: false
+        paging:
+          next:
+            after: MTAyNA%3D%3D
+    GdprDeleteRequest:
+      summary: Request for GDPR deletion
+      value:
+        objectId: '1024'
+    ErrorResponse:
+      summary: Example error response
+      value:
+        category: VALIDATION_ERROR
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: Invalid input (details will vary based on the error)
+        links:
+          knowledge-base: https://www.hubspot.com/products/service/knowledge-base
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.objects.contacts.read: Read note engagements
+            crm.objects.contacts.write: Create and modify note engagements
+    PrivateApp:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: Private app access token (Bearer token)

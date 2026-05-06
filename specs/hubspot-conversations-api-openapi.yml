@@ -1,0 +1,1355 @@
+openapi: 3.1.0
+info:
+  title: hubspot-conversations-api
+  description: >
+    The HubSpot Conversations API enables you to manage conversation threads, 
+
+    messages, and inboxes programmatically. Use this API to query existing 
+
+    conversations, send messages, manage thread assignments, and seamlessly 
+
+    integrate with your support and sales workflows.
+
+
+    ## Key Features
+
+    - **Inbox Management**: Create and configure conversation inboxes for
+    different teams
+
+    - **Thread Operations**: Create, update, and archive conversation threads
+
+    - **Messaging**: Send and receive messages with rich text and attachments
+
+    - **Channel Integration**: Connect multiple communication channels (email,
+    chat, social)
+
+    - **Actor Management**: Track and manage conversation participants
+
+
+    ## Authentication
+
+    This API supports OAuth 2.0 and Private App authentication methods.
+
+
+    ## Rate Limits
+
+    Standard HubSpot API rate limits apply. See HubSpot documentation for
+    details.
+  version: 3.0.0
+  contact:
+    name: HubSpot Developer Support
+    url: https://developers.hubspot.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot Production API Server
+  - url: http://localhost:8080/rest/hubspot-conversations-api/3.0.0
+    description: Sandbox
+tags:
+  - name: Inboxes
+    description: >-
+      Operations for managing conversation inboxes where messages are organized
+      and routed.
+  - name: Threads
+    description: >-
+      Operations for creating, retrieving, updating, and archiving conversation
+      threads.
+  - name: Messages
+    description: >-
+      Operations for sending, receiving, and managing messages within
+      conversation threads.
+  - name: Channels
+    description: >-
+      Operations for managing communication channels such as email, chat, and
+      social media.
+  - name: Actors
+    description: >-
+      Operations for managing conversation participants including visitors and
+      agents.
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            conversations.read: Read access to conversations
+            conversations.write: Write access to conversations
+    PrivateApp:
+      type: apiKey
+      name: private-app
+      in: header
+      description: Private app access token for server-to-server authentication
+  schemas:
+    Inbox:
+      type: object
+      description: >-
+        Represents a conversation inbox configuration where messages are
+        organized and routed.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the inbox
+          example: '12345678'
+        name:
+          type: string
+          description: Display name of the inbox
+          example: Support Inbox
+        type:
+          type: string
+          description: Type of inbox (e.g., CONVERSATIONS_INBOX)
+          example: CONVERSATIONS_INBOX
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the inbox was created
+          example: '2024-01-10T09:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the inbox was last updated
+          example: '2024-01-15T14:30:00Z'
+        archived:
+          type: boolean
+          description: Whether the inbox is archived
+          example: false
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+    InboxCollection:
+      type: object
+      description: Paginated collection of inboxes
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Inbox'
+          description: Array of inbox records
+        total:
+          type: integer
+          description: Total number of inboxes available
+          example: 2
+        paging:
+          $ref: '#/components/schemas/Paging'
+      required:
+        - results
+    Thread:
+      type: object
+      description: >-
+        Represents a conversation thread containing messages between
+        participants.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the thread
+          example: '987654321'
+        inboxId:
+          type: string
+          description: ID of the inbox containing this thread
+          example: '12345678'
+        status:
+          type: string
+          enum:
+            - OPEN
+            - CLOSED
+          description: Current status of the thread
+          example: OPEN
+        spam:
+          type: boolean
+          description: Whether the thread is marked as spam
+          example: false
+        associatedContactId:
+          type: string
+          description: ID of the associated CRM contact
+          example: '101'
+        assignedTo:
+          type: string
+          description: User ID the thread is assigned to
+          example: user_456
+        originalChannelId:
+          type: string
+          description: ID of the original communication channel
+          example: channel_789
+        originalChannelAccountId:
+          type: string
+          description: ID of the original channel account
+          example: account_123
+        latestMessageTimestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of the latest message
+          example: '2024-01-20T10:30:00Z'
+        latestMessageSentTimestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of the latest sent message
+          example: '2024-01-20T10:25:00Z'
+        latestMessageReceivedTimestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of the latest received message
+          example: '2024-01-20T10:30:00Z'
+        closedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the thread was closed
+          example: '2024-01-21T15:00:00Z'
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the thread was created
+          example: '2024-01-15T09:00:00Z'
+        archived:
+          type: boolean
+          description: Whether the thread is archived
+          example: false
+      required:
+        - id
+        - inboxId
+        - status
+        - createdAt
+    ThreadCollection:
+      type: object
+      description: Paginated collection of conversation threads
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Thread'
+          description: Array of thread records
+        paging:
+          $ref: '#/components/schemas/Paging'
+      required:
+        - results
+    Message:
+      type: object
+      description: Represents a message within a conversation thread.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the message
+          example: msg_123456
+        type:
+          type: string
+          enum:
+            - MESSAGE
+            - COMMENT
+            - WELCOME_MESSAGE
+          description: Type of message
+          example: MESSAGE
+        text:
+          type: string
+          description: Plain text content of the message
+          example: Hello, I need help with my order.
+        richText:
+          type: string
+          description: Rich text (HTML) content of the message
+          example: <p>Hello, I need help with my order.</p>
+        direction:
+          type: string
+          enum:
+            - INCOMING
+            - OUTGOING
+          description: Direction of the message (incoming or outgoing)
+          example: INCOMING
+        channelId:
+          type: string
+          description: ID of the communication channel
+          example: channel_789
+        channelAccountId:
+          type: string
+          description: ID of the channel account
+          example: account_123
+        senders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Actor'
+          description: List of message senders
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Actor'
+          description: List of message recipients
+        status:
+          $ref: '#/components/schemas/MessageStatus'
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the message was created
+          example: '2024-01-20T10:30:00Z'
+        truncationStatus:
+          type: string
+          description: Whether the message was truncated
+          example: NOT_TRUNCATED
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: Message attachments
+      required:
+        - id
+        - type
+        - createdAt
+    MessageStatus:
+      type: object
+      description: Delivery status information for a message
+      properties:
+        statusType:
+          type: string
+          enum:
+            - SENT
+            - DELIVERED
+            - READ
+            - FAILED
+          description: Current delivery status type
+          example: DELIVERED
+    MessageCollection:
+      type: object
+      description: Paginated collection of messages
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+          description: Array of message records
+        paging:
+          $ref: '#/components/schemas/Paging'
+      required:
+        - results
+    Actor:
+      type: object
+      description: Represents a participant in a conversation (visitor, agent, or bot).
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the actor
+          example: actor_101
+        actorId:
+          type: string
+          description: Actor ID reference
+          example: actor_101
+        name:
+          type: string
+          description: Display name of the actor
+          example: John Customer
+        email:
+          type: string
+          format: email
+          description: Email address of the actor
+          example: john@example.com
+        type:
+          type: string
+          description: Type of actor (e.g., VISITOR, AGENT, BOT)
+          example: VISITOR
+      required:
+        - id
+    ActorCollection:
+      type: object
+      description: Paginated collection of actors
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Actor'
+          description: Array of actor records
+        paging:
+          $ref: '#/components/schemas/Paging'
+      required:
+        - results
+    Attachment:
+      type: object
+      description: Represents a file attachment on a message.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the attachment
+          example: attach_001
+        type:
+          type: string
+          description: MIME type of the attachment
+          example: application/pdf
+        url:
+          type: string
+          format: uri
+          description: URL to access the attachment
+          example: https://api.hubapi.com/files/v3/files/attach_001
+        filename:
+          type: string
+          description: Original filename
+          example: invoice.pdf
+        size:
+          type: integer
+          description: File size in bytes
+          example: 102400
+    Channel:
+      type: object
+      description: Represents a communication channel for conversations.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the channel
+          example: channel_789
+        name:
+          type: string
+          description: Display name of the channel
+          example: Website Chat
+        type:
+          type: string
+          description: Type of channel (e.g., EMAIL, CHAT, FACEBOOK)
+          example: CHAT
+        accountId:
+          type: string
+          description: Associated account ID
+          example: account_123
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the channel was created
+          example: '2024-01-01T00:00:00Z'
+      required:
+        - id
+        - name
+        - type
+    ChannelCollection:
+      type: object
+      description: Paginated collection of channels
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Channel'
+          description: Array of channel records
+        paging:
+          $ref: '#/components/schemas/Paging'
+      required:
+        - results
+    SendMessageRequest:
+      type: object
+      description: Request payload for sending a message to a thread.
+      properties:
+        type:
+          type: string
+          enum:
+            - MESSAGE
+            - COMMENT
+          description: Type of message to send
+          example: MESSAGE
+        text:
+          type: string
+          description: Plain text content of the message
+          example: Thank you for reaching out. How can I help you today?
+        richText:
+          type: string
+          description: Rich text (HTML) content
+          example: <p>Thank you for reaching out. How can I help you today?</p>
+        senderActorId:
+          type: string
+          description: Actor ID of the sender
+          example: actor_agent_123
+        channelId:
+          type: string
+          description: Channel to send on
+          example: channel_789
+        channelAccountId:
+          type: string
+          description: Channel account to use
+          example: account_123
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageRecipient'
+          description: Message recipients
+      required:
+        - type
+        - text
+        - senderActorId
+    MessageRecipient:
+      type: object
+      description: Recipient information for a message.
+      properties:
+        actorId:
+          type: string
+          description: Actor ID of the recipient
+          example: actor_101
+    UpdateThreadRequest:
+      type: object
+      description: Request payload for updating a thread's properties.
+      properties:
+        status:
+          type: string
+          enum:
+            - OPEN
+            - CLOSED
+          description: New thread status
+          example: CLOSED
+        assignedTo:
+          type: string
+          description: User ID to assign the thread to
+          example: user_789
+    Paging:
+      type: object
+      description: Pagination information for list responses.
+      properties:
+        next:
+          $ref: '#/components/schemas/PagingNext'
+    PagingNext:
+      type: object
+      description: Pagination cursor information for retrieving the next page.
+      properties:
+        after:
+          type: string
+          description: Cursor token for the next page
+          example: NTI1Cg%3D%3D
+        link:
+          type: string
+          description: API link to the next page
+          example: /conversations/v3/conversations/inboxes?after=NTI1Cg%3D%3D
+    ErrorDetail:
+      type: object
+      description: Detailed information about a specific error.
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid thread ID format
+        code:
+          type: string
+          description: Error code
+          example: INVALID_FORMAT
+        subCategory:
+          type: string
+          description: Error subcategory
+          example: PARAMETER_ERROR
+        in:
+          type: string
+          description: Location where error occurred
+          example: path
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+        - message
+    Error:
+      type: object
+      description: Standard error response structure.
+      properties:
+        category:
+          type: string
+          description: Error category
+          example: VALIDATION_ERROR
+        correlationId:
+          type: string
+          format: uuid
+          description: Unique tracking identifier for support requests
+          example: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid input parameters
+        subCategory:
+          type: string
+          description: Error subcategory
+          example: INVALID_PARAMETER
+        context:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+      required:
+        - category
+        - correlationId
+        - message
+  examples:
+    InboxExample:
+      summary: A complete inbox record
+      value:
+        id: '12345678'
+        name: Support Inbox
+        type: CONVERSATIONS_INBOX
+        createdAt: '2024-01-10T09:00:00Z'
+        updatedAt: '2024-01-15T14:30:00Z'
+        archived: false
+    InboxCollectionExample:
+      summary: Paginated list of inboxes
+      value:
+        results:
+          - id: '12345678'
+            name: Support Inbox
+            type: CONVERSATIONS_INBOX
+            createdAt: '2024-01-10T09:00:00Z'
+            updatedAt: '2024-01-15T14:30:00Z'
+            archived: false
+          - id: '12345679'
+            name: Sales Inbox
+            type: CONVERSATIONS_INBOX
+            createdAt: '2024-01-08T10:00:00Z'
+            updatedAt: '2024-01-14T16:00:00Z'
+            archived: false
+        total: 2
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+            link: /conversations/v3/conversations/inboxes?after=NTI1Cg%3D%3D
+    ThreadExample:
+      summary: A complete thread record
+      value:
+        id: '987654321'
+        inboxId: '12345678'
+        status: OPEN
+        spam: false
+        associatedContactId: '101'
+        assignedTo: user_456
+        originalChannelId: channel_789
+        originalChannelAccountId: account_123
+        latestMessageTimestamp: '2024-01-20T10:30:00Z'
+        latestMessageSentTimestamp: '2024-01-20T10:25:00Z'
+        latestMessageReceivedTimestamp: '2024-01-20T10:30:00Z'
+        createdAt: '2024-01-15T09:00:00Z'
+        archived: false
+    ThreadCollectionExample:
+      summary: Paginated list of threads
+      value:
+        results:
+          - id: '987654321'
+            inboxId: '12345678'
+            status: OPEN
+            spam: false
+            associatedContactId: '101'
+            createdAt: '2024-01-15T09:00:00Z'
+            archived: false
+          - id: '987654322'
+            inboxId: '12345678'
+            status: CLOSED
+            spam: false
+            associatedContactId: '102'
+            createdAt: '2024-01-14T11:00:00Z'
+            archived: false
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+            link: /conversations/v3/conversations/threads?after=NTI1Cg%3D%3D
+    MessageExample:
+      summary: A complete message record
+      value:
+        id: msg_123456
+        type: MESSAGE
+        text: Hello, I need help with my order.
+        direction: INCOMING
+        channelId: channel_789
+        channelAccountId: account_123
+        senders:
+          - id: actor_101
+            name: John Customer
+            email: john@example.com
+            type: VISITOR
+        status:
+          statusType: DELIVERED
+        createdAt: '2024-01-20T10:30:00Z'
+    MessageCollectionExample:
+      summary: Paginated list of messages
+      value:
+        results:
+          - id: msg_123456
+            type: MESSAGE
+            text: Hello, I need help with my order.
+            direction: INCOMING
+            createdAt: '2024-01-20T10:30:00Z'
+          - id: msg_123457
+            type: MESSAGE
+            text: Hi! I'd be happy to help. What's your order number?
+            direction: OUTGOING
+            createdAt: '2024-01-20T10:32:00Z'
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+            link: >-
+              /conversations/v3/conversations/threads/987654321/messages?after=NTI1Cg%3D%3D
+    ChannelExample:
+      summary: A complete channel record
+      value:
+        id: channel_789
+        name: Website Chat
+        type: CHAT
+        accountId: account_123
+        createdAt: '2024-01-01T00:00:00Z'
+    ChannelCollectionExample:
+      summary: Paginated list of channels
+      value:
+        results:
+          - id: channel_789
+            name: Website Chat
+            type: CHAT
+            accountId: account_123
+            createdAt: '2024-01-01T00:00:00Z'
+          - id: channel_790
+            name: Support Email
+            type: EMAIL
+            accountId: account_124
+            createdAt: '2024-01-01T00:00:00Z'
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+            link: /conversations/v3/conversations/channels?after=NTI1Cg%3D%3D
+    ActorExample:
+      summary: A complete actor record
+      value:
+        id: actor_101
+        actorId: actor_101
+        name: John Customer
+        email: john@example.com
+        type: VISITOR
+    ActorCollectionExample:
+      summary: Paginated list of actors
+      value:
+        results:
+          - id: actor_101
+            actorId: actor_101
+            name: John Customer
+            email: john@example.com
+            type: VISITOR
+          - id: actor_agent_123
+            actorId: actor_agent_123
+            name: Support Agent
+            email: support@example.com
+            type: AGENT
+        paging:
+          next:
+            after: NTI1Cg%3D%3D
+            link: /conversations/v3/conversations/actors?after=NTI1Cg%3D%3D
+    SendMessageRequestExample:
+      summary: Example request to send a message
+      value:
+        type: MESSAGE
+        text: Thank you for reaching out. How can I help you today?
+        senderActorId: actor_agent_123
+        channelId: channel_789
+        channelAccountId: account_123
+    UpdateThreadRequestExample:
+      summary: Example request to update a thread
+      value:
+        status: CLOSED
+        assignedTo: user_789
+    ErrorExample:
+      summary: Validation error response
+      value:
+        category: VALIDATION_ERROR
+        correlationId: aeb5f871-7f07-4993-9211-075dc63e7cbf
+        message: Invalid input parameters
+        context:
+          invalidFields:
+            - threadId
+  responses:
+    ErrorResponse:
+      description: An error occurred while processing the request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ValidationError:
+              $ref: '#/components/examples/ErrorExample'
+paths:
+  /conversations/v3/conversations/inboxes:
+    get:
+      tags:
+        - Inboxes
+      operationId: listInboxes
+      summary: List All Inboxes
+      description: >
+        Retrieve a paginated list of all conversation inboxes in your HubSpot
+        account.
+
+        Use query parameters to filter, sort, and paginate results.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.read
+        - PrivateApp: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of results per page (1-100)
+          example: 20
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: Pagination cursor for retrieving the next page of results
+          example: NTI1Cg%3D%3D
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: Property name to sort results by
+          example: createdAt
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Set to true to include archived inboxes in results
+          example: false
+      responses:
+        '200':
+          description: Successfully retrieved the list of inboxes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboxCollection'
+              examples:
+                Success:
+                  $ref: '#/components/examples/InboxCollectionExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /conversations/v3/conversations/inboxes/{inboxId}:
+    get:
+      tags:
+        - Inboxes
+      operationId: getInboxById
+      summary: Retrieve An Inbox
+      description: |
+        Retrieve a specific conversation inbox by its unique identifier.
+        Returns the complete inbox configuration details.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.read
+        - PrivateApp: []
+      parameters:
+        - name: inboxId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the inbox to retrieve
+          example: '12345678'
+      responses:
+        '200':
+          description: Successfully retrieved the inbox details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inbox'
+              examples:
+                Success:
+                  $ref: '#/components/examples/InboxExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /conversations/v3/conversations/threads:
+    get:
+      tags:
+        - Threads
+      operationId: listThreads
+      summary: List Conversation Threads
+      description: >
+        Retrieve a paginated list of conversation threads with optional
+        filtering.
+
+        Filter by inbox, contact, or status to find specific conversations.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.read
+        - PrivateApp: []
+      parameters:
+        - name: inboxId
+          in: query
+          schema:
+            type: string
+          description: Filter threads by inbox ID
+          example: '12345678'
+        - name: associatedContactId
+          in: query
+          schema:
+            type: string
+          description: Filter threads by associated CRM contact ID
+          example: '101'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - OPEN
+              - CLOSED
+          description: Filter threads by status
+          example: OPEN
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of results per page
+          example: 20
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: Pagination cursor for the next page
+          example: NTI1Cg%3D%3D
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: Property to sort results by
+          example: latestMessageTimestamp
+      responses:
+        '200':
+          description: Successfully retrieved the list of threads
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadCollection'
+              examples:
+                Success:
+                  $ref: '#/components/examples/ThreadCollectionExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /conversations/v3/conversations/threads/{threadId}:
+    get:
+      tags:
+        - Threads
+      operationId: getThreadById
+      summary: Retrieve A Thread
+      description: |
+        Retrieve a specific conversation thread by its unique identifier.
+        Optionally include associated objects like tickets.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.read
+        - PrivateApp: []
+      parameters:
+        - name: threadId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread to retrieve
+          example: '987654321'
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Set to true to retrieve archived threads
+          example: false
+        - name: property
+          in: query
+          schema:
+            type: string
+          description: Specific property to return in the response
+          example: status
+        - name: association
+          in: query
+          schema:
+            type: string
+            enum:
+              - TICKET
+          description: Include associated objects in the response
+          example: TICKET
+      responses:
+        '200':
+          description: Successfully retrieved the thread details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+              examples:
+                Success:
+                  $ref: '#/components/examples/ThreadExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+    patch:
+      tags:
+        - Threads
+      operationId: updateThread
+      summary: Update A Thread
+      description: >
+        Update properties of an existing conversation thread.
+
+        Use this to change status, reassign the thread, or modify other
+        properties.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.write
+        - PrivateApp: []
+      parameters:
+        - name: threadId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread to update
+          example: '987654321'
+      requestBody:
+        required: true
+        description: Thread properties to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateThreadRequest'
+            examples:
+              UpdateStatus:
+                $ref: '#/components/examples/UpdateThreadRequestExample'
+      responses:
+        '200':
+          description: Successfully updated the thread
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+              examples:
+                Success:
+                  $ref: '#/components/examples/ThreadExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      tags:
+        - Threads
+      operationId: archiveThread
+      summary: Archive A Thread
+      description: >
+        Archive a conversation thread. The thread will be permanently deleted 
+
+        30 days after being archived. This action can be undone within the
+        retention period.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.write
+        - PrivateApp: []
+      parameters:
+        - name: threadId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread to archive
+          example: '987654321'
+      responses:
+        '204':
+          description: Successfully archived the thread
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /conversations/v3/conversations/threads/{threadId}/messages:
+    get:
+      tags:
+        - Messages
+      operationId: listThreadMessages
+      summary: List Thread Messages
+      description: |
+        Retrieve all messages in a conversation thread. Messages are returned
+        in chronological order with pagination support.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.read
+        - PrivateApp: []
+      parameters:
+        - name: threadId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread
+          example: '987654321'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of messages per page
+          example: 20
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: Pagination cursor for the next page
+          example: NTI1Cg%3D%3D
+      responses:
+        '200':
+          description: Successfully retrieved the list of messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageCollection'
+              examples:
+                Success:
+                  $ref: '#/components/examples/MessageCollectionExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+        - Messages
+      operationId: sendMessage
+      summary: Send A Message
+      description: >
+        Send a new message to a conversation thread. The message will be
+        delivered
+
+        through the specified channel to the thread participants.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.write
+        - PrivateApp: []
+      parameters:
+        - name: threadId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread to send the message to
+          example: '987654321'
+      requestBody:
+        required: true
+        description: Message content and delivery configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+            examples:
+              SendTextMessage:
+                $ref: '#/components/examples/SendMessageRequestExample'
+      responses:
+        '201':
+          description: Successfully sent the message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Success:
+                  $ref: '#/components/examples/MessageExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /conversations/v3/conversations/threads/{threadId}/messages/{messageId}:
+    get:
+      tags:
+        - Messages
+      operationId: getMessageById
+      summary: Retrieve A Message
+      description: >
+        Retrieve a specific message by its unique identifier within a thread.
+
+        Returns the complete message details including sender, recipients, and
+        attachments.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.read
+        - PrivateApp: []
+      parameters:
+        - name: threadId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the thread containing the message
+          example: '987654321'
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the message to retrieve
+          example: msg_123456
+      responses:
+        '200':
+          description: Successfully retrieved the message details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Success:
+                  $ref: '#/components/examples/MessageExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /conversations/v3/conversations/channels:
+    get:
+      tags:
+        - Channels
+      operationId: listChannels
+      summary: List Channels
+      description: >
+        Retrieve a list of available conversation channels configured in your
+        account.
+
+        Channels represent different communication methods like email, chat, or
+        social media.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.read
+        - PrivateApp: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of channels per page
+          example: 20
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: Pagination cursor for the next page
+          example: NTI1Cg%3D%3D
+      responses:
+        '200':
+          description: Successfully retrieved the list of channels
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelCollection'
+              examples:
+                Success:
+                  $ref: '#/components/examples/ChannelCollectionExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /conversations/v3/conversations/actors:
+    get:
+      tags:
+        - Actors
+      operationId: listActors
+      summary: List Actors
+      description: >
+        Retrieve a list of conversation actors (participants) in your account.
+
+        Actors can be visitors, agents, or bots who participate in
+        conversations.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.read
+        - PrivateApp: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of actors per page
+          example: 20
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: Pagination cursor for the next page
+          example: NTI1Cg%3D%3D
+      responses:
+        '200':
+          description: Successfully retrieved the list of actors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActorCollection'
+              examples:
+                Success:
+                  $ref: '#/components/examples/ActorCollectionExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+  /conversations/v3/conversations/actors/{actorId}:
+    get:
+      tags:
+        - Actors
+      operationId: getActorById
+      summary: Retrieve An Actor
+      description: |
+        Retrieve a specific actor by their unique identifier.
+        Returns complete details about the conversation participant.
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          return "Success"
+      security:
+        - OAuth2:
+            - conversations.read
+        - PrivateApp: []
+      parameters:
+        - name: actorId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the actor to retrieve
+          example: actor_101
+      responses:
+        '200':
+          description: Successfully retrieved the actor details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Actor'
+              examples:
+                Success:
+                  $ref: '#/components/examples/ActorExample'
+        default:
+          $ref: '#/components/responses/ErrorResponse'

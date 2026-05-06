@@ -1,0 +1,1872 @@
+openapi: 3.1.0
+info:
+  title: webflow-workspaces-api
+  description: >-
+    API for managing Webflow workspaces. Provides operations for creating sites
+    within workspaces and accessing workspace audit logs.
+  version: 1.0.0
+servers:
+  - url: https://api.webflow.com
+  - url: http://localhost:8080/rest/webflow-workspaces-api/1.0.0
+    description: Sandbox
+paths:
+  /workspaces/{workspace_id}/sites:
+    post:
+      tags:
+        - Sites
+      operationId: createSite
+      summary: Create Site
+      description: >
+        Create a site. 
+
+
+        <Warning title="Enterprise Only">This endpoint requires an Enterprise
+        workspace.</Warning>
+
+
+        Required scope | `workspace:write`
+      security:
+        - OAuth2:
+            - sites:write
+      parameters:
+        - name: workspace_id
+          in: path
+          description: Unique identifier for a Workspace
+          example: 580e63e98c9a982ac9b8b741
+          required: true
+          schema:
+            type: string
+            format: objectid
+            default: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Createsiterequest'
+      responses:
+        '201':
+          description: Request was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createsiteresponse201'
+              examples:
+                Createsiteresponse201example:
+                  $ref: '#/components/examples/Createsiteresponse201example'
+                Newlycreatedsite:
+                  $ref: '#/components/examples/Newlycreatedsite'
+        '400':
+          description: Request body was incorrectly formatted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createsiteresponse400'
+              examples:
+                Createsiteresponse400example:
+                  $ref: '#/components/examples/Createsiteresponse400example'
+                Createsiteresponse400example1:
+                  $ref: '#/components/examples/Createsiteresponse400example1'
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createsiteresponse401'
+              examples:
+                Createsiteresponse401example:
+                  $ref: '#/components/examples/Createsiteresponse401example'
+                Createsiteresponse401example1:
+                  $ref: '#/components/examples/Createsiteresponse401example1'
+        '403':
+          description: Forbidden request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createsiteresponse403'
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createsiteresponse404'
+              examples:
+                Createsiteresponse404example:
+                  $ref: '#/components/examples/Createsiteresponse404example'
+                Createsiteresponse404example1:
+                  $ref: '#/components/examples/Createsiteresponse404example1'
+        '429':
+          description: >-
+            The rate limit of the provided access_token has been reached. Please
+            have your application respect the X-RateLimit-Remaining header we
+            include on API responses.
+          headers:
+            X-RateLimit-Remaining:
+              description: >-
+                Contains the number of available requests remaining in the
+                current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Contains your current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createsiteresponse429'
+              examples:
+                Createsiteresponse429example:
+                  $ref: '#/components/examples/Createsiteresponse429example'
+                Createsiteresponse429example1:
+                  $ref: '#/components/examples/Createsiteresponse429example1'
+        '500':
+          description: We had a problem with our server. Try again later.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Createsiteresponse500'
+              examples:
+                Createsiteresponse500example:
+                  $ref: '#/components/examples/Createsiteresponse500example'
+                Createsiteresponse500example1:
+                  $ref: '#/components/examples/Createsiteresponse500example1'
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def dispatch(request, context) {
+              // Return successful response
+              return "201"
+          }
+  /workspaces/{workspace_id_or_slug}/audit_logs:
+    get:
+      tags:
+        - Audit Logs
+      operationId: getWorkspaceAuditLogs
+      summary: Get Workspace Audit Logs
+      description: >
+        Get audit logs for a workspace.
+
+
+        <Warning title="Enterprise & workspace API token only">This endpoint
+        requires an Enterprise workspace and a workspace token with the
+        `workspace_activity:read` scope. Create a workspace token from your
+        workspace dashboard integrations page to use this endpoint.</Warning>
+
+
+        Required scope | `workspace_activity:read`
+      security:
+        - OAuth2:
+            - workspace_activity:read
+      parameters:
+        - name: workspace_id_or_slug
+          in: path
+          description: Unique identifier or slug for a Workspace
+          example: hitchhikers-workspace
+          required: true
+          schema:
+            type: string
+            format: objectid
+            default: null
+        - in: query
+          allowEmptyValue: true
+          name: limit
+          example: 100
+          description: 'Maximum number of records to be returned (max limit: 100)'
+          required: false
+          schema:
+            type: integer
+        - in: query
+          example: 0
+          allowEmptyValue: true
+          name: offset
+          description: >-
+            Offset used for pagination if the results have more than limit
+            records
+          required: false
+          schema:
+            type: integer
+        - name: sortOrder
+          in: query
+          allowEmptyValue: true
+          description: Sorts the results by asc or desc
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: eventType
+          in: query
+          required: false
+          allowEmptyValue: true
+          description: The event type to filter by
+          schema:
+            type: string
+            enum:
+              - user_access
+              - custom_role
+              - workspace_membership
+              - site_membership
+              - workspace_invitation
+          example: user_access
+        - name: from
+          in: query
+          required: false
+          allowEmptyValue: true
+          description: The start date to filter by
+          schema:
+            type: string
+            format: date-time
+          example: '2025-06-22T16:00:31Z'
+        - name: to
+          in: query
+          required: false
+          allowEmptyValue: true
+          description: The end date to filter by
+          schema:
+            type: string
+            format: date-time
+          example: '2025-07-22T16:00:31Z'
+      responses:
+        '200':
+          description: A list of workspace audit logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getworkspaceauditlogsresponse200'
+              examples:
+                Getworkspaceauditlogsresponse200example:
+                  $ref: >-
+                    #/components/examples/Getworkspaceauditlogsresponse200example
+        '401':
+          description: >-
+            Provided access token is invalid or does not have access to
+            requested resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getworkspaceauditlogsresponse401'
+              examples:
+                Getworkspaceauditlogsresponse401example:
+                  $ref: >-
+                    #/components/examples/Getworkspaceauditlogsresponse401example
+                Getworkspaceauditlogsresponse401example1:
+                  $ref: >-
+                    #/components/examples/Getworkspaceauditlogsresponse401example1
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getworkspaceauditlogsresponse403'
+              examples:
+                Getworkspaceauditlogsresponse403example:
+                  $ref: >-
+                    #/components/examples/Getworkspaceauditlogsresponse403example
+                Getworkspaceauditlogsresponse403example1:
+                  $ref: >-
+                    #/components/examples/Getworkspaceauditlogsresponse403example1
+        '404':
+          description: Requested resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getworkspaceauditlogsresponse404'
+              examples:
+                Getworkspaceauditlogsresponse404example:
+                  $ref: >-
+                    #/components/examples/Getworkspaceauditlogsresponse404example
+                Getworkspaceauditlogsresponse404example1:
+                  $ref: >-
+                    #/components/examples/Getworkspaceauditlogsresponse404example1
+        '429':
+          description: >-
+            The rate limit of the provided access_token has been reached. Please
+            have your application respect the X-RateLimit-Remaining header we
+            include on API responses.
+          headers:
+            X-RateLimit-Remaining:
+              description: >-
+                Contains the number of available requests remaining in the
+                current minute
+              schema:
+                type: number
+            X-RateLimit-Limit:
+              description: Contains your current overall rate limit per minute
+              schema:
+                type: number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getworkspaceauditlogsresponse429'
+              examples:
+                Getworkspaceauditlogsresponse429example:
+                  $ref: >-
+                    #/components/examples/Getworkspaceauditlogsresponse429example
+                Getworkspaceauditlogsresponse429example1:
+                  $ref: >-
+                    #/components/examples/Getworkspaceauditlogsresponse429example1
+        '500':
+          description: We had a problem with our server. Try again later.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Getworkspaceauditlogsresponse500'
+              examples:
+                Getworkspaceauditlogsresponse500example:
+                  $ref: >-
+                    #/components/examples/Getworkspaceauditlogsresponse500example
+                Getworkspaceauditlogsresponse500example1:
+                  $ref: >-
+                    #/components/examples/Getworkspaceauditlogsresponse500example1
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |-
+          def dispatch(request, context) {
+              // Return successful response
+              return "200"
+          }
+tags:
+  - name: Audit Logs
+    description: Operations for viewing workspace audit logs
+  - name: Sites
+    description: Operations for managing Webflow sites
+components:
+  schemas:
+    Createsiterequest:
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: The Hitchhiker's Guide to the Galaxy
+          description: The name of the site
+        templateName:
+          type: string
+          example: Megadodo Publications - Guide Template
+          description: The workspace or marketplace template to use
+        parentFolderId:
+          type: string
+          nullable: true
+          example: a9c420f9347c2139b248e913
+          description: MegaDodo Publications - Potential Book Ideas
+    Createsiteresponse201customdomainsitem:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: objectid
+          example: 589a331aa51e760df7ccb89d
+          description: Unique identifier for the Domain
+        url:
+          type: string
+          example: test-api-domain.com
+          description: The registered Domain name
+        lastPublished:
+          type: string
+          format: date-time
+          example: '2022-12-07T16:51:37.571Z'
+          readOnly: true
+          nullable: true
+          description: The date the custom domain was last published to
+      example:
+        id: 589a331aa51e760df7ccb89d
+        url: test-api-domain.com
+        lastPublished: '2022-12-07T16:51:37.571Z'
+    Createsiteresponse201localesprimary:
+      description: The primary locale for the site or application.
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the locale.
+          example: 653fd9af6a07fc9cfd7a5e57
+        cmsLocaleId:
+          type: string
+          description: A CMS-specific identifier for the locale.
+          example: 653ad57de882f528b32e810e
+        enabled:
+          type: boolean
+          description: Indicates if the locale is enabled.
+          example: false
+        displayName:
+          type: string
+          description: The display name of the locale, typically in English.
+          example: English (United States)
+        displayImageId:
+          type: string
+          description: An optional ID for an image associated with the locale, nullable.
+          nullable: true
+          example: null
+        redirect:
+          type: boolean
+          description: Determines if requests should redirect to the locale's subdirectory.
+          example: true
+        subdirectory:
+          type: string
+          description: The subdirectory path for the locale, used in URLs.
+          example: ''
+        tag:
+          type: string
+          description: >-
+            A tag or code representing the locale, often following a standard
+            format like 'en-US'.
+          example: en-US
+    Createsiteresponse201localessecondaryitem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the locale.
+          example: 653fd9af6a07fc9cfd7a5e57
+        cmsLocaleId:
+          type: string
+          description: A CMS-specific identifier for the locale.
+          example: 653ad57de882f528b32e810e
+        enabled:
+          type: boolean
+          description: Indicates if the locale is enabled.
+          example: false
+        displayName:
+          type: string
+          description: The display name of the locale, typically in English.
+          example: English (United States)
+        displayImageId:
+          type: string
+          description: An optional ID for an image associated with the locale, nullable.
+          nullable: true
+          example: null
+        redirect:
+          type: boolean
+          description: Determines if requests should redirect to the locale's subdirectory.
+          example: true
+        subdirectory:
+          type: string
+          description: The subdirectory path for the locale, used in URLs.
+          example: ''
+        tag:
+          type: string
+          description: >-
+            A tag or code representing the locale, often following a standard
+            format like 'en-US'.
+          example: en-US
+    Createsiteresponse201locales:
+      type: object
+      properties:
+        primary:
+          $ref: '#/components/schemas/Createsiteresponse201localesprimary'
+        secondary:
+          type: array
+          items:
+            $ref: '#/components/schemas/Createsiteresponse201localessecondaryitem'
+          description: A list of secondary locales available for the site or application.
+    Createsiteresponse201:
+      required:
+        - id
+        - workspaceId
+        - createdOn
+        - displayName
+        - shortName
+        - templateName
+        - lastPublished
+        - lastUpdated
+        - previewUrl
+        - timeZone
+        - dataCollectionEnabled
+        - dataCollectionType
+      properties:
+        id:
+          type: string
+          format: objectid
+          description: Unique identifier for the Site
+          example: 580e63e98c9a982ac9b8b741
+        workspaceId:
+          type: string
+          format: objectid
+          description: Unique identifier for the Workspace
+          example: 580e63e98c9a982ac9b8b741
+        createdOn:
+          type: string
+          format: date-time
+          description: Date the Site was created
+          example: '2016-10-24T19:41:29.156Z'
+        displayName:
+          type: string
+          description: Name given to Site
+          example: api_docs_sample_json
+        shortName:
+          type: string
+          description: Slugified version of name
+          example: api-docs-sample-json
+        lastPublished:
+          type: string
+          format: date-time
+          description: Date the Site was last published
+          example: '2016-10-24T19:43:17.271Z'
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Date the Site was last updated
+          example: '2016-10-24T19:43:17.271Z'
+        previewUrl:
+          type: string
+          format: uri
+          description: URL of a generated image for the given Site
+          example: >-
+            https://dev-assets.website-files.com/580e63e98c9a982ac9b8b741/201610241243.png
+        timeZone:
+          type: string
+          description: Site timezone set under Site Settings
+          example: America/Los_Angeles
+        parentFolderId:
+          type: string
+          format: objectid
+          nullable: true
+          description: The ID of the parent folder the Site exists in
+          example: 1as2d3f4g5h6j7k8l9z0x1c2v3b4n5m6
+        customDomains:
+          type: array
+          items:
+            $ref: '#/components/schemas/Createsiteresponse201customdomainsitem'
+        locales:
+          $ref: '#/components/schemas/Createsiteresponse201locales'
+        dataCollectionEnabled:
+          type: boolean
+          description: Indicates if data collection is enabled for the site.
+          example: false
+        dataCollectionType:
+          type: string
+          enum:
+            - always
+            - optOut
+            - disabled
+          description: The type of data collection enabled for the site.
+          example: always
+    Createsiteresponse400:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Createsiteresponse401:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Createsiteresponse403:
+      oneOf:
+        - description: Provided access token is valid, but is missing the required scopes.
+          x-logErrorCode: 403
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  code: not_authorized
+                  message: Request not authorized
+                  externalReference: null
+                  details: []
+                properties:
+                  code:
+                    type: string
+                    description: Error code
+                    example: not_authorized
+                    enum:
+                      - bad_request
+                      - collection_not_found
+                      - conflict
+                      - duplicate_collection
+                      - duplicate_user_email
+                      - ecommerce_not_enabled
+                      - forbidden
+                      - forms_require_republish
+                      - incompatible_webhook_filter
+                      - internal_error
+                      - invalid_auth_version
+                      - invalid_credentials
+                      - invalid_domain
+                      - invalid_user_email
+                      - item_not_found
+                      - missing_scopes
+                      - no_domains
+                      - not_authorized
+                      - not_enterprise_plan_site
+                      - not_enterprise_plan_workspace
+                      - order_not_found
+                      - resource_not_found
+                      - too_many_requests
+                      - unsupported_version
+                      - unsupported_webhook_trigger_type
+                      - user_limit_reached
+                      - user_not_found
+                      - users_not_enabled
+                      - validation_error
+                  message:
+                    type: string
+                    description: Error message
+                    example: Request not authorized
+                  externalReference:
+                    type: string
+                    description: Link to more information
+                    example: ''
+                  details:
+                    type: array
+                    description: Array of errors
+                    items:
+                      - type: string
+                        example: Invalid email address
+                        description: Error message
+                      - type: object
+                        example:
+                          field: email
+                          message: Invalid email address
+                        description: Error message
+                    example: []
+              example:
+                code: missing_scopes
+                message: >-
+                  OAuthForbidden: You are missing the following scopes -
+                  components:write
+                externalReference: null
+                details: []
+        - description: Error response for non-enterprise plan workspaces.
+          x-logErrorCode: 403
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  code: not_authorized
+                  message: Request not authorized
+                  externalReference: null
+                  details: []
+                properties:
+                  code:
+                    type: string
+                    description: Error code
+                    example: not_authorized
+                    enum:
+                      - bad_request
+                      - collection_not_found
+                      - conflict
+                      - duplicate_collection
+                      - duplicate_user_email
+                      - ecommerce_not_enabled
+                      - forbidden
+                      - forms_require_republish
+                      - incompatible_webhook_filter
+                      - internal_error
+                      - invalid_auth_version
+                      - invalid_credentials
+                      - invalid_domain
+                      - invalid_user_email
+                      - item_not_found
+                      - missing_scopes
+                      - no_domains
+                      - not_authorized
+                      - not_enterprise_plan_site
+                      - not_enterprise_plan_workspace
+                      - order_not_found
+                      - resource_not_found
+                      - too_many_requests
+                      - unsupported_version
+                      - unsupported_webhook_trigger_type
+                      - user_limit_reached
+                      - user_not_found
+                      - users_not_enabled
+                      - validation_error
+                  message:
+                    type: string
+                    description: Error message
+                    example: Request not authorized
+                  externalReference:
+                    type: string
+                    description: Link to more information
+                    example: ''
+                  details:
+                    type: array
+                    description: Array of errors
+                    items:
+                      - type: string
+                        example: Invalid email address
+                        description: Error message
+                      - type: object
+                        example:
+                          field: email
+                          message: Invalid email address
+                        description: Error message
+                    example: []
+              example:
+                code: not_enterprise_plan_workspace
+                message: This workspace is not associated with an Enterprise plan
+                externalReference: null
+                details: []
+    Createsiteresponse404:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Createsiteresponse429:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Createsiteresponse500:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Getworkspaceauditlogsresponse200itemsitemactor:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+    Getworkspaceauditlogsresponse200itemsitemworkspace:
+      type: object
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+    Getworkspaceauditlogsresponse200itemsitem0payload:
+      x-fern-type-name: User access
+      title: User access
+      type: object
+      properties:
+        method:
+          type: string
+          enum:
+            - dashboard
+            - sso
+            - api
+            - google
+        location:
+          type: string
+          description: The geolocation based on the logged IP address
+        ipAddress:
+          type: string
+          description: The captured IP address of the user
+    Getworkspaceauditlogsresponse200itemsitem1payload:
+      x-fern-type-name: Custom role
+      title: Custom role
+      type: object
+      properties:
+        roleName:
+          type: string
+          description: The name of the custom role
+        previousRoleName:
+          type: string
+          description: The previous name of the custom role
+    Getworkspaceauditlogsresponse200itemsitem2payloadtargetuser:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+    Getworkspaceauditlogsresponse200itemsitem2payload:
+      x-fern-type-name: Workspace membership
+      title: Workspace membership
+      type: object
+      properties:
+        targetUser:
+          $ref: >-
+            #/components/schemas/Getworkspaceauditlogsresponse200itemsitem2payloadtargetuser
+        method:
+          type: string
+          enum:
+            - sso
+            - dashboard
+            - admin
+            - access_request
+        userType:
+          type: string
+          enum:
+            - member
+            - guest
+            - reviewer
+            - client
+        roleName:
+          type: string
+          description: The name of the role that was assigned to the user
+        previousRoleName:
+          type: string
+          description: The previous role that the user had
+    Getworkspaceauditlogsresponse200itemsitem3payloadsite:
+      type: object
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+    Getworkspaceauditlogsresponse200itemsitem3payloadtargetuser:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+    Getworkspaceauditlogsresponse200itemsitem3payloadgranularaccess:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - cms
+        restricted:
+          type: boolean
+    Getworkspaceauditlogsresponse200itemsitem3payload:
+      x-fern-type-name: Site membership
+      title: Site membership
+      type: object
+      properties:
+        site:
+          $ref: >-
+            #/components/schemas/Getworkspaceauditlogsresponse200itemsitem3payloadsite
+        targetUser:
+          $ref: >-
+            #/components/schemas/Getworkspaceauditlogsresponse200itemsitem3payloadtargetuser
+        method:
+          type: string
+          enum:
+            - sso
+            - invite
+            - scim
+            - dashboard
+            - admin
+            - access_request
+        userType:
+          type: string
+          enum:
+            - member
+            - guest
+            - reviewer
+            - client
+        roleName:
+          type: string
+          description: The name of the role that was assigned to the user
+        previousRoleName:
+          type: string
+          description: The previous role that the user had
+        granularAccess:
+          $ref: >-
+            #/components/schemas/Getworkspaceauditlogsresponse200itemsitem3payloadgranularaccess
+    Getworkspaceauditlogsresponse200itemsitem4payloadtargetuser:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+    Getworkspaceauditlogsresponse200itemsitem4payloadtargetusersitem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 580e63e98c9a982ac9b8b741
+        email:
+          type: string
+          example: zaphod.beeblebrox@heartofgold.ship
+    Getworkspaceauditlogsresponse200itemsitem4payload:
+      x-fern-type-name: Workspace invitation
+      title: Workspace invitation
+      type: object
+      properties:
+        targetUser:
+          $ref: >-
+            #/components/schemas/Getworkspaceauditlogsresponse200itemsitem4payloadtargetuser
+        method:
+          type: string
+          enum:
+            - sso
+            - dashboard
+            - admin
+        userType:
+          type: string
+          enum:
+            - member
+            - guest
+            - reviewer
+            - client
+        roleName:
+          type: string
+          description: The name of the role that was assigned to the user
+        previousRoleName:
+          type: string
+          description: The previous role that the user had
+        targetUsers:
+          type: array
+          items:
+            $ref: >-
+              #/components/schemas/Getworkspaceauditlogsresponse200itemsitem4payloadtargetusersitem
+    Getworkspaceauditlogsresponse200itemsitem:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        actor:
+          $ref: '#/components/schemas/Getworkspaceauditlogsresponse200itemsitemactor'
+        workspace:
+          $ref: >-
+            #/components/schemas/Getworkspaceauditlogsresponse200itemsitemworkspace
+      oneOf:
+        - type: object
+          title: User Access
+          properties:
+            eventType:
+              type: string
+              enum:
+                - user_access
+            eventSubType:
+              type: string
+              enum:
+                - login
+                - logout
+            payload:
+              $ref: >-
+                #/components/schemas/Getworkspaceauditlogsresponse200itemsitem0payload
+        - type: object
+          title: Custom Role
+          properties:
+            eventType:
+              type: string
+              enum:
+                - custom_role
+            eventSubType:
+              type: string
+              enum:
+                - role_created
+                - role_updated
+                - role_deleted
+            payload:
+              $ref: >-
+                #/components/schemas/Getworkspaceauditlogsresponse200itemsitem1payload
+        - type: object
+          title: Workspace Membership
+          properties:
+            eventType:
+              type: string
+              enum:
+                - workspace_membership
+            eventSubType:
+              type: string
+              enum:
+                - user_added
+                - user_removed
+                - user_role_updated
+            payload:
+              $ref: >-
+                #/components/schemas/Getworkspaceauditlogsresponse200itemsitem2payload
+        - type: object
+          title: Site Membership
+          properties:
+            eventType:
+              type: string
+              enum:
+                - site_membership
+            eventSubType:
+              type: string
+              enum:
+                - user_added
+                - user_removed
+                - user_role_updated
+                - user_granular_access_updated
+            payload:
+              $ref: >-
+                #/components/schemas/Getworkspaceauditlogsresponse200itemsitem3payload
+        - type: object
+          title: Workspace Invitation
+          properties:
+            eventType:
+              type: string
+              enum:
+                - workspace_invitation
+            eventSubType:
+              type: string
+              enum:
+                - invite_sent
+                - invite_accepted
+                - invite_updated
+                - invite_canceled
+                - invite_declined
+                - access_request_accepted
+            payload:
+              $ref: >-
+                #/components/schemas/Getworkspaceauditlogsresponse200itemsitem4payload
+    Getworkspaceauditlogsresponse200pagination:
+      description: Pagination object
+      type: object
+      required:
+        - limit
+        - offset
+        - total
+      properties:
+        limit:
+          type: integer
+          description: The limit used for pagination
+          example: 100
+          readOnly: true
+        offset:
+          type: integer
+          description: The offset used for pagination
+          example: 0
+          readOnly: true
+        total:
+          type: integer
+          description: The total number of records
+          example: 100
+          readOnly: true
+    Getworkspaceauditlogsresponse200:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Getworkspaceauditlogsresponse200itemsitem'
+        pagination:
+          $ref: '#/components/schemas/Getworkspaceauditlogsresponse200pagination'
+    Getworkspaceauditlogsresponse401:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Getworkspaceauditlogsresponse403:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Getworkspaceauditlogsresponse404:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Getworkspaceauditlogsresponse429:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+    Getworkspaceauditlogsresponse500:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: not_authorized
+          enum:
+            - bad_request
+            - collection_not_found
+            - conflict
+            - duplicate_collection
+            - duplicate_user_email
+            - ecommerce_not_enabled
+            - forbidden
+            - forms_require_republish
+            - incompatible_webhook_filter
+            - internal_error
+            - invalid_auth_version
+            - invalid_credentials
+            - invalid_domain
+            - invalid_user_email
+            - item_not_found
+            - missing_scopes
+            - no_domains
+            - not_authorized
+            - not_enterprise_plan_site
+            - not_enterprise_plan_workspace
+            - order_not_found
+            - resource_not_found
+            - too_many_requests
+            - unsupported_version
+            - unsupported_webhook_trigger_type
+            - user_limit_reached
+            - user_not_found
+            - users_not_enabled
+            - validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request not authorized
+        externalReference:
+          type: string
+          description: Link to more information
+          example: ''
+        details:
+          type: array
+          description: Array of errors
+          items:
+            - type: string
+              example: Invalid email address
+              description: Error message
+            - type: object
+              example:
+                field: email
+                message: Invalid email address
+              description: Error message
+          example: []
+  examples:
+    Createsiteresponse201example:
+      value:
+        id: 42e98c9a982ac9b8b742
+        workspaceId: 42e63e98c9a982ac9b8b742
+        displayName: The Hitchhiker's Guide to the Galaxy
+        shortName: hitchhikers-guide
+        previewUrl: >-
+          https://screenshots.webflow.com/sites/6258612d1ee792848f805dcf/20231219211811_d5990556c743f33b7071300a03bf67e6.png
+        timeZone: Magrathea/FactoryFloor
+        createdOn: '1979-10-12T12:00:00.000Z'
+        lastUpdated: '2023-04-02T12:42:00.000Z'
+        lastPublished: '2023-04-02T12:42:00.000Z'
+        parentFolderId: 1as2d3f4g5h6j7k8l9z0x1c2v3b4n5m6
+        customDomains:
+          - id: 589a331aa51e760df7ccb89d
+            url: hitchhikersguide.galaxy
+          - id: 589a331aa51e760df7ccb89e
+            url: heartofgold.spaceship
+        locales:
+          primary:
+            id: 653fd9af6a07fc9cfd7a5e57
+            cmsLocaleId: 653ad57de882f528b32e810e
+            enabled: false
+            displayName: English (United States)
+            displayImageId: null
+            redirect: true
+            subdirectory: ''
+            tag: en-US
+          secondary:
+            - id: 653fd9af6a07fc9cfd7a5e56
+              cmsLocaleId: 653fd9af6a07fc9cfd7a5e5d
+              enabled: true
+              displayName: French (France)
+              displayImageId: null
+              subdirectory: fr-fr
+              tag: fr-FR
+            - id: 654112a3a525b2739d97664c
+              cmsLocaleId: 654112a3a525b2739d97664f
+              enabled: true
+              displayName: Spanish (Mexico)
+              displayImageId: null
+              subdirectory: es-mx
+              tag: es-MX
+        dataCollectionEnabled: true
+        dataCollectionType: always
+    Newlycreatedsite:
+      value:
+        id: 670ecf86817e3cc7a510eb6a
+        workspaceId: 625860a7a6c16d624927122f
+        displayName: The Hitchiker's Guide
+        shortName: hitchikers-guide
+        previewUrl: null
+        timeZone: null
+        createdOn: '2024-10-15T20:24:38.134Z'
+        lastUpdated: '2024-10-15T20:24:38.326Z'
+        lastPublished: null
+        parentFolderId: 670ece123598db72d9648be1
+        customDomains: []
+        locales: null
+        dataCollectionEnabled: true
+        dataCollectionType: always
+    Createsiteresponse400example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createsiteresponse400example1:
+      value:
+        code: bad_request
+        message: 'Bad Request: Request is malformed'
+        externalReference: null
+        details: []
+    Createsiteresponse401example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createsiteresponse401example1:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createsiteresponse404example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createsiteresponse404example1:
+      value:
+        code: resource_not_found
+        message: 'Requested resource not found: The site cannot be found'
+        externalReference: null
+        details: []
+    Createsiteresponse429example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createsiteresponse429example1:
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    Createsiteresponse500example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Createsiteresponse500example1:
+      value:
+        code: internal_error
+        message: An Internal Error occurred
+        externalReference: null
+        details: []
+    Getworkspaceauditlogsresponse200example:
+      value:
+        items:
+          - timestamp: '2025-04-29T20:30:06.622Z'
+            eventType: user_access
+            eventSubType: login
+            actor:
+              id: 6661ccb359b561c69f29d554
+              email: someone@email.com
+            workspace:
+              id: 6621ccb459b561c69f29d57c
+              slug: hitchhikers-workspace
+            payload:
+              ipAddress: 54.165.18.93
+              location: Ashburn US
+              method: dashboard
+          - timestamp: '2025-04-30T20:30:06.622Z'
+            eventSubType: user_added
+            eventType: workspace_membership
+            actor:
+              id: 60492e55bbddce079561cd7a
+              email: someone@webflow.com
+            workspace:
+              id: 6621ccb459b561c69f29d57c
+              slug: hitchhikers-workspace
+            payload:
+              targetUser:
+                id: 60492e55bbddce079561cd7a
+                email: someone@webflow.com
+              method: sso
+              roleName: member
+              userType: member
+          - timestamp: '2025-04-30T00:33:31.793Z'
+            eventType: site_membership
+            eventSubType: user_added
+            actor:
+              id: 671fe00d185fc8c1ad409d37
+              email: someone@webflow.com
+            workspace:
+              id: 6621ccb459b561c69f29d57c
+              slug: hitchhikers-workspace
+            payload:
+              method: dashboard
+              roleName: Edit - Cannot publish
+              site:
+                id: 67dc519889286123da057175
+                slug: hitchhikers-site
+              targetUser:
+                id: 672946bf5d384ea895bb95e2
+                email: someone@webflow.com
+              userType: member
+              granularAccess:
+                id: 67dc519889286123da057175
+                name: Blogs
+                type: cms
+                restricted: false
+        pagination:
+          total: 3
+          limit: 10
+          offset: 0
+    Getworkspaceauditlogsresponse401example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getworkspaceauditlogsresponse401example1:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getworkspaceauditlogsresponse403example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getworkspaceauditlogsresponse403example1:
+      value:
+        code: forbidden
+        message: User is not authorized to perform this action
+        externalReference: null
+        details: []
+    Getworkspaceauditlogsresponse404example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getworkspaceauditlogsresponse404example1:
+      value:
+        code: resource_not_found
+        message: 'Requested resource not found: The site cannot be found'
+        externalReference: null
+        details: []
+    Getworkspaceauditlogsresponse429example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getworkspaceauditlogsresponse429example1:
+      value:
+        code: too_many_requests
+        message: Too many requests
+        externalReference: null
+        details: []
+    Getworkspaceauditlogsresponse500example:
+      value:
+        code: not_authorized
+        message: Request not authorized
+        externalReference: null
+        details: []
+    Getworkspaceauditlogsresponse500example1:
+      value:
+        code: internal_error
+        message: An Internal Error occurred
+        externalReference: null
+        details: []
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          scopes:
+            authorized_user:read: read details about the authorized user
+            assets:read: read assets on the site
+            assets:write: write assets on a site
+            cms:read: read collections and items for a site
+            cms:write: write to collections and items for a site
+            comments:read: read comments on the site
+            comments:write: write comments on the site
+            custom_code:read: read custom code on the site
+            custom_code:write: modify custom code on the site
+            ecommerce:read: read ecommerce data
+            ecommerce:write: edit ecommerce data
+            forms:read: read form data
+            forms:write: write form data
+            pages:read: read pages on the site
+            pages:write: write to pages on the site
+            components:read: read component data
+            components:write: write component data
+            sites:read: read sites on the site
+            sites:write: modify pages on the site
+            users:read: read users on the site
+            site_activity:read: read site activity logs
+            users:write: modify users on the site
+            workspace:read: read workspace resource data
+            workspace:write: write workspace resource data
+            site_config:read: read site configuration data
+            site_config:write: write site configuration data
+          authorizationUrl: https://webflow.com/oauth/authorize
+          tokenUrl: https://api.webflow.com/oauth/token
+    ApiKey:
+      type: http
+      scheme: bearer
+      x-fern-token-variable-name: access_token

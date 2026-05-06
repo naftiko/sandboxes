@@ -1,0 +1,48 @@
+name: Lint OpenAPI specs
+
+# Validate every OpenAPI spec under specs/ on every PR and on every push to
+# main. Uses Super Linter — VALIDATE_OPENAPI is the relevant toggle, with
+# YAML linting layered on top to catch shape problems before they reach the
+# OpenAPI validator. Only changed files are linted on PRs (fast feedback);
+# the full tree is linted on push to main (catches drift).
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  statuses: write
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  super-lint:
+    name: Super Linter — OpenAPI + YAML
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Super Linter needs full history on PRs to diff against the base ref
+          fetch-depth: 0
+
+      - name: Run Super Linter
+        uses: super-linter/super-linter@v7
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # On PRs lint only changed files; on push to main lint everything
+          VALIDATE_ALL_CODEBASE: ${{ github.event_name != 'pull_request' }}
+          # Scope linting to the specs/ folder (the contribution surface)
+          FILTER_REGEX_INCLUDE: ^specs/.*$
+          # Validators
+          VALIDATE_OPENAPI: true
+          VALIDATE_YAML: true
+          VALIDATE_JSON: true
+          # Quiet down noise outside the specs folder
+          DISABLE_ERRORS_VALIDATE_JSCPD: true
