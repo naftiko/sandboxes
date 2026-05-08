@@ -1,6 +1,74 @@
 # Manage Sandboxes
 A centralized mock service for tier 1 APIs, providing usable responses for many of these common APIs, using Microcks and OpenAPI to serve up via a Cloudflare Worker.
 
+This repo plays two roles:
+
+1. **Microcks deploy** — every spec under [`specs/`](specs/) is mounted into a Microcks container deployed to Cloudflare and served at `https://mocks.naftiko.net/rest/<info.title>/<info.version>/`. See [Contributing a spec](#contributing-a-spec) and [CI / CD](#ci--cd) below.
+2. **Index of Naftiko Sandboxes** — the per-provider sandbox repos that wrap these mocks as deployable Naftiko Framework capabilities. Each one has a one-click Cloudflare/Render/Cloud Run/Railway/Replit deploy. See below.
+
+<!-- SANDBOX_INDEX:START -->
+## Naftiko Sandboxes
+
+Each repo below is a Naftiko Framework capability wrapping the centrally-hosted mocks. Click any deploy button to run the capability on your own infrastructure — no upstream credentials required.
+
+### Tutorial
+
+| Sandbox | What it wraps | Deploy |
+|---|---|---|
+| [`naftiko/shipyard-cloudflare`](https://github.com/naftiko/shipyard-cloudflare) | The Naftiko Framework Shipyard tutorial — fictional Maritime Registry + Dockyard | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/shipyard-cloudflare) |
+
+### AI providers
+
+| Sandbox | What it wraps | Deploy |
+|---|---|---|
+| [`naftiko/anthropic-sandbox`](https://github.com/naftiko/anthropic-sandbox) | Anthropic — Admin, Files, Messages, Models, Prompts, Message Batches | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/anthropic-sandbox) |
+| [`naftiko/openai-sandbox`](https://github.com/naftiko/openai-sandbox) | OpenAI — Chat, Completions, Assistants, Embeddings, Files, Models, Images, Threads | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/openai-sandbox) |
+
+### Microsoft 365
+
+| Sandbox | What it wraps | Deploy |
+|---|---|---|
+| [`naftiko/microsoft-365-copilot-sandbox`](https://github.com/naftiko/microsoft-365-copilot-sandbox) | Microsoft 365 Copilot | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/microsoft-365-copilot-sandbox) |
+| [`naftiko/microsoft-excel-sandbox`](https://github.com/naftiko/microsoft-excel-sandbox) | Microsoft Excel | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/microsoft-excel-sandbox) |
+| [`naftiko/microsoft-outlook-sandbox`](https://github.com/naftiko/microsoft-outlook-sandbox) | Microsoft Outlook — Calendar + Mail | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/microsoft-outlook-sandbox) |
+| [`naftiko/microsoft-powerpoint-sandbox`](https://github.com/naftiko/microsoft-powerpoint-sandbox) | Microsoft PowerPoint | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/microsoft-powerpoint-sandbox) |
+| [`naftiko/microsoft-teams-sandbox`](https://github.com/naftiko/microsoft-teams-sandbox) | Microsoft Teams | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/microsoft-teams-sandbox) |
+| [`naftiko/microsoft-word-sandbox`](https://github.com/naftiko/microsoft-word-sandbox) | Microsoft Word | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/microsoft-word-sandbox) |
+
+### Vendor APIs
+
+| Sandbox | What it wraps | Deploy |
+|---|---|---|
+| [`naftiko/bluesky-sandbox`](https://github.com/naftiko/bluesky-sandbox) | Bluesky Social API (AT Protocol) | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/bluesky-sandbox) |
+| [`naftiko/figma-sandbox`](https://github.com/naftiko/figma-sandbox) | Figma — Files, Images, Me, Payments, Projects, Styles, Teams, Activity Logs | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/figma-sandbox) |
+| [`naftiko/github-sandbox`](https://github.com/naftiko/github-sandbox) | GitHub — Organizations, Projects, Repos, Search, Users | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/github-sandbox) |
+| [`naftiko/google-sandbox`](https://github.com/naftiko/google-sandbox) | Google — Calendar, Docs, Drive, Drive Activity, Drive Labels, Gemini, Gmail, Sheets | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/google-sandbox) |
+| [`naftiko/hubspot-sandbox`](https://github.com/naftiko/hubspot-sandbox) | HubSpot — Analytics Events, Custom Workflow Actions, Domains, Engagements, Marketing Email, OAuth, Source Code | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/hubspot-sandbox) |
+| [`naftiko/linkedin-sandbox`](https://github.com/naftiko/linkedin-sandbox) | LinkedIn — Marketing, Compliance, Sales Navigator, Talent, Data Portability, Ads Transparency, etc. (17 APIs) | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/linkedin-sandbox) |
+| [`naftiko/notion-sandbox`](https://github.com/naftiko/notion-sandbox) | Notion API | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/notion-sandbox) |
+| [`naftiko/slack-sandbox`](https://github.com/naftiko/slack-sandbox) | Slack — Admin, Apps, Auth, Bots, Channels, Chat, Conversations, Files, Reactions, Stars, Team, Users, Views, Workflows (24 APIs) | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/slack-sandbox) |
+| [`naftiko/webflow-sandbox`](https://github.com/naftiko/webflow-sandbox) | Webflow — Sites, Pages, Forms, Form Submissions, Webhooks, Workspaces, Tokens, Asset Folders, Assets | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/webflow-sandbox) |
+| [`naftiko/youtube-sandbox`](https://github.com/naftiko/youtube-sandbox) | YouTube — Data + Analytics | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/youtube-sandbox) |
+| [`naftiko/zoom-sandbox`](https://github.com/naftiko/zoom-sandbox) | Zoom — Account, IM, Meeting, Metrics, Recording, Report, User, Webinar | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/zoom-sandbox) |
+
+### Apache
+
+| Sandbox | What it wraps | Deploy |
+|---|---|---|
+| [`naftiko/apache-airflow-sandbox`](https://github.com/naftiko/apache-airflow-sandbox) | Apache Airflow (capability scaffold; OpenAPI not yet wired) | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/apache-airflow-sandbox) |
+| [`naftiko/apache-flink-sandbox`](https://github.com/naftiko/apache-flink-sandbox) | Apache Flink REST API | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/apache-flink-sandbox) |
+| [`naftiko/apache-spark-sandbox`](https://github.com/naftiko/apache-spark-sandbox) | Apache Spark REST API | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/apache-spark-sandbox) |
+
+### Standards and frameworks
+
+| Sandbox | What it wraps | Deploy |
+|---|---|---|
+| [`naftiko/nist-cybersecurity-framework-sandbox`](https://github.com/naftiko/nist-cybersecurity-framework-sandbox) | NIST CSF 2.0 | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/nist-cybersecurity-framework-sandbox) |
+| [`naftiko/nist-sp-800-53-sandbox`](https://github.com/naftiko/nist-sp-800-53-sandbox) | NIST SP 800-53 controls | [![Run in Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naftiko/nist-sp-800-53-sandbox) |
+
+Each sandbox additionally exposes Render, Google Cloud Run, Railway, and Replit deploy buttons in its own README. The Cloudflare button is the verified-working path; the others are unverified per-platform.
+<!-- SANDBOX_INDEX:END -->
+
 ## Contributing a spec
 See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: open a PR adding a file under `specs/`. CI lints it; merge to `main` rolls the Cloudflare Worker forward automatically.
 
