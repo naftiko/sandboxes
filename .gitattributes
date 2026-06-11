@@ -9,6 +9,10 @@
 # Scripts executed inside the Linux container — force LF, always.
 *.sh text eol=lf
 
+# Other container-consumed config files — force LF.
+Caddyfile text eol=lf
+Dockerfile text eol=lf
+
 # Windows-only files (none today, but keep CRLF if added later).
 *.bat text eol=crlf
 *.cmd text eol=crlf

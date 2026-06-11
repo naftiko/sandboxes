@@ -1,0 +1,44 @@
+# Caddy reverse-proxy in front of Microcks.
+#
+# Public  : mock endpoints (/rest, /soap, /graphql, /dynarest) — no auth.
+# Private : everything else (/api admin API, web console at /) — Basic Auth.
+#
+# Microcks listens internally on :8083; Caddy is the only public listener on :8080.
+# The in-container spec import (import-specs.sh) talks directly to :8083 and is
+# never affected by these rules.
+#
+# The admin password hash is injected at runtime via the ADMIN_PASSWORD_HASH
+# environment variable (bcrypt). It is NEVER baked into the image.
+
+{
+	admin off
+	# Cloud Run terminates TLS upstream; Caddy serves plain HTTP on 8080.
+	auto_https off
+}
+
+:8080 {
+	log {
+		output stdout
+		format console
+	}
+
+	# --- Public mock endpoints: forwarded as-is, no authentication ---
+	@public path /rest/* /soap/* /graphql/* /dynarest/*
+	handle @public {
+		reverse_proxy localhost:8083
+	}
+
+	# --- Health check used by Cloud Run / startup probe: public ---
+	handle /api/health {
+		reverse_proxy localhost:8083
+	}
+
+	# --- Everything else (admin API /api/*, web console /, assets): Basic Auth ---
+	handle {
+		basic_auth {
+			# Username is "Naftiko"; the bcrypt hash comes from the environment.
+			Naftiko {$ADMIN_PASSWORD_HASH}
+		}
+		reverse_proxy localhost:8083
+	}
+}
