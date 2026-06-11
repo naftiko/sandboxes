@@ -1,26 +1,23 @@
-name: Deploy Microcks to Cloudflare
+name: Deploy Microcks to Cloudflare (DISABLED)
 
-# Redeploy the Cloudflare Worker + Container after a PR merges to main, so
-# any newly-added or updated OpenAPI specs in specs/ get baked into the
-# next image. The deploy is gated on the lint workflow passing (queued
-# ahead of this one via concurrency on the same ref).
+# ⚠️ DISABLED — 2026-06.
+# mocks.naftiko.net was migrated off Cloudflare Workers + Containers to
+# GCP Cloud Run (Cloudflare admin credentials were lost; see the migration
+# blueprint: naftiko/blueprints/sandboxes-migration-plan.md).
 #
-# Required repo secrets:
-#   CLOUDFLARE_API_TOKEN  — token with Workers R/W + Workers Scripts R/W +
-#                           Account Containers R/W. Create at
-#                           https://dash.cloudflare.com/profile/api-tokens
-#   CLOUDFLARE_ACCOUNT_ID — your Cloudflare account ID
+# This workflow no longer runs: its triggers are removed so it can never
+# fire against the (now inert) Cloudflare Worker. Deployment to Cloud Run is
+# currently done manually (`gcloud run deploy`); a GCP-based CI job will
+# replace this file later (migration plan, Phase 3).
 #
-# Required Worker secrets (set once via wrangler, not via GH Actions):
-#   MICROCKS_USER, MICROCKS_PASS — basic auth for the Worker
-#
-# These are set with `npx wrangler secret put MICROCKS_USER` etc. and
-# persist across deploys; the Action does not touch them.
+# The job below is kept verbatim for historical reference only. To re-enable
+# a deploy pipeline, write a new GCP workflow rather than restoring these
+# Cloudflare triggers.
 
-on:
-  push:
-    branches: [main]
-  workflow_dispatch: {}  # allow manual redeploy from the Actions tab
+# No `on:` triggers — the workflow is intentionally never scheduled or run.
+# (It remains manually launchable from the Actions tab only if a maintainer
+# explicitly re-adds workflow_dispatch.)
+on: {}
 
 permissions:
   contents: read
