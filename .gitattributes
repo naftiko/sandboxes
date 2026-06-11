@@ -1,0 +1,20 @@
+# Normalize line endings to prevent CRLF corruption on Windows checkouts.
+# Shell scripts copied into the Docker image MUST stay LF, otherwise the
+# shebang becomes `#!/bin/sh\r` and the container fails to start with
+# "failed to load /entrypoint.sh: no such file or directory".
+
+# Default: let Git auto-detect text and normalize to LF in the repo.
+* text=auto eol=lf
+
+# Scripts executed inside the Linux container — force LF, always.
+*.sh text eol=lf
+
+# Windows-only files (none today, but keep CRLF if added later).
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets — never touch.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
