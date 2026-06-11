@@ -53,7 +53,7 @@ The [`apply-slug-to-info-title.py`](apply-slug-to-info-title.py) helper at the r
 The PR will run two checks automatically:
 
 - **Lint OpenAPI specs** — Super Linter validates your spec is well-formed OpenAPI plus generic YAML/JSON shape. Only the files you changed are linted on a PR (fast feedback).
-- **Deploy** — runs only after merge to `main`; rebuilds the container image with your spec and rolls the Cloudflare Worker forward.
+- **Deploy** — there is **no automatic deploy**. `mocks.naftiko.net` now runs on **GCP Cloud Run** and is redeployed **manually** by a maintainer (see below). Your merged spec goes live on the next manual redeploy.
 
 If lint fails, fix the spec and push another commit. The check re-runs on each push.
 
@@ -67,25 +67,39 @@ It does **not** check whether your spec semantically matches the upstream API. T
 
 ## What happens on merge
 
-The `Deploy Microcks to Cloudflare` workflow runs on push to `main`:
+> **Note (2026-06).** `mocks.naftiko.net` was migrated off Cloudflare Workers +
+> Containers to **GCP Cloud Run**. The old `Deploy Microcks to Cloudflare` workflow
+> is **disabled** (`.github/workflows/deploy-microcks.yml`, `on: {}`), so a merge to
+> `main` **no longer deploys anything automatically**. See the migration blueprint:
+> `naftiko/blueprints/sandboxes-migration-plan.md`.
 
-1. Installs npm deps
-2. Sets up Docker Buildx (needed for the container image)
-3. Runs `wrangler deploy` — bakes every spec under `specs/` into a fresh container image, pushes it, and rolls the Cloudflare Worker forward
-4. The new image is live on the public Microcks endpoint within ~1-2 minutes
+A merge to `main` only stores your spec in the repo. To publish it, a maintainer
+**manually redeploys** the Cloud Run service (which rebuilds the container image,
+baking every spec under `specs/` into it):
 
-The Worker proxies basic-auth-protected requests to the Microcks container. Your spec is reachable through that endpoint as soon as deploy finishes.
+```bash
+IMAGE=europe-west1-docker.pkg.dev/<project>/naftiko-mocks/microcks-sandboxes
+gcloud builds submit --tag $IMAGE .
+gcloud run deploy mocks --image $IMAGE --region europe-west1 \
+  --set-secrets="ADMIN_PASSWORD_HASH=microcks-admin-hash:latest"
+```
+
+The new image is live on the public Microcks endpoint within ~1–2 minutes. A Caddy
+reverse-proxy in front of Microcks serves the public mock paths openly and
+basic-auth-protects the admin API/console. A GCP-based CI workflow will eventually
+replace the manual step (migration plan, Phase 3).
 
 ## Required secrets (maintainer-side)
 
-External contributors don't need anything. Maintainers must set these in the GitHub repo settings → Secrets and variables → Actions:
+External contributors don't need anything. Deployment is currently manual (via a
+maintainer's `gcloud` session), so **no GitHub Actions secrets are required** while
+the Cloudflare workflow stays disabled.
+
+Runtime secret (GCP Secret Manager, not GitHub):
 
 | Secret | What it is |
 |---|---|
-| `CLOUDFLARE_API_TOKEN` | API token with `Workers Scripts:Edit` + `Account Containers:Edit` scopes. Create at https://dash.cloudflare.com/profile/api-tokens |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID where the Worker lives |
-
-Worker basic-auth credentials (`MICROCKS_USER`, `MICROCKS_PASS`) are stored as Worker secrets via `npx wrangler secret put` and persist across deploys — the GH Action doesn't touch them.
+| `microcks-admin-hash` | bcrypt hash of the Caddy basic-auth admin password (user `Naftiko`), injected as `ADMIN_PASSWORD_HASH`. The cleartext password lives in the team password store. |
 
 ## Customizing the lint rules
 
